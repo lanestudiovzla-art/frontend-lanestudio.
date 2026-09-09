@@ -3,34 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LAN ESTUDIO - Agencia de Publicidad & Producción Creativa</title>
+  <title>LAN ESTUDIO - Sistema Integral de Cotización & Gestión</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
   </style>
 </head>
-<body class="bg-slate-100 font-sans text-slate-800 pb-12">
+<body class="bg-slate-100 font-sans text-slate-800 pb-16">
 
-  <!-- Encabezado / Branding -->
+  <!-- Encabezado Principal & Tasa BCV Global -->
   <header class="bg-indigo-950 text-white p-4 shadow-xl sticky top-0 z-50">
-    <div class="max-w-5xl mx-auto flex justify-between items-center">
-      <div>
-        <h1 class="text-xl font-black tracking-wider flex items-center gap-2">
-          <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i> LAN ESTUDIO
-        </h1>
-        <p class="text-xs text-indigo-300 font-medium">Agencia de Publicidad & Producción Creativa</p>
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+      <div class="flex items-center gap-3">
+        <div class="bg-indigo-600 p-2.5 rounded-xl shadow-inner">
+          <i class="fa-solid fa-wand-magic-sparkles text-2xl text-yellow-300"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-black tracking-wider uppercase">LAN ESTUDIO</h1>
+          <p class="text-xs text-indigo-300 font-medium">Agencia de Publicidad, Diseño & Producción Creativa</p>
+        </div>
       </div>
-      <div id="status-badge" class="bg-emerald-500/20 text-emerald-300 text-xs px-3 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sistema En Línea
+
+      <!-- Control Global de Tasa BCV -->
+      <div class="bg-indigo-900/80 p-2 px-4 rounded-xl border border-indigo-700/60 flex items-center gap-3">
+        <div class="text-right">
+          <label class="block text-[10px] font-bold text-indigo-300 uppercase tracking-wider">Tasa BCV del Día</label>
+          <span class="text-xs text-indigo-200">Ref. Oficial</span>
+        </div>
+        <div class="flex items-center gap-1 bg-indigo-950 px-2 py-1 rounded-lg border border-indigo-600">
+          <span class="text-xs font-bold text-indigo-400">Bs.</span>
+          <input id="global_tasa_bcv" type="number" step="0.01" value="36.50" oninput="recalcularTodo()" class="w-20 bg-transparent text-sm font-extrabold text-yellow-300 focus:outline-none text-right">
+        </div>
       </div>
     </div>
   </header>
 
   <!-- Navegación por Pestañas -->
-  <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-[60px] z-40">
-    <div class="max-w-5xl mx-auto flex overflow-x-auto no-scrollbar">
+  <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-[73px] z-40">
+    <div class="max-w-6xl mx-auto flex overflow-x-auto no-scrollbar">
       <button onclick="switchTab('redes')" id="tab-btn-redes" class="tab-btn active flex-1 min-w-[130px] py-3 px-2 text-center text-xs font-bold border-b-2 border-indigo-600 text-indigo-600 flex flex-col items-center gap-1">
         <i class="fa-solid fa-photo-film text-base"></i> Redes & Contenido
       </button>
@@ -38,10 +55,13 @@
         <i class="fa-solid fa-scissors text-base"></i> Papelería & Cameo 5
       </button>
       <button onclick="switchTab('sublimacion')" id="tab-btn-sublimacion" class="tab-btn flex-1 min-w-[130px] py-3 px-2 text-center text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex flex-col items-center gap-1">
-        <i class="fa-solid fa-shirt text-base"></i> Sublimación
+        <i class="fa-solid fa-shirt text-base"></i> Sublimación & Merch
+      </button>
+      <button onclick="switchTab('plotter')" id="tab-btn-plotter" class="tab-btn flex-1 min-w-[130px] py-3 px-2 text-center text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex flex-col items-center gap-1">
+        <i class="fa-solid fa-scroll text-base"></i> Impresión & Vinilo
       </button>
       <button onclick="switchTab('finanzas')" id="tab-btn-finanzas" class="tab-btn flex-1 min-w-[130px] py-3 px-2 text-center text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex flex-col items-center gap-1">
-        <i class="fa-solid fa-calculator text-base"></i> Finanzas & Tasa
+        <i class="fa-solid fa-calculator text-base"></i> Finanzas Bimonetarias
       </button>
       <button onclick="switchTab('facturas')" id="tab-btn-facturas" class="tab-btn flex-1 min-w-[130px] py-3 px-2 text-center text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex flex-col items-center gap-1">
         <i class="fa-solid fa-file-invoice-dollar text-base"></i> Escáner IA
@@ -50,43 +70,112 @@
   </nav>
 
   <!-- Contenido Principal -->
-  <main class="max-w-5xl mx-auto p-4 space-y-6">
+  <main class="max-w-6xl mx-auto p-4 space-y-6">
 
     <!-- 1. CREACIÓN DE CONTENIDO Y REDES SOCIALES -->
     <section id="tab-redes" class="tab-content active space-y-4">
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
-          <i class="fa-solid fa-hashtag text-indigo-600"></i> Cotizador de Creación de Contenido para Redes
-        </h2>
-        <p class="text-xs text-slate-500 mb-4">Selecciona los servicios solicitados para generar el presupuesto bimonetario al cliente.</p>
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+          <div>
+            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-hashtag text-indigo-600"></i> Cotizador Específico de Contenido para Redes
+            </h2>
+            <p class="text-xs text-slate-500">Ajusta cantidades y precios unitarios según el requerimiento del cliente.</p>
+          </div>
+          <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full border border-indigo-200">Precios Editables</span>
+        </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Flyers / Posts Estáticos (Cant.)</label>
-            <input id="cant_flyers" type="number" value="0" min="0" oninput="calcularPresupuestoRedes()" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        <div class="space-y-3">
+          <!-- Item: Flyers -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            <div class="sm:col-span-5">
+              <span class="text-xs font-bold text-slate-800 block">Flyers / Posts Estáticos</span>
+              <span class="text-[11px] text-slate-500">Diseño gráfico estático para Feed (1080x1080 / 1080x1350)</span>
+            </div>
+            <div class="sm:col-span-3 flex items-center gap-2">
+              <label class="text-[11px] font-semibold text-slate-600">Cant:</label>
+              <input id="cant_flyers" type="number" value="0" min="0" oninput="calcularRedes()" class="w-full border border-slate-300 p-2 rounded-lg text-xs font-bold text-center bg-white">
+            </div>
+            <div class="sm:col-span-4 flex items-center gap-2">
+              <label class="text-[11px] font-semibold text-slate-600">Precio c/u ($):</label>
+              <input id="precio_flyers" type="number" value="10.00" step="0.5" oninput="calcularRedes()" class="w-full border border-slate-300 p-2 rounded-lg text-xs font-bold text-slate-700 bg-white">
+            </div>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Reels / Videos Editados (Cant.)</label>
-            <input id="cant_reels" type="number" value="0" min="0" oninput="calcularPresupuestoRedes()" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+
+          <!-- Item: Reels -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            <div class="sm:col-span-5">
+              <span class="text-xs font-bold text-slate-800 block">Reels / Videos Editados</span>
+              <span class="text-[11px] text-slate-500">Edición de video dinámico con ritmos, texto y transiciones</span>
+            </div>
+            <div class="sm:col-span-3 flex items-center gap-2">
+              <label class="text-[11px] font-semibold text-slate-600">Cant:</label>
+              <input id="cant_reels" type="number" value="0" min="0" oninput="calcularRedes()" class="w-full border border-slate-300 p-2 rounded-lg text-xs font-bold text-center bg-white">
+            </div>
+            <div class="sm:col-span-4 flex items-center gap-2">
+              <label class="text-[11px] font-semibold text-slate-600">Precio c/u ($):</label>
+              <input id="precio_reels" type="number" value="25.00" step="0.5" oninput="calcularRedes()" class="w-full border border-slate-300 p-2 rounded-lg text-xs font-bold text-slate-700 bg-white">
+            </div>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Imágenes Animadas / Motion (Cant.)</label>
-            <input id="cant_motion" type="number" value="0" min="0" oninput="calcularPresupuestoRedes()" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+
+          <!-- Item: Motion Graphics -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            <div class="sm:col-span-5">
+              <span class="text-xs font-bold text-slate-800 block">Imágenes Animadas / Motion</span>
+              <span class="text-[11px] text-slate-500">Animación de elementos 2D, logos o piezas publicitarias</span>
+            </div>
+            <div class="sm:col-span-3 flex items-center gap-2">
+              <label class="text-[11px] font-semibold text-slate-600">Cant:</label>
+              <input id="cant_motion" type="number" value="0" min="0" oninput="calcularRedes()" class="w-full border border-slate-300 p-2 rounded-lg text-xs font-bold text-center bg-white">
+            </div>
+            <div class="sm:col-span-4 flex items-center gap-2">
+              <label class="text-[11px] font-semibold text-slate-600">Precio c/u ($):</label>
+              <input id="precio_motion" type="number" value="18.00" step="0.5" oninput="calcularRedes()" class="w-full border border-slate-300 p-2 rounded-lg text-xs font-bold text-slate-700 bg-white">
+            </div>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Tasa BCV del Día (Bs.)</label>
-            <input id="tasa_redes" type="number" placeholder="Ej: 36.50" oninput="calcularPresupuestoRedes()" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+
+          <!-- Item: Carruseles -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            <div class="sm:col-span-5">
+              <span class="text-xs font-bold text-slate-800 block">Carruseles Educativos / Informativos</span>
+              <span class="text-[11px] text-slate-500">Diseño continuo multitabla (de 3 a 7 láminas)</span>
+            </div>
+            <div class="sm:col-span-3 flex items-center gap-2">
+              <label class="text-[11px] font-semibold text-slate-600">Cant:</label>
+              <input id="cant_carrusel" type="number" value="0" min="0" oninput="calcularRedes()" class="w-full border border-slate-300 p-2 rounded-lg text-xs font-bold text-center bg-white">
+            </div>
+            <div class="sm:col-span-4 flex items-center gap-2">
+              <label class="text-[11px] font-semibold text-slate-600">Precio c/u ($):</label>
+              <input id="precio_carrusel" type="number" value="20.00" step="0.5" oninput="calcularRedes()" class="w-full border border-slate-300 p-2 rounded-lg text-xs font-bold text-slate-700 bg-white">
+            </div>
+          </div>
+
+          <!-- Item: Pack Mensual -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            <div class="sm:col-span-5">
+              <span class="text-xs font-bold text-slate-800 block">Gestión Mensual / Plan Contenido</span>
+              <span class="text-[11px] text-slate-500">Paquete integral de manejo de redes + estrategia</span>
+            </div>
+            <div class="sm:col-span-3 flex items-center gap-2">
+              <label class="text-[11px] font-semibold text-slate-600">Packs:</label>
+              <input id="cant_pack" type="number" value="0" min="0" oninput="calcularRedes()" class="w-full border border-slate-300 p-2 rounded-lg text-xs font-bold text-center bg-white">
+            </div>
+            <div class="sm:col-span-4 flex items-center gap-2">
+              <label class="text-[11px] font-semibold text-slate-600">Precio Pack ($):</label>
+              <input id="precio_pack" type="number" value="180.00" step="5" oninput="calcularRedes()" class="w-full border border-slate-300 p-2 rounded-lg text-xs font-bold text-slate-700 bg-white">
+            </div>
           </div>
         </div>
 
-        <div class="p-4 bg-indigo-50/80 rounded-xl border border-indigo-100 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <!-- Total Redes -->
+        <div class="mt-6 p-4 bg-indigo-950 text-white rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4 shadow-lg">
           <div>
-            <span class="block text-xs font-bold text-indigo-900">Total Cotización Redes Social</span>
-            <p class="text-xs text-indigo-700">Precios base configurables por LAN ESTUDIO</p>
+            <span class="text-xs font-bold text-indigo-300 uppercase tracking-widest block">Presupuesto Final Contenido</span>
+            <span id="resumen_items_redes" class="text-xs text-slate-300">0 servicios seleccionados</span>
           </div>
           <div class="text-right">
-            <p id="total_redes_usd" class="text-xl font-extrabold text-indigo-900">$0.00 USD</p>
-            <p id="total_redes_bs" class="text-xs font-semibold text-indigo-700">0.00 Bs.</p>
+            <p id="total_redes_usd" class="text-2xl font-black text-yellow-300">$0.00 USD</p>
+            <p id="total_redes_bs" class="text-xs font-bold text-indigo-200">0.00 Bs.</p>
           </div>
         </div>
       </div>
@@ -94,136 +183,187 @@
 
     <!-- 2. PAPELERÍA CREATIVA & PLOTTER CAMEO 5 -->
     <section id="tab-papeleria" class="tab-content space-y-4">
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
-          <i class="fa-solid fa-box-open text-indigo-600"></i> Costos de Producción Cameo 5 (Toppers, Stickers, Cajas)
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <h2 class="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
+          <i class="fa-solid fa-scissors text-indigo-600"></i> Calculadora de Producción Papelería & Cameo 5
         </h2>
-        <p class="text-xs text-slate-500 mb-4">Calcula el costo real por pieza incluyendo materiales, tiempo de corte e impresión.</p>
+        <p class="text-xs text-slate-500 mb-4">Calcula costos exactos para Toppers, Cajas Caladas, Stickers Die-cut y Agendas.</p>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Costo Hoja / Glase / Vinilo ($)</label>
-            <input id="costo_material" type="number" step="0.01" placeholder="Ej: 0.80" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Costo Material Base / Pliego ($)</label>
+            <input id="pap_costo_mat" type="number" step="0.01" placeholder="Ej: 0.80 (Glase / Cartulina)" oninput="calcularPapeleria()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Costo Impresión por Pliego ($)</label>
-            <input id="costo_impresion" type="number" step="0.01" placeholder="Ej: 0.50" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Costo Impresión ($)</label>
+            <input id="pap_costo_imp" type="number" step="0.01" placeholder="Ej: 0.50" oninput="calcularPapeleria()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Unidades / Piezas por Pliego</label>
-            <input id="unidades_pliego" type="number" placeholder="Ej: 12" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Unidades Obtenidas por Pliego</label>
+            <input id="pap_unidades" type="number" value="1" min="1" oninput="calcularPapeleria()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Tiempo Corte Cameo 5 (Minutos)</label>
-            <input id="tiempo_corte" type="number" placeholder="Ej: 4" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Tiempo Corte Cameo 5 (Minutos)</label>
+            <input id="pap_tiempo_cameo" type="number" value="5" oninput="calcularPapeleria()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
           </div>
-          <div class="sm:col-span-2">
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Margen de Ganancia Deseado (%)</label>
-            <input id="margen_papeleria" type="number" value="120" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Mano de Obra / Armado ($)</label>
+            <input id="pap_armado" type="number" step="0.10" value="0.50" oninput="calcularPapeleria()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Margen de Ganancia (%)</label>
+            <input id="pap_margen" type="number" value="120" oninput="calcularPapeleria()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
           </div>
         </div>
 
-        <button onclick="calcularCostosPapeleria()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg text-sm shadow transition">
-          Calcular Precio Sugerido por Unidad
-        </button>
-
-        <div id="resultado_papeleria" class="mt-4 p-4 bg-slate-50 rounded-xl text-sm font-medium text-slate-700 hidden"></div>
+        <div id="resultado_papeleria" class="p-4 bg-slate-900 text-white rounded-2xl flex justify-between items-center">
+          <div>
+            <span class="text-xs text-slate-400 block">Precio Sugerido por Unidad</span>
+            <span id="pap_costo_neto_label" class="text-[11px] text-indigo-300">Costo neto: $0.00</span>
+          </div>
+          <div class="text-right">
+            <span id="pap_precio_unitario_usd" class="text-xl font-black text-yellow-300">$0.00 USD</span>
+            <span id="pap_precio_unitario_bs" class="block text-xs text-slate-300">0.00 Bs.</span>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- 3. SUBLIMACIÓN & MERCHANDISING -->
     <section id="tab-sublimacion" class="tab-content space-y-4">
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
-          <i class="fa-solid fa-mug-hot text-indigo-600"></i> Cotizador de Sublimación (Tazas, Franelas, Gorras, etc.)
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <h2 class="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
+          <i class="fa-solid fa-mug-hot text-indigo-600"></i> Cotizador de Sublimación & Artículos Publicitarios
         </h2>
-        <p class="text-xs text-slate-500 mb-4">Calcula el precio de venta considerando insumos vírgenes y uso de prensa térmica.</p>
+        <p class="text-xs text-slate-500 mb-4">Calcula precios para Tazas, Franelas, Gorras y Llaveros.</p>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo de Artículo</label>
-            <select id="sub_tipo" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm outline-none">
-              <option value="taza">Taza Blanca / Mágica</option>
-              <option value="franela">Franela / Remera</option>
-              <option value="gorra">Gorra Sublimable</option>
-              <option value="otro">Otro Artículo Merch</option>
-            </select>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Costo del Artículo Blanco ($)</label>
+            <input id="sub_blank" type="number" step="0.01" placeholder="Ej: 2.20 (Taza Blanca)" oninput="calcularSublimacion()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Costo del Artículo Blanco ($)</label>
-            <input id="sub_costo_blank" type="number" step="0.01" placeholder="Ej: 2.20" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Costo Tinta + Papel Sublimación ($)</label>
+            <input id="sub_tinta" type="number" step="0.01" value="0.40" oninput="calcularSublimacion()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Costo Papel Sublimación + Tinta ($)</label>
-            <input id="sub_costo_tinta" type="number" step="0.01" value="0.40" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Fee de Diseño / Adaptación ($)</label>
+            <input id="sub_diseno" type="number" step="0.5" value="1.00" oninput="calcularSublimacion()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Margen de Ganancia (%)</label>
-            <input id="sub_margen" type="number" value="100" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Margen de Ganancia (%)</label>
+            <input id="sub_margen" type="number" value="100" oninput="calcularSublimacion()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
           </div>
         </div>
 
-        <button onclick="calcularSublimacion()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-lg text-sm shadow transition">
-          Calcular Precio de Sublimación
-        </button>
-
-        <div id="resultado_sublimacion" class="mt-4 p-4 bg-slate-50 rounded-xl text-sm font-medium text-slate-700 hidden"></div>
+        <div id="resultado_sublimacion" class="p-4 bg-purple-950 text-white rounded-2xl flex justify-between items-center">
+          <div>
+            <span class="text-xs text-purple-300 block">Precio de Venta Sugerido</span>
+            <span id="sub_costo_neto_label" class="text-[11px] text-purple-200">Costo directo: $0.00</span>
+          </div>
+          <div class="text-right">
+            <span id="sub_precio_usd" class="text-xl font-black text-yellow-300">$0.00 USD</span>
+            <span id="sub_precio_bs" class="block text-xs text-purple-200">0.00 Bs.</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- 4. FINANZAS & CONTROL BIMONETARIO -->
+    <!-- 4. IMPRESIÓN, VINILO & GRAN FORMATO -->
+    <section id="tab-plotter" class="tab-content space-y-4">
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <h2 class="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
+          <i class="fa-solid fa-scroll text-indigo-600"></i> Impresión & Plotter de Corte (Banner, Vinilo, Adhesivos)
+        </h2>
+        <p class="text-xs text-slate-500 mb-4">Calcula trabajos por dimensiones (Ancho x Alto en cm).</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Ancho (cm)</label>
+            <input id="plot_ancho" type="number" placeholder="Ej: 100" oninput="calcularPlotter()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Alto (cm)</label>
+            <input id="plot_alto" type="number" placeholder="Ej: 50" oninput="calcularPlotter()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Costo Material / m² ($)</label>
+            <input id="plot_costo_m2" type="number" step="0.5" value="12.00" oninput="calcularPlotter()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Costo Servicio Corte/Depilado ($)</label>
+            <input id="plot_corte" type="number" step="0.5" value="2.00" oninput="calcularPlotter()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Margen de Ganancia (%)</label>
+            <input id="plot_margen" type="number" value="100" oninput="calcularPlotter()" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
+          </div>
+        </div>
+
+        <div class="p-4 bg-emerald-950 text-white rounded-2xl flex justify-between items-center">
+          <div>
+            <span class="text-xs text-emerald-300 block">Total Cotización Plotter/Impresión</span>
+            <span id="plot_area_label" class="text-[11px] text-emerald-200">Área: 0.00 m²</span>
+          </div>
+          <div class="text-right">
+            <span id="plot_total_usd" class="text-xl font-black text-yellow-300">$0.00 USD</span>
+            <span id="plot_total_bs" class="block text-xs text-emerald-200">0.00 Bs.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. FINANZAS & CONTROL BIMONETARIO -->
     <section id="tab-finanzas" class="tab-content space-y-4">
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
-          <i class="fa-solid fa-scale-balanced text-indigo-600"></i> Calculadora de Diferencial Cambiario
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <h2 class="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
+          <i class="fa-solid fa-scale-balanced text-indigo-600"></i> Calculadora de Pérdida/Ganancia Cambiaria
         </h2>
-        <p class="text-xs text-slate-500 mb-4">Evalúa el impacto real en dólares de tus pagos recibidos en Bolívares.</p>
+        <p class="text-xs text-slate-500 mb-4">Determina la variación en dólares de pagos recibidos en Bolívares.</p>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Monto en Bs. Ingresado</label>
-            <input id="saldo_bs" type="number" placeholder="Ej: 5000" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Monto Ingresado (Bs.)</label>
+            <input id="fin_monto_bs" type="number" placeholder="Ej: 5000" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Tasa BCV Fecha Pago</label>
-            <input id="tasa_registro" type="number" placeholder="Ej: 36.50" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Tasa BCV del Día de Pago</label>
+            <input id="fin_tasa_pago" type="number" step="0.01" placeholder="Ej: 36.50" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Tasa BCV de Reposición (Hoy)</label>
-            <input id="tasa_actual" type="number" placeholder="Ej: 38.20" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Tasa BCV Reposición (Hoy)</label>
+            <input id="fin_tasa_hoy" type="number" step="0.01" placeholder="Ej: 38.20" class="w-full border border-slate-300 p-2.5 rounded-xl text-xs font-semibold">
           </div>
         </div>
 
-        <button onclick="calcularDiferencial()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg text-sm shadow transition">
-          Calcular Variación Financiera
+        <button onclick="calcularFinanzas()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs tracking-wider uppercase transition shadow-md">
+          Calcular Diferencial
         </button>
 
-        <div id="resultado_finanzas" class="mt-4 p-4 bg-slate-50 rounded-xl text-sm font-medium text-slate-700 hidden"></div>
+        <div id="resultado_finanzas" class="mt-4 p-4 bg-slate-50 rounded-xl text-xs font-medium text-slate-700 hidden"></div>
       </div>
     </section>
 
-    <!-- 5. ESCÁNER DE FACTURAS DE INSUMOS CON IA -->
+    <!-- 6. ESCÁNER DE FACTURAS CON IA -->
     <section id="tab-facturas" class="tab-content space-y-4">
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="text-base font-bold text-slate-800 mb-2 flex items-center gap-2">
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <h2 class="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
           <i class="fa-solid fa-wand-magic-sparkles text-emerald-600"></i> Escáner IA de Facturas de Insumos
         </h2>
-        <p class="text-xs text-slate-500 mb-4">Sube la foto de la nota de compra o factura de papelería, vinilos, tazas o tintas para procesarla automáticamente.</p>
+        <p class="text-xs text-slate-500 mb-4">Sube fotos de notas de compra de materiales (vinilos, cartulinas, tintas, tazas) para registrar tus gastos.</p>
 
-        <input type="file" id="factura_file" accept="image/*" class="w-full text-xs border border-slate-300 p-2.5 rounded-lg mb-3">
-        <button onclick="procesarFactura()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-sm shadow transition">
-          Escanear e Registrar Insumo
+        <input type="file" id="factura_file" accept="image/*" class="w-full text-xs border border-slate-300 p-3 rounded-xl mb-3">
+        <button onclick="procesarFactura()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs tracking-wider uppercase transition shadow-md">
+          Escanear e Ingresar Gastos
         </button>
 
-        <div id="resultado_factura" class="mt-4 p-4 bg-slate-50 rounded-xl text-sm font-medium text-slate-700 hidden"></div>
+        <div id="resultado_factura" class="mt-4 p-4 bg-slate-50 rounded-xl text-xs font-medium text-slate-700 hidden"></div>
       </div>
     </section>
 
   </main>
 
   <script>
-    const API_URL = "https://backend-lanestudio.vercel.app";
-
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => {
@@ -237,14 +377,29 @@
       btn.classList.remove('border-transparent', 'text-slate-500');
     }
 
-    // 1. Redes Sociales
-    function calcularPresupuestoRedes() {
-      const flyers = (parseFloat(document.getElementById('cant_flyers').value) || 0) * 10; // $10 c/u
-      const reels = (parseFloat(document.getElementById('cant_reels').value) || 0) * 25;   // $25 c/u
-      const motion = (parseFloat(document.getElementById('cant_motion').value) || 0) * 18;  // $18 c/u
-      const tasa = parseFloat(document.getElementById('tasa_redes').value) || 0;
+    function getTasaBCV() {
+      return parseFloat(document.getElementById('global_tasa_bcv').value) || 1;
+    }
 
-      const totalUSD = flyers + reels + motion;
+    // Recalcular todo al cambiar la tasa BCV global
+    function recalcularTodo() {
+      calcularRedes();
+      calcularPapeleria();
+      calcularSublimacion();
+      calcularPlotter();
+    }
+
+    // 1. Redes Sociales
+    function calcularRedes() {
+      const tasa = getTasaBCV();
+      
+      const flyers = (parseFloat(document.getElementById('cant_flyers').value) || 0) * (parseFloat(document.getElementById('precio_flyers').value) || 0);
+      const reels = (parseFloat(document.getElementById('cant_reels').value) || 0) * (parseFloat(document.getElementById('precio_reels').value) || 0);
+      const motion = (parseFloat(document.getElementById('cant_motion').value) || 0) * (parseFloat(document.getElementById('precio_motion').value) || 0);
+      const carrusel = (parseFloat(document.getElementById('cant_carrusel').value) || 0) * (parseFloat(document.getElementById('precio_carrusel').value) || 0);
+      const pack = (parseFloat(document.getElementById('cant_pack').value) || 0) * (parseFloat(document.getElementById('precio_pack').value) || 0);
+
+      const totalUSD = flyers + reels + motion + carrusel + pack;
       const totalBs = totalUSD * tasa;
 
       document.getElementById('total_redes_usd').innerText = `$${totalUSD.toFixed(2)} USD`;
@@ -252,69 +407,87 @@
     }
 
     // 2. Papelería & Cameo 5
-    function calcularCostosPapeleria() {
-      const mat = parseFloat(document.getElementById('costo_material').value) || 0;
-      const imp = parseFloat(document.getElementById('costo_impresion').value) || 0;
-      const unid = parseFloat(document.getElementById('unidades_pliego').value) || 1;
-      const tiempo = parseFloat(document.getElementById('tiempo_corte').value) || 0;
-      const margen = parseFloat(document.getElementById('margen_papeleria').value) || 100;
+    function calcularPapeleria() {
+      const mat = parseFloat(document.getElementById('pap_costo_mat').value) || 0;
+      const imp = parseFloat(document.getElementById('pap_costo_imp').value) || 0;
+      const unid = parseFloat(document.getElementById('pap_unidades').value) || 1;
+      const tiempo = parseFloat(document.getElementById('pap_tiempo_cameo').value) || 0;
+      const armado = parseFloat(document.getElementById('pap_armado').value) || 0;
+      const margen = parseFloat(document.getElementById('pap_margen').value) || 0;
+      const tasa = getTasaBCV();
 
-      const desgasteCameo = (tiempo / 60) * 0.75; // Depreciación/Energía Cameo 5
-      const costoTotalPliego = mat + imp + desgasteCameo;
+      const desgasteCameo = (tiempo / 60) * 0.80; // Costo por tiempo Cameo 5
+      const costoTotalPliego = mat + imp + desgasteCameo + armado;
       const costoUnidad = costoTotalPliego / unid;
-      const precioVenta = costoUnidad * (1 + (margen / 100));
+      const precioVentaUSD = costoUnidad * (1 + (margen / 100));
+      const precioVentaBs = precioVentaUSD * tasa;
 
-      const resDiv = document.getElementById('resultado_papeleria');
-      resDiv.classList.remove('hidden');
-      resDiv.innerHTML = `
-        📄 <b>Costo Directo por Pliego:</b> $${costoTotalPliego.toFixed(2)} USD<br>
-        📦 <b>Costo Neto por Unidad:</b> $${costoUnidad.toFixed(2)} USD<br>
-        🏷️ <b>Precio Sugerido Venta (${margen}%):</b> <span class="text-indigo-700 font-extrabold text-base">$${precioVenta.toFixed(2)} USD</span>
-      `;
+      document.getElementById('pap_costo_neto_label').innerText = `Costo neto por pieza: $${costoUnidad.toFixed(2)} USD`;
+      document.getElementById('pap_precio_unitario_usd').innerText = `$${precioVentaUSD.toFixed(2)} USD`;
+      document.getElementById('pap_precio_unitario_bs').innerText = `${precioVentaBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs.`;
     }
 
     // 3. Sublimación
     function calcularSublimacion() {
-      const blank = parseFloat(document.getElementById('sub_costo_blank').value) || 0;
-      const tinta = parseFloat(document.getElementById('sub_costo_tinta').value) || 0;
-      const margen = parseFloat(document.getElementById('sub_margen').value) || 100;
+      const blank = parseFloat(document.getElementById('sub_blank').value) || 0;
+      const tinta = parseFloat(document.getElementById('sub_tinta').value) || 0;
+      const diseno = parseFloat(document.getElementById('sub_diseno').value) || 0;
+      const margen = parseFloat(document.getElementById('sub_margen').value) || 0;
+      const tasa = getTasaBCV();
 
-      const costoBase = blank + tinta + 0.30; // $0.30 energía/prensa térmica
-      const precioVenta = costoBase * (1 + (margen / 100));
+      const costoBase = blank + tinta + diseno + 0.35; // 0.35 energía prensa
+      const precioVentaUSD = costoBase * (1 + (margen / 100));
+      const precioVentaBs = precioVentaUSD * tasa;
 
-      const resDiv = document.getElementById('resultado_sublimacion');
-      resDiv.classList.remove('hidden');
-      resDiv.innerHTML = `
-        ☕ <b>Costo Directo del Producto:</b> $${costoBase.toFixed(2)} USD<br>
-        🏷️ <b>Precio de Venta Sugerido (${margen}%):</b> <span class="text-purple-700 font-extrabold text-base">$${precioVenta.toFixed(2)} USD</span>
-      `;
+      document.getElementById('sub_costo_neto_label').innerText = `Costo directo producto: $${costoBase.toFixed(2)} USD`;
+      document.getElementById('sub_precio_usd').innerText = `$${precioVentaUSD.toFixed(2)} USD`;
+      document.getElementById('sub_precio_bs').innerText = `${precioVentaBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs.`;
     }
 
-    // 4. Finanzas
-    async function calcularDiferencial() {
-      const saldo = parseFloat(document.getElementById('saldo_bs').value);
-      const tasaReg = parseFloat(document.getElementById('tasa_registro').value);
-      const tasaAct = parseFloat(document.getElementById('tasa_actual').value);
+    // 4. Plotter & Vinilo
+    function calcularPlotter() {
+      const ancho = parseFloat(document.getElementById('plot_ancho').value) || 0;
+      const alto = parseFloat(document.getElementById('plot_alto').value) || 0;
+      const costoM2 = parseFloat(document.getElementById('plot_costo_m2').value) || 0;
+      const corte = parseFloat(document.getElementById('plot_corte').value) || 0;
+      const margen = parseFloat(document.getElementById('plot_margen').value) || 0;
+      const tasa = getTasaBCV();
+
+      const areaM2 = (ancho * alto) / 10000; // cm² a m²
+      const costoBase = (areaM2 * costoM2) + corte;
+      const precioUSD = costoBase * (1 + (margen / 100));
+      const precioBs = precioUSD * tasa;
+
+      document.getElementById('plot_area_label').innerText = `Área calculada: ${areaM2.toFixed(2)} m²`;
+      document.getElementById('plot_total_usd').innerText = `$${precioUSD.toFixed(2)} USD`;
+      document.getElementById('plot_total_bs').innerText = `${precioBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs.`;
+    }
+
+    // 5. Finanzas
+    function calcularFinanzas() {
+      const montoBs = parseFloat(document.getElementById('fin_monto_bs').value) || 0;
+      const tasaPago = parseFloat(document.getElementById('fin_tasa_pago').value) || 0;
+      const tasaHoy = parseFloat(document.getElementById('fin_tasa_hoy').value) || 0;
       const resDiv = document.getElementById('resultado_finanzas');
 
-      if (!saldo || !tasaReg || !tasaAct) {
-        alert("Por favor completa los campos de tasa y saldo.");
+      if (!montoBs || !tasaPago || !tasaHoy) {
+        alert("Por favor completa los tres campos de montos y tasas.");
         return;
       }
 
-      const usdInicial = saldo / tasaReg;
-      const usdActual = saldo / tasaAct;
-      const dif = usdInicial - usdActual;
+      const usdEnPago = montoBs / tasaPago;
+      const usdHoy = montoBs / tasaHoy;
+      const dif = usdEnPago - usdHoy;
 
       resDiv.classList.remove('hidden');
       resDiv.innerHTML = `
-        📌 <b>Valor en fecha de cobro:</b> $${usdInicial.toFixed(2)} USD<br>
-        📉 <b>Valor con tasa actual:</b> $${usdActual.toFixed(2)} USD<br>
-        ⚠️ <b>Variación / Pérdida:</b> <span class="text-rose-600 font-bold">$${dif.toFixed(2)} USD</span>
+        📌 <b>Equivalente en fecha de pago:</b> $${usdEnPago.toFixed(2)} USD<br>
+        📉 <b>Equivalente con tasa actual:</b> $${usdHoy.toFixed(2)} USD<br>
+        ⚠️ <b>Variación cambiaria:</b> <span class="text-rose-600 font-bold">$${dif.toFixed(2)} USD</span>
       `;
     }
 
-    // 5. Escáner Facturas
+    // 6. Facturas IA
     function procesarFactura() {
       const fileInput = document.getElementById('factura_file');
       const resDiv = document.getElementById('resultado_factura');
@@ -325,10 +498,10 @@
       }
 
       resDiv.classList.remove('hidden');
-      resDiv.innerHTML = `⏳ <i>Escaneando factura de insumos con IA...</i>`;
+      resDiv.innerHTML = `⏳ <i>Procesando datos de factura de insumos con IA...</i>`;
       
       setTimeout(() => {
-        resDiv.innerHTML = `✅ <b>Insumos registrados exitosamente en el sistema de LAN ESTUDIO.</b>`;
+        resDiv.innerHTML = `✅ <b>Factura registrada exitosamente en el sistema de LAN ESTUDIO.</b>`;
       }, 2000);
     }
   </script>

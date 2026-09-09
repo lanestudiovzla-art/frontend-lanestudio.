@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAN ESTUDIO - Sistema Empresarial</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans p-4">
+  <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+    <div class="flex justify-between items-center border-b pb-4 mb-4">
+      <h1 class="text-xl font-bold text-gray-900">LAN ESTUDIO</h1>
+      <span class="text-xs bg-black text-white px-2 py-1 rounded">Bs. / $</span>
+    </div>
+
+    <!-- Calculadora de Diferencial Cambiario -->
+    <div class="mb-6 bg-slate-50 p-4 rounded-lg border">
+      <h2 class="font-semibold text-sm mb-2 text-slate-700">Calculadora de Pérdida Cambiaria</h2>
+      <div class="space-y-2">
+        <input id="saldo_bs" type="number" placeholder="Saldo en Bs. en Caja" class="w-full border p-2 rounded text-sm">
+        <input id="tasa_registro" type="number" placeholder="Tasa BCV de Ingreso" class="w-full border p-2 rounded text-sm">
+        <input id="tasa_actual" type="number" placeholder="Tasa BCV Actual" class="w-full border p-2 rounded text-sm">
+        <button onclick="calcularDiferencial()" class="w-full bg-blue-600 text-white py-2 rounded text-sm font-semibold hover:bg-blue-700">
+          Calcular Impacto
+        </button>
+      </div>
+      <div id="resultado" class="mt-3 text-sm font-medium text-slate-900"></div>
+    </div>
+
+    <!-- Cargar Factura con IA -->
+    <div class="bg-slate-50 p-4 rounded-lg border">
+      <h2 class="font-semibold text-sm mb-2 text-slate-700">Carga Masiva con IA (Factura)</h2>
+      <input type="file" accept="image/*" class="w-full text-xs border p-2 rounded mb-2">
+      <button onclick="procesarFactura()" class="w-full bg-emerald-600 text-white py-2 rounded text-sm font-semibold hover:bg-emerald-700">
+        Escanear e Ingresar
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "npx plugins add vercel/vercel-plugin"; // Pega aquí tu URL de Vercel
+
+    async function calcularDiferencial() {
+      const saldo = parseFloat(document.getElementById('saldo_bs').value);
+      const tasaReg = parseFloat(document.getElementById('tasa_registro').value);
+      const tasaAct = parseFloat(document.getElementById('tasa_actual').value);
+
+      const res = await fetch(`${API_URL}/api/finanzas/diferencial-cambiario`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ saldo_bs: saldo, tasa_registro: tasaReg, tasa_actual: tasaAct })
+      });
+      const data = await res.json();
+      document.getElementById('resultado').innerText = `Resultado: ${data.resultado_diferencial_usd} USD (${data.estado})`;
+    }
+
+    async function procesarFactura() {
+      alert("Enviando foto al módulo OCR con IA...");
+    }
+  </script>
+</body>
+</html>

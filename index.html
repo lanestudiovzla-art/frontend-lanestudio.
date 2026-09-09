@@ -1,40 +1,345 @@
-let basePresupuestos = JSON.parse(localStorage.getItem('basePresupuestos')) || [];
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Cotización - LAN ESTUDIO</title>
+    
+    <!-- FUENTE DE LETRA ELEGANTE (Montserrat) -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-// 1. Guardar Presupuesto
-function guardarPresupuesto(cliente, items, totalUSD, tasaBCV) {
-    const nuevoPresupuesto = {
-        id: 'PRES-' + Math.floor(1000 + Math.random() * 9000),
-        fecha: new Date().toLocaleString('es-VE', { hour12: true }),
-        cliente: cliente,
-        items: items,
-        totalUSD: totalUSD,
-        tasaBCV: tasaBCV,
-        totalBS: totalUSD * tasaBCV,
-        estado: 'En Espera' // 'En Espera' o 'Facturado'
-    };
+    <!-- 1. ESTILOS Y COLORES (CSS LAN ESTUDIO) -->
+    <style>
+        :root {
+            --lan-principal: #C58C73;
+            --lan-principal-hover: #A67058;
+            --lan-texto-oscuro: #2C2C2C;
+            --lan-fondo-pantalla: #FAF8F5;
+            --lan-blanco-superficie: #FFFFFF;
+            --lan-borde-suave: #E8E2DC;
+            --fuente-principal: 'Montserrat', sans-serif;
+        }
 
-    basePresupuestos.push(nuevoPresupuesto);
-    localStorage.setItem('basePresupuestos', JSON.stringify(basePresupuestos));
-    alert(`Presupuesto ${nuevoPresupuesto.id} guardado con éxito "En Espera".`);
-}
+        body {
+            background-color: var(--lan-fondo-pantalla);
+            color: var(--lan-texto-oscuro);
+            font-family: var(--fuente-principal);
+            margin: 0;
+            padding: 20px;
+        }
 
-// 2. Cargar Presupuesto para revisión
-function cargarPresupuesto(id) {
-    const pres = basePresupuestos.find(p => p.id === id);
-    if (pres) {
-        // Llenar formulario de la pantalla con los datos del presupuesto
-        console.log("Cargando presupuesto:", pres);
-    }
-}
+        /* ENCABEZADO */
+        .header-lan {
+            background-color: var(--lan-blanco-superficie);
+            border: 1px solid var(--lan-borde-suave);
+            border-radius: 12px;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            margin-bottom: 25px;
+        }
 
-// 3. Convertir Presupuesto a Facturación
-function enviarAFacturacion(id) {
-    const pres = basePresupuestos.find(p => p.id === id);
-    if (pres) {
-        pres.estado = 'Facturado';
-        localStorage.setItem('basePresupuestos', JSON.stringify(basePresupuestos));
+        .logo-contenedor {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-contenedor img {
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .info-header {
+            text-align: right;
+        }
+
+        .reloj {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--lan-texto-oscuro);
+            margin-bottom: 4px;
+        }
+
+        .tasa-bcv {
+            font-size: 0.85rem;
+            color: var(--lan-principal);
+            font-weight: 500;
+        }
+
+        .tasa-bcv input {
+            width: 75px;
+            padding: 3px 6px;
+            border: 1px solid var(--lan-borde-suave);
+            border-radius: 4px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--lan-texto-oscuro);
+        }
+
+        /* TARJETAS / MÓDULOS */
+        .tarjeta {
+            background: var(--lan-blanco-superficie);
+            border: 1px solid var(--lan-borde-suave);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .tarjeta h2 {
+            margin-top: 0;
+            color: var(--lan-principal);
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--lan-borde-suave);
+            padding-bottom: 10px;
+        }
+
+        /* TABLAS Y BOTONES */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid var(--lan-borde-suave);
+            text-align: left;
+        }
+
+        th {
+            background-color: #F8F4F0;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn {
+            background-color: var(--lan-principal);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--lan-principal-hover);
+        }
+
+        .btn-danger {
+            background-color: #D9534F;
+        }
+
+        .btn-danger:hover {
+            background-color: #C9302C;
+        }
+
+        input[type="text"], input[type="number"] {
+            padding: 6px 10px;
+            border: 1px solid var(--lan-borde-suave);
+            border-radius: 5px;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 2. ESTRUCTURA (HTML) -->
+    <header class="header-lan">
+        <div class="logo-contenedor">
+            <!-- Si tienes la foto del logo guardada como logo.png -->
+            <img src="logo.png" alt="LAN ESTUDIO" onerror="this.style.display='none'">
+            <div>
+                <strong style="font-size: 1.4rem; letter-spacing: 1px;">LAN ESTUDIO</strong>
+            </div>
+        </div>
+        <div class="info-header">
+            <div id="reloj-fecha-hora" class="reloj">Cargando fecha y hora...</div>
+            <div class="tasa-bcv">
+                Tasa BCV: 
+                <input type="number" id="input-tasa-bcv" step="0.01" value="0.00"> BS/USD
+            </div>
+        </div>
+    </header>
+
+    <!-- MÓDULO 1: MATERIALES (Papelería, Sublimación, Vinilo, etc.) -->
+    <div class="tarjeta">
+        <h2>Gestión Manual de Materiales</h2>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input type="text" id="nombre-mat" placeholder="Nombre del material (ej. Cartulina Mireya)">
+            <input type="number" id="costo-mat" placeholder="Costo ($)" step="0.01">
+            <button class="btn" onclick="agregarNuevoMaterial()">➕ Agregar Material</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Material</th>
+                    <th>Costo ($)</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-materiales">
+                <!-- Se llena automáticamente con JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- MÓDULO 2: PRESUPUESTOS EN ESPERA -->
+    <div class="tarjeta">
+        <h2>Presupuestos en Espera / Facturación</h2>
+        <button class="btn" onclick="guardarPresupuestoEjemplo()">💾 Guardar Presupuesto Actual "En Espera"</button>
         
-        // Redirigir/Cargar datos en el módulo de facturación
-        alert(`Presupuesto ${id} enviado a Facturación con éxito.`);
-    }
-}
+        <table style="margin-top: 15px;">
+            <thead>
+                <tr>
+                    <th>Nº Presupuesto</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Total ($)</th>
+                    <th>Total (BS)</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-presupuestos">
+                <!-- Se llena automáticamente con JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 3. INTELIGENCIA Y LÓGICA (JAVASCRIPT) -->
+    <script>
+        // A. RELOJ EN TIEMPO REAL (Formato 12 Horas)
+        function actualizarReloj() {
+            const ahora = new Date();
+            const opcionesFecha = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+            const fechaTexto = ahora.toLocaleDateString('es-VE', opcionesFecha);
+            
+            const horaTexto = ahora.toLocaleTimeString('es-VE', { 
+                hour: 'numeric', 
+                minute: '2-digit', 
+                second: '2-digit', 
+                hour12: true 
+            });
+
+            document.getElementById('reloj-fecha-hora').innerText = `${fechaTexto} | ${horaTexto}`;
+        }
+        setInterval(actualizarReloj, 1000);
+        actualizarReloj();
+
+        // B. CONSULTAR TASA BCV AUTOMÁTICA
+        async function obtenerTasaBCV() {
+            try {
+                const respuesta = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
+                const datos = await respuesta.json();
+                if (datos && datos.promedio) {
+                    document.getElementById('input-tasa-bcv').value = datos.promedio.toFixed(2);
+                }
+            } catch (error) {
+                console.log("No se pudo obtener la tasa BCV automática, puedes ingresarla manualmente.");
+            }
+        }
+        obtenerTasaBCV();
+
+        // C. INVENTARIO DE MATERIALES (Guardado en el navegador)
+        let materiales = JSON.parse(localStorage.getItem('lan_materiales')) || [
+            { id: 1, nombre: 'Cartulina Glassé 300g', costo: 0.50 },
+            { id: 2, nombre: 'Taza Blanca Sublimación', costo: 1.20 }
+        ];
+
+        function renderizarMateriales() {
+            const tbody = document.getElementById('tabla-materiales');
+            tbody.innerHTML = '';
+            materiales.forEach(m => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${m.nombre}</td>
+                        <td>$${m.costo.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="eliminarMaterial(${m.id})">🗑️ Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            localStorage.setItem('lan_materiales', JSON.stringify(materiales));
+        }
+
+        function agregarNuevoMaterial() {
+            const nombre = document.getElementById('nombre-mat').value;
+            const costo = parseFloat(document.getElementById('costo-mat').value);
+            
+            if(!nombre || isNaN(costo)) return alert("Por favor ingresa un nombre y un costo válido.");
+
+            materiales.push({ id: Date.now(), nombre: nombre, costo: costo });
+            document.getElementById('nombre-mat').value = '';
+            document.getElementById('costo-mat').value = '';
+            renderizarMateriales();
+        }
+
+        function eliminarMaterial(id) {
+            materiales = materiales.filter(m => m.id !== id);
+            renderizarMateriales();
+        }
+
+        // D. SISTEMA DE PRESUPUESTOS EN ESPERA
+        let presupuestos = JSON.parse(localStorage.getItem('lan_presupuestos')) || [];
+
+        function renderizarPresupuestos() {
+            const tbody = document.getElementById('tabla-presupuestos');
+            tbody.innerHTML = '';
+            presupuestos.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${p.id}</strong></td>
+                        <td>${p.fecha}</td>
+                        <td>${p.cliente}</td>
+                        <td>$${p.totalUSD.toFixed(2)}</td>
+                        <td>Bs. ${p.totalBS.toFixed(2)}</td>
+                        <td><span style="color: ${p.estado === 'Facturado' ? 'green' : '#C58C73'}; font-weight: bold;">${p.estado}</span></td>
+                        <td>
+                            ${p.estado === 'En Espera' 
+                                ? `<button class="btn" onclick="facturarPresupuesto('${p.id}')">⚡ Facturar</button>` 
+                                : '✓ Procesado'}
+                        </td>
+                    </tr>
+                `;
+            });
+            localStorage.setItem('lan_presupuestos', JSON.stringify(presupuestos));
+        }
+
+        function guardarPresupuestoEjemplo() {
+            const tasa = parseFloat(document.getElementById('input-tasa-bcv').value) || 1;
+            const nuevo = {
+                id: 'PRES-' + Math.floor(1000 + Math.random() * 9000),
+                fecha: new Date().toLocaleTimeString('es-VE', { hour12: true }),
+                cliente: 'Cliente Ejemplo',
+                totalUSD: 25.00,
+                totalBS: 25.00 * tasa,
+                estado: 'En Espera'
+            };
+            presupuestos.push(nuevo);
+            renderizarPresupuestos();
+        }
+
+        function facturarPresupuesto(id) {
+            const pres = presupuestos.find(p => p.id === id);
+            if(pres) {
+                pres.estado = 'Facturado';
+                renderizarPresupuestos();
+                alert(`El presupuesto ${id} ha sido enviado a Facturación con éxito.`);
+            }
+        }
+
+        // Inicializar vistas al cargar
+        renderizarMateriales();
+        renderizarPresupuestos();
+    </script>
+</body>
+</html>

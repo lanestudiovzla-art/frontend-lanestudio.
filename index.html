@@ -12,7 +12,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- html2pdf para exportar presupuestos en PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
+    <style><script>
+  const supabaseUrl = 'https://kqxazklohquilbzwqjpiq.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtxeGF6a2xvaHFpbGJ6d3FqcGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5NzAwMzYsImV4cCI6MjEwNDU0NjAzNn0.p9EW66l8Q64rzcSEpmc5ptE4qKfdEsvvcZg6eunzdHw';
+  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+</script>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #faf8f6; color: #2c2c2c; }
         

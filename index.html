@@ -75,19 +75,36 @@
         </div>
     </header>
 
-    <!-- Navegación General de Módulos -->
-    <nav class="bg-white border-b border-[#e8dbd3] px-6 py-3 flex space-x-2 overflow-x-auto shadow-xs">
-        <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm"><i class="fa-solid fa-chart-pie mr-2"></i>Dashboard</button>
-        <button onclick="switchTab('calculadora')" id="tab-calculadora" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-file-invoice-dollar mr-2"></i>Cotizador y Presupuestos</button>
-        <button onclick="switchTab('standby')" id="tab-standby" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition relative"><i class="fa-solid fa-clock mr-2"></i>Cotizaciones Stand By <span id="badge-standby" class="ml-1 bg-[#b88a73] text-white text-[10px] px-1.5 py-0.5 rounded-full">0</span></button>
-        <button onclick="switchTab('calc-stickers')" id="tab-calc-stickers" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-note-sticky mr-2"></i>Calc. Stickers</button>
-        <button onclick="switchTab('calc-toppers')" id="tab-calc-toppers" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-cake-candles mr-2"></i>Calc. Toppers</button>
-        <button onclick="switchTab('caja')" id="tab-caja" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-cash-register mr-2"></i>Factura / Caja y Pagos</button>
-        <button onclick="switchTab('insumos')" id="tab-insumos" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-boxes-stacked mr-2"></i>Insumos y Stock</button>
-        <button onclick="switchTab('servicios')" id="tab-servicios" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-bullhorn mr-2"></i>Servicios</button>
-        <button onclick="switchTab('crm')" id="tab-crm" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-users mr-2"></i>CRM Clientes</button>
-        <button onclick="switchTab('finanzas')" id="tab-finanzas" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-wallet mr-2"></i>Control Financiero</button>
-        <button onclick="switchTab('logo')" id="tab-logo" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-image mr-2"></i>Configurar Logo</button>
+    <!-- Navegación General Rediseñada (Estructura Limpia y Menú Desplegable) -->
+    <nav class="bg-white border-b border-[#e8dbd3] px-6 py-3 flex flex-wrap items-center justify-between shadow-xs relative">
+        <div class="flex space-x-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap"><i class="fa-solid fa-chart-pie mr-2"></i>Dashboard</button>
+            <button onclick="switchTab('calculadora')" id="tab-calculadora" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-file-invoice-dollar mr-2"></i>Cotizador</button>
+            <button onclick="switchTab('standby')" id="tab-standby" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition relative whitespace-nowrap"><i class="fa-solid fa-clock mr-2"></i>Stand By <span id="badge-standby" class="ml-1 bg-[#b88a73] text-white text-[10px] px-1.5 py-0.5 rounded-full">0</span></button>
+            <button onclick="switchTab('caja')" id="tab-caja" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-cash-register mr-2"></i>Caja y Pagos</button>
+        </div>
+
+        <!-- Menú Desplegable "Más Herramientas" para despejar la barra principal -->
+        <div class="relative mt-2 sm:mt-0">
+            <button onclick="toggleMenuDropdown()" id="btn-dropdown-menu" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-2">
+                <i class="fa-solid fa-toolbox text-[#b88a73]"></i>
+                <span>Herramientas y Gestión</span>
+                <i class="fa-solid fa-chevron-down text-xs ml-1"></i>
+            </button>
+
+            <!-- Dropdown Container -->
+            <div id="dropdown-menu-content" class="hidden absolute right-0 mt-2 w-56 bg-white border border-[#e8dbd3] rounded-2xl shadow-lg py-2 z-50">
+                <button onclick="switchTab('calc-stickers'); toggleMenuDropdown();" id="tab-calc-stickers" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-note-sticky mr-2.5 text-[#b88a73]"></i>Calculadora Stickers</button>
+                <button onclick="switchTab('calc-toppers'); toggleMenuDropdown();" id="tab-calc-toppers" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cake-candles mr-2.5 text-[#b88a73]"></i>Calculadora Toppers</button>
+                <div class="border-t border-[#e8dbd3] my-1"></div>
+                <button onclick="switchTab('insumos'); toggleMenuDropdown();" id="tab-insumos" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-boxes-stacked mr-2.5 text-[#b88a73]"></i>Insumos y Stock</button>
+                <button onclick="switchTab('servicios'); toggleMenuDropdown();" id="tab-servicios" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-bullhorn mr-2.5 text-[#b88a73]"></i>Servicios</button>
+                <button onclick="switchTab('crm'); toggleMenuDropdown();" id="tab-crm" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-users mr-2.5 text-[#b88a73]"></i>CRM Clientes</button>
+                <button onclick="switchTab('finanzas'); toggleMenuDropdown();" id="tab-finanzas" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-wallet mr-2.5 text-[#b88a73]"></i>Control Financiero</button>
+                <div class="border-t border-[#e8dbd3] my-1"></div>
+                <button onclick="switchTab('logo'); toggleMenuDropdown();" id="tab-logo" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-image mr-2.5 text-[#b88a73]"></i>Configurar Logo</button>
+            </div>
+        </div>
     </nav>
 
     <!-- Contenedor Principal de Módulos -->
@@ -686,6 +703,23 @@
         let listaServiciosDB = [];
         let globalLogoHTML = `<i class="fa-solid fa-layer-group"></i>`;
 
+        // Función para alternar el menú desplegable de herramientas
+        function toggleMenuDropdown() {
+            const dropdown = document.getElementById('dropdown-menu-content');
+            if(dropdown) {
+                dropdown.classList.toggle('hidden');
+            }
+        }
+
+        // Cerrar el dropdown si se hace clic fuera de él
+        window.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('dropdown-menu-content');
+            const btn = document.getElementById('btn-dropdown-menu');
+            if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
         // Actualizar reloj y fecha en formato 12 horas en tiempo real
         function actualizarRelojFecha() {
             const ahora = new Date();
@@ -706,13 +740,26 @@
                 const el = document.getElementById(`module-${t}`);
                 const btn = document.getElementById(`tab-${t}`);
                 if(el) el.classList.add('hidden');
-                if(btn) btn.className = "px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition";
+                // Remover estilos activos tanto de botones principales como de los del dropdown
+                if(btn) {
+                    if(btn.tagName === 'BUTTON' && btn.id.startsWith('tab-') && !btn.classList.contains('w-full')) {
+                        btn.className = "px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap";
+                    } else if(btn.tagName === 'BUTTON') {
+                        btn.className = "w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center";
+                    }
+                }
             });
 
             const activeEl = document.getElementById(`module-${tabId}`);
             const activeBtn = document.getElementById(`tab-${tabId}`);
             if(activeEl) activeEl.classList.remove('hidden');
-            if(activeBtn) activeBtn.className = "px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm";
+            if(activeBtn) {
+                if(!activeBtn.classList.contains('w-full')) {
+                    activeBtn.className = "px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap";
+                } else {
+                    activeBtn.className = "w-full text-left px-4 py-2.5 text-xs font-medium bg-[#faf8f6] text-[#2c2c2c] font-bold flex items-center";
+                }
+            }
 
             window.location.hash = tabId;
 
@@ -801,7 +848,6 @@
             recalcularPresupuestoTotal();
         }
 
-        /* --- NUEVA FUNCIÓN: GUARDAR Y GESTIONAR COTIZACIONES EN STAND BY --- */
         async function guardarPresupuestoStandBy() {
             const cliente = document.getElementById('presupuesto-cliente').value;
             const validez = document.getElementById('presupuesto-validez').value;
@@ -812,7 +858,6 @@
                 return;
             }
 
-            // Recopilar renglones
             const items = [];
             const filas = document.querySelectorAll('.renglon-item');
             filas.forEach(row => {
@@ -838,7 +883,6 @@
                     return;
                 }
             } else {
-                // Alternativa LocalStorage si no hay supabase activo
                 let standByLocal = JSON.parse(localStorage.getItem('lan_standby') || '[]');
                 cotizacionData.id = Date.now();
                 cotizacionData.created_at = new Date().toISOString();
@@ -936,7 +980,6 @@
             cargarCotizacionesStandBy();
         }
 
-        /* --- LÓGICA CALCULADORA DE STICKERS --- */
         function poblarSelectInsumosStickers() {
             const select = document.getElementById('stk-insumo-select');
             if(!select) return;
@@ -969,12 +1012,10 @@
 
             if(anchoStk <= 0 || altoStk <= 0) return;
 
-            // Orientación normal
             const fil1 = Math.floor(anchoHoja / anchoStk);
             const col1 = Math.floor(altoHoja / altoStk);
             const totalOp1 = fil1 * col1;
 
-            // Orientación rotada
             const fil2 = Math.floor(anchoHoja / altoStk);
             const col2 = Math.floor(altoHoja / anchoStk);
             const totalOp2 = fil2 * col2;
@@ -1017,7 +1058,6 @@
             }
         }
 
-        /* --- LÓGICA CALCULADORA DE TOPPERS --- */
         let topperFilaIdx = 0;
         function agregarFilaTopper() {
             topperFilaIdx++;
@@ -1286,21 +1326,17 @@
 
             window.scrollTo(0, 0);
 
-            // Guardar estilos originales
             const origWidth = area.style.width;
             const origMaxWidth = area.style.maxWidth;
             const origMargin = area.style.margin;
 
-            // Fijar dimensiones exactas centradas para la captura limpia sin recortes
             area.style.width = '750px';
             area.style.maxWidth = '750px';
             area.style.margin = '0 auto';
 
-            // Ocultar elementos auxiliares no deseados en impresión
             internalCols.forEach(el => el.style.setProperty('display', 'none', 'important'));
             printControls.forEach(el => el.style.setProperty('display', 'none', 'important'));
 
-            // Reemplazar inputs por spans de texto plano limpios
             const descInputs = area.querySelectorAll('.desc-input');
             const cantInputs = area.querySelectorAll('.cant-input');
             const precioClienteInputs = area.querySelectorAll('.precio-cliente-input');
@@ -1348,7 +1384,6 @@
             };
 
             html2pdf().set(opt).from(area).save().then(() => {
-                // Restaurar estado inicial de la vista web
                 area.style.width = origWidth;
                 area.style.maxWidth = origMaxWidth;
                 area.style.margin = origMargin;
@@ -1488,9 +1523,6 @@
             cargarHistorialVentas();
         }
 
-        /* --- FUNCIONES CRUD EDITABLES Y ELIMINAR PARA CADA MÓDULO --- */
-
-        // 1. Insumos
         async function guardarInsumo() {
             const nombre = document.getElementById('insumo-nombre').value;
             const categoria = document.getElementById('insumo-categoria').value;
@@ -1556,7 +1588,6 @@
             cargarInsumos();
         }
 
-        // 2. Servicios
         async function guardarServicio() {
             const nombre = document.getElementById('servicio-nombre').value;
             const precio = parseFloat(document.getElementById('servicio-precio').value) || 0;
@@ -1609,7 +1640,6 @@
             cargarServicios();
         }
 
-        // 3. Clientes (CRM)
         async function guardarCliente() {
             const nombre = document.getElementById('cliente-nombre').value;
             const tel = document.getElementById('cliente-tel').value;
@@ -1667,7 +1697,6 @@
             cargarClientes();
         }
 
-        // 4. Control Financiero (Gastos)
         async function guardarGasto() {
             const concepto = document.getElementById('gasto-concepto').value;
             const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
@@ -1684,125 +1713,77 @@
 
         async function cargarGastos() {
             if(!supabaseClient) return;
-            const { data } = await supabaseClient.from('gastos').select('*');
+            const { data } = await supabaseClient.from('gastos').select('*').order('created_at', { ascending: false });
             const tbody = document.getElementById('tabla-gastos');
             if(data && tbody) {
-                tbody.innerHTML = data.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>';
+                tbody.innerHTML = data.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>';
                 data.forEach(g => {
+                    const fecha = g.created_at ? new Date(g.created_at).toLocaleDateString() : '';
                     tbody.innerHTML += `
                         <tr class="border-b border-[#e8dbd3]">
-                            <td class="p-3"><input type="text" value="${g.concepto}" id="edit-gas-concepto-${g.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-full text-sm"></td>
-                            <td class="p-3">
-                                <select id="edit-gas-cat-${g.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 text-sm">
-                                    <option value="Operativo" ${g.categoria === 'Operativo' ? 'selected' : ''}>Operativo</option>
-                                    <option value="Insumos" ${g.categoria === 'Insumos' ? 'selected' : ''}>Insumos</option>
-                                    <option value="Marketing" ${g.categoria === 'Marketing' ? 'selected' : ''}>Marketing</option>
-                                    <option value="Otros" ${g.categoria === 'Otros' ? 'selected' : ''}>Otros</option>
-                                </select>
-                            </td>
-                            <td class="p-3"><input type="number" step="0.01" value="${g.monto}" id="edit-gas-monto-${g.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-28 text-sm"></td>
-                            <td class="p-3">${new Date(g.created_at).toLocaleDateString()}</td>
-                            <td class="p-3 space-x-2 whitespace-nowrap">
-                                <button onclick="actualizarGasto(${g.id})" title="Guardar Cambios" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs"><i class="fa-solid fa-check"></i></button>
-                                <button onclick="eliminarGasto(${g.id})" title="Eliminar" class="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1 rounded text-xs"><i class="fa-solid fa-trash"></i></button>
-                            </td>
+                            <td class="p-3">${g.concepto}</td>
+                            <td class="p-3">${g.categoria}</td>
+                            <td class="p-3 text-rose-600 font-bold">$${g.monto.toFixed(2)}</td>
+                            <td class="p-3 text-xs text-gray-500">${fecha}</td>
                         </tr>`;
                 });
             }
         }
 
-        async function actualizarGasto(id) {
-            const concepto = document.getElementById(`edit-gas-concepto-${id}`).value;
-            const categoria = document.getElementById(`edit-gas-cat-${id}`).value;
-            const monto = parseFloat(document.getElementById(`edit-gas-monto-${id}`).value) || 0;
-            if(supabaseClient) {
-                await supabaseClient.from('gastos').update({ concepto, categoria, monto }).eq('id', id);
-            }
-            alert("Gasto actualizado.");
-            cargarGastos();
-        }
-
-        async function eliminarGasto(id) {
-            if(!confirm("¿Estás seguro de eliminar este gasto?")) return;
-            if(supabaseClient) {
-                await supabaseClient.from('gastos').delete().eq('id', id);
-            }
-            cargarGastos();
-        }
-
-        // 5. Historial de Ventas / Factura (Eliminar y Editar si aplica)
         async function cargarHistorialVentas() {
             if(!supabaseClient) return;
-            const { data } = await supabaseClient.from('ventas').select('*').order('created_at', { ascending: false });
+            const { data } = await supabaseClient.from('ventas').select('*').order('created_at', { ascending: false }).limit(10);
             const tbody = document.getElementById('tabla-historial-ventas');
-            let totalVentasGlobal = 0;
+            let totalVentasSum = 0;
             if(data && tbody) {
-                tbody.innerHTML = data.length ? '' : '<tr><td colspan="6" class="p-4 text-center text-gray-400">No hay transacciones aún.</td></tr>';
+                tbody.innerHTML = data.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin transacciones recientes.</td></tr>';
                 data.forEach(v => {
-                    totalVentasGlobal += (v.total_usd || 0);
-                    let metodoTexto = v.metodo_pago;
+                    totalVentasSum += v.total_usd;
+                    const fecha = v.created_at ? new Date(v.created_at).toLocaleDateString() : '';
+                    let pagosStr = v.metodo_pago;
                     try {
                         const parsed = JSON.parse(v.metodo_pago);
-                        metodoTexto = parsed.map(p => `${p.metodo}: $${p.monto} ${p.moneda}`).join(', ');
+                        pagosStr = parsed.map(p => `${p.metodo}: $${p.monto} ${p.moneda}`).join(' | ');
                     } catch(e) {}
 
                     tbody.innerHTML += `
-                        <tr class="border-b border-[#e8dbd3]" id="venta-row-${v.id}">
-                            <td class="p-3">${new Date(v.created_at).toLocaleDateString()}</td>
+                        <tr class="border-b border-[#e8dbd3]">
+                            <td class="p-3 text-xs text-gray-500">${fecha}</td>
                             <td class="p-3 font-semibold text-[#2c2c2c]">${v.cliente}</td>
-                            <td class="p-3">${v.items}</td>
+                            <td class="p-3 text-xs text-gray-600">${v.items}</td>
                             <td class="p-3 text-[#b88a73] font-bold">$${v.total_usd.toFixed(2)}</td>
-                            <td class="p-3 text-xs text-gray-500">${metodoTexto}</td>
-                            <td class="p-3 text-center">
-                                <button onclick="eliminarVenta(${v.id})" title="Eliminar Registro" class="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1 rounded text-xs"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
+                            <td class="p-3 text-xs text-gray-600">${pagosStr}</td>
+                        </tr>`;
                 });
-                document.getElementById('dash-ventas').innerText = `$${totalVentasGlobal.toFixed(2)}`;
+                document.getElementById('dash-ventas').innerText = `$${totalVentasSum.toFixed(2)}`;
             }
         }
 
-        async function eliminarVenta(id) {
-            if(!confirm("¿Estás seguro de eliminar este registro de venta?")) return;
-            if(supabaseClient) {
-                await supabaseClient.from('ventas').delete().eq('id', id);
-            }
-            cargarHistorialVentas();
-        }
-
-        function cargarRegistrosCajaEditable() {
-            // Placeholder si se requiere control interactivo adicional en pestaña caja
-        }
-
-        function actualizarLogo() {
-            const input = document.getElementById('logo-file-input');
-            if(input.files && input.files[0]) {
+        async function actualizarLogo() {
+            const fileInput = document.getElementById('logo-file-input');
+            if(fileInput.files && fileInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    globalLogoHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
-                    document.getElementById('logo-container').innerHTML = globalLogoHTML;
-                    document.getElementById('doc-logo-preview').innerHTML = globalLogoHTML;
-                    alert("¡Logo actualizado con éxito en la aplicación y presupuestos!");
+                    const imgHtml = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
+                    document.getElementById('logo-container').innerHTML = imgHtml;
+                    document.getElementById('doc-logo-preview').innerHTML = imgHtml;
+                    alert("Logo actualizado correctamente.");
                 }
-                reader.readAsDataURL(input.files[0]);
-            } else {
-                alert("Por favor selecciona una imagen primero.");
+                reader.readAsDataURL(fileInput.files[0]);
             }
         }
 
-        window.onload = async function() {
-            actualizarRelojFecha();
-            await fetchBCVRate();
-            await cargarInsumos();
-            await cargarServicios();
-            await cargarClientes();
-            await cargarGastos();
-            await cargarHistorialVentas();
-            await cargarClientesEnSelects();
-            await cargarContadorStandBy();
-            agregarRenglonServicio();
+        // Inicialización general al cargar la página
+        window.onload = async () => {
+            fetchBCVRate();
             syncRoute();
+            if(supabaseClient) {
+                await cargarInsumos();
+                await cargarServicios();
+                await cargarClientes();
+                await cargarHistorialVentas();
+                await cargarContadorStandBy();
+            }
         };
     </script>
 </body>

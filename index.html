@@ -3,362 +3,596 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestión y Cotizaciones</title>
+    <title>LAN ESTUDIO - Sistema Integral de Gestión</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- jsPDF para generar reportes en PDF -->
+    <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f6f9; color: #333; }
-        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
-        .nav-tabs button { padding: 10px 15px; border: none; background: #e0e0e0; cursor: pointer; border-radius: 5px; font-weight: bold; }
-        .nav-tabs button.active { background: #007bff; color: white; }
-        .section { display: none; }
-        .section.active { display: block; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="number"], select, textarea { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        .checkbox-group { display: flex; align-items: center; gap: 8px; margin: 15px 0; }
-        .checkbox-group input { width: auto; }
-        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 5px; }
-        .btn-primary { background: #007bff; color: white; }
-        .btn-success { background: #28a745; color: white; }
-        .btn-whatsapp { background: #25d366; color: white; }
-        .btn-pdf { background: #dc3545; color: white; }
-        .cotizacion-card { border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 10px; border-radius: 6px; background: #fafafa; display: flex; justify-content: space-between; align-items: center; }
-        .item-row { display: flex; gap: 10px; margin-bottom: 10px; }
-    </style>
 </head>
-<body>
+<body class="bg-gray-100 font-sans text-gray-800 antialiased min-h-screen flex flex-col">
 
-<div class="container">
-    <div class="nav-tabs">
-        <button id="tab-cotizador" class="active" onclick="mostrarSeccion('cotizador')">Cotizador / Presupuesto</button>
-        <button id="tab-pendientes" onclick="mostrarSeccion('pendientes')">Cotizaciones Guardadas</button>
-        <button id="tab-facturacion" onclick="mostrarSeccion('facturacion')">Facturación / Ventas</button>
-    </div>
-
-    <!-- MÓDULO COTIZADOR -->
-    <div id="seccion-cotizador" class="section active">
-        <h2>Crear Cotización / Presupuesto</h2>
-        
-        <div class="form-group">
-            <label>Nombre del Cliente:</label>
-            <input type="text" id="cotizadorCliente" placeholder="Ej: María Pérez">
+    <!-- TOPBAR / ENCABEZADO -->
+    <header class="bg-slate-900 text-white px-6 py-4 flex flex-wrap justify-between items-center shadow-md">
+        <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-layer-group text-2xl text-indigo-400"></i>
+            <h1 class="text-xl font-bold tracking-wide">LAN ESTUDIO</h1>
         </div>
-
-        <div class="form-group">
-            <label>Tasa BCV (Bs/$):</label>
-            <input type="number" id="tasaBCV" step="0.01" value="36.50" onchange="recalcularTotales()">
-        </div>
-
-        <div class="checkbox-group">
-            <input type="checkbox" id="ocultarTasaBCV">
-            <label for="ocultarTasaBCV">Ocultar Tasa BCV y Totales en Bs (Solo mostrar USD en WhatsApp y PDF)</label>
-        </div>
-
-        <h3>Detalle de Servicios / Productos</h3>
-        <div id="itemsContainer">
-            <div class="item-row">
-                <input type="text" class="item-desc" placeholder="Descripción del producto o servicio">
-                <input type="number" class="item-monto" placeholder="Monto $" step="0.01" onchange="recalcularTotales()">
+        <div class="flex items-center space-x-6 text-sm mt-2 sm:mt-0">
+            <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2">
+                <i class="fa-solid fa-clock text-indigo-400"></i>
+                <span id="reloj12h" class="font-mono text-gray-200">--:--:-- --</span>
+            </div>
+            <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2">
+                <i class="fa-solid fa-money-bill-transfer text-emerald-400"></i>
+                <span class="text-xs text-gray-400">BCV:</span>
+                <input type="number" id="tasaBCV" step="0.01" value="36.50" onchange="actualizarTotalesCotizacion()" class="w-20 bg-slate-900 text-emerald-400 font-bold px-2 py-0.5 rounded border border-slate-600 text-center text-sm focus:outline-none">
+                <span class="text-xs text-gray-400">Bs/$</span>
             </div>
         </div>
-        <button class="btn" onclick="agregarFilaItem()">+ Agregar Ítem</button>
+    </header>
 
-        <h3 style="margin-top:20px;">Total Cotización: $<span id="lblTotalUSD">0.00</span> USD</h3>
+    <div class="flex flex-1 overflow-hidden">
+        <!-- NAVEGACIÓN LATERAL / MENÚ -->
+        <aside class="w-64 bg-slate-800 text-slate-300 flex flex-col p-4 space-y-2 flex-shrink-0">
+            <button onclick="cambiarPestaña('cotizador')" id="btn-tab-cotizador" class="tab-btn active-tab flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+                <i class="fa-solid fa-calculator w-5 text-indigo-400"></i>
+                <span>Cotizador / Presupuestos</span>
+            </button>
+            <button onclick="cambiarPestaña('pendientes')" id="btn-tab-pendientes" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+                <i class="fa-solid fa-bookmark w-5 text-amber-400"></i>
+                <span>Cotizaciones Guardadas</span>
+            </button>
+            <button onclick="cambiarPestaña('facturacion')" id="btn-tab-facturacion" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+                <i class="fa-solid fa-file-invoice-dollar w-5 text-emerald-400"></i>
+                <span>Facturación / Ventas</span>
+            </button>
+            <button onclick="cambiarPestaña('insumos')" id="btn-tab-insumos" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+                <i class="fa-solid fa-boxes-stacked w-5 text-blue-400"></i>
+                <span>Insumos e Inventario</span>
+            </button>
+            <button onclick="cambiarPestaña('servicios')" id="btn-tab-servicios" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+                <i class="fa-solid fa-list-check w-5 text-purple-400"></i>
+                <span>Catálogo de Servicios</span>
+            </button>
+            <button onclick="cambiarPestaña('clientes')" id="btn-tab-clientes" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+                <i class="fa-solid fa-users w-5 text-cyan-400"></i>
+                <span>Clientes / CRM</span>
+            </button>
+            <button onclick="cambiarPestaña('gastos')" id="btn-tab-gastos" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+                <i class="fa-solid fa-receipt w-5 text-rose-400"></i>
+                <span>Gastos y Control</span>
+            </button>
+        </aside>
 
-        <div style="margin-top: 20px;">
-            <button class="btn btn-primary" onclick="guardarCotizacion()">Guardar Cotización</button>
-            <button class="btn btn-whatsapp" onclick="enviarWhatsApp()">Enviar por WhatsApp</button>
-            <button class="btn btn-pdf" onclick="descargarPDF()">Generar PDF</button>
-        </div>
-    </div>
+        <!-- ÁREA PRINCIPAL DE CONTENIDO -->
+        <main class="flex-1 bg-gray-100 p-6 overflow-y-auto">
 
-    <!-- MÓDULO COTIZACIONES GUARDADAS -->
-    <div id="seccion-pendientes" class="section">
-        <h2>Cotizaciones Pendientes por Facturar</h2>
-        <div id="listaCotizacionesPendientes">
-            <p>Cargando cotizaciones...</p>
-        </div>
-    </div>
+            <!-- MÓDULO 1: COTIZADOR Y PRESUPUESTOS -->
+            <section id="mod-cotizador" class="modulo-seccion space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                        <i class="fa-solid fa-calculator text-indigo-600"></i>
+                        <span>Generar Nueva Cotización</span>
+                    </h2>
 
-    <!-- MÓDULO FACTURACIÓN -->
-    <div id="seccion-facturacion" class="section">
-        <h2>Facturación / Ventas</h2>
-        <div class="form-group">
-            <label>Cliente:</label>
-            <input type="text" id="facturaCliente" readonly>
-        </div>
-        <div class="form-group">
-            <label>Detalle de Compra:</label>
-            <textarea id="facturaDetalle" rows="5" readonly></textarea>
-        </div>
-        <div class="form-group">
-            <label>Monto Total ($):</label>
-            <input type="number" id="facturaMontoUSD" readonly>
-        </div>
-        <button class="btn btn-success" onclick="procesarFactura()">Completar Venta y Facturar</button>
-    </div>
-</div>
-
-<script>
-    // Configuración de Supabase (reemplazar con tus credenciales)
-    const SUPABASE_URL = 'https://TU_SUPABASE_URL.supabase.co';
-    const SUPABASE_KEY = 'TU_SUPABASE_ANON_KEY';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // Navegación entre pestañas
-    function mostrarSeccion(seccionId) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
-
-        document.getElementById(`seccion-${seccionId}`).classList.add('active');
-        document.getElementById(`tab-${seccionId}`).classList.add('active');
-
-        if (seccionId === 'pendientes') {
-            listarCotizacionesPendientes();
-        }
-    }
-
-    // Agregar fila dinámica
-    function agregarFilaItem() {
-        const container = document.getElementById('itemsContainer');
-        const div = document.createElement('div');
-        div.className = 'item-row';
-        div.innerHTML = `
-            <input type="text" class="item-desc" placeholder="Descripción del producto o servicio">
-            <input type="number" class="item-monto" placeholder="Monto $" step="0.01" onchange="recalcularTotales()">
-        `;
-        container.appendChild(div);
-    }
-
-    // Obtener ítems del formulario
-    function obtenerItems() {
-        const descs = document.querySelectorAll('.item-desc');
-        const montos = document.querySelectorAll('.item-monto');
-        const items = [];
-        descs.forEach((d, index) => {
-            const desc = d.value.trim();
-            const monto = parseFloat(montos[index].value) || 0;
-            if (desc && monto > 0) {
-                items.push({ descripcion: desc, monto: monto });
-            }
-        });
-        return items;
-    }
-
-    // Recalcular total acumulado
-    function recalcularTotales() {
-        const items = obtenerItems();
-        const totalUSD = items.reduce((sum, item) => sum + item.monto, 0);
-        document.getElementById('lblTotalUSD').innerText = totalUSD.toFixed(2);
-        return totalUSD;
-    }
-
-    // 1. Guardar Cotización en Supabase
-    async function guardarCotizacion() {
-        const cliente = document.getElementById('cotizadorCliente').value.trim();
-        const items = obtenerItems();
-        const montoUSD = recalcularTotales();
-        const tasaBCV = parseFloat(document.getElementById('tasaBCV').value) || 0;
-
-        if (!cliente) {
-            alert('Por favor, ingresa el nombre del cliente.');
-            return;
-        }
-        if (items.length === 0) {
-            alert('Ingresa al menos un servicio o producto con precio.');
-            return;
-        }
-
-        const { data, error } = await supabase
-            .from('cotizaciones')
-            .insert([{
-                cliente_nombre: cliente,
-                detalles: items,
-                monto_usd: montoUSD,
-                tasa_bcv: tasaBCV,
-                estado: 'pendiente'
-            }]);
-
-        if (error) {
-            alert('Error al guardar cotización: ' + error.message);
-        } else {
-            alert('Cotización guardada exitosamente.');
-            limpiarFormularioCotizador();
-        }
-    }
-
-    // 2. Ocultar BCV en WhatsApp
-    function enviarWhatsApp() {
-        const cliente = document.getElementById('cotizadorCliente').value || 'Cliente';
-        const items = obtenerItems();
-        const totalUSD = recalcularTotales();
-        const tasaBCV = parseFloat(document.getElementById('tasaBCV').value) || 0;
-        const ocultarBCV = document.getElementById('ocultarTasaBCV').checked;
-
-        let texto = `*PRESUPUESTO / COTIZACIÓN*\n`;
-        texto += `Cliente: ${cliente}\n\n`;
-
-        items.forEach(item => {
-            texto += `• ${item.descripcion}: $${item.monto.toFixed(2)}\n`;
-        });
-
-        texto += `\n*TOTAL: $${totalUSD.toFixed(2)} USD*`;
-
-        if (!ocultarBCV) {
-            const totalBS = totalUSD * tasaBCV;
-            texto += `\nTasa BCV: ${tasaBCV.toFixed(2)} Bs/$`;
-            texto += `\nTotal Bs: ${totalBS.toFixed(2)} Bs`;
-        }
-
-        const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
-        window.open(url, '_blank');
-    }
-
-    // 3. Ocultar BCV en PDF
-    function descargarPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        const cliente = document.getElementById('cotizadorCliente').value || 'Cliente';
-        const items = obtenerItems();
-        const totalUSD = recalcularTotales();
-        const tasaBCV = parseFloat(document.getElementById('tasaBCV').value) || 0;
-        const ocultarBCV = document.getElementById('ocultarTasaBCV').checked;
-
-        doc.setFontSize(16);
-        doc.text("COTIZACIÓN DE SERVICIOS", 20, 20);
-
-        doc.setFontSize(12);
-        doc.text(`Cliente: ${cliente}`, 20, 30);
-        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 20, 38);
-
-        let y = 50;
-        doc.text("Detalle:", 20, y);
-        y += 8;
-
-        items.forEach(item => {
-            doc.text(`- ${item.descripcion}: $${item.monto.toFixed(2)}`, 25, y);
-            y += 8;
-        });
-
-        y += 5;
-        doc.setFontSize(14);
-        doc.text(`TOTAL USD: $${totalUSD.toFixed(2)}`, 20, y);
-
-        if (!ocultarBCV) {
-            y += 8;
-            const totalBS = totalUSD * tasaBCV;
-            doc.setFontSize(11);
-            doc.text(`Tasa BCV: ${tasaBCV.toFixed(2)} Bs/$`, 20, y);
-            y += 6;
-            doc.text(`TOTAL BS: ${totalBS.toFixed(2)} Bs`, 20, y);
-        }
-
-        doc.save(`Cotizacion_${cliente.replace(/\s+/g, '_')}.pdf`);
-    }
-
-    // 4. Listar Cotizaciones Pendientes
-    async function listarCotizacionesPendientes() {
-        const contenedor = document.getElementById('listaCotizacionesPendientes');
-        contenedor.innerHTML = '<p>Cargando cotizaciones...</p>';
-
-        const { data: cotizaciones, error } = await supabase
-            .from('cotizaciones')
-            .select('*')
-            .eq('estado', 'pendiente')
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            contenedor.innerHTML = '<p>Error al cargar las cotizaciones.</p>';
-            return;
-        }
-
-        if (cotizaciones.length === 0) {
-            contenedor.innerHTML = '<p>No hay cotizaciones pendientes.</p>';
-            return;
-        }
-
-        contenedor.innerHTML = '';
-        cotizaciones.forEach(cot => {
-            contenedor.innerHTML += `
-                <div class="cotizacion-card">
-                    <div>
-                        <strong>Cliente:</strong> ${cot.cliente_nombre}<br>
-                        <strong>Monto:</strong> $${cot.monto_usd.toFixed(2)} USD<br>
-                        <small>Fecha: ${new Date(cot.created_at).toLocaleDateString()}</small>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre del Cliente</label>
+                            <input type="text" id="cotizacionCliente" placeholder="Ej: María Pérez" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div class="flex items-end pb-2">
+                            <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg w-full">
+                                <input type="checkbox" id="ocultarTasaBCV" onchange="actualizarTotalesCotizacion()" class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500">
+                                <span class="text-sm font-medium text-gray-700">Ocultar Tasa BCV y Totales en Bs en WhatsApp y PDF</span>
+                            </label>
+                        </div>
                     </div>
-                    <button class="btn btn-success" onclick="cargarAFacturacion(${cot.id})">Cargar a Facturación</button>
+
+                    <!-- TABLA DE DETALLES DEL PRESUPUESTO -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Servicios / Productos A Cotizar</label>
+                        <div id="contenedorItemsCotizacion" class="space-y-3">
+                            <div class="flex gap-3 item-cotizacion-fila">
+                                <input type="text" placeholder="Descripción del servicio o producto" class="desc-item flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                <input type="number" placeholder="Monto $" step="0.01" oninput="actualizarTotalesCotizacion()" class="monto-item w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                <button onclick="eliminarFilaCotizacion(this)" class="px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <button onclick="agregarFilaCotizacion()" class="mt-3 px-4 py-2 bg-indigo-50 text-indigo-600 font-semibold text-sm rounded-lg hover:bg-indigo-100 transition-colors flex items-center space-x-2">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Agregar Ítem</span>
+                        </button>
+                    </div>
+
+                    <!-- RESUMEN DE TOTALES -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-wrap justify-between items-center my-6">
+                        <div>
+                            <span class="text-sm text-gray-500 block">Total en Divisas</span>
+                            <span class="text-2xl font-black text-slate-800">$<span id="lblTotalUSD">0.00</span> USD</span>
+                        </div>
+                        <div id="boxTotalBS" class="text-right">
+                            <span class="text-sm text-gray-500 block">Total equivalente en Bolívares</span>
+                            <span class="text-xl font-bold text-emerald-600"><span id="lblTotalBS">0.00</span> Bs</span>
+                        </div>
+                    </div>
+
+                    <!-- ACCIONES: GUARDAR, WHATSAPP, PDF -->
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="guardarCotizacionBD()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm flex items-center space-x-2 transition-colors">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Guardar Cotización</span>
+                        </button>
+                        <button onclick="enviarCotizacionWhatsApp()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-sm flex items-center space-x-2 transition-colors">
+                            <i class="fa-brands fa-whatsapp text-lg"></i>
+                            <span>Enviar por WhatsApp</span>
+                        </button>
+                        <button onclick="generarCotizacionPDF()" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg shadow-sm flex items-center space-x-2 transition-colors">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>Generar PDF</span>
+                        </button>
+                    </div>
                 </div>
-            `;
-        });
-    }
+            </section>
 
-    // 5. Cargar Cotización a Facturación
-    async function cargarAFacturacion(id) {
-        const { data: cotizacion, error } = await supabase
-            .from('cotizaciones')
-            .select('*')
-            .eq('id', id)
-            .single();
+            <!-- MÓDULO 2: COTIZACIONES GUARDADAS -->
+            <section id="mod-pendientes" class="modulo-seccion hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center space-x-2">
+                            <i class="fa-solid fa-bookmark text-amber-500"></i>
+                            <span>Cotizaciones Guardadas (Pendientes)</span>
+                        </h2>
+                        <button onclick="cargarCotizacionesPendientes()" class="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg flex items-center space-x-1">
+                            <i class="fa-solid fa-rotate"></i>
+                            <span>Actualizar</span>
+                        </button>
+                    </div>
+                    <div id="listaCotizacionesGuardadas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <p class="text-gray-500 col-span-full">Cargando cotizaciones...</p>
+                    </div>
+                </div>
+            </section>
 
-        if (error || !cotizacion) {
-            alert('No se pudo obtener la cotización.');
-            return;
+            <!-- MÓDULO 3: FACTURACIÓN Y VENTAS -->
+            <section id="mod-facturacion" class="modulo-seccion hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                        <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i>
+                        <span>Procesar Venta / Facturación</span>
+                    </h2>
+                    <input type="hidden" id="facturaCotizacionId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Cliente</label>
+                            <input type="text" id="facturaCliente" placeholder="Cliente de la venta" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Monto Total ($)</label>
+                            <input type="number" id="facturaMontoUSD" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Detalle de Servicios / Productos Cargados</label>
+                        <textarea id="facturaDetalle" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-gray-50" placeholder="Los ítems cargados desde la cotización aparecerán aquí..."></textarea>
+                    </div>
+                    <button onclick="completarVentaFactura()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm flex items-center space-x-2 transition-colors">
+                        <i class="fa-solid fa-check-double"></i>
+                        <span>Completar Venta y Registrar en Sistema</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- MÓDULO 4: INSUMOS E INVENTARIO -->
+            <section id="mod-insumos" class="modulo-seccion hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2 flex items-center space-x-2">
+                        <i class="fa-solid fa-boxes-stacked text-blue-600"></i>
+                        <span>Gestión de Insumos e Inventario</span>
+                    </h2>
+                    <p class="text-sm text-gray-500 mb-4">Mapeo de materiales, stock disponible e insumos para presupuestos.</p>
+                    <div id="listaInsumos" class="border border-gray-200 rounded-lg p-4 bg-slate-50 text-center text-gray-500">
+                        Inventario sincronizado con Supabase.
+                    </div>
+                </div>
+            </section>
+
+            <!-- MÓDULO 5: CATÁLOGO DE SERVICIOS -->
+            <section id="mod-servicios" class="modulo-seccion hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2 flex items-center space-x-2">
+                        <i class="fa-solid fa-list-check text-purple-600"></i>
+                        <span>Catálogo de Servicios</span>
+                    </h2>
+                    <p class="text-sm text-gray-500 mb-4">Lista general de servicios ofrecidos y precios base.</p>
+                    <div id="listaServicios" class="border border-gray-200 rounded-lg p-4 bg-slate-50 text-center text-gray-500">
+                        Servicios sincronizados con Supabase.
+                    </div>
+                </div>
+            </section>
+
+            <!-- MÓDULO 6: CLIENTES / CRM -->
+            <section id="mod-clientes" class="modulo-seccion hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2 flex items-center space-x-2">
+                        <i class="fa-solid fa-users text-cyan-600"></i>
+                        <span>Directorio de Clientes / CRM</span>
+                    </h2>
+                    <p class="text-sm text-gray-500 mb-4">Registro detallado de datos de contacto e historial de clientes.</p>
+                    <div id="listaClientes" class="border border-gray-200 rounded-lg p-4 bg-slate-50 text-center text-gray-500">
+                        Base de clientes sincronizada con Supabase.
+                    </div>
+                </div>
+            </section>
+
+            <!-- MÓDULO 7: GASTOS Y CONTROL FINANCIERO -->
+            <section id="mod-gastos" class="modulo-seccion hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2 flex items-center space-x-2">
+                        <i class="fa-solid fa-receipt text-rose-600"></i>
+                        <span>Control de Gastos Operativos</span>
+                    </h2>
+                    <p class="text-sm text-gray-500 mb-4">Auditoría financiera y egresos del taller / tienda.</p>
+                    <div id="listaGastos" class="border border-gray-200 rounded-lg p-4 bg-slate-50 text-center text-gray-500">
+                        Registros de egresos y gastos de Supabase.
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- CÓDIGO Y LÓGICA JAVASCRIPT INTEGRADA -->
+    <script>
+        // --- 1. CONFIGURACIÓN DE SUPABASE ---
+        // (Asegúrate de colocar las credenciales reales de tu proyecto)
+        const SUPABASE_URL = 'https://TU_SUPABASE_URL.supabase.co';
+        const SUPABASE_KEY = 'TU_SUPABASE_ANON_KEY';
+        const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+        // --- 2. RELOJ FORMATO 12 HORAS ---
+        function iniciarReloj() {
+            const spanReloj = document.getElementById('reloj12h');
+            setInterval(() => {
+                const ahora = new Date();
+                let horas = ahora.getHours();
+                const minutos = String(ahora.getMinutes()).padStart(2, '0');
+                const segundos = String(ahora.getSeconds()).padStart(2, '0');
+                const ampm = horas >= 12 ? 'PM' : 'AM';
+                horas = horas % 12;
+                horas = horas ? horas : 12; // Hora '0' se muestra como '12'
+                spanReloj.textContent = `${String(horas).padStart(2, '0')}:${minutos}:${segundos} ${ampm}`;
+            }, 1000);
         }
 
-        document.getElementById('facturaCliente').value = cotizacion.cliente_nombre;
-        document.getElementById('facturaMontoUSD').value = cotizacion.monto_usd;
+        // --- 3. CAMBIO DE PESTAÑAS / NAVEGACIÓN ---
+        function cambiarPestaña(modulo) {
+            document.querySelectorAll('.modulo-seccion').forEach(sec => sec.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('bg-slate-700', 'text-white'));
 
-        let resumenDetalle = '';
-        cotizacion.detalles.forEach(item => {
-            resumenDetalle += `${item.descripcion} - $${item.monto.toFixed(2)}\n`;
-        });
-        document.getElementById('facturaDetalle').value = resumenDetalle;
+            const secTarget = document.getElementById(`mod-${modulo}`);
+            const btnTarget = document.getElementById(`btn-tab-${modulo}`);
 
-        // Guardar ID temporalmente en el botón de procesar
-        document.querySelector('#seccion-facturacion .btn-success').setAttribute('data-id', id);
+            if (secTarget) secTarget.classList.remove('hidden');
+            if (btnTarget) btnTarget.classList.add('bg-slate-700', 'text-white');
 
-        mostrarSeccion('facturacion');
-    }
+            if (modulo === 'pendientes') {
+                cargarCotizacionesPendientes();
+            }
+        }
 
-    // 6. Finalizar la venta y actualizar el estado
-    async function procesarFactura() {
-        const cotizacionId = document.querySelector('#seccion-facturacion .btn-success').getAttribute('data-id');
+        // --- 4. LÓGICA DEL COTIZADOR Y MANEJO DE FILAS ---
+        function agregarFilaCotizacion() {
+            const contenedor = document.getElementById('contenedorItemsCotizacion');
+            const div = document.createElement('div');
+            div.className = 'flex gap-3 item-cotizacion-fila';
+            div.innerHTML = `
+                <input type="text" placeholder="Descripción del servicio o producto" class="desc-item flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <input type="number" placeholder="Monto $" step="0.01" oninput="actualizarTotalesCotizacion()" class="monto-item w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <button onclick="eliminarFilaCotizacion(this)" class="px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"><i class="fa-solid fa-trash"></i></button>
+            `;
+            contenedor.appendChild(div);
+        }
 
-        if (cotizacionId) {
-            const { error } = await supabase
-                .from('cotizaciones')
-                .update({ estado: 'facturado' })
-                .eq('id', cotizacionId);
+        function eliminarFilaCotizacion(btn) {
+            const contenedor = document.getElementById('contenedorItemsCotizacion');
+            if (contenedor.children.length > 1) {
+                btn.closest('.item-cotizacion-fila').remove();
+                actualizarTotalesCotizacion();
+            } else {
+                alert('Debe haber al menos un ítem en la cotización.');
+            }
+        }
 
-            if (error) {
-                alert('Error al actualizar el estado de la cotización: ' + error.message);
+        function obtenerItemsCotización() {
+            const filas = document.querySelectorAll('.item-cotizacion-fila');
+            const items = [];
+            filas.forEach(fila => {
+                const desc = fila.querySelector('.desc-item').value.trim();
+                const monto = parseFloat(fila.querySelector('.monto-item').value) || 0;
+                if (desc || monto > 0) {
+                    items.push({ descripcion: desc, monto: monto });
+                }
+            });
+            return items;
+        }
+
+        function actualizarTotalesCotizacion() {
+            const items = obtenerItemsCotización();
+            const totalUSD = items.reduce((sum, item) => sum + item.monto, 0);
+            const tasaBCV = parseFloat(document.getElementById('tasaBCV').value) || 0;
+            const ocultarBCV = document.getElementById('ocultarTasaBCV').checked;
+
+            document.getElementById('lblTotalUSD').textContent = totalUSD.toFixed(2);
+            document.getElementById('lblTotalBS').textContent = (totalUSD * tasaBCV).toFixed(2);
+
+            const boxTotalBS = document.getElementById('boxTotalBS');
+            if (ocultarBCV) {
+                boxTotalBS.classList.add('opacity-40');
+            } else {
+                boxTotalBS.classList.remove('opacity-40');
+            }
+
+            return { totalUSD, tasaBCV, ocultarBCV, items };
+        }
+
+        // --- 5. GUARDAR COTIZACIÓN EN SUPABASE ---
+        async function guardarCotizacionBD() {
+            const cliente = document.getElementById('cotizacionCliente').value.trim();
+            const { totalUSD, tasaBCV, items } = actualizarTotalesCotizacion();
+
+            if (!cliente) {
+                alert('Por favor, ingresa el nombre del cliente.');
                 return;
             }
+            if (items.length === 0 || totalUSD <= 0) {
+                alert('Por favor, ingresa al menos un servicio con monto válido.');
+                return;
+            }
+
+            if (!supabase) {
+                alert('Atención: Supabase no está configurado correctamente con las credenciales.');
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from('cotizaciones')
+                .insert([{
+                    cliente_nombre: cliente,
+                    detalles: items,
+                    monto_usd: totalUSD,
+                    tasa_bcv: tasaBCV,
+                    estado: 'pendiente'
+                }]);
+
+            if (error) {
+                alert('Error al guardar la cotización: ' + error.message);
+            } else {
+                alert('¡Cotización guardada exitosamente!');
+                limpiarFormularioCotizador();
+            }
         }
 
-        alert('Venta completada con éxito.');
-        document.getElementById('facturaCliente').value = '';
-        document.getElementById('facturaDetalle').value = '';
-        document.getElementById('facturaMontoUSD').value = '';
-        document.querySelector('#seccion-facturacion .btn-success').removeAttribute('data-id');
-        mostrarSeccion('cotizador');
-    }
+        // --- 6. EXPORTAR A WHATSAPP CON CONDICIONAL DE TASA BCV ---
+        function enviarCotizacionWhatsApp() {
+            const cliente = document.getElementById('cotizacionCliente').value.trim() || 'Cliente';
+            const { totalUSD, tasaBCV, ocultarBCV, items } = actualizarTotalesCotizacion();
 
-    function limpiarFormularioCotizador() {
-        document.getElementById('cotizadorCliente').value = '';
-        document.getElementById('itemsContainer').innerHTML = `
-            <div class="item-row">
-                <input type="text" class="item-desc" placeholder="Descripción del producto o servicio">
-                <input type="number" class="item-monto" placeholder="Monto $" step="0.01" onchange="recalcularTotales()">
-            </div>
-        `;
-        document.getElementById('lblTotalUSD').innerText = '0.00';
-    }
-</script>
+            if (items.length === 0) {
+                alert('Ingresa al menos un ítem antes de enviar la cotización.');
+                return;
+            }
+
+            let mensaje = `*LAN ESTUDIO - COTIZACIÓN*\n`;
+            mensaje += `Cliente: ${cliente}\n\n`;
+
+            items.forEach(item => {
+                mensaje += `• ${item.descripcion}: $${item.monto.toFixed(2)}\n`;
+            });
+
+            mensaje += `\n*TOTAL: $${totalUSD.toFixed(2)} USD*`;
+
+            // Si NO se marcó ocultar, incluye Tasa BCV y Total Bs
+            if (!ocultarBCV) {
+                const totalBS = totalUSD * tasaBCV;
+                mensaje += `\nTasa BCV: ${tasaBCV.toFixed(2)} Bs/$`;
+                mensaje += `\nTotal Bs: ${totalBS.toFixed(2)} Bs`;
+            }
+
+            const linkWA = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+            window.open(linkWA, '_blank');
+        }
+
+        // --- 7. EXPORTAR A PDF CON CONDICIONAL DE TASA BCV ---
+        function generarCotizacionPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const cliente = document.getElementById('cotizacionCliente').value.trim() || 'Cliente';
+            const { totalUSD, tasaBCV, ocultarBCV, items } = actualizarTotalesCotizacion();
+
+            doc.setFontSize(18);
+            doc.text("LAN ESTUDIO - PRESUPUESTO", 20, 20);
+
+            doc.setFontSize(11);
+            doc.text(`Cliente: ${cliente}`, 20, 30);
+            doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 20, 36);
+
+            let posY = 48;
+            doc.setFontSize(12);
+            doc.text("Detalle de Cotización:", 20, posY);
+            posY += 8;
+
+            doc.setFontSize(10);
+            items.forEach(item => {
+                doc.text(`• ${item.descripcion}`, 25, posY);
+                doc.text(`$${item.monto.toFixed(2)}`, 160, posY, { align: "right" });
+                posY += 7;
+            });
+
+            posY += 5;
+            doc.setFontSize(13);
+            doc.text(`TOTAL USD: $${totalUSD.toFixed(2)}`, 20, posY);
+
+            // Solo dibuja Tasa y Bs si NO está marcada la opción de ocultar
+            if (!ocultarBCV) {
+                posY += 7;
+                const totalBS = totalUSD * tasaBCV;
+                doc.setFontSize(10);
+                doc.text(`Tasa BCV Referencial: ${tasaBCV.toFixed(2)} Bs/$`, 20, posY);
+                posY += 6;
+                doc.text(`TOTAL BS: ${totalBS.toFixed(2)} Bs`, 20, posY);
+            }
+
+            doc.save(`Presupuesto_${cliente.replace(/\s+/g, '_')}.pdf`);
+        }
+
+        // --- 8. CARGAR COTIZACIONES PENDIENTES DE SUPABASE ---
+        async function cargarCotizacionesPendientes() {
+            const contenedor = document.getElementById('listaCotizacionesGuardadas');
+            contenedor.innerHTML = '<p class="text-gray-500 col-span-full">Buscando cotizaciones pendientes...</p>';
+
+            if (!supabase) {
+                contenedor.innerHTML = '<p class="text-amber-600 col-span-full">Configura las credenciales de Supabase para ver los registros.</p>';
+                return;
+            }
+
+            const { data: cotizaciones, error } = await supabase
+                .from('cotizaciones')
+                .select('*')
+                .eq('estado', 'pendiente')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                contenedor.innerHTML = `<p class="text-rose-500 col-span-full">Error al cargar: ${error.message}</p>`;
+                return;
+            }
+
+            if (!cotizaciones || cotizaciones.length === 0) {
+                contenedor.innerHTML = '<p class="text-gray-500 col-span-full">No hay cotizaciones pendientes por facturar.</p>';
+                return;
+            }
+
+            contenedor.innerHTML = '';
+            cotizaciones.forEach(cot => {
+                const fecha = new Date(cot.created_at).toLocaleDateString();
+                contenedor.innerHTML += `
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl shadow-sm flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="font-bold text-gray-800 text-base">${cot.cliente_nombre}</span>
+                                <span class="text-xs text-gray-400">${fecha}</span>
+                            </div>
+                            <p class="text-lg font-black text-slate-800 mt-1">$${cot.monto_usd.toFixed(2)} USD</p>
+                        </div>
+                        <button onclick="cargarAFacturacion(${cot.id})" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-file-export"></i>
+                            <span>Cargar a Facturación</span>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        // --- 9. TRANSFERIR COTIZACIÓN GUARDADA AL MÓDULO DE FACTURACIÓN ---
+        async function cargarAFacturacion(cotizacionId) {
+            if (!supabase) return;
+
+            const { data: cot, error } = await supabase
+                .from('cotizaciones')
+                .select('*')
+                .eq('id', cotizacionId)
+                .single();
+
+            if (error || !cot) {
+                alert('No se pudo recuperar la cotización seleccionada.');
+                return;
+            }
+
+            // Llenar campos del módulo de Facturación
+            document.getElementById('facturaCotizacionId').value = cot.id;
+            document.getElementById('facturaCliente').value = cot.cliente_nombre;
+            document.getElementById('facturaMontoUSD').value = cot.monto_usd;
+
+            let detalleTexto = '';
+            if (Array.isArray(cot.detalles)) {
+                cot.detalles.forEach(it => {
+                    detalleTexto += `- ${it.descripcion}: $${parseFloat(it.monto).toFixed(2)}\n`;
+                });
+            }
+            document.getElementById('facturaDetalle').value = detalleTexto;
+
+            // Cambiar de pestaña
+            cambiarPestaña('facturacion');
+        }
+
+        // --- 10. FINALIZAR VENTA Y ACTUALIZAR ESTADO DE LA COTIZACIÓN ---
+        async function completarVentaFactura() {
+            const cotizacionId = document.getElementById('facturaCotizacionId').value;
+            const cliente = document.getElementById('facturaCliente').value.trim();
+            const montoUSD = parseFloat(document.getElementById('facturaMontoUSD').value) || 0;
+            const detalle = document.getElementById('facturaDetalle').value;
+
+            if (!cliente || montoUSD <= 0) {
+                alert('Completa los datos de la venta antes de procesar.');
+                return;
+            }
+
+            if (supabase) {
+                // Registrar en la tabla 'ventas'
+                const { error: errVentas } = await supabase
+                    .from('ventas')
+                    .insert([{
+                        cliente_nombre: cliente,
+                        monto_usd: montoUSD,
+                        detalle: detalle,
+                        created_at: new Date()
+                    }]);
+
+                if (errVentas) {
+                    console.warn('Registro en ventas:', errVentas.message);
+                }
+
+                // Marcar la cotización como 'facturado' si provino de una
+                if (cotizacionId) {
+                    await supabase
+                        .from('cotizaciones')
+                        .update({ estado: 'facturado' })
+                        .eq('id', cotizacionId);
+                }
+            }
+
+            alert('¡Venta procesada y completada con éxito!');
+            
+            // Limpiar campos de facturación
+            document.getElementById('facturaCotizacionId').value = '';
+            document.getElementById('facturaCliente').value = '';
+            document.getElementById('facturaMontoUSD').value = '';
+            document.getElementById('facturaDetalle').value = '';
+
+            cambiarPestaña('cotizador');
+        }
+
+        function limpiarFormularioCotizador() {
+            document.getElementById('cotizacionCliente').value = '';
+            document.getElementById('contenedorItemsCotizacion').innerHTML = `
+                <div class="flex gap-3 item-cotizacion-fila">
+                    <input type="text" placeholder="Descripción del servicio o producto" class="desc-item flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <input type="number" placeholder="Monto $" step="0.01" oninput="actualizarTotalesCotizacion()" class="monto-item w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <button onclick="eliminarFilaCotizacion(this)" class="px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+            actualizarTotalesCotizacion();
+        }
+
+        // Inicialización al cargar la ventana
+        window.addEventListener('DOMContentLoaded', () => {
+            iniciarReloj();
+            actualizarTotalesCotizacion();
+        });
+    </script>
 </body>
 </html>

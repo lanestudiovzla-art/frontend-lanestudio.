@@ -75,7 +75,7 @@
         </div>
     </header>
 
-    <!-- Navegación General Rediseñada -->
+    <!-- Navegación General Rediseñada (Estructura Limpia y Menú Desplegable) -->
     <nav class="bg-white border-b border-[#e8dbd3] px-6 py-3 flex flex-wrap items-center justify-between shadow-xs relative">
         <div class="flex space-x-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
             <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap"><i class="fa-solid fa-chart-pie mr-2"></i>Dashboard</button>
@@ -84,7 +84,7 @@
             <button onclick="switchTab('caja')" id="tab-caja" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-cash-register mr-2"></i>Caja y Pagos</button>
         </div>
 
-        <!-- Menú Desplegable "Herramientas y Gestión" -->
+        <!-- Menú Desplegable "Más Herramientas" para despejar la barra principal -->
         <div class="relative mt-2 sm:mt-0">
             <button onclick="toggleMenuDropdown()" id="btn-dropdown-menu" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-2">
                 <i class="fa-solid fa-toolbox text-[#b88a73]"></i>
@@ -398,7 +398,7 @@
                     </div>
                 </div>
 
-                <!-- Contenedor Imprimible del Presupuesto -->
+                <!-- Contenedor Imprimible del Presupuesto con Padding Seguro -->
                 <div class="w-full flex justify-center py-2 overflow-x-auto">
                     <div id="area-impresion-presupuesto" class="bg-white p-8 rounded-2xl border-2 border-[#b88a73] space-y-6 shadow-xs w-full max-w-4xl mx-auto">
                         
@@ -682,7 +682,7 @@
         <section id="module-logo" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-image text-[#b88a73] mr-2"></i> Configuración del Logotipo</h2>
-                <p class="text-sm text-gray-500">Sube una imagen de tu logo para personalizar la barra superior y los presupuestos en PDF.</p>
+                <p class="text-sm text-gray-500">Sube una imagen o introduce la URL de tu logo para personalizar la barra superior y los presupuestos en PDF.</p>
                 <div class="flex items-center space-x-4">
                     <input type="file" id="logo-file-input" accept="image/*" class="bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2 text-sm text-gray-700">
                     <button onclick="actualizarLogo()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-4 py-2 rounded-xl text-sm font-medium transition">Aplicar Logo</button>
@@ -703,6 +703,7 @@
         let listaServiciosDB = [];
         let globalLogoHTML = `<i class="fa-solid fa-layer-group"></i>`;
 
+        // Función para alternar el menú desplegable de herramientas
         function toggleMenuDropdown() {
             const dropdown = document.getElementById('dropdown-menu-content');
             if(dropdown) {
@@ -710,6 +711,7 @@
             }
         }
 
+        // Cerrar el dropdown si se hace clic fuera de él
         window.addEventListener('click', function(e) {
             const dropdown = document.getElementById('dropdown-menu-content');
             const btn = document.getElementById('btn-dropdown-menu');
@@ -718,6 +720,7 @@
             }
         });
 
+        // Actualizar reloj y fecha en formato 12 horas en tiempo real
         function actualizarRelojFecha() {
             const ahora = new Date();
             const opcionesFecha = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
@@ -737,6 +740,7 @@
                 const el = document.getElementById(`module-${t}`);
                 const btn = document.getElementById(`tab-${t}`);
                 if(el) el.classList.add('hidden');
+                // Remover estilos activos tanto de botones principales como de los del dropdown
                 if(btn) {
                     if(btn.tagName === 'BUTTON' && btn.id.startsWith('tab-') && !btn.classList.contains('w-full')) {
                         btn.className = "px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap";
@@ -759,13 +763,10 @@
 
             window.location.hash = tabId;
 
-            if(tabId === 'dashboard') {
-                cargarHistorialVentas();
-                cargarContadorStandBy();
-            }
             if(tabId === 'caja') {
                 actualizarTotalesCaja();
                 cargarClientesEnSelects();
+                cargarRegistrosCajaEditable();
             }
             if(tabId === 'standby') {
                 cargarCotizacionesStandBy();
@@ -805,25 +806,23 @@
 
         async function fetchBCVRate() {
             const display = document.getElementById('bcv-rate-display');
-            if(display) display.innerText = "Consultando...";
+            display.innerText = "Consultando...";
             try {
                 const response = await fetch('https://rates.dolarvzla.com/bcv/current.json');
                 if(response.ok) {
                     const data = await response.json();
                     if(data.usd) {
                         tasaBCV = parseFloat(data.usd);
-                        if(display) display.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
-                        const tasaDoc = document.getElementById('presupuesto-tasa-doc');
-                        if(tasaDoc) tasaDoc.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
+                        display.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
+                        document.getElementById('presupuesto-tasa-doc').innerText = `Bs. ${tasaBCV.toFixed(2)}`;
                         recalcularPresupuestoTotal();
                         return;
                     }
                 }
                 throw new Error("Respuesta inválida");
             } catch (error) {
-                if(display) display.innerText = `Bs. ${tasaBCV.toFixed(2)} (Ref)`;
-                const tasaDoc = document.getElementById('presupuesto-tasa-doc');
-                if(tasaDoc) tasaDoc.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
+                display.innerText = `Bs. ${tasaBCV.toFixed(2)} (Ref)`;
+                document.getElementById('presupuesto-tasa-doc').innerText = `Bs. ${tasaBCV.toFixed(2)}`;
                 recalcularPresupuestoTotal();
             }
         }
@@ -930,10 +929,13 @@
                 let itemsResumen = cot.items;
                 try {
                     const parsed = JSON.parse(cot.items);
-                    itemsResumen = parsed.map(i => `${i.cant}x ${i.desc}`).join(', ');
+                    if (Array.isArray(parsed)) {
+                        itemsResumen = parsed.map(i => `${i.cant}x ${i.desc}`).join(', ');
+                    }
                 } catch(e) {}
 
                 const fechaStr = cot.created_at ? new Date(cot.created_at).toLocaleDateString() : 'Reciente';
+                const cotJsonEscaped = JSON.stringify(cot).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]" id="standby-row-${cot.id}">
@@ -942,7 +944,7 @@
                         <td class="p-3 text-xs text-gray-600 max-w-xs truncate" title="${itemsResumen}">${itemsResumen}</td>
                         <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(cot.total_usd).toFixed(2)}</td>
                         <td class="p-3 text-center space-x-2 whitespace-nowrap">
-                            <button onclick='enviarStandByACaja(${JSON.stringify(cot).replace(/'/g, "&#39;")})' title="Enviar a Facturar / Caja" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium"><i class="fa-solid fa-cash-register mr-1"></i> Facturar</button>
+                            <button onclick='enviarStandByACaja(${cotJsonEscaped})' title="Enviar a Facturar / Caja" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium"><i class="fa-solid fa-cash-register mr-1"></i> Facturar</button>
                             <button onclick="eliminarStandBy(${cot.id})" title="Eliminar Cotización" class="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
@@ -960,7 +962,9 @@
                 let itemsResumen = cot.items;
                 try {
                     const parsed = JSON.parse(cot.items);
-                    itemsResumen = parsed.map(i => `${i.cant}x ${i.desc}`).join(' + ');
+                    if (Array.isArray(parsed)) {
+                        itemsResumen = parsed.map(i => `${i.cant}x ${i.desc}`).join(' + ');
+                    }
                 } catch(e) {}
 
                 document.getElementById('caja-concepto').value = itemsResumen;
@@ -1702,11 +1706,11 @@
             const concepto = document.getElementById('gasto-concepto').value;
             const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
             const categoria = document.getElementById('gasto-categoria').value;
-            if(!concepto) return alert("Ingresa el concepto del gasto.");
+            if(!concepto || monto <= 0) return alert("Completa el concepto y el monto del gasto.");
             if(supabaseClient) {
                 await supabaseClient.from('gastos').insert([{ concepto, monto, categoria }]);
             }
-            alert("Gasto registrado exitosamente.");
+            alert("Gasto registrado.");
             document.getElementById('gasto-concepto').value = '';
             document.getElementById('gasto-monto').value = '';
             cargarGastos();
@@ -1719,13 +1723,13 @@
             if(data && tbody) {
                 tbody.innerHTML = data.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>';
                 data.forEach(g => {
-                    const fechaStr = g.created_at ? new Date(g.created_at).toLocaleDateString() : 'Reciente';
+                    const fecha = g.created_at ? new Date(g.created_at).toLocaleDateString() : '';
                     tbody.innerHTML += `
                         <tr class="border-b border-[#e8dbd3]">
                             <td class="p-3 font-medium text-[#2c2c2c]">${g.concepto}</td>
-                            <td class="p-3"><span class="bg-[#faf8f6] border border-[#e8dbd3] px-2 py-1 rounded text-xs">${g.categoria}</span></td>
-                            <td class="p-3 font-bold text-rose-600">$${parseFloat(g.monto).toFixed(2)}</td>
-                            <td class="p-3 text-xs text-gray-500">${fechaStr}</td>
+                            <td class="p-3 text-xs"><span class="bg-gray-100 px-2 py-1 rounded text-gray-600">${g.categoria}</span></td>
+                            <td class="p-3 font-bold text-rose-600">$${g.monto.toFixed(2)}</td>
+                            <td class="p-3 text-xs text-gray-500">${fecha}</td>
                         </tr>`;
                 });
             }
@@ -1735,63 +1739,70 @@
             if(!supabaseClient) return;
             const { data } = await supabaseClient.from('ventas').select('*').order('created_at', { ascending: false }).limit(10);
             const tbody = document.getElementById('tabla-historial-ventas');
-            let sumaVentasTotal = 0;
             if(data && tbody) {
-                tbody.innerHTML = data.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin transacciones registradas.</td></tr>';
+                tbody.innerHTML = data.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin ventas registradas.</td></tr>';
+                let totalVentasGlobal = 0;
                 data.forEach(v => {
-                    sumaVentasTotal += parseFloat(v.total_usd || 0);
-                    const fechaStr = v.created_at ? new Date(v.created_at).toLocaleDateString() : 'Reciente';
-                    
-                    let metodosTxt = v.metodo_pago;
+                    totalVentasGlobal += v.total_usd;
+                    const fecha = v.created_at ? new Date(v.created_at).toLocaleDateString() : '';
+                    let pagosStr = v.metodo_pago;
                     try {
                         const parsed = JSON.parse(v.metodo_pago);
-                        metodosTxt = parsed.map(p => `${p.metodo}: $${p.monto} ${p.moneda}`).join(', ');
+                        if(Array.isArray(parsed)) {
+                            pagosStr = parsed.map(p => `${p.metodo}: $${p.monto} ${p.moneda}`).join(', ');
+                        }
                     } catch(e) {}
 
                     tbody.innerHTML += `
                         <tr class="border-b border-[#e8dbd3]">
-                            <td class="p-3 text-xs text-gray-500">${fechaStr}</td>
+                            <td class="p-3 text-xs text-gray-500">${fecha}</td>
                             <td class="p-3 font-semibold text-[#2c2c2c]">${v.cliente}</td>
                             <td class="p-3 text-xs text-gray-700">${v.items}</td>
-                            <td class="p-3 font-bold text-[#b88a73]">$${parseFloat(v.total_usd).toFixed(2)}</td>
-                            <td class="p-3 text-xs text-gray-600">${metodosTxt}</td>
+                            <td class="p-3 font-bold text-[#b88a73]">$${v.total_usd.toFixed(2)}</td>
+                            <td class="p-3 text-xs text-gray-600">${pagosStr}</td>
                         </tr>`;
                 });
-                document.getElementById('dash-ventas').innerText = `$${sumaVentasTotal.toFixed(2)}`;
+                document.getElementById('dash-ventas').innerText = `$${totalVentasGlobal.toFixed(2)}`;
+            }
+        }
+
+        async function cargarRegistrosCajaEditable() {
+            // Inicializar filas de pago si está vacío
+            const listaPagos = document.getElementById('lista-pagos');
+            if(listaPagos && listaPagos.children.length === 0) {
+                agregarMetodoPago();
             }
         }
 
         function actualizarLogo() {
             const fileInput = document.getElementById('logo-file-input');
-            if (fileInput && fileInput.files && fileInput.files[0]) {
+            if(fileInput.files && fileInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const base64Image = e.target.result;
-                    globalLogoHTML = `<img src="${base64Image}" alt="Logo" class="w-full h-full object-cover">`;
-                    
+                    globalLogoHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
                     document.getElementById('logo-container').innerHTML = globalLogoHTML;
-                    const docLogo = document.getElementById('doc-logo-preview');
-                    if(docLogo) docLogo.innerHTML = globalLogoHTML;
-                    
-                    alert("¡Logotipo actualizado con éxito!");
+                    document.getElementById('doc-logo-preview').innerHTML = globalLogoHTML;
+                    alert("Logo actualizado con éxito.");
                 }
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                alert("Por favor selecciona una imagen para el logotipo.");
+                alert("Selecciona una imagen válida.");
             }
         }
 
-        // Inicializar al cargar la página
+        // Inicialización general al cargar la página
         window.addEventListener('DOMContentLoaded', () => {
             fetchBCVRate();
+            cargarContadorStandBy();
+            cargarInsumos();
+            cargarServicios();
+            cargarClientes();
+            cargarHistorialVentas();
             syncRoute();
-            if (supabaseClient) {
-                cargarInsumos();
-                cargarServicios();
-                cargarClientes();
-                cargarContadorStandBy();
-            }
+            actualizarRelojFecha();
         });
     </script>
 </body>
 </html>
+[cite: 3]
+```[cite: 3]

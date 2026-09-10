@@ -25,42 +25,11 @@
             padding: 0 !important;
         }
 
-        /* Estilos del Contenedor de Exportación PDF */
-        .pdf-mode#wrapper-impresion-pdf {
-            width: 720px !important;
-            max-width: 720px !important;
-            min-width: 720px !important;
-            margin: 0 auto !important;
-            padding: 12px !important;
-            background-color: #ffffff !important;
+        #area-impresion-presupuesto {
             box-sizing: border-box !important;
         }
 
-        .pdf-mode #area-impresion-presupuesto {
-            border: 2px solid #b88a73 !important;
-            border-radius: 16px !important;
-            box-sizing: border-box !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 24px !important;
-            background-color: #ffffff !important;
-            box-shadow: none !important;
-        }
-
-        .pdf-mode table {
-            table-layout: fixed !important;
-            width: 100% !important;
-        }
-
-        .pdf-mode .col-desc { width: 65% !important; }
-        .pdf-mode .col-cant { width: 15% !important; text-align: center !important; }
-        .pdf-mode .col-precio { width: 20% !important; text-align: right !important; }
-
-        .pdf-mode .no-print-controls {
-            display: none !important;
-        }
-
-        .pdf-mode .print-clean-cell {
+        .print-clean-cell {
             border: none !important;
             background: transparent !important;
             padding: 4px 0 !important;
@@ -194,16 +163,14 @@
                     </div>
                 </div>
 
-                <!-- Wrapper para garantizar margen en captura PDF y evitar recortes -->
-                <div id="wrapper-impresion-pdf" class="w-full flex justify-center">
-                    
-                    <!-- Contenedor Imprimible del Presupuesto -->
-                    <div id="area-impresion-presupuesto" class="bg-white p-8 rounded-2xl border-2 border-[#b88a73] space-y-6 shadow-xs w-full max-w-full">
+                <!-- Contenedor Imprimible del Presupuesto con Padding Seguro -->
+                <div class="w-full flex justify-center py-2 overflow-x-auto">
+                    <div id="area-impresion-presupuesto" class="bg-white p-8 rounded-2xl border-2 border-[#b88a73] space-y-6 shadow-xs w-full max-w-4xl mx-auto">
                         
                         <!-- Cabecera del Documento PDF -->
                         <div class="flex justify-between items-start border-b border-[#e8dbd3] pb-6">
                             <div class="flex items-center space-x-3">
-                                <div id="doc-logo-preview" class="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center bg-[#b88a73] text-white font-bold">
+                                <div id="doc-logo-preview" class="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center bg-[#b88a73] text-white font-bold shrink-0">
                                     <i class="fa-solid fa-layer-group"></i>
                                 </div>
                                 <div>
@@ -211,7 +178,7 @@
                                     <p class="text-xs text-gray-500">Agencia de Publicidad y Comunicación</p>
                                 </div>
                             </div>
-                            <div class="text-right">
+                            <div class="text-right shrink-0">
                                 <h4 class="text-sm font-bold text-[#b88a73] uppercase tracking-widest">PRESUPUESTO</h4>
                                 <p id="presupuesto-fecha-doc" class="text-xs text-gray-500 mt-1">Fecha: --/--/----</p>
                                 <p id="container-tasa-doc" class="text-xs text-gray-500">Ref Tasa BCV: <span id="presupuesto-tasa-doc" class="text-[#2c2c2c] font-semibold">0.00</span></p>
@@ -219,7 +186,7 @@
                         </div>
 
                         <!-- Datos del Cliente en el Documento -->
-                        <div class="text-xs text-gray-700 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3] flex justify-between">
+                        <div class="text-xs text-gray-700 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3] flex justify-between items-center">
                             <div>
                                 <span class="text-gray-500 font-semibold">Preparado para:</span> <span id="doc-cliente-nombre" class="text-[#2c2c2c] font-bold">Cliente General</span>
                             </div>
@@ -239,7 +206,7 @@
                             </div>
 
                             <div class="overflow-x-auto">
-                                <table class="w-full text-left text-xs text-gray-700 table-fixed">
+                                <table class="w-full text-left text-xs text-gray-700">
                                     <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
                                         <tr>
                                             <th class="p-3 w-[36%] col-desc">Descripción / Concepto</th>
@@ -282,7 +249,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
             </div>
@@ -765,46 +731,61 @@
         }
 
         function exportarPDFPresupuesto() {
-            const wrapperPDF = document.getElementById('wrapper-impresion-pdf');
-            const internalCols = document.querySelectorAll('.internal-col');
-            const printControls = document.querySelectorAll('.no-print-controls');
-            
+            const area = document.getElementById('area-impresion-presupuesto');
+            const internalCols = area.querySelectorAll('.internal-col');
+            const printControls = area.querySelectorAll('.no-print-controls');
+
             window.scrollTo(0, 0);
 
-            wrapperPDF.classList.add('pdf-mode');
-            internalCols.forEach(el => el.style.display = 'none');
-            printControls.forEach(el => el.style.display = 'none');
+            // Guardar estilos originales
+            const origWidth = area.style.width;
+            const origMaxWidth = area.style.maxWidth;
+            const origMargin = area.style.margin;
 
-            const descInputs = wrapperPDF.querySelectorAll('.desc-input');
-            const cantInputs = wrapperPDF.querySelectorAll('.cant-input');
-            const precioClienteInputs = wrapperPDF.querySelectorAll('.precio-cliente-input');
+            // Fijar dimensiones exactas centradas para la captura limpia sin recortes
+            area.style.width = '750px';
+            area.style.maxWidth = '750px';
+            area.style.margin = '0 auto';
+
+            // Ocultar elementos auxiliares no deseados en impresión
+            internalCols.forEach(el => el.style.setProperty('display', 'none', 'important'));
+            printControls.forEach(el => el.style.setProperty('display', 'none', 'important'));
+
+            // Reemplazar inputs por spans de texto plano limpios
+            const descInputs = area.querySelectorAll('.desc-input');
+            const cantInputs = area.querySelectorAll('.cant-input');
+            const precioClienteInputs = area.querySelectorAll('.precio-cliente-input');
+            const replacements = [];
 
             descInputs.forEach(input => {
                 const span = document.createElement('span');
-                span.className = 'print-clean-cell font-medium text-xs text-[#2c2c2c] block';
+                span.className = 'print-clean-cell font-medium text-xs text-[#2c2c2c] block w-full text-left';
                 span.innerText = input.value || '';
                 input.style.display = 'none';
                 input.parentNode.appendChild(span);
+                replacements.push({ input, span });
             });
 
             cantInputs.forEach(input => {
                 const span = document.createElement('span');
-                span.className = 'print-clean-cell text-xs text-center text-[#2c2c2c] block';
+                span.className = 'print-clean-cell text-xs text-center text-[#2c2c2c] block w-full';
                 span.innerText = input.value || '1';
                 input.style.display = 'none';
                 input.parentNode.appendChild(span);
+                replacements.push({ input, span });
             });
 
             precioClienteInputs.forEach(input => {
                 const span = document.createElement('span');
-                span.className = 'print-clean-cell text-xs text-right font-bold text-[#b88a73] block';
+                span.className = 'print-clean-cell text-xs text-right font-bold text-[#b88a73] block w-full';
                 span.innerText = `$${parseFloat(input.value || 0).toFixed(2)}`;
                 input.style.display = 'none';
                 input.parentNode.appendChild(span);
+                replacements.push({ input, span });
             });
 
             const opt = {
-                margin:       [0.4, 0.4, 0.4, 0.4],
+                margin:       [0.3, 0.3, 0.3, 0.3],
                 filename:     `Presupuesto_LAN_Estudio_${Date.now()}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { 
@@ -812,21 +793,33 @@
                     useCORS: true, 
                     letterRendering: true,
                     scrollX: 0,
-                    scrollY: 0,
-                    windowWidth: 800
+                    scrollY: 0
                 },
                 jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(wrapperPDF).save().then(() => {
-                wrapperPDF.classList.remove('pdf-mode');
+            html2pdf().set(opt).from(area).save().then(() => {
+                // Restaurar estado inicial de la vista web
+                area.style.width = origWidth;
+                area.style.maxWidth = origMaxWidth;
+                area.style.margin = origMargin;
                 internalCols.forEach(el => el.style.display = '');
                 printControls.forEach(el => el.style.display = '');
-
-                wrapperPDF.querySelectorAll('.print-clean-cell').forEach(span => span.remove());
-                descInputs.forEach(input => input.style.display = '');
-                cantInputs.forEach(input => input.style.display = '');
-                precioClienteInputs.forEach(input => input.style.display = '');
+                replacements.forEach(r => {
+                    r.span.remove();
+                    r.input.style.display = '';
+                });
+            }).catch(err => {
+                console.error("Error al exportar PDF:", err);
+                area.style.width = origWidth;
+                area.style.maxWidth = origMaxWidth;
+                area.style.margin = origMargin;
+                internalCols.forEach(el => el.style.display = '');
+                printControls.forEach(el => el.style.display = '');
+                replacements.forEach(r => {
+                    r.span.remove();
+                    r.input.style.display = '';
+                });
             });
         }
 

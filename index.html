@@ -3,134 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAN ESTUDIO - Sistema Integral de Gestión</title>
+    <title>LAN ESTUDIO - Sistema de Gestión</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800 antialiased min-h-screen flex flex-col">
+<body class="bg-slate-100 font-sans text-gray-800 flex flex-col min-h-screen">
 
-    <!-- TOPBAR / ENCABEZADO -->
-    <header class="bg-slate-900 text-white px-6 py-4 flex flex-wrap justify-between items-center shadow-md">
+    <!-- ENCABEZADO PRINCIPAL -->
+    <header class="bg-[#1e293b] text-white px-6 py-4 flex flex-wrap justify-between items-center shadow-md">
         <div class="flex items-center space-x-3">
-            <i class="fa-solid fa-layer-group text-2xl text-indigo-400"></i>
+            <div class="bg-indigo-600 p-2 rounded-lg">
+                <i class="fa-solid fa-layer-group text-xl text-white"></i>
+            </div>
             <h1 class="text-xl font-bold tracking-wide">LAN ESTUDIO</h1>
         </div>
-        <div class="flex items-center space-x-6 text-sm mt-2 sm:mt-0">
-            <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2">
+        <div class="flex items-center space-x-6 text-sm">
+            <div class="bg-[#0f172a] px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2">
                 <i class="fa-solid fa-clock text-indigo-400"></i>
                 <span id="reloj12h" class="font-mono text-gray-200">--:--:-- --</span>
             </div>
-            <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2">
+            <div class="bg-[#0f172a] px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2">
                 <i class="fa-solid fa-money-bill-transfer text-emerald-400"></i>
                 <span class="text-xs text-gray-400">BCV:</span>
-                <input type="number" id="tasaBCV" step="0.01" value="36.50" onchange="actualizarTotalesCotizacion()" class="w-20 bg-slate-900 text-emerald-400 font-bold px-2 py-0.5 rounded border border-slate-600 text-center text-sm focus:outline-none">
+                <input type="number" id="tasaBCV" step="0.01" value="36.50" onchange="actualizarTotales()" class="w-20 bg-[#1e293b] text-emerald-400 font-bold px-2 py-0.5 rounded border border-slate-600 text-center text-sm focus:outline-none">
                 <span class="text-xs text-gray-400">Bs/$</span>
             </div>
         </div>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
-        <!-- NAVEGACIÓN LATERAL / MENÚ -->
-        <aside class="w-64 bg-slate-800 text-slate-300 flex flex-col p-4 space-y-2 flex-shrink-0">
-            <button onclick="cambiarPestaña('cotizador')" id="btn-tab-cotizador" class="tab-btn active-tab flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+        <!-- MENÚ LATERAL -->
+        <aside class="w-64 bg-[#1e293b] text-slate-300 flex flex-col p-4 space-y-2 flex-shrink-0">
+            <button onclick="navegarA('cotizador')" id="nav-cotizador" class="nav-btn active flex items-center space-x-3 px-4 py-3 rounded-xl text-left font-medium transition-all hover:bg-slate-700 text-white bg-slate-700">
                 <i class="fa-solid fa-calculator w-5 text-indigo-400"></i>
                 <span>Cotizador / Presupuestos</span>
             </button>
-            <button onclick="cambiarPestaña('pendientes')" id="btn-tab-pendientes" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+            <button onclick="navegarA('pendientes')" id="nav-pendientes" class="nav-btn flex items-center space-x-3 px-4 py-3 rounded-xl text-left font-medium transition-all hover:bg-slate-700 text-slate-300">
                 <i class="fa-solid fa-bookmark w-5 text-amber-400"></i>
                 <span>Cotizaciones Guardadas</span>
             </button>
-            <button onclick="cambiarPestaña('facturacion')" id="btn-tab-facturacion" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+            <button onclick="navegarA('facturacion')" id="nav-facturacion" class="nav-btn flex items-center space-x-3 px-4 py-3 rounded-xl text-left font-medium transition-all hover:bg-slate-700 text-slate-300">
                 <i class="fa-solid fa-file-invoice-dollar w-5 text-emerald-400"></i>
                 <span>Facturación / Ventas</span>
             </button>
-            <button onclick="cambiarPestaña('insumos')" id="btn-tab-insumos" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+            <button onclick="navegarA('insumos')" id="nav-insumos" class="nav-btn flex items-center space-x-3 px-4 py-3 rounded-xl text-left font-medium transition-all hover:bg-slate-700 text-slate-300">
                 <i class="fa-solid fa-boxes-stacked w-5 text-blue-400"></i>
                 <span>Insumos e Inventario</span>
             </button>
-            <button onclick="cambiarPestaña('servicios')" id="btn-tab-servicios" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+            <button onclick="navegarA('servicios')" id="nav-servicios" class="nav-btn flex items-center space-x-3 px-4 py-3 rounded-xl text-left font-medium transition-all hover:bg-slate-700 text-slate-300">
                 <i class="fa-solid fa-list-check w-5 text-purple-400"></i>
                 <span>Catálogo de Servicios</span>
             </button>
-            <button onclick="cambiarPestaña('clientes')" id="btn-tab-clientes" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+            <button onclick="navegarA('clientes')" id="nav-clientes" class="nav-btn flex items-center space-x-3 px-4 py-3 rounded-xl text-left font-medium transition-all hover:bg-slate-700 text-slate-300">
                 <i class="fa-solid fa-users w-5 text-cyan-400"></i>
                 <span>Clientes / CRM</span>
             </button>
-            <button onclick="cambiarPestaña('gastos')" id="btn-tab-gastos" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-lg text-left font-medium transition-colors hover:bg-slate-700">
+            <button onclick="navegarA('gastos')" id="nav-gastos" class="nav-btn flex items-center space-x-3 px-4 py-3 rounded-xl text-left font-medium transition-all hover:bg-slate-700 text-slate-300">
                 <i class="fa-solid fa-receipt w-5 text-rose-400"></i>
                 <span>Gastos y Control</span>
             </button>
         </aside>
 
-        <!-- ÁREA PRINCIPAL DE CONTENIDO -->
-        <main class="flex-1 bg-gray-100 p-6 overflow-y-auto">
+        <!-- PANEL DE CONTENIDO -->
+        <main class="flex-1 bg-slate-100 p-6 overflow-y-auto">
 
-            <!-- MÓDULO 1: COTIZADOR Y PRESUPUESTOS -->
-            <section id="mod-cotizador" class="modulo-seccion space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
+            <!-- VISTA 1: COTIZADOR / PRESUPUESTOS -->
+            <section id="sec-cotizador" class="modulo">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
                         <i class="fa-solid fa-calculator text-indigo-600"></i>
                         <span>Generar Nueva Cotización</span>
                     </h2>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre del Cliente</label>
-                            <input type="text" id="cotizacionCliente" placeholder="Ej: María Pérez" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Nombre del Cliente</label>
+                            <input type="text" id="clienteNombre" placeholder="Ej: María Pérez" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                         </div>
-                        <div class="flex items-end pb-2">
-                            <label class="flex items-center space-x-2 cursor-pointer bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg w-full">
-                                <input type="checkbox" id="ocultarTasaBCV" onchange="actualizarTotalesCotizacion()" class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500">
-                                <span class="text-sm font-medium text-gray-700">Ocultar Tasa BCV y Totales en Bs en WhatsApp y PDF</span>
+                        <div class="pt-5">
+                            <label class="flex items-center space-x-3 cursor-pointer border border-slate-200 bg-slate-50 p-3 rounded-xl hover:bg-slate-100 transition-colors">
+                                <input type="checkbox" id="ocultarTasaBCV" onchange="actualizarTotales()" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                                <span class="text-sm font-medium text-slate-700">Ocultar Tasa BCV y Totales en Bs en WhatsApp y PDF</span>
                             </label>
                         </div>
                     </div>
 
-                    <!-- TABLA DE DETALLES DEL PRESUPUESTO -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Servicios / Productos A Cotizar</label>
-                        <div id="contenedorItemsCotizacion" class="space-y-3">
-                            <div class="flex gap-3 item-cotizacion-fila">
-                                <input type="text" placeholder="Descripción del servicio o producto" class="desc-item flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                                <input type="number" placeholder="Monto $" step="0.01" oninput="actualizarTotalesCotizacion()" class="monto-item w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                                <button onclick="eliminarFilaCotizacion(this)" class="px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"><i class="fa-solid fa-trash"></i></button>
+                    <!-- TABLA DEDICADA A LOS ÍTEMS DE LA COTIZACIÓN -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Servicios / Productos A Cotizar</label>
+                        <div id="itemsContainer" class="space-y-3">
+                            <div class="flex gap-3 item-row">
+                                <input type="text" placeholder="Descripción del servicio o producto" class="item-desc flex-1 px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                <input type="number" placeholder="Monto $" step="0.01" oninput="actualizarTotales()" class="item-monto w-36 px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                <button onclick="eliminarFila(this)" class="px-3 py-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
-                        <button onclick="agregarFilaCotizacion()" class="mt-3 px-4 py-2 bg-indigo-50 text-indigo-600 font-semibold text-sm rounded-lg hover:bg-indigo-100 transition-colors flex items-center space-x-2">
+                        <button onclick="agregarFila()" class="mt-3 px-4 py-2 bg-indigo-50 text-indigo-600 font-semibold text-sm rounded-xl hover:bg-indigo-100 transition-colors flex items-center space-x-2">
                             <i class="fa-solid fa-plus"></i>
                             <span>Agregar Ítem</span>
                         </button>
                     </div>
 
-                    <!-- RESUMEN DE TOTALES -->
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-wrap justify-between items-center my-6">
+                    <!-- MONTO TOTALES -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-wrap justify-between items-center">
                         <div>
-                            <span class="text-sm text-gray-500 block">Total en Divisas</span>
-                            <span class="text-2xl font-black text-slate-800">$<span id="lblTotalUSD">0.00</span> USD</span>
+                            <span class="text-xs text-slate-500 font-bold uppercase tracking-wider block">Total en Divisas</span>
+                            <span class="text-3xl font-black text-slate-800">$<span id="lblTotalUSD">0.00</span> USD</span>
                         </div>
                         <div id="boxTotalBS" class="text-right">
-                            <span class="text-sm text-gray-500 block">Total equivalente en Bolívares</span>
-                            <span class="text-xl font-bold text-emerald-600"><span id="lblTotalBS">0.00</span> Bs</span>
+                            <span class="text-xs text-slate-500 font-bold uppercase tracking-wider block">Total equivalente en Bolívares</span>
+                            <span class="text-2xl font-bold text-emerald-600"><span id="lblTotalBS">0.00</span> Bs</span>
                         </div>
                     </div>
 
-                    <!-- ACCIONES: GUARDAR, WHATSAPP, PDF -->
-                    <div class="flex flex-wrap gap-3">
-                        <button onclick="guardarCotizacionBD()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm flex items-center space-x-2 transition-colors">
+                    <!-- BOTONES DE ACCIÓN -->
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button onclick="guardarCotizacionBD()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-sm flex items-center space-x-2 transition-all">
                             <i class="fa-solid fa-floppy-disk"></i>
                             <span>Guardar Cotización</span>
                         </button>
-                        <button onclick="enviarCotizacionWhatsApp()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-sm flex items-center space-x-2 transition-colors">
+                        <button onclick="enviarWhatsApp()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-sm flex items-center space-x-2 transition-all">
                             <i class="fa-brands fa-whatsapp text-lg"></i>
                             <span>Enviar por WhatsApp</span>
                         </button>
-                        <button onclick="generarCotizacionPDF()" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg shadow-sm flex items-center space-x-2 transition-colors">
+                        <button onclick="generarPDF()" class="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl shadow-sm flex items-center space-x-2 transition-all">
                             <i class="fa-solid fa-file-pdf"></i>
                             <span>Generar PDF</span>
                         </button>
@@ -138,190 +140,177 @@
                 </div>
             </section>
 
-            <!-- MÓDULO 2: COTIZACIONES GUARDADAS -->
-            <section id="mod-pendientes" class="modulo-seccion hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold text-gray-800 flex items-center space-x-2">
+            <!-- VISTA 2: COTIZACIONES GUARDADAS -->
+            <section id="sec-pendientes" class="modulo hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
                             <i class="fa-solid fa-bookmark text-amber-500"></i>
                             <span>Cotizaciones Guardadas (Pendientes)</span>
                         </h2>
-                        <button onclick="cargarCotizacionesPendientes()" class="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg flex items-center space-x-1">
+                        <button onclick="cargarCotizacionesBD()" class="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl flex items-center space-x-2 transition-colors">
                             <i class="fa-solid fa-rotate"></i>
-                            <span>Actualizar</span>
+                            <span>Refrescar</span>
                         </button>
                     </div>
-                    <div id="listaCotizacionesGuardadas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <p class="text-gray-500 col-span-full">Cargando cotizaciones...</p>
+                    <div id="listaPendientesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+                        <!-- Carga dinámica -->
                     </div>
                 </div>
             </section>
 
-            <!-- MÓDULO 3: FACTURACIÓN Y VENTAS -->
-            <section id="mod-facturacion" class="modulo-seccion hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center space-x-2">
+            <!-- VISTA 3: FACTURACIÓN Y VENTAS -->
+            <section id="sec-facturacion" class="modulo hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center space-x-2">
                         <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i>
-                        <span>Procesar Venta / Facturación</span>
+                        <span>Facturación / Procesar Venta</span>
                     </h2>
                     <input type="hidden" id="facturaCotizacionId">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Cliente</label>
-                            <input type="text" id="facturaCliente" placeholder="Cliente de la venta" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Cliente</label>
+                            <input type="text" id="facturaCliente" placeholder="Cliente de la venta" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Monto Total ($)</label>
-                            <input type="number" id="facturaMontoUSD" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Monto Total ($)</label>
+                            <input type="number" id="facturaMontoUSD" step="0.01" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                         </div>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Detalle de Servicios / Productos Cargados</label>
-                        <textarea id="facturaDetalle" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-gray-50" placeholder="Los ítems cargados desde la cotización aparecerán aquí..."></textarea>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Resumen de Servicios Cargados</label>
+                        <textarea id="facturaDetalle" rows="4" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50" placeholder="Los productos o servicios cargados desde la cotización aparecerán aquí..."></textarea>
                     </div>
-                    <button onclick="completarVentaFactura()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm flex items-center space-x-2 transition-colors">
+                    <button onclick="procesarVentaBD()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-sm flex items-center space-x-2 transition-all">
                         <i class="fa-solid fa-check-double"></i>
                         <span>Completar Venta y Registrar en Sistema</span>
                     </button>
                 </div>
             </section>
 
-            <!-- MÓDULO 4: INSUMOS E INVENTARIO -->
-            <section id="mod-insumos" class="modulo-seccion hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h2 class="text-xl font-bold text-gray-800 mb-2 flex items-center space-x-2">
+            <!-- VISTA 4: INSUMOS E INVENTARIO -->
+            <section id="sec-insumos" class="modulo hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 mb-2 flex items-center space-x-2">
                         <i class="fa-solid fa-boxes-stacked text-blue-600"></i>
-                        <span>Gestión de Insumos e Inventario</span>
+                        <span>Insumos e Inventario</span>
                     </h2>
-                    <p class="text-sm text-gray-500 mb-4">Mapeo de materiales, stock disponible e insumos para presupuestos.</p>
-                    <div id="listaInsumos" class="border border-gray-200 rounded-lg p-4 bg-slate-50 text-center text-gray-500">
-                        Inventario sincronizado con Supabase.
-                    </div>
+                    <p class="text-sm text-slate-500">Módulo sincronizado para el control de stock de insumos y materiales.</p>
                 </div>
             </section>
 
-            <!-- MÓDULO 5: CATÁLOGO DE SERVICIOS -->
-            <section id="mod-servicios" class="modulo-seccion hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h2 class="text-xl font-bold text-gray-800 mb-2 flex items-center space-x-2">
+            <!-- VISTA 5: CATÁLOGO DE SERVICIOS -->
+            <section id="sec-servicios" class="modulo hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 mb-2 flex items-center space-x-2">
                         <i class="fa-solid fa-list-check text-purple-600"></i>
                         <span>Catálogo de Servicios</span>
                     </h2>
-                    <p class="text-sm text-gray-500 mb-4">Lista general de servicios ofrecidos y precios base.</p>
-                    <div id="listaServicios" class="border border-gray-200 rounded-lg p-4 bg-slate-50 text-center text-gray-500">
-                        Servicios sincronizados con Supabase.
-                    </div>
+                    <p class="text-sm text-slate-500">Catálogo general de tarifas y servicios ofrecidos.</p>
                 </div>
             </section>
 
-            <!-- MÓDULO 6: CLIENTES / CRM -->
-            <section id="mod-clientes" class="modulo-seccion hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h2 class="text-xl font-bold text-gray-800 mb-2 flex items-center space-x-2">
+            <!-- VISTA 6: CLIENTES / CRM -->
+            <section id="sec-clientes" class="modulo hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 mb-2 flex items-center space-x-2">
                         <i class="fa-solid fa-users text-cyan-600"></i>
-                        <span>Directorio de Clientes / CRM</span>
+                        <span>Clientes / CRM</span>
                     </h2>
-                    <p class="text-sm text-gray-500 mb-4">Registro detallado de datos de contacto e historial de clientes.</p>
-                    <div id="listaClientes" class="border border-gray-200 rounded-lg p-4 bg-slate-50 text-center text-gray-500">
-                        Base de clientes sincronizada con Supabase.
-                    </div>
+                    <p class="text-sm text-slate-500">Directorio de contacto e historial de clientes.</p>
                 </div>
             </section>
 
-            <!-- MÓDULO 7: GASTOS Y CONTROL FINANCIERO -->
-            <section id="mod-gastos" class="modulo-seccion hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h2 class="text-xl font-bold text-gray-800 mb-2 flex items-center space-x-2">
+            <!-- VISTA 7: GASTOS Y CONTROL -->
+            <section id="sec-gastos" class="modulo hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 mb-2 flex items-center space-x-2">
                         <i class="fa-solid fa-receipt text-rose-600"></i>
-                        <span>Control de Gastos Operativos</span>
+                        <span>Gastos y Control Financiero</span>
                     </h2>
-                    <p class="text-sm text-gray-500 mb-4">Auditoría financiera y egresos del taller / tienda.</p>
-                    <div id="listaGastos" class="border border-gray-200 rounded-lg p-4 bg-slate-50 text-center text-gray-500">
-                        Registros de egresos y gastos de Supabase.
-                    </div>
+                    <p class="text-sm text-slate-500">Auditoría financiera y control de gastos operativos.</p>
                 </div>
             </section>
 
         </main>
     </div>
 
-    <!-- CÓDIGO Y LÓGICA JAVASCRIPT INTEGRADA -->
+    <!-- SCRIPT DE FUNCIONAMIENTO COMPLETO -->
     <script>
-        // --- 1. CONFIGURACIÓN DE SUPABASE ---
-        // (Asegúrate de colocar las credenciales reales de tu proyecto)
+        // --- CONFIGURACIÓN DE SUPABASE ---
         const SUPABASE_URL = 'https://TU_SUPABASE_URL.supabase.co';
         const SUPABASE_KEY = 'TU_SUPABASE_ANON_KEY';
         const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-        // --- 2. RELOJ FORMATO 12 HORAS ---
+        // --- RELOJ EN FORMATO 12 HORAS ---
         function iniciarReloj() {
-            const spanReloj = document.getElementById('reloj12h');
             setInterval(() => {
                 const ahora = new Date();
-                let horas = ahora.getHours();
-                const minutos = String(ahora.getMinutes()).padStart(2, '0');
-                const segundos = String(ahora.getSeconds()).padStart(2, '0');
-                const ampm = horas >= 12 ? 'PM' : 'AM';
-                horas = horas % 12;
-                horas = horas ? horas : 12; // Hora '0' se muestra como '12'
-                spanReloj.textContent = `${String(horas).padStart(2, '0')}:${minutos}:${segundos} ${ampm}`;
+                let hrs = ahora.getHours();
+                const mins = String(ahora.getMinutes()).padStart(2, '0');
+                const segs = String(ahora.getSeconds()).padStart(2, '0');
+                const ampm = hrs >= 12 ? 'PM' : 'AM';
+                hrs = hrs % 12 || 12;
+                document.getElementById('reloj12h').textContent = `${String(hrs).padStart(2, '0')}:${mins}:${segs} ${ampm}`;
             }, 1000);
         }
 
-        // --- 3. CAMBIO DE PESTAÑAS / NAVEGACIÓN ---
-        function cambiarPestaña(modulo) {
-            document.querySelectorAll('.modulo-seccion').forEach(sec => sec.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('bg-slate-700', 'text-white'));
+        // --- NAVEGACIÓN ENTRE VISTAS/MÓDULOS ---
+        function navegarA(modulo) {
+            document.querySelectorAll('.modulo').forEach(sec => sec.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-700', 'text-white');
+                btn.classList.add('text-slate-300');
+            });
 
-            const secTarget = document.getElementById(`mod-${modulo}`);
-            const btnTarget = document.getElementById(`btn-tab-${modulo}`);
+            const vista = document.getElementById(`sec-${modulo}`);
+            const boton = document.getElementById(`nav-${modulo}`);
 
-            if (secTarget) secTarget.classList.remove('hidden');
-            if (btnTarget) btnTarget.classList.add('bg-slate-700', 'text-white');
+            if (vista) vista.classList.remove('hidden');
+            if (boton) {
+                boton.classList.add('bg-slate-700', 'text-white');
+                boton.classList.remove('text-slate-300');
+            }
 
             if (modulo === 'pendientes') {
-                cargarCotizacionesPendientes();
+                cargarCotizacionesBD();
             }
         }
 
-        // --- 4. LÓGICA DEL COTIZADOR Y MANEJO DE FILAS ---
-        function agregarFilaCotizacion() {
-            const contenedor = document.getElementById('contenedorItemsCotizacion');
-            const div = document.createElement('div');
-            div.className = 'flex gap-3 item-cotizacion-fila';
-            div.innerHTML = `
-                <input type="text" placeholder="Descripción del servicio o producto" class="desc-item flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                <input type="number" placeholder="Monto $" step="0.01" oninput="actualizarTotalesCotizacion()" class="monto-item w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                <button onclick="eliminarFilaCotizacion(this)" class="px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"><i class="fa-solid fa-trash"></i></button>
+        // --- COTIZADOR: FILAS E ÍTEMS ---
+        function agregarFila() {
+            const container = document.getElementById('itemsContainer');
+            const row = document.createElement('div');
+            row.className = 'flex gap-3 item-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Descripción del servicio o producto" class="item-desc flex-1 px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <input type="number" placeholder="Monto $" step="0.01" oninput="actualizarTotales()" class="item-monto w-36 px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <button onclick="eliminarFila(this)" class="px-3 py-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"><i class="fa-solid fa-trash"></i></button>
             `;
-            contenedor.appendChild(div);
+            container.appendChild(row);
         }
 
-        function eliminarFilaCotizacion(btn) {
-            const contenedor = document.getElementById('contenedorItemsCotizacion');
-            if (contenedor.children.length > 1) {
-                btn.closest('.item-cotizacion-fila').remove();
-                actualizarTotalesCotizacion();
-            } else {
-                alert('Debe haber al menos un ítem en la cotización.');
+        function eliminarFila(btn) {
+            const container = document.getElementById('itemsContainer');
+            if (container.children.length > 1) {
+                btn.closest('.item-row').remove();
+                actualizarTotales();
             }
         }
 
-        function obtenerItemsCotización() {
-            const filas = document.querySelectorAll('.item-cotizacion-fila');
+        function obtenerItems() {
+            const filas = document.querySelectorAll('.item-row');
             const items = [];
-            filas.forEach(fila => {
-                const desc = fila.querySelector('.desc-item').value.trim();
-                const monto = parseFloat(fila.querySelector('.monto-item').value) || 0;
-                if (desc || monto > 0) {
-                    items.push({ descripcion: desc, monto: monto });
-                }
+            filas.forEach(f => {
+                const desc = f.querySelector('.item-desc').value.trim();
+                const monto = parseFloat(f.querySelector('.item-monto').value) || 0;
+                if (desc || monto > 0) items.push({ descripcion: desc, monto: monto });
             });
             return items;
         }
 
-        function actualizarTotalesCotizacion() {
-            const items = obtenerItemsCotización();
+        function actualizarTotales() {
+            const items = obtenerItems();
             const totalUSD = items.reduce((sum, item) => sum + item.monto, 0);
             const tasaBCV = parseFloat(document.getElementById('tasaBCV').value) || 0;
             const ocultarBCV = document.getElementById('ocultarTasaBCV').checked;
@@ -331,88 +320,45 @@
 
             const boxTotalBS = document.getElementById('boxTotalBS');
             if (ocultarBCV) {
-                boxTotalBS.classList.add('opacity-40');
+                boxTotalBS.classList.add('opacity-30');
             } else {
-                boxTotalBS.classList.remove('opacity-40');
+                boxTotalBS.classList.remove('opacity-30');
             }
 
             return { totalUSD, tasaBCV, ocultarBCV, items };
         }
 
-        // --- 5. GUARDAR COTIZACIÓN EN SUPABASE ---
-        async function guardarCotizacionBD() {
-            const cliente = document.getElementById('cotizacionCliente').value.trim();
-            const { totalUSD, tasaBCV, items } = actualizarTotalesCotizacion();
+        // --- ENVIAR A WHATSAPP CON OPCIÓN DE OCULTAR BS ---
+        function enviarWhatsApp() {
+            const cliente = document.getElementById('clienteNombre').value.trim() || 'Cliente';
+            const { totalUSD, tasaBCV, ocultarBCV, items } = actualizarTotales();
 
-            if (!cliente) {
-                alert('Por favor, ingresa el nombre del cliente.');
-                return;
-            }
-            if (items.length === 0 || totalUSD <= 0) {
-                alert('Por favor, ingresa al menos un servicio con monto válido.');
-                return;
-            }
+            if (items.length === 0) return alert('Por favor, agrega ítems a la cotización.');
 
-            if (!supabase) {
-                alert('Atención: Supabase no está configurado correctamente con las credenciales.');
-                return;
-            }
+            let msg = `*LAN ESTUDIO - COTIZACIÓN*\n`;
+            msg += `Cliente: ${cliente}\n\n`;
 
-            const { data, error } = await supabase
-                .from('cotizaciones')
-                .insert([{
-                    cliente_nombre: cliente,
-                    detalles: items,
-                    monto_usd: totalUSD,
-                    tasa_bcv: tasaBCV,
-                    estado: 'pendiente'
-                }]);
-
-            if (error) {
-                alert('Error al guardar la cotización: ' + error.message);
-            } else {
-                alert('¡Cotización guardada exitosamente!');
-                limpiarFormularioCotizador();
-            }
-        }
-
-        // --- 6. EXPORTAR A WHATSAPP CON CONDICIONAL DE TASA BCV ---
-        function enviarCotizacionWhatsApp() {
-            const cliente = document.getElementById('cotizacionCliente').value.trim() || 'Cliente';
-            const { totalUSD, tasaBCV, ocultarBCV, items } = actualizarTotalesCotizacion();
-
-            if (items.length === 0) {
-                alert('Ingresa al menos un ítem antes de enviar la cotización.');
-                return;
-            }
-
-            let mensaje = `*LAN ESTUDIO - COTIZACIÓN*\n`;
-            mensaje += `Cliente: ${cliente}\n\n`;
-
-            items.forEach(item => {
-                mensaje += `• ${item.descripcion}: $${item.monto.toFixed(2)}\n`;
+            items.forEach(i => {
+                msg += `• ${i.descripcion}: $${i.monto.toFixed(2)}\n`;
             });
 
-            mensaje += `\n*TOTAL: $${totalUSD.toFixed(2)} USD*`;
+            msg += `\n*TOTAL: $${totalUSD.toFixed(2)} USD*`;
 
-            // Si NO se marcó ocultar, incluye Tasa BCV y Total Bs
             if (!ocultarBCV) {
                 const totalBS = totalUSD * tasaBCV;
-                mensaje += `\nTasa BCV: ${tasaBCV.toFixed(2)} Bs/$`;
-                mensaje += `\nTotal Bs: ${totalBS.toFixed(2)} Bs`;
+                msg += `\nTasa BCV: ${tasaBCV.toFixed(2)} Bs/$`;
+                msg += `\nTotal Bs: ${totalBS.toFixed(2)} Bs`;
             }
 
-            const linkWA = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-            window.open(linkWA, '_blank');
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // --- 7. EXPORTAR A PDF CON CONDICIONAL DE TASA BCV ---
-        function generarCotizacionPDF() {
+        // --- GENERAR PDF CON OPCIÓN DE OCULTAR BS ---
+        function generarPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-
-            const cliente = document.getElementById('cotizacionCliente').value.trim() || 'Cliente';
-            const { totalUSD, tasaBCV, ocultarBCV, items } = actualizarTotalesCotizacion();
+            const cliente = document.getElementById('clienteNombre').value.trim() || 'Cliente';
+            const { totalUSD, tasaBCV, ocultarBCV, items } = actualizarTotales();
 
             doc.setFontSize(18);
             doc.text("LAN ESTUDIO - PRESUPUESTO", 20, 20);
@@ -423,13 +369,13 @@
 
             let posY = 48;
             doc.setFontSize(12);
-            doc.text("Detalle de Cotización:", 20, posY);
+            doc.text("Detalles:", 20, posY);
             posY += 8;
 
             doc.setFontSize(10);
-            items.forEach(item => {
-                doc.text(`• ${item.descripcion}`, 25, posY);
-                doc.text(`$${item.monto.toFixed(2)}`, 160, posY, { align: "right" });
+            items.forEach(i => {
+                doc.text(`• ${i.descripcion}`, 25, posY);
+                doc.text(`$${i.monto.toFixed(2)}`, 160, posY, { align: "right" });
                 posY += 7;
             });
 
@@ -437,12 +383,11 @@
             doc.setFontSize(13);
             doc.text(`TOTAL USD: $${totalUSD.toFixed(2)}`, 20, posY);
 
-            // Solo dibuja Tasa y Bs si NO está marcada la opción de ocultar
             if (!ocultarBCV) {
                 posY += 7;
                 const totalBS = totalUSD * tasaBCV;
                 doc.setFontSize(10);
-                doc.text(`Tasa BCV Referencial: ${tasaBCV.toFixed(2)} Bs/$`, 20, posY);
+                doc.text(`Tasa BCV: ${tasaBCV.toFixed(2)} Bs/$`, 20, posY);
                 posY += 6;
                 doc.text(`TOTAL BS: ${totalBS.toFixed(2)} Bs`, 20, posY);
             }
@@ -450,13 +395,49 @@
             doc.save(`Presupuesto_${cliente.replace(/\s+/g, '_')}.pdf`);
         }
 
-        // --- 8. CARGAR COTIZACIONES PENDIENTES DE SUPABASE ---
-        async function cargarCotizacionesPendientes() {
-            const contenedor = document.getElementById('listaCotizacionesGuardadas');
-            contenedor.innerHTML = '<p class="text-gray-500 col-span-full">Buscando cotizaciones pendientes...</p>';
+        // --- GUARDAR COTIZACIÓN EN SUPABASE ---
+        async function guardarCotizacionBD() {
+            const cliente = document.getElementById('clienteNombre').value.trim();
+            const { totalUSD, tasaBCV, items } = actualizarTotales();
+
+            if (!cliente) return alert('Escribe el nombre del cliente.');
+            if (items.length === 0 || totalUSD <= 0) return alert('Ingresa ítems válidos.');
+
+            if (!supabase) return alert('Supabase no está configurado correctamente.');
+
+            const { error } = await supabase
+                .from('cotizaciones')
+                .insert([{
+                    cliente_nombre: cliente,
+                    detalles: items,
+                    monto_usd: totalUSD,
+                    tasa_bcv: tasaBCV,
+                    estado: 'pendiente'
+                }]);
+
+            if (error) {
+                alert('Error al guardar: ' + error.message);
+            } else {
+                alert('Cotización guardada exitosamente.');
+                document.getElementById('clienteNombre').value = '';
+                document.getElementById('itemsContainer').innerHTML = `
+                    <div class="flex gap-3 item-row">
+                        <input type="text" placeholder="Descripción del servicio o producto" class="item-desc flex-1 px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <input type="number" placeholder="Monto $" step="0.01" oninput="actualizarTotales()" class="item-monto w-36 px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <button onclick="eliminarFila(this)" class="px-3 py-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                actualizarTotales();
+            }
+        }
+
+        // --- CARGAR COTIZACIONES GUARDADAS (PENDIENTES) ---
+        async function cargarCotizacionesBD() {
+            const grid = document.getElementById('listaPendientesGrid');
+            grid.innerHTML = '<p class="text-slate-500 col-span-full">Cargando cotizaciones...</p>';
 
             if (!supabase) {
-                contenedor.innerHTML = '<p class="text-amber-600 col-span-full">Configura las credenciales de Supabase para ver los registros.</p>';
+                grid.innerHTML = '<p class="text-amber-600 col-span-full">Configura las claves de Supabase para obtener las cotizaciones.</p>';
                 return;
             }
 
@@ -467,28 +448,27 @@
                 .order('created_at', { ascending: false });
 
             if (error) {
-                contenedor.innerHTML = `<p class="text-rose-500 col-span-full">Error al cargar: ${error.message}</p>`;
+                grid.innerHTML = `<p class="text-rose-500 col-span-full">Error: ${error.message}</p>`;
                 return;
             }
 
             if (!cotizaciones || cotizaciones.length === 0) {
-                contenedor.innerHTML = '<p class="text-gray-500 col-span-full">No hay cotizaciones pendientes por facturar.</p>';
+                grid.innerHTML = '<p class="text-slate-500 col-span-full">No hay cotizaciones pendientes.</p>';
                 return;
             }
 
-            contenedor.innerHTML = '';
-            cotizaciones.forEach(cot => {
-                const fecha = new Date(cot.created_at).toLocaleDateString();
-                contenedor.innerHTML += `
-                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl shadow-sm flex flex-col justify-between space-y-3">
+            grid.innerHTML = '';
+            cotizaciones.forEach(c => {
+                grid.innerHTML += `
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl shadow-sm flex flex-col justify-between space-y-3">
                         <div>
                             <div class="flex justify-between items-start">
-                                <span class="font-bold text-gray-800 text-base">${cot.cliente_nombre}</span>
-                                <span class="text-xs text-gray-400">${fecha}</span>
+                                <h3 class="font-bold text-slate-800">${c.cliente_nombre}</h3>
+                                <span class="text-xs text-slate-400">${new Date(c.created_at).toLocaleDateString()}</span>
                             </div>
-                            <p class="text-lg font-black text-slate-800 mt-1">$${cot.monto_usd.toFixed(2)} USD</p>
+                            <p class="text-2xl font-black text-slate-800 mt-2">$${parseFloat(c.monto_usd).toFixed(2)} USD</p>
                         </div>
-                        <button onclick="cargarAFacturacion(${cot.id})" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center space-x-2">
+                        <button onclick="cargarAFacturacion(${c.id})" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl transition-colors flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-file-export"></i>
                             <span>Cargar a Facturación</span>
                         </button>
@@ -497,7 +477,7 @@
             });
         }
 
-        // --- 9. TRANSFERIR COTIZACIÓN GUARDADA AL MÓDULO DE FACTURACIÓN ---
+        // --- TRANSFERIR COTIZACIÓN AL MÓDULO DE FACTURACIÓN ---
         async function cargarAFacturacion(cotizacionId) {
             if (!supabase) return;
 
@@ -507,91 +487,58 @@
                 .eq('id', cotizacionId)
                 .single();
 
-            if (error || !cot) {
-                alert('No se pudo recuperar la cotización seleccionada.');
-                return;
-            }
+            if (error || !cot) return alert('No se pudo recuperar la cotización.');
 
-            // Llenar campos del módulo de Facturación
             document.getElementById('facturaCotizacionId').value = cot.id;
             document.getElementById('facturaCliente').value = cot.cliente_nombre;
             document.getElementById('facturaMontoUSD').value = cot.monto_usd;
 
-            let detalleTexto = '';
+            let textoDetalle = '';
             if (Array.isArray(cot.detalles)) {
                 cot.detalles.forEach(it => {
-                    detalleTexto += `- ${it.descripcion}: $${parseFloat(it.monto).toFixed(2)}\n`;
+                    textoDetalle += `- ${it.descripcion}: $${parseFloat(it.monto).toFixed(2)}\n`;
                 });
             }
-            document.getElementById('facturaDetalle').value = detalleTexto;
+            document.getElementById('facturaDetalle').value = textoDetalle;
 
-            // Cambiar de pestaña
-            cambiarPestaña('facturacion');
+            navegarA('facturacion');
         }
 
-        // --- 10. FINALIZAR VENTA Y ACTUALIZAR ESTADO DE LA COTIZACIÓN ---
-        async function completarVentaFactura() {
+        // --- PROCESAR VENTA EN FACTURACIÓN ---
+        async function procesarVentaBD() {
             const cotizacionId = document.getElementById('facturaCotizacionId').value;
             const cliente = document.getElementById('facturaCliente').value.trim();
             const montoUSD = parseFloat(document.getElementById('facturaMontoUSD').value) || 0;
             const detalle = document.getElementById('facturaDetalle').value;
 
-            if (!cliente || montoUSD <= 0) {
-                alert('Completa los datos de la venta antes de procesar.');
-                return;
-            }
+            if (!cliente || montoUSD <= 0) return alert('Por favor, ingresa cliente y monto válido.');
 
             if (supabase) {
-                // Registrar en la tabla 'ventas'
-                const { error: errVentas } = await supabase
-                    .from('ventas')
-                    .insert([{
-                        cliente_nombre: cliente,
-                        monto_usd: montoUSD,
-                        detalle: detalle,
-                        created_at: new Date()
-                    }]);
+                await supabase.from('ventas').insert([{
+                    cliente_nombre: cliente,
+                    monto_usd: montoUSD,
+                    detalle: detalle,
+                    created_at: new Date()
+                }]);
 
-                if (errVentas) {
-                    console.warn('Registro en ventas:', errVentas.message);
-                }
-
-                // Marcar la cotización como 'facturado' si provino de una
                 if (cotizacionId) {
-                    await supabase
-                        .from('cotizaciones')
-                        .update({ estado: 'facturado' })
-                        .eq('id', cotizacionId);
+                    await supabase.from('cotizaciones').update({ estado: 'facturado' }).eq('id', cotizacionId);
                 }
             }
 
-            alert('¡Venta procesada y completada con éxito!');
-            
-            // Limpiar campos de facturación
+            alert('Venta procesada exitosamente.');
             document.getElementById('facturaCotizacionId').value = '';
             document.getElementById('facturaCliente').value = '';
             document.getElementById('facturaMontoUSD').value = '';
             document.getElementById('facturaDetalle').value = '';
 
-            cambiarPestaña('cotizador');
+            navegarA('cotizador');
         }
 
-        function limpiarFormularioCotizador() {
-            document.getElementById('cotizacionCliente').value = '';
-            document.getElementById('contenedorItemsCotizacion').innerHTML = `
-                <div class="flex gap-3 item-cotizacion-fila">
-                    <input type="text" placeholder="Descripción del servicio o producto" class="desc-item flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    <input type="number" placeholder="Monto $" step="0.01" oninput="actualizarTotalesCotizacion()" class="monto-item w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    <button onclick="eliminarFilaCotizacion(this)" class="px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            `;
-            actualizarTotalesCotizacion();
-        }
-
-        // Inicialización al cargar la ventana
+        // INICIALIZACIÓN
         window.addEventListener('DOMContentLoaded', () => {
             iniciarReloj();
-            actualizarTotalesCotizacion();
+            actualizarTotales();
         });
     </script>
 </body>

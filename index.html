@@ -3,1129 +3,362 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAN Estudio - Sistema Integral de Gestión</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase JS Client -->
+    <title>Sistema de Gestión y Cotizaciones</title>
+    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- html2pdf para exportar PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- SheetJS para Exportación a Excel -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- jsPDF para generar reportes en PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #faf8f6; color: #2c2c2c; }
-        
-        .pdf-mode input, .pdf-mode select {
-            border: none !important;
-            background: transparent !important;
-            outline: none !important;
-            box-shadow: none !important;
-            appearance: none;
-            padding: 0 !important;
-        }
-
-        #area-impresion-presupuesto { box-sizing: border-box !important; }
-
-        .print-clean-cell {
-            border: none !important;
-            background: transparent !important;
-            padding: 4px 0 !important;
-            font-weight: normal !important;
-            color: #2c2c2c !important;
-            word-break: break-word !important;
-            white-space: normal !important;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f6f9; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        .nav-tabs button { padding: 10px 15px; border: none; background: #e0e0e0; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        .nav-tabs button.active { background: #007bff; color: white; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="number"], select, textarea { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; margin: 15px 0; }
+        .checkbox-group input { width: auto; }
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 5px; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-whatsapp { background: #25d366; color: white; }
+        .btn-pdf { background: #dc3545; color: white; }
+        .cotizacion-card { border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 10px; border-radius: 6px; background: #fafafa; display: flex; justify-content: space-between; align-items: center; }
+        .item-row { display: flex; gap: 10px; margin-bottom: 10px; }
     </style>
 </head>
-<body class="bg-[#faf8f6] text-[#2c2c2c] antialiased min-h-screen flex flex-col">
+<body>
 
-    <!-- Header con BCV y Reloj -->
-    <header class="bg-[#2c2c2c] border-b border-[#e8dbd3] px-6 py-4 flex flex-wrap justify-between items-center shadow-sm text-white">
-        <div class="flex items-center space-x-3">
-            <div id="logo-container" class="bg-[#b88a73] p-2.5 rounded-xl text-white font-bold text-xl flex items-center justify-center shadow-sm overflow-hidden w-12 h-12">
-                <i class="fa-solid fa-layer-group"></i>
-            </div>
-            <div>
-                <h1 class="text-lg font-bold tracking-wide">LAN Estudio</h1>
-                <p class="text-xs text-gray-300">Agencia de Publicidad y Comunicación</p>
-            </div>
-        </div>
+<div class="container">
+    <div class="nav-tabs">
+        <button id="tab-cotizador" class="active" onclick="mostrarSeccion('cotizador')">Cotizador / Presupuesto</button>
+        <button id="tab-pendientes" onclick="mostrarSeccion('pendientes')">Cotizaciones Guardadas</button>
+        <button id="tab-facturacion" onclick="mostrarSeccion('facturacion')">Facturación / Ventas</button>
+    </div>
 
-        <div class="flex flex-wrap items-center gap-3 mt-2 sm:mt-0 bg-[#383838] px-4 py-2 rounded-xl border border-[#4d4d4d]">
-            <div class="flex items-center space-x-2">
-                <span class="w-3 h-3 rounded-full bg-[#b88a73] animate-pulse"></span>
-                <span class="text-xs text-gray-300 font-medium">Tasa BCV:</span>
-                <span id="bcv-rate-display" class="text-sm font-bold text-white">Cargando...</span>
-            </div>
-            <button onclick="fetchBCVRate()" title="Actualizar Tasa BCV" class="text-xs bg-[#4d4d4d] hover:bg-[#5e5e5e] text-white px-2 py-1 rounded transition">
-                <i class="fa-solid fa-sync"></i>
-            </button>
-            <div class="border-l border-[#555] pl-3 flex flex-col justify-center">
-                <span class="text-[10px] text-gray-400 uppercase font-semibold leading-tight">Fecha / Hora</span>
-                <span id="reloj-fecha-hora" class="text-xs font-mono font-bold text-gray-200">--/--/---- --:--:-- --</span>
-            </div>
-        </div>
-    </header>
-
-    <!-- Navegación General -->
-    <nav class="bg-white border-b border-[#e8dbd3] px-6 py-3 flex space-x-2 overflow-x-auto shadow-xs">
-        <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm"><i class="fa-solid fa-chart-pie mr-2"></i>Dashboard</button>
-        <button onclick="switchTab('calculadora')" id="tab-calculadora" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-file-invoice-dollar mr-2"></i>Cotizador y Presupuestos</button>
-        <button onclick="switchTab('caja')" id="tab-caja" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-cash-register mr-2"></i>Factura / Caja y Pagos</button>
-        <button onclick="switchTab('insumos')" id="tab-insumos" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-boxes-stacked mr-2"></i>Insumos y Stock</button>
-        <button onclick="switchTab('servicios')" id="tab-servicios" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-bullhorn mr-2"></i>Servicios</button>
-        <button onclick="switchTab('crm')" id="tab-crm" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-users mr-2"></i>CRM Clientes</button>
-        <button onclick="switchTab('finanzas')" id="tab-finanzas" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-wallet mr-2"></i>Control Financiero</button>
-        <button onclick="switchTab('logo')" id="tab-logo" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition"><i class="fa-solid fa-image mr-2"></i>Configurar Logo</button>
-    </nav>
-
-    <!-- Contenedor Principal -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+    <!-- MÓDULO COTIZADOR -->
+    <div id="seccion-cotizador" class="section active">
+        <h2>Crear Cotización / Presupuesto</h2>
         
-        <!-- DASHBOARD -->
-        <section id="module-dashboard" class="space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm">
-                    <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Ventas Totales</p>
-                    <h3 id="dash-ventas" class="text-2xl font-bold text-[#b88a73] mt-2">$0.00</h3>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm">
-                    <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Insumos Registrados</p>
-                    <h3 id="dash-insumos" class="text-2xl font-bold text-[#2c2c2c] mt-2">0</h3>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm">
-                    <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Clientes en CRM</p>
-                    <h3 id="dash-clientes" class="text-2xl font-bold text-[#2c2c2c] mt-2">0</h3>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm">
-                    <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Gastos Totales</p>
-                    <h3 id="dash-gastos" class="text-2xl font-bold text-rose-500 mt-2">$0.00</h3>
-                </div>
+        <div class="form-group">
+            <label>Nombre del Cliente:</label>
+            <input type="text" id="cotizadorCliente" placeholder="Ej: María Pérez">
+        </div>
+
+        <div class="form-group">
+            <label>Tasa BCV (Bs/$):</label>
+            <input type="number" id="tasaBCV" step="0.01" value="36.50" onchange="recalcularTotales()">
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="ocultarTasaBCV">
+            <label for="ocultarTasaBCV">Ocultar Tasa BCV y Totales en Bs (Solo mostrar USD en WhatsApp y PDF)</label>
+        </div>
+
+        <h3>Detalle de Servicios / Productos</h3>
+        <div id="itemsContainer">
+            <div class="item-row">
+                <input type="text" class="item-desc" placeholder="Descripción del producto o servicio">
+                <input type="number" class="item-monto" placeholder="Monto $" step="0.01" onchange="recalcularTotales()">
             </div>
-            
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
-                <div class="flex flex-wrap justify-between items-center gap-4">
-                    <h3 class="text-lg font-bold text-[#2c2c2c]"><i class="fa-solid fa-clock-rotate-left mr-2 text-[#b88a73]"></i> Historial Reciente de Transacciones</h3>
-                    <button onclick="exportarHistorialExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl font-bold text-xs transition shadow-sm flex items-center space-x-2">
-                        <i class="fa-solid fa-file-excel"></i>
-                        <span>Exportar Historial a Excel</span>
-                    </button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-700">
-                        <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
-                            <tr>
-                                <th class="p-3">Fecha</th>
-                                <th class="p-3">Cliente</th>
-                                <th class="p-3">Concepto</th>
-                                <th class="p-3">Total</th>
-                                <th class="p-3">Métodos de Pago</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-historial-ventas">
-                            <tr><td colspan="5" class="p-4 text-center text-gray-400">Cargando registros...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+        </div>
+        <button class="btn" onclick="agregarFilaItem()">+ Agregar Ítem</button>
 
-        <!-- COTIZADOR Y PRESUPUESTOS -->
-        <section id="module-calculadora" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                
-                <div class="flex flex-wrap justify-between items-center gap-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-file-invoice-dollar text-[#b88a73] mr-2"></i> Generador de Presupuestos Profesionales</h2>
-                        <p class="text-xs text-gray-500">Ajusta costos, márgenes de ganancia y envía presupuestos vía PDF o WhatsApp.</p>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <label class="flex items-center space-x-2 text-xs font-semibold text-gray-600 bg-[#faf8f6] px-3 py-2 rounded-xl border border-[#e8dbd3] cursor-pointer">
-                            <input type="checkbox" id="chk-ocultar-bcv" onchange="alternarOcultarBCV()" class="rounded border-[#e8dbd3] text-[#b88a73]">
-                            <span>Ocultar BCV en PDF</span>
-                        </label>
-                        <button onclick="enviarPresupuestoWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
-                            <i class="fa-brands fa-whatsapp text-base"></i>
-                            <span>Enviar por WhatsApp</span>
-                        </button>
-                        <button onclick="exportarPDFPresupuesto()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
-                            <i class="fa-solid fa-file-pdf"></i>
-                            <span>Exportar PDF / Imprimir</span>
-                        </button>
-                    </div>
-                </div>
+        <h3 style="margin-top:20px;">Total Cotización: $<span id="lblTotalUSD">0.00</span> USD</h3>
 
-                <!-- Configuración Presupuesto -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3] no-print-controls">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Cliente Destino</label>
-                        <select id="presupuesto-cliente" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm focus:outline-none" onchange="manejarCambioClientePresupuesto(this)">
-                            <option value="Cliente General">-- Seleccionar Cliente CRM --</option>
-                            <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Validez del Presupuesto</label>
-                        <input type="text" id="presupuesto-validez" value="7 días hábiles" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm focus:outline-none" oninput="recalcularPresupuestoTotal()">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">% Ganancia Global por Defecto</label>
-                        <input type="number" id="presupuesto-ganancia-global" value="30" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm focus:outline-none" oninput="aplicarGananciaGlobalEnCascada()">
-                    </div>
-                </div>
+        <div style="margin-top: 20px;">
+            <button class="btn btn-primary" onclick="guardarCotizacion()">Guardar Cotización</button>
+            <button class="btn btn-whatsapp" onclick="enviarWhatsApp()">Enviar por WhatsApp</button>
+            <button class="btn btn-pdf" onclick="descargarPDF()">Generar PDF</button>
+        </div>
+    </div>
 
-                <!-- Documento Presupuesto -->
-                <div class="w-full flex justify-center py-2 overflow-x-auto">
-                    <div id="area-impresion-presupuesto" class="bg-white p-8 rounded-2xl border-2 border-[#b88a73] space-y-6 shadow-xs w-full max-w-4xl mx-auto">
-                        <div class="flex justify-between items-start border-b border-[#e8dbd3] pb-6">
-                            <div class="flex items-center space-x-3">
-                                <div id="doc-logo-preview" class="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center bg-[#b88a73] text-white font-bold shrink-0">
-                                    <i class="fa-solid fa-layer-group"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-xl font-bold text-[#2c2c2c] tracking-wide">LAN ESTUDIO</h3>
-                                    <p class="text-xs text-gray-500">Agencia de Publicidad y Comunicación</p>
-                                </div>
-                            </div>
-                            <div class="text-right shrink-0">
-                                <h4 class="text-sm font-bold text-[#b88a73] uppercase tracking-widest">PRESUPUESTO</h4>
-                                <p id="presupuesto-fecha-doc" class="text-xs text-gray-500 mt-1">Fecha: --/--/----</p>
-                                <p id="container-tasa-doc" class="text-xs text-gray-500">Ref Tasa BCV: <span id="presupuesto-tasa-doc" class="text-[#2c2c2c] font-semibold">0.00</span></p>
-                            </div>
-                        </div>
+    <!-- MÓDULO COTIZACIONES GUARDADAS -->
+    <div id="seccion-pendientes" class="section">
+        <h2>Cotizaciones Pendientes por Facturar</h2>
+        <div id="listaCotizacionesPendientes">
+            <p>Cargando cotizaciones...</p>
+        </div>
+    </div>
 
-                        <div class="text-xs text-gray-700 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3] flex justify-between items-center">
-                            <div><span class="text-gray-500 font-semibold">Preparado para:</span> <span id="doc-cliente-nombre" class="text-[#2c2c2c] font-bold">Cliente General</span></div>
-                            <div><span class="text-gray-500 font-semibold">Validez:</span> <span id="doc-validez-txt" class="text-[#2c2c2c]">7 días hábiles</span></div>
-                        </div>
+    <!-- MÓDULO FACTURACIÓN -->
+    <div id="seccion-facturacion" class="section">
+        <h2>Facturación / Ventas</h2>
+        <div class="form-group">
+            <label>Cliente:</label>
+            <input type="text" id="facturaCliente" readonly>
+        </div>
+        <div class="form-group">
+            <label>Detalle de Compra:</label>
+            <textarea id="facturaDetalle" rows="5" readonly></textarea>
+        </div>
+        <div class="form-group">
+            <label>Monto Total ($):</label>
+            <input type="number" id="facturaMontoUSD" readonly>
+        </div>
+        <button class="btn btn-success" onclick="procesarFactura()">Completar Venta y Facturar</button>
+    </div>
+</div>
 
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center no-print-controls mb-2">
-                                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Ítems e Insumos Presupuestados</h4>
-                                <div class="space-x-2">
-                                    <button onclick="agregarRenglonServicio()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-bullhorn mr-1"></i> Añadir Servicio</button>
-                                    <button onclick="agregarRenglonInsumo()" class="text-xs bg-[#b88a73] hover:bg-[#a67963] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-box mr-1"></i> Añadir Insumo</button>
-                                </div>
-                            </div>
+<script>
+    // Configuración de Supabase (reemplazar con tus credenciales)
+    const SUPABASE_URL = 'https://TU_SUPABASE_URL.supabase.co';
+    const SUPABASE_KEY = 'TU_SUPABASE_ANON_KEY';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left text-xs text-gray-700">
-                                    <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
-                                        <tr>
-                                            <th class="p-3 w-[36%] col-desc">Descripción / Concepto</th>
-                                            <th class="p-3 w-[10%] text-center col-cant">Cant</th>
-                                            <th class="p-3 w-[12%] text-center internal-col">Costo Unit. ($)</th>
-                                            <th class="p-3 w-[10%] text-center internal-col">% Ganancia</th>
-                                            <th class="p-3 w-[14%] text-right internal-col">Precio Sug. ($)</th>
-                                            <th class="p-3 w-[18%] text-right font-bold text-[#b88a73] col-precio">Precio Final ($)</th>
-                                            <th class="p-3 w-[10%] text-center no-print-controls">Acción</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="lista-renglones-presupuesto"></tbody>
-                                </table>
-                            </div>
-                        </div>
+    // Navegación entre pestañas
+    function mostrarSeccion(seccionId) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
 
-                        <div class="flex justify-end pt-4 border-t border-[#e8dbd3]">
-                            <div class="w-full sm:w-80 space-y-2.5 text-sm bg-[#faf8f6] p-5 rounded-xl border border-[#e8dbd3]">
-                                <div class="flex justify-between text-gray-500 text-xs internal-col">
-                                    <span>Costo Total Producción:</span>
-                                    <span id="doc-subtotal-costo" class="font-bold text-[#2c2c2c]">$0.00</span>
-                                </div>
-                                <div class="flex justify-between text-gray-500 text-xs internal-col">
-                                    <span>Ganancia Estimada:</span>
-                                    <span id="doc-total-ganancia" class="font-bold text-[#b88a73]">$0.00</span>
-                                </div>
-                                <div class="flex justify-between items-center pt-1 text-base font-bold text-[#2c2c2c]">
-                                    <span class="uppercase tracking-wide text-xs text-gray-600">Total Presupuesto:</span>
-                                    <span id="doc-total-usd" class="text-lg font-extrabold text-[#b88a73]">$0.00</span>
-                                </div>
-                                <div id="container-total-ves-doc" class="flex justify-between items-center text-xs text-gray-600 font-semibold border-t border-dashed border-[#e8dbd3] pt-2">
-                                    <span>Equivalente en Bs:</span>
-                                    <span id="doc-total-ves" class="font-bold text-[#2c2c2c]">Bs. 0.00</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        document.getElementById(`seccion-${seccionId}`).classList.add('active');
+        document.getElementById(`tab-${seccionId}`).classList.add('active');
 
-            </div>
-        </section>
-
-        <!-- CAJA Y FACTURACIÓN -->
-        <section id="module-caja" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 space-y-4">
-                    <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cash-register text-[#b88a73] mr-2"></i> Procesar Venta / Factura</h2>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Cliente (CRM)</label>
-                            <select id="caja-cliente" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-[#2c2c2c] focus:outline-none">
-                                <option value="Cliente General">-- Cliente General --</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Descripción del Servicio</label>
-                            <input type="text" id="caja-concepto" placeholder="Ej: Trabajo Publicitario" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-[#2c2c2c] focus:outline-none">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Total a Pagar ($)</label>
-                            <input type="number" id="caja-total-usd" value="50.00" step="0.01" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-[#2c2c2c] font-bold" oninput="actualizarTotalesCaja()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Total a Pagar (Bs)</label>
-                            <input type="text" id="caja-total-ves" readonly class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-[#b88a73] font-bold">
-                        </div>
-                    </div>
-
-                    <div class="mt-4 border-t border-[#e8dbd3] pt-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-sm font-bold text-[#2c2c2c] uppercase tracking-wider">Desglose de Formas de Pago</h3>
-                            <button onclick="agregarMetodoPago()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-plus mr-1"></i> Añadir Método</button>
-                        </div>
-                        <div id="lista-pagos" class="space-y-3 max-h-56 overflow-y-auto pr-1"></div>
-                    </div>
-                </div>
-
-                <div class="bg-[#faf8f6] p-5 rounded-xl border border-[#e8dbd3] flex flex-col justify-between space-y-4">
-                    <div>
-                        <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider border-b border-[#e8dbd3] pb-2 mb-3">Resumen de Cobro</h3>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between"><span class="text-gray-500">Total Factura:</span><span id="resumen-total" class="font-bold text-[#2c2c2c]">$0.00</span></div>
-                            <div class="flex justify-between"><span class="text-gray-500">Total Abonado:</span><span id="resumen-abonado" class="font-bold text-[#b88a73]">$0.00</span></div>
-                            <div class="flex justify-between border-t border-[#e8dbd3] pt-2"><span class="text-gray-500">Restante / Vuelto:</span><span id="resumen-restante" class="font-bold text-amber-600">$0.00</span></div>
-                        </div>
-                    </div>
-
-                    <button onclick="procesarPagoFinal()" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-3 rounded-xl font-bold transition shadow-sm flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-check-circle"></i>
-                        <span>Guardar y Procesar Venta</span>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- INSUMOS Y STOCK -->
-        <section id="module-insumos" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-boxes-stacked text-[#b88a73] mr-2"></i> Control de Insumos y Materiales</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                    <input type="text" id="insumo-nombre" placeholder="Nombre del Material" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="text" id="insumo-categoria" placeholder="Categoría" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="insumo-costo" placeholder="Costo Unit. ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="insumo-stock" placeholder="Stock Actual" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarInsumo()" class="sm:col-span-4 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Insumo en Nube</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-700">
-                        <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
-                            <tr><th class="p-3">Nombre</th><th class="p-3">Categoría</th><th class="p-3">Costo ($)</th><th class="p-3">Stock</th></tr>
-                        </thead>
-                        <tbody id="tabla-insumos"><tr><td colspan="4" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- SERVICIOS -->
-        <section id="module-servicios" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-bullhorn text-[#b88a73] mr-2"></i> Catálogo de Servicios Publicitarios</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                    <input type="text" id="servicio-nombre" placeholder="Nombre del Servicio" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="servicio-precio" placeholder="Precio Base ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarServicio()" class="sm:col-span-2 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Guardar Servicio en Nube</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-700">
-                        <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
-                            <tr><th class="p-3">Servicio</th><th class="p-3">Precio Base ($)</th></tr>
-                        </thead>
-                        <tbody id="tabla-servicios"><tr><td colspan="2" class="p-4 text-center text-gray-400">Sin servicios registrados.</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- CRM CLIENTES -->
-        <section id="module-crm" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Directorio de Clientes (CRM)</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                    <input type="text" id="cliente-nombre" placeholder="Nombre o Empresa" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="text" id="cliente-tel" placeholder="Teléfono / WhatsApp (Ej: +58412...)" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="text" id="cliente-insta" placeholder="Instagram" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarCliente()" class="sm:col-span-3 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Guardar Cliente en CRM</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-700">
-                        <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
-                            <tr><th class="p-3">Nombre / Empresa</th><th class="p-3">Teléfono</th><th class="p-3">Instagram</th></tr>
-                        </thead>
-                        <tbody id="tabla-clientes"><tr><td colspan="3" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- CONTROL FINANCIERO Y AUDITORÍA POR FECHA -->
-        <section id="module-finanzas" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-wallet text-[#b88a73] mr-2"></i> Control Financiero y Registro de Gastos</h2>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                    <input type="text" id="gasto-concepto" placeholder="Concepto del Gasto" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="gasto-monto" placeholder="Monto ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <select id="gasto-categoria" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                        <option value="Operativo">Operativo (Alquiler, Servicios)</option>
-                        <option value="Insumos">Compra de Insumos</option>
-                        <option value="Marketing">Marketing / Publicidad</option>
-                        <option value="Otros">Otros</option>
-                    </select>
-                    <button onclick="guardarGasto()" class="sm:col-span-3 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Gasto</button>
-                </div>
-
-                <!-- Filtro de Auditoría por Rango de Fechas -->
-                <div class="bg-[#faf8f6] p-5 rounded-2xl border border-[#e8dbd3] space-y-4">
-                    <h3 class="text-sm font-bold text-[#2c2c2c] uppercase tracking-wider"><i class="fa-solid fa-filter text-[#b88a73] mr-1"></i> Auditoría de Ganancias por Rango de Fechas</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 mb-1">Fecha Inicio</label>
-                            <input type="date" id="filtro-fecha-inicio" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-xs">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 mb-1">Fecha Fin</label>
-                            <input type="date" id="filtro-fecha-fin" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-xs">
-                        </div>
-                        <div class="flex items-end">
-                            <button onclick="filtrarFinanzasPorFecha()" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-2 rounded-lg font-bold text-xs transition">Calcular Balance</button>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 border-t border-[#e8dbd3]">
-                        <div class="bg-white p-4 rounded-xl border border-[#e8dbd3]">
-                            <span class="text-xs text-gray-500 font-semibold">Ventas en Periodo</span>
-                            <h4 id="reporte-ventas-periodo" class="text-lg font-bold text-[#2c2c2c]">$0.00</h4>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border border-[#e8dbd3]">
-                            <span class="text-xs text-gray-500 font-semibold">Gastos en Periodo</span>
-                            <h4 id="reporte-gastos-periodo" class="text-lg font-bold text-rose-500">$0.00</h4>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl border border-[#e8dbd3]">
-                            <span class="text-xs text-gray-500 font-semibold">Ganancia Neta</span>
-                            <h4 id="reporte-neto-periodo" class="text-lg font-bold text-emerald-600">$0.00</h4>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-700">
-                        <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
-                            <tr><th class="p-3">Concepto</th><th class="p-3">Categoría</th><th class="p-3">Monto ($)</th><th class="p-3">Fecha</th></tr>
-                        </thead>
-                        <tbody id="tabla-gastos"><tr><td colspan="4" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- CONFIGURACIÓN DE LOGO -->
-        <section id="module-logo" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
-                <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-image text-[#b88a73] mr-2"></i> Configuración del Logotipo</h2>
-                <p class="text-sm text-gray-500">Carga tu logo empresarial para personalizar la app y los PDF de presupuestos.</p>
-                <div class="flex items-center space-x-4">
-                    <input type="file" id="logo-file-input" accept="image/*" class="bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2 text-sm text-gray-700">
-                    <button onclick="actualizarLogo()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-4 py-2 rounded-xl text-sm font-medium transition">Aplicar Logo</button>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <script>
-        const SUPABASE_URL = 'https://bqzzbetrqanrsgurhcqp.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxenpiZXRycWFucnNndXJoY3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzOTU5NjYsImV4cCI6MjEwMzk3MTk2Nn0.DVZ9TDAefdTrfJ2yDoNgoXvy1KOSNQgzEsHngIYPHKM';
-        const supabaseClient = window.supabase ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-
-        let tasaBCV = 807.39;
-        let listaInsumosDB = [];
-        let listaServiciosDB = [];
-        let listaClientesDB = [];
-        let listaVentasDB = [];
-        let listaGastosDB = [];
-        let globalLogoHTML = `<i class="fa-solid fa-layer-group"></i>`;
-
-        function actualizarFechaHora() {
-            const ahora = new Date();
-            const opciones = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-            const relojEl = document.getElementById('reloj-fecha-hora');
-            if (relojEl) relojEl.textContent = ahora.toLocaleString('es-VE', opciones);
+        if (seccionId === 'pendientes') {
+            listarCotizacionesPendientes();
         }
+    }
 
-        function switchTab(tabId) {
-            const tabs = ['dashboard', 'calculadora', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo'];
-            tabs.forEach(t => {
-                const el = document.getElementById(`module-${t}`);
-                const btn = document.getElementById(`tab-${t}`);
-                if(el) el.classList.add('hidden');
-                if(btn) btn.className = "px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition";
-            });
+    // Agregar fila dinámica
+    function agregarFilaItem() {
+        const container = document.getElementById('itemsContainer');
+        const div = document.createElement('div');
+        div.className = 'item-row';
+        div.innerHTML = `
+            <input type="text" class="item-desc" placeholder="Descripción del producto o servicio">
+            <input type="number" class="item-monto" placeholder="Monto $" step="0.01" onchange="recalcularTotales()">
+        `;
+        container.appendChild(div);
+    }
 
-            const activeEl = document.getElementById(`module-${tabId}`);
-            const activeBtn = document.getElementById(`tab-${tabId}`);
-            if(activeEl) activeEl.classList.remove('hidden');
-            if(activeBtn) activeBtn.className = "px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm";
-
-            window.location.hash = tabId;
-
-            if(tabId === 'caja') { actualizarTotalesCaja(); cargarClientesEnSelects(); }
-            if(tabId === 'calculadora') {
-                cargarClientesEnSelects();
-                document.getElementById('presupuesto-fecha-doc').innerText = `Fecha: ${new Date().toLocaleDateString()}`;
-                document.getElementById('presupuesto-tasa-doc').innerText = `Bs. ${tasaBCV.toFixed(2)}`;
+    // Obtener ítems del formulario
+    function obtenerItems() {
+        const descs = document.querySelectorAll('.item-desc');
+        const montos = document.querySelectorAll('.item-monto');
+        const items = [];
+        descs.forEach((d, index) => {
+            const desc = d.value.trim();
+            const monto = parseFloat(montos[index].value) || 0;
+            if (desc && monto > 0) {
+                items.push({ descripcion: desc, monto: monto });
             }
+        });
+        return items;
+    }
+
+    // Recalcular total acumulado
+    function recalcularTotales() {
+        const items = obtenerItems();
+        const totalUSD = items.reduce((sum, item) => sum + item.monto, 0);
+        document.getElementById('lblTotalUSD').innerText = totalUSD.toFixed(2);
+        return totalUSD;
+    }
+
+    // 1. Guardar Cotización en Supabase
+    async function guardarCotizacion() {
+        const cliente = document.getElementById('cotizadorCliente').value.trim();
+        const items = obtenerItems();
+        const montoUSD = recalcularTotales();
+        const tasaBCV = parseFloat(document.getElementById('tasaBCV').value) || 0;
+
+        if (!cliente) {
+            alert('Por favor, ingresa el nombre del cliente.');
+            return;
+        }
+        if (items.length === 0) {
+            alert('Ingresa al menos un servicio o producto con precio.');
+            return;
         }
 
-        function syncRoute() {
-            const hash = window.location.hash.replace('#', '');
-            const tabs = ['dashboard', 'calculadora', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo'];
-            if (tabs.includes(hash)) switchTab(hash);
-            else switchTab('dashboard');
+        const { data, error } = await supabase
+            .from('cotizaciones')
+            .insert([{
+                cliente_nombre: cliente,
+                detalles: items,
+                monto_usd: montoUSD,
+                tasa_bcv: tasaBCV,
+                estado: 'pendiente'
+            }]);
+
+        if (error) {
+            alert('Error al guardar cotización: ' + error.message);
+        } else {
+            alert('Cotización guardada exitosamente.');
+            limpiarFormularioCotizador();
+        }
+    }
+
+    // 2. Ocultar BCV en WhatsApp
+    function enviarWhatsApp() {
+        const cliente = document.getElementById('cotizadorCliente').value || 'Cliente';
+        const items = obtenerItems();
+        const totalUSD = recalcularTotales();
+        const tasaBCV = parseFloat(document.getElementById('tasaBCV').value) || 0;
+        const ocultarBCV = document.getElementById('ocultarTasaBCV').checked;
+
+        let texto = `*PRESUPUESTO / COTIZACIÓN*\n`;
+        texto += `Cliente: ${cliente}\n\n`;
+
+        items.forEach(item => {
+            texto += `• ${item.descripcion}: $${item.monto.toFixed(2)}\n`;
+        });
+
+        texto += `\n*TOTAL: $${totalUSD.toFixed(2)} USD*`;
+
+        if (!ocultarBCV) {
+            const totalBS = totalUSD * tasaBCV;
+            texto += `\nTasa BCV: ${tasaBCV.toFixed(2)} Bs/$`;
+            texto += `\nTotal Bs: ${totalBS.toFixed(2)} Bs`;
         }
 
-        window.addEventListener('hashchange', syncRoute);
+        const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+        window.open(url, '_blank');
+    }
 
-        async function fetchBCVRate() {
-            const display = document.getElementById('bcv-rate-display');
-            if (display) display.innerText = "Consultando...";
-            
-            try {
-                const response = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
-                if(response.ok) {
-                    const data = await response.json();
-                    if(data.promedio) {
-                        tasaBCV = parseFloat(data.promedio);
-                        if (display) display.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
-                        const presEl = document.getElementById('presupuesto-tasa-doc');
-                        if (presEl) presEl.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
-                        recalcularPresupuestoTotal();
-                        actualizarTotalesCaja();
-                        return;
-                    }
-                }
-            } catch (e1) {}
+    // 3. Ocultar BCV en PDF
+    function descargarPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
 
-            try {
-                const response = await fetch('https://rates.dolarvzla.com/bcv/current.json');
-                if(response.ok) {
-                    const data = await response.json();
-                    if(data.usd) {
-                        tasaBCV = parseFloat(data.usd);
-                        if (display) display.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
-                        const presEl = document.getElementById('presupuesto-tasa-doc');
-                        if (presEl) presEl.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
-                        recalcularPresupuestoTotal();
-                        actualizarTotalesCaja();
-                        return;
-                    }
-                }
-            } catch (e2) {}
+        const cliente = document.getElementById('cotizadorCliente').value || 'Cliente';
+        const items = obtenerItems();
+        const totalUSD = recalcularTotales();
+        const tasaBCV = parseFloat(document.getElementById('tasaBCV').value) || 0;
+        const ocultarBCV = document.getElementById('ocultarTasaBCV').checked;
 
-            if (display) display.innerText = `Bs. ${tasaBCV.toFixed(2)} (Ref)`;
-            const presEl = document.getElementById('presupuesto-tasa-doc');
-            if (presEl) presEl.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
-            recalcularPresupuestoTotal();
-            actualizarTotalesCaja();
+        doc.setFontSize(16);
+        doc.text("COTIZACIÓN DE SERVICIOS", 20, 20);
+
+        doc.setFontSize(12);
+        doc.text(`Cliente: ${cliente}`, 20, 30);
+        doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 20, 38);
+
+        let y = 50;
+        doc.text("Detalle:", 20, y);
+        y += 8;
+
+        items.forEach(item => {
+            doc.text(`- ${item.descripcion}: $${item.monto.toFixed(2)}`, 25, y);
+            y += 8;
+        });
+
+        y += 5;
+        doc.setFontSize(14);
+        doc.text(`TOTAL USD: $${totalUSD.toFixed(2)}`, 20, y);
+
+        if (!ocultarBCV) {
+            y += 8;
+            const totalBS = totalUSD * tasaBCV;
+            doc.setFontSize(11);
+            doc.text(`Tasa BCV: ${tasaBCV.toFixed(2)} Bs/$`, 20, y);
+            y += 6;
+            doc.text(`TOTAL BS: ${totalBS.toFixed(2)} Bs`, 20, y);
         }
 
-        // --- ENVIAR PRESUPUESTO POR WHATSAPP ---
-        function enviarPresupuestoWhatsApp() {
-            const selectCliente = document.getElementById('presupuesto-cliente');
-            const nombreCliente = selectCliente.options[selectCliente.selectedIndex]?.text || 'Cliente';
-            const totalUSD = document.getElementById('doc-total-usd').innerText;
-            const totalVES = document.getElementById('doc-total-ves').innerText;
-            const validez = document.getElementById('presupuesto-validez').value;
+        doc.save(`Cotizacion_${cliente.replace(/\s+/g, '_')}.pdf`);
+    }
 
-            let textoRenglones = "";
-            document.querySelectorAll('.renglon-item').forEach(row => {
-                const desc = row.querySelector('.desc-input').value || 'Ítem';
-                const cant = row.querySelector('.cant-input').value || 1;
-                const precio = row.querySelector('.precio-cliente-input').value || 0;
-                textoRenglones += `• *${desc}* (x${cant}) - $${parseFloat(precio).toFixed(2)}\n`;
-            });
+    // 4. Listar Cotizaciones Pendientes
+    async function listarCotizacionesPendientes() {
+        const contenedor = document.getElementById('listaCotizacionesPendientes');
+        contenedor.innerHTML = '<p>Cargando cotizaciones...</p>';
 
-            const mensaje = `Hola *${nombreCliente}*, ¡saludos desde *LAN Estudio*! 🎨\n\nAquí tienes el resumen de tu presupuesto:\n\n${textoRenglones}\n📌 *Total a Pagar:* ${totalUSD} (Eq. ${totalVES})\n⏳ *Validez:* ${validez}\n🏛️ *Tasa BCV Ref:* Bs. ${tasaBCV.toFixed(2)}\n\n¡Quedamos atentos a tus comentarios para iniciar tu proyecto!`;
+        const { data: cotizaciones, error } = await supabase
+            .from('cotizaciones')
+            .select('*')
+            .eq('estado', 'pendiente')
+            .order('created_at', { ascending: false });
 
-            // Buscar si el cliente tiene teléfono en CRM
-            const clienteEncontrado = listaClientesDB.find(c => c.nombre === selectCliente.value);
-            let numTelefono = clienteEncontrado && clienteEncontrado.tel ? clienteEncontrado.tel.replace(/[^0-9]/g, '') : '';
-
-            const url = numTelefono ? `https://wa.me/${numTelefono}?text=${encodeURIComponent(mensaje)}` : `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-            window.open(url, '_blank');
+        if (error) {
+            contenedor.innerHTML = '<p>Error al cargar las cotizaciones.</p>';
+            return;
         }
 
-        // --- EXPORTAR HISTORIAL DE VENTAS A EXCEL ---
-        function exportarHistorialExcel() {
-            if(!listaVentasDB || listaVentasDB.length === 0) {
-                alert("No hay ventas registradas para exportar.");
+        if (cotizaciones.length === 0) {
+            contenedor.innerHTML = '<p>No hay cotizaciones pendientes.</p>';
+            return;
+        }
+
+        contenedor.innerHTML = '';
+        cotizaciones.forEach(cot => {
+            contenedor.innerHTML += `
+                <div class="cotizacion-card">
+                    <div>
+                        <strong>Cliente:</strong> ${cot.cliente_nombre}<br>
+                        <strong>Monto:</strong> $${cot.monto_usd.toFixed(2)} USD<br>
+                        <small>Fecha: ${new Date(cot.created_at).toLocaleDateString()}</small>
+                    </div>
+                    <button class="btn btn-success" onclick="cargarAFacturacion(${cot.id})">Cargar a Facturación</button>
+                </div>
+            `;
+        });
+    }
+
+    // 5. Cargar Cotización a Facturación
+    async function cargarAFacturacion(id) {
+        const { data: cotizacion, error } = await supabase
+            .from('cotizaciones')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (error || !cotizacion) {
+            alert('No se pudo obtener la cotización.');
+            return;
+        }
+
+        document.getElementById('facturaCliente').value = cotizacion.cliente_nombre;
+        document.getElementById('facturaMontoUSD').value = cotizacion.monto_usd;
+
+        let resumenDetalle = '';
+        cotizacion.detalles.forEach(item => {
+            resumenDetalle += `${item.descripcion} - $${item.monto.toFixed(2)}\n`;
+        });
+        document.getElementById('facturaDetalle').value = resumenDetalle;
+
+        // Guardar ID temporalmente en el botón de procesar
+        document.querySelector('#seccion-facturacion .btn-success').setAttribute('data-id', id);
+
+        mostrarSeccion('facturacion');
+    }
+
+    // 6. Finalizar la venta y actualizar el estado
+    async function procesarFactura() {
+        const cotizacionId = document.querySelector('#seccion-facturacion .btn-success').getAttribute('data-id');
+
+        if (cotizacionId) {
+            const { error } = await supabase
+                .from('cotizaciones')
+                .update({ estado: 'facturado' })
+                .eq('id', cotizacionId);
+
+            if (error) {
+                alert('Error al actualizar el estado de la cotización: ' + error.message);
                 return;
             }
-
-            const datosFormateados = listaVentasDB.map(v => ({
-                "ID Venta": v.id,
-                "Fecha": new Date(v.created_at).toLocaleDateString(),
-                "Hora": new Date(v.created_at).toLocaleTimeString(),
-                "Cliente": v.cliente,
-                "Concepto / Ítems": v.items,
-                "Total ($ USD)": v.total_usd,
-                "Detalle de Pago": v.metodo_pago
-            }));
-
-            const worksheet = XLSX.utils.json_to_sheet(datosFormateados);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Historial Ventas");
-
-            XLSX.writeFile(workbook, `Historial_Ventas_LAN_Estudio_${Date.now()}.xlsx`);
         }
 
-        // --- FILTRO AUDITORÍA POR RANGO DE FECHAS ---
-        function filtrarFinanzasPorFecha() {
-            const inicio = document.getElementById('filtro-fecha-inicio').value;
-            const fin = document.getElementById('filtro-fecha-fin').value;
+        alert('Venta completada con éxito.');
+        document.getElementById('facturaCliente').value = '';
+        document.getElementById('facturaDetalle').value = '';
+        document.getElementById('facturaMontoUSD').value = '';
+        document.querySelector('#seccion-facturacion .btn-success').removeAttribute('data-id');
+        mostrarSeccion('cotizador');
+    }
 
-            if(!inicio || !fin) {
-                alert("Selecciona ambas fechas para calcular el periodo.");
-                return;
-            }
-
-            const fechaInicio = new Date(inicio + "T00:00:00");
-            const fechaFin = new Date(fin + "T23:59:59");
-
-            let sumaVentas = 0;
-            listaVentasDB.forEach(v => {
-                const f = new Date(v.created_at);
-                if(f >= fechaInicio && f <= fechaFin) {
-                    sumaVentas += (v.total_usd || 0);
-                }
-            });
-
-            let sumaGastos = 0;
-            listaGastosDB.forEach(g => {
-                const f = new Date(g.created_at);
-                if(f >= fechaInicio && f <= fechaFin) {
-                    sumaGastos += (g.monto || 0);
-                }
-            });
-
-            const neto = sumaVentas - sumaGastos;
-
-            document.getElementById('reporte-ventas-periodo').innerText = `$${sumaVentas.toFixed(2)}`;
-            document.getElementById('reporte-gastos-periodo').innerText = `$${sumaGastos.toFixed(2)}`;
-            
-            const elNeto = document.getElementById('reporte-neto-periodo');
-            elNeto.innerText = `$${neto.toFixed(2)}`;
-            elNeto.className = neto >= 0 ? "text-lg font-bold text-emerald-600" : "text-lg font-bold text-rose-500";
-        }
-
-        async function manejarCambioClientePresupuesto(selectEl) {
-            if (selectEl.value === 'CREAR_NUEVO_CLIENTE') {
-                const nombreNuevo = prompt("Ingrese el nombre del nuevo cliente:");
-                if (nombreNuevo && nombreNuevo.trim() !== '') {
-                    const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
-                    const instaNuevo = prompt("Instagram (opcional):") || '';
-                    
-                    if (supabaseClient) {
-                        await supabaseClient.from('clientes').insert([{ nombre: nombreNuevo.trim(), tel: telNuevo, instagram: instaNuevo }]);
-                        await cargarClientes();
-                    }
-                    await cargarClientesEnSelects();
-                    selectEl.value = nombreNuevo.trim();
-                } else {
-                    selectEl.value = "Cliente General";
-                }
-            }
-            recalcularPresupuestoTotal();
-        }
-
-        let renglonIndex = 0;
-
-        function agregarRenglonServicio(nombreDefault = '', costoDefault = 0) {
-            renglonIndex++;
-            const tbody = document.getElementById('lista-renglones-presupuesto');
-            const rowId = `renglon-${renglonIndex}`;
-            const gananciaGlobal = parseFloat(document.getElementById('presupuesto-ganancia-global').value) || 30;
-
-            let opcionesServicios = '<option value="">-- Catálogo Servicios --</option>';
-            listaServiciosDB.forEach(s => { opcionesServicios += `<option value="${s.nombre}" data-precio="${s.precio}">${s.nombre} ($${s.precio})</option>`; });
-
-            const html = `
-                <tr id="${rowId}" class="border-b border-[#e8dbd3] renglon-item">
-                    <td class="p-3 w-[36%] col-desc overflow-hidden">
-                        <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-servicio no-print-controls mb-1 truncate" onchange="seleccionarServicioCatalogo('${rowId}')">${opcionesServicios}</select>
-                        <input type="text" value="${nombreDefault}" placeholder="Descripción" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium">
-                    </td>
-                    <td class="p-3 w-[10%] col-cant text-center align-middle">
-                        <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal()">
-                    </td>
-                    <td class="p-3 w-[12%] text-center align-middle internal-col">
-                        <input type="number" step="0.01" value="${costoDefault}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal()">
-                    </td>
-                    <td class="p-3 w-[10%] text-center align-middle internal-col">
-                        <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal()">
-                    </td>
-                    <td class="p-3 w-[14%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle internal-col truncate">$0.00</td>
-                    <td class="p-3 w-[18%] col-precio text-right align-middle">
-                        <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}')">
-                    </td>
-                    <td class="p-3 w-[10%] text-center align-middle no-print-controls">
-                        <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-            `;
-            tbody.insertAdjacentHTML('beforeend', html);
-            recalcularPresupuestoTotal();
-        }
-
-        function agregarRenglonInsumo() {
-            renglonIndex++;
-            const tbody = document.getElementById('lista-renglones-presupuesto');
-            const rowId = `renglon-${renglonIndex}`;
-            const gananciaGlobal = parseFloat(document.getElementById('presupuesto-ganancia-global').value) || 30;
-
-            let opcionesInsumos = '<option value="">-- Catálogo Insumos --</option>';
-            listaInsumosDB.forEach(i => { opcionesInsumos += `<option value="${i.nombre}" data-costo="${i.costo_unitario}">${i.nombre} ($${i.costo_unitario})</option>`; });
-
-            const html = `
-                <tr id="${rowId}" class="border-b border-[#e8dbd3] renglon-item">
-                    <td class="p-3 w-[36%] col-desc overflow-hidden">
-                        <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-insumo no-print-controls mb-1 truncate" onchange="seleccionarInsumoCatalogo('${rowId}')">${opcionesInsumos}</select>
-                        <input type="text" placeholder="Insumo" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium">
-                    </td>
-                    <td class="p-3 w-[10%] col-cant text-center align-middle">
-                        <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal()">
-                    </td>
-                    <td class="p-3 w-[12%] text-center align-middle internal-col">
-                        <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal()">
-                    </td>
-                    <td class="p-3 w-[10%] text-center align-middle internal-col">
-                        <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal()">
-                    </td>
-                    <td class="p-3 w-[14%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle internal-col truncate">$0.00</td>
-                    <td class="p-3 w-[18%] col-precio text-right align-middle">
-                        <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}')">
-                    </td>
-                    <td class="p-3 w-[10%] text-center align-middle no-print-controls">
-                        <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-            `;
-            tbody.insertAdjacentHTML('beforeend', html);
-            recalcularPresupuestoTotal();
-        }
-
-        function seleccionarServicioCatalogo(rowId) {
-            const row = document.getElementById(rowId);
-            const select = row.querySelector('.select-servicio');
-            const selectedOption = select.options[select.selectedIndex];
-            const precio = parseFloat(selectedOption.getAttribute('data-precio')) || 0;
-            row.querySelector('.desc-input').value = select.value;
-            row.querySelector('.costo-input').value = precio;
-            row.querySelector('.precio-cliente-input').removeAttribute('data-modified');
-            recalcularPresupuestoTotal();
-        }
-
-        function seleccionarInsumoCatalogo(rowId) {
-            const row = document.getElementById(rowId);
-            const select = row.querySelector('.select-insumo');
-            const selectedOption = select.options[select.selectedIndex];
-            const costo = parseFloat(selectedOption.getAttribute('data-costo')) || 0;
-            row.querySelector('.desc-input').value = select.value;
-            row.querySelector('.costo-input').value = costo;
-            row.querySelector('.precio-cliente-input').removeAttribute('data-modified');
-            recalcularPresupuestoTotal();
-        }
-
-        function aplicarGananciaGlobalEnCascada() {
-            const gananciaGlobal = parseFloat(document.getElementById('presupuesto-ganancia-global').value) || 0;
-            document.querySelectorAll('.renglon-item').forEach(row => {
-                if(!row.querySelector('.precio-cliente-input').dataset.modified) {
-                    row.querySelector('.ganancia-input').value = gananciaGlobal;
-                }
-            });
-            recalcularPresupuestoTotal();
-        }
-
-        function marcarModificadoPrecio(rowId) {
-            document.getElementById(rowId).querySelector('.precio-cliente-input').dataset.modified = "true";
-            recalcularPresupuestoTotal();
-        }
-
-        function recalcularPresupuestoTotal() {
-            let subtotalCostoGlobal = 0, totalGananciaGlobal = 0, totalPresupuestoUSD = 0;
-
-            document.querySelectorAll('.renglon-item').forEach(row => {
-                const cant = parseFloat(row.querySelector('.cant-input').value) || 0;
-                const costoUnit = parseFloat(row.querySelector('.costo-input').value) || 0;
-                const gananciaPct = parseFloat(row.querySelector('.ganancia-input').value) || 0;
-
-                const costoTotalItem = cant * costoUnit;
-                subtotalCostoGlobal += costoTotalItem;
-
-                const sugeridoItem = costoTotalItem * (1 + (gananciaPct / 100));
-                row.querySelector('.sugerido-txt').innerText = `$${sugeridoItem.toFixed(2)}`;
-
-                const clienteInput = row.querySelector('.precio-cliente-input');
-                if(!clienteInput.dataset.modified) clienteInput.value = sugeridoItem.toFixed(2);
-
-                const precioFinalItem = parseFloat(clienteInput.value) || 0;
-                totalPresupuestoUSD += precioFinalItem;
-                totalGananciaGlobal += (precioFinalItem - costoTotalItem);
-            });
-
-            document.getElementById('doc-subtotal-costo').innerText = `$${subtotalCostoGlobal.toFixed(2)}`;
-            document.getElementById('doc-total-ganancia').innerText = `$${totalGananciaGlobal.toFixed(2)}`;
-            document.getElementById('doc-total-usd').innerText = `$${totalPresupuestoUSD.toFixed(2)}`;
-
-            const totalVES = totalPresupuestoUSD * tasaBCV;
-            document.getElementById('doc-total-ves').innerText = `Bs. ${totalVES.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
-            const selectCliente = document.getElementById('presupuesto-cliente');
-            document.getElementById('doc-cliente-nombre').innerText = selectCliente.options[selectCliente.selectedIndex]?.text || 'Cliente General';
-            document.getElementById('doc-validez-txt').innerText = document.getElementById('presupuesto-validez').value;
-        }
-
-        function alternarOcultarBCV() {
-            const ocultar = document.getElementById('chk-ocultar-bcv').checked;
-            document.getElementById('container-tasa-doc').style.display = ocultar ? 'none' : 'block';
-            document.getElementById('container-total-ves-doc').style.display = ocultar ? 'none' : 'flex';
-        }
-
-        function exportarPDFPresupuesto() {
-            const area = document.getElementById('area-impresion-presupuesto');
-            const internalCols = area.querySelectorAll('.internal-col');
-            const printControls = area.querySelectorAll('.no-print-controls');
-
-            window.scrollTo(0, 0);
-
-            const origWidth = area.style.width, origMaxWidth = area.style.maxWidth, origMargin = area.style.margin;
-            area.style.width = '750px'; area.style.maxWidth = '750px'; area.style.margin = '0 auto';
-
-            internalCols.forEach(el => el.style.setProperty('display', 'none', 'important'));
-            printControls.forEach(el => el.style.setProperty('display', 'none', 'important'));
-
-            const descInputs = area.querySelectorAll('.desc-input');
-            const cantInputs = area.querySelectorAll('.cant-input');
-            const precioClienteInputs = area.querySelectorAll('.precio-cliente-input');
-            const replacements = [];
-
-            descInputs.forEach(input => {
-                const span = document.createElement('span');
-                span.className = 'print-clean-cell font-medium text-xs text-[#2c2c2c] block w-full text-left';
-                span.innerText = input.value || '';
-                input.style.display = 'none';
-                input.parentNode.appendChild(span);
-                replacements.push({ input, span });
-            });
-
-            cantInputs.forEach(input => {
-                const span = document.createElement('span');
-                span.className = 'print-clean-cell text-xs text-center text-[#2c2c2c] block w-full';
-                span.innerText = input.value || '1';
-                input.style.display = 'none';
-                input.parentNode.appendChild(span);
-                replacements.push({ input, span });
-            });
-
-            precioClienteInputs.forEach(input => {
-                const span = document.createElement('span');
-                span.className = 'print-clean-cell text-xs text-right font-bold text-[#b88a73] block w-full';
-                span.innerText = `$${parseFloat(input.value || 0).toFixed(2)}`;
-                input.style.display = 'none';
-                input.parentNode.appendChild(span);
-                replacements.push({ input, span });
-            });
-
-            const opt = {
-                margin: [0.3, 0.3, 0.3, 0.3],
-                filename: `Presupuesto_LAN_Estudio_${Date.now()}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollX: 0, scrollY: 0 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(area).save().then(() => {
-                area.style.width = origWidth; area.style.maxWidth = origMaxWidth; area.style.margin = origMargin;
-                internalCols.forEach(el => el.style.display = '');
-                printControls.forEach(el => el.style.display = '');
-                replacements.forEach(r => { r.span.remove(); r.input.style.display = ''; });
-            }).catch(() => {
-                area.style.width = origWidth; area.style.maxWidth = origMaxWidth; area.style.margin = origMargin;
-                internalCols.forEach(el => el.style.display = '');
-                printControls.forEach(el => el.style.display = '');
-                replacements.forEach(r => { r.span.remove(); r.input.style.display = ''; });
-            });
-        }
-
-        let filasPagosCount = 0;
-        function agregarMetodoPago() {
-            filasPagosCount++;
-            const container = document.getElementById('lista-pagos');
-            const rowId = `pago-row-${filasPagosCount}`;
-            const html = `
-                <div id="${rowId}" class="flex items-center space-x-2 bg-white p-2.5 rounded-xl border border-[#e8dbd3]">
-                    <select class="bg-[#faf8f6] border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none metodo-select">
-                        <option value="Efectivo USD">Efectivo ($)</option>
-                        <option value="Pago Móvil">Pago Móvil (Bs)</option>
-                        <option value="Punto de Venta">Punto de Venta (Bs)</option>
-                        <option value="Zelle">Zelle ($)</option>
-                        <option value="Efectivo VES">Efectivo (Bs)</option>
-                    </select>
-                    <input type="number" step="0.01" placeholder="Monto" class="w-28 bg-[#faf8f6] border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none monto-input" oninput="actualizarTotalesCaja()">
-                    <select class="bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 rounded-lg px-2 py-1.5 text-xs moneda-select" onchange="actualizarTotalesCaja()">
-                        <option value="USD">USD ($)</option>
-                        <option value="VES">VES (Bs)</option>
-                    </select>
-                    <button onclick="document.getElementById('${rowId}').remove(); actualizarTotalesCaja();" class="text-rose-500 hover:text-rose-700 px-2 py-1"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', html);
-            actualizarTotalesCaja();
-        }
-
-        function actualizarTotalesCaja() {
-            const totalUSD = parseFloat(document.getElementById('caja-total-usd').value) || 0;
-            const totalVES = totalUSD * tasaBCV;
-            document.getElementById('caja-total-ves').value = `Bs. ${totalVES.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            document.getElementById('resumen-total').innerText = `$${totalUSD.toFixed(2)}`;
-
-            let totalAbonadoUSD = 0;
-            document.querySelectorAll('#lista-pagos > div').forEach(fila => {
-                const monto = parseFloat(fila.querySelector('.monto-input').value) || 0;
-                const moneda = fila.querySelector('.moneda-select').value;
-                totalAbonadoUSD += (moneda === 'VES') ? (monto / tasaBCV) : monto;
-            });
-
-            document.getElementById('resumen-abonado').innerText = `$${totalAbonadoUSD.toFixed(2)}`;
-            const restante = totalUSD - totalAbonadoUSD;
-            const restanteEl = document.getElementById('resumen-restante');
-            
-            if(restante > 0.01) { restanteEl.innerText = `Falta: $${restante.toFixed(2)}`; restanteEl.className = "font-bold text-amber-600"; }
-            else if(restante < -0.01) { restanteEl.innerText = `Vuelto: $${Math.abs(restante).toFixed(2)}`; restanteEl.className = "font-bold text-[#b88a73]"; }
-            else { restanteEl.innerText = `$0.00 (Exacto)`; restanteEl.className = "font-bold text-emerald-600"; }
-        }
-
-        async function cargarClientesEnSelects() {
-            if(!supabaseClient) return;
-            try {
-                const { data } = await supabaseClient.from('clientes').select('*');
-                if(data) listaClientesDB = data;
-                const selects = [document.getElementById('caja-cliente'), document.getElementById('presupuesto-cliente')];
-                selects.forEach(select => {
-                    if(data && select) {
-                        const valorActual = select.value;
-                        select.innerHTML = `
-                            <option value="Cliente General">-- Cliente General --</option>
-                            <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
-                        `;
-                        data.forEach(c => { select.innerHTML += `<option value="${c.nombre}">${c.nombre}</option>`; });
-                        select.value = valorActual;
-                    }
-                });
-            } catch(e) {}
-        }
-
-        async function procesarPagoFinal() {
-            const cliente = document.getElementById('caja-cliente').value;
-            const concepto = document.getElementById('caja-concepto').value;
-            const totalUSD = parseFloat(document.getElementById('caja-total-usd').value) || 0;
-            
-            if(!concepto) return alert("Por favor ingresa la descripción del servicio.");
-
-            const detallePagos = [];
-            document.querySelectorAll('#lista-pagos > div').forEach(fila => {
-                detallePagos.push({
-                    metodo: fila.querySelector('.metodo-select').value,
-                    monto: parseFloat(fila.querySelector('.monto-input').value) || 0,
-                    moneda: fila.querySelector('.moneda-select').value
-                });
-            });
-
-            if(detallePagos.length === 0) return alert("Agrega al menos un método de pago.");
-
-            if(supabaseClient) {
-                await supabaseClient.from('ventas').insert([{
-                    cliente: cliente,
-                    metodo_pago: JSON.stringify(detallePagos),
-                    total_usd: totalUSD,
-                    items: concepto
-                }]);
-            }
-
-            alert(`Venta registrada exitosamente.`);
-            switchTab('dashboard');
-            cargarHistorialVentas();
-        }
-
-        async function guardarInsumo() {
-            const nombre = document.getElementById('insumo-nombre').value;
-            const categoria = document.getElementById('insumo-categoria').value;
-            const costo = parseFloat(document.getElementById('insumo-costo').value) || 0;
-            const stock = parseInt(document.getElementById('insumo-stock').value) || 0;
-            if(!nombre) return alert("Ingresa el nombre del insumo.");
-            if(supabaseClient) await supabaseClient.from('insumos').insert([{ nombre, categoria, costo_unitario: costo, stock }]);
-            alert("Insumo guardado.");
-            cargarInsumos();
-        }
-
-        async function cargarInsumos() {
-            if(!supabaseClient) return;
-            const { data } = await supabaseClient.from('insumos').select('*');
-            if(data) listaInsumosDB = data;
-            const tbody = document.getElementById('tabla-insumos');
-            if(data && tbody) {
-                tbody.innerHTML = data.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr>';
-                data.forEach(i => { tbody.innerHTML += `<tr class="border-b border-[#e8dbd3]"><td class="p-3">${i.nombre}</td><td class="p-3">${i.categoria || ''}</td><td class="p-3">$${i.costo_unitario}</td><td class="p-3">${i.stock}</td></tr>`; });
-                document.getElementById('dash-insumos').innerText = data.length;
-            }
-        }
-
-        async function guardarServicio() {
-            const nombre = document.getElementById('servicio-nombre').value;
-            const precio = parseFloat(document.getElementById('servicio-precio').value) || 0;
-            if(!nombre) return alert("Ingresa el nombre del servicio.");
-            if(supabaseClient) await supabaseClient.from('servicios').insert([{ nombre, precio }]);
-            alert("Servicio guardado.");
-            cargarServicios();
-        }
-
-        async function cargarServicios() {
-            if(!supabaseClient) return;
-            const { data } = await supabaseClient.from('servicios').select('*');
-            if(data) listaServiciosDB = data;
-            const tbody = document.getElementById('tabla-servicios');
-            if(data && tbody) {
-                tbody.innerHTML = data.length ? '' : '<tr><td colspan="2" class="p-4 text-center text-gray-400">Sin servicios registrados.</td></tr>';
-                data.forEach(s => { tbody.innerHTML += `<tr class="border-b border-[#e8dbd3]"><td class="p-3">${s.nombre}</td><td class="p-3">$${s.precio}</td></tr>`; });
-            }
-        }
-
-        async function guardarCliente() {
-            const nombre = document.getElementById('cliente-nombre').value;
-            const tel = document.getElementById('cliente-tel').value;
-            const instagram = document.getElementById('cliente-insta').value;
-            if(!nombre) return alert("Ingresa el nombre del cliente.");
-            if(supabaseClient) await supabaseClient.from('clientes').insert([{ nombre, tel, instagram }]);
-            alert("Cliente guardado en CRM.");
-            cargarClientes();
-        }
-
-        async function cargarClientes() {
-            if(!supabaseClient) return;
-            const { data } = await supabaseClient.from('clientes').select('*');
-            if(data) listaClientesDB = data;
-            const tbody = document.getElementById('tabla-clientes');
-            if(data && tbody) {
-                tbody.innerHTML = data.length ? '' : '<tr><td colspan="3" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>';
-                data.forEach(c => { tbody.innerHTML += `<tr class="border-b border-[#e8dbd3]"><td class="p-3">${c.nombre}</td><td class="p-3">${c.tel || ''}</td><td class="p-3">${c.instagram || ''}</td></tr>`; });
-                document.getElementById('dash-clientes').innerText = data.length;
-            }
-        }
-
-        async function guardarGasto() {
-            const concepto = document.getElementById('gasto-concepto').value;
-            const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
-            const categoria = document.getElementById('gasto-categoria').value;
-            if(!concepto) return alert("Ingresa el concepto del gasto.");
-            if(supabaseClient) await supabaseClient.from('gastos').insert([{ concepto, monto, categoria }]);
-            alert("Gasto registrado.");
-            cargarGastos();
-        }
-
-        async function cargarGastos() {
-            if(!supabaseClient) return;
-            const { data } = await supabaseClient.from('gastos').select('*').order('created_at', { ascending: false });
-            let totalGastos = 0;
-            if(data) {
-                listaGastosDB = data;
-                const tbody = document.getElementById('tabla-gastos');
-                if(tbody) {
-                    tbody.innerHTML = data.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>';
-                    data.forEach(g => {
-                        totalGastos += (g.monto || 0);
-                        tbody.innerHTML += `<tr class="border-b border-[#e8dbd3]"><td class="p-3">${g.concepto}</td><td class="p-3">${g.categoria}</td><td class="p-3 font-semibold text-rose-500">$${g.monto.toFixed(2)}</td><td class="p-3">${new Date(g.created_at).toLocaleDateString()}</td></tr>`;
-                    });
-                }
-            }
-            document.getElementById('dash-gastos').innerText = `$${totalGastos.toFixed(2)}`;
-        }
-
-        async function cargarHistorialVentas() {
-            if(!supabaseClient) return;
-            const { data } = await supabaseClient.from('ventas').select('*').order('created_at', { ascending: false });
-            const tbody = document.getElementById('tabla-historial-ventas');
-            let totalVentasGlobal = 0;
-            if(data && tbody) {
-                listaVentasDB = data;
-                tbody.innerHTML = data.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">No hay transacciones aún.</td></tr>';
-                data.forEach(v => {
-                    totalVentasGlobal += (v.total_usd || 0);
-                    let metodoTexto = v.metodo_pago;
-                    try {
-                        const parsed = JSON.parse(v.metodo_pago);
-                        metodoTexto = parsed.map(p => `${p.metodo}: $${p.monto} ${p.moneda}`).join(', ');
-                    } catch(e) {}
-
-                    tbody.innerHTML += `
-                        <tr class="border-b border-[#e8dbd3]">
-                            <td class="p-3">${new Date(v.created_at).toLocaleDateString()}</td>
-                            <td class="p-3 font-semibold text-[#2c2c2c]">${v.cliente}</td>
-                            <td class="p-3">${v.items}</td>
-                            <td class="p-3 text-[#b88a73] font-bold">$${v.total_usd.toFixed(2)}</td>
-                            <td class="p-3 text-xs text-gray-500">${metodoTexto}</td>
-                        </tr>
-                    `;
-                });
-                document.getElementById('dash-ventas').innerText = `$${totalVentasGlobal.toFixed(2)}`;
-            }
-        }
-
-        function actualizarLogo() {
-            const input = document.getElementById('logo-file-input');
-            if(input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    globalLogoHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
-                    document.getElementById('logo-container').innerHTML = globalLogoHTML;
-                    document.getElementById('doc-logo-preview').innerHTML = globalLogoHTML;
-                    alert("¡Logo actualizado con éxito!");
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        window.onload = async function() {
-            actualizarFechaHora();
-            setInterval(actualizarFechaHora, 1000);
-            await fetchBCVRate();
-            setInterval(fetchBCVRate, 30 * 60 * 1000);
-
-            await cargarInsumos();
-            await cargarServicios();
-            await cargarClientes();
-            await cargarGastos();
-            await cargarHistorialVentas();
-            await cargarClientesEnSelects();
-            agregarRenglonServicio();
-            syncRoute();
-        };
-    </script>
+    function limpiarFormularioCotizador() {
+        document.getElementById('cotizadorCliente').value = '';
+        document.getElementById('itemsContainer').innerHTML = `
+            <div class="item-row">
+                <input type="text" class="item-desc" placeholder="Descripción del producto o servicio">
+                <input type="number" class="item-monto" placeholder="Monto $" step="0.01" onchange="recalcularTotales()">
+            </div>
+        `;
+        document.getElementById('lblTotalUSD').innerText = '0.00';
+    }
+</script>
 </body>
 </html>

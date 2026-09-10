@@ -178,9 +178,7 @@
             text-transform: uppercase;
         }
 
-        .badge-pendiente { background: #fef3c7; color: #d97706; }
         .badge-concretado { background: #d1fae5; color: #059669; }
-        .badge-anulado { background: #fee2e2; color: #dc2626; }
 
         .actions-cell {
             display: flex;
@@ -202,9 +200,9 @@
     </header>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('cotizador')">Nueva Cotización</button>
-        <button class="tab-btn" onclick="switchTab('standby')">Cotizaciones Stand By (<span id="count-standby">0</span>)</button>
-        <button class="tab-btn" onclick="switchTab('facturadas')">Ventas Facturadas</button>
+        <button class="tab-btn active" onclick="switchTab('cotizador', event)">Nueva Cotización</button>
+        <button class="tab-btn" onclick="switchTab('standby', event)">Cotizaciones Stand By (<span id="count-standby">0</span>)</button>
+        <button class="tab-btn" onclick="switchTab('facturadas', event)">Ventas Facturadas</button>
     </div>
 
     <!-- TAB 1: NUEVA COTIZACIÓN -->
@@ -293,7 +291,6 @@
 </div>
 
 <script>
-    // Base de datos local simulada
     let cotizaciones = JSON.parse(localStorage.getItem('cotizaciones_negocio')) || [
         { id: 'COT-001', fecha: '2026-09-10', cliente: 'María Pérez', telefono: '0412-1234567', detalle: '2 pares de zapatos deportivos', total: 45.00, estado: 'Pendiente' },
         { id: 'COT-002', fecha: '2026-09-10', cliente: 'Carlos Gómez', telefono: '0414-9876543', detalle: 'Toppers personalizados (Pack x5)', total: 12.50, estado: 'Concretado' }
@@ -301,11 +298,13 @@
 
     document.getElementById('fecha').valueAsDate = new Date();
 
-    function switchTab(tabId) {
+    function switchTab(tabId, evt) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+        if (evt) {
+            evt.currentTarget.classList.add('active');
+        }
     }
 
     function guardarCotizacion(e) {
@@ -325,9 +324,10 @@
         document.getElementById('form-cotizacion').reset();
         document.getElementById('fecha').valueAsDate = new Date();
         alert('Cotización guardada exitosamente en Stand By.');
-        switchTab('standby');
-        document.querySelector('.tabs button:nth-child(2)').classList.add('active');
-        document.querySelector('.tabs button:nth-child(1)').classList.remove('active');
+        
+        // Cambiar a pestaña Stand By de forma limpia
+        const standbyBtn = document.querySelectorAll('.tab-btn')[1];
+        switchTab('standby', { currentTarget: standbyBtn });
     }
 
     function cambiarEstado(id, nuevoEstado) {

@@ -28,13 +28,22 @@
         .pdf-mode#area-impresion-presupuesto {
             border: 2px solid #b88a73 !important;
             box-sizing: border-box !important;
-            width: 700px !important;
-            max-width: 700px !important;
-            min-width: 700px !important;
-            margin: 0 auto !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 100% !important;
+            margin: 0 !important;
             padding: 24px !important;
             background-color: #ffffff !important;
         }
+
+        .pdf-mode table {
+            table-layout: auto !important;
+            width: 100% !important;
+        }
+
+        .pdf-mode .col-desc { width: 65% !important; }
+        .pdf-mode .col-cant { width: 15% !important; text-align: center !important; }
+        .pdf-mode .col-precio { width: 20% !important; text-align: right !important; }
 
         .pdf-mode .no-print-pdf {
             display: none !important;
@@ -219,12 +228,12 @@
                             <table class="w-full text-left text-xs text-gray-700 table-fixed">
                                 <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
                                     <tr>
-                                        <th class="p-3 w-[36%]">Descripción / Concepto</th>
-                                        <th class="p-3 w-[10%] text-center">Cant</th>
+                                        <th class="p-3 w-[36%] col-desc">Descripción / Concepto</th>
+                                        <th class="p-3 w-[10%] text-center col-cant">Cant</th>
                                         <th class="p-3 w-[12%] text-center internal-col">Costo Unit. ($)</th>
                                         <th class="p-3 w-[10%] text-center internal-col">% Ganancia</th>
                                         <th class="p-3 w-[14%] text-right internal-col">Precio Sug. ($)</th>
-                                        <th class="p-3 w-[18%] text-right font-bold text-[#b88a73]">Precio Final ($)</th>
+                                        <th class="p-3 w-[18%] text-right font-bold text-[#b88a73] col-precio">Precio Final ($)</th>
                                         <th class="p-3 w-[10%] text-center no-print-controls">Acción</th>
                                     </tr>
                                 </thead>
@@ -575,13 +584,13 @@
 
             const html = `
                 <tr id="${rowId}" class="border-b border-[#e8dbd3] renglon-item">
-                    <td class="p-3 w-[36%] overflow-hidden">
+                    <td class="p-3 w-[36%] col-desc overflow-hidden">
                         <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-servicio no-print-controls mb-1 truncate" onchange="seleccionarServicioCatalogo('${rowId}')">
                             ${opcionesServicios}
                         </select>
                         <input type="text" value="${nombreDefault}" placeholder="Descripción" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium">
                     </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
+                    <td class="p-3 w-[10%] col-cant text-center align-middle">
                         <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
                     <td class="p-3 w-[12%] text-center align-middle internal-col">
@@ -591,7 +600,7 @@
                         <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
                     <td class="p-3 w-[14%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle internal-col truncate">$0.00</td>
-                    <td class="p-3 w-[18%] text-right align-middle">
+                    <td class="p-3 w-[18%] col-precio text-right align-middle">
                         <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}')">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle no-print-controls">
@@ -616,13 +625,13 @@
 
             const html = `
                 <tr id="${rowId}" class="border-b border-[#e8dbd3] renglon-item">
-                    <td class="p-3 w-[36%] overflow-hidden">
+                    <td class="p-3 w-[36%] col-desc overflow-hidden">
                         <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-insumo no-print-controls mb-1 truncate" onchange="seleccionarInsumoCatalogo('${rowId}')">
                             ${opcionesInsumos}
                         </select>
                         <input type="text" placeholder="Insumo" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium">
                     </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
+                    <td class="p-3 w-[10%] col-cant text-center align-middle">
                         <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
                     <td class="p-3 w-[12%] text-center align-middle internal-col">
@@ -632,7 +641,7 @@
                         <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
                     <td class="p-3 w-[14%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle internal-col truncate">$0.00</td>
-                    <td class="p-3 w-[18%] text-right align-middle">
+                    <td class="p-3 w-[18%] col-precio text-right align-middle">
                         <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}')">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle no-print-controls">
@@ -744,6 +753,8 @@
             const internalCols = document.querySelectorAll('.internal-col');
             const printControls = document.querySelectorAll('.no-print-controls');
             
+            window.scrollTo(0, 0);
+
             areaPresupuesto.classList.add('pdf-mode');
             internalCols.forEach(el => el.style.display = 'none');
             printControls.forEach(el => el.style.display = 'none');
@@ -777,14 +788,20 @@
             });
 
             const opt = {
-                margin:       [0.4, 0.4, 0.4, 0.4],
+                margin:       [0.3, 0.3, 0.3, 0.3],
                 filename:     `Presupuesto_LAN_Estudio_${Date.now()}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, letterRendering: true, windowWidth: 750 },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true, 
+                    letterRendering: true,
+                    scrollX: 0,
+                    scrollY: 0
+                },
                 jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            html2pdf().from(areaPresupuesto).set(opt).save().then(() => {
+            html2pdf().set(opt).from(areaPresupuesto).save().then(() => {
                 areaPresupuesto.classList.remove('pdf-mode');
                 internalCols.forEach(el => el.style.display = '');
                 printControls.forEach(el => el.style.display = '');

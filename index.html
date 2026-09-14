@@ -368,7 +368,7 @@
                             <input type="checkbox" id="chk-ocultar-bcv" onchange="alternarOcultarBCV()" class="rounded border-[#e8dbd3] text-[#b88a73] focus:ring-0">
                             <span>Ocultar Tasa BCV en PDF</span>
                         </label>
-                        <button onclick="guardarstandby_presupuestos()" class="bg-[#b88a73] hover:bg-[#a67963] text-white px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
+                        <button onclick="guardarPresupuestoStandBy()" class="bg-[#b88a73] hover:bg-[#a67963] text-white px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
                             <i class="fa-solid fa-clock"></i>
                             <span>Guardar en Stand By</span>
                         </button>
@@ -1619,7 +1619,7 @@
                             <td class="p-3"><input type="text" value="${s.nombre}" id="edit-srv-nombre-${s.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-full text-sm"></td>
                             <td class="p-3"><input type="number" step="0.01" value="${s.precio}" id="edit-srv-precio-${s.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-28 text-sm"></td>
                             <td class="p-3 space-x-2 whitespace-nowrap">
-                                <button onclick="actualizarServicio(${s.id})" title="Guardar Cambios" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs"><i class="fa-solid fa-check"></i></button>
+                                <button onclick="actualizarServicio(${s.id})" title="Guardar" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs"><i class="fa-solid fa-check"></i></button>
                                 <button onclick="eliminarServicio(${s.id})" title="Eliminar" class="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1 rounded text-xs"><i class="fa-solid fa-trash"></i></button>
                             </td>
                         </tr>`;
@@ -1638,7 +1638,7 @@
         }
 
         async function eliminarServicio(id) {
-            if(!confirm("¿Estás seguro de eliminar este servicio?")) return;
+            if(!confirm("¿Eliminar este servicio?")) return;
             if(supabaseClient) {
                 await supabaseClient.from('servicios').delete().eq('id', id);
             }
@@ -1673,14 +1673,13 @@
                             <td class="p-3"><input type="text" value="${c.tel || ''}" id="edit-cli-tel-${c.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-full text-sm"></td>
                             <td class="p-3"><input type="text" value="${c.instagram || ''}" id="edit-cli-insta-${c.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-full text-sm"></td>
                             <td class="p-3 space-x-2 whitespace-nowrap">
-                                <button onclick="actualizarCliente(${c.id})" title="Guardar Cambios" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs"><i class="fa-solid fa-check"></i></button>
+                                <button onclick="actualizarCliente(${c.id})" title="Guardar" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs"><i class="fa-solid fa-check"></i></button>
                                 <button onclick="eliminarCliente(${c.id})" title="Eliminar" class="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1 rounded text-xs"><i class="fa-solid fa-trash"></i></button>
                             </td>
                         </tr>`;
                 });
                 document.getElementById('dash-clientes').innerText = data.length;
             }
-            cargarClientesEnSelects();
         }
 
         async function actualizarCliente(id) {
@@ -1695,7 +1694,7 @@
         }
 
         async function eliminarCliente(id) {
-            if(!confirm("¿Estás seguro de eliminar este cliente?")) return;
+            if(!confirm("¿Eliminar este cliente?")) return;
             if(supabaseClient) {
                 await supabaseClient.from('clientes').delete().eq('id', id);
             }
@@ -1706,7 +1705,7 @@
             const concepto = document.getElementById('gasto-concepto').value;
             const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
             const categoria = document.getElementById('gasto-categoria').value;
-            if(!concepto || monto <= 0) return alert("Completa el concepto y el monto del gasto.");
+            if(!concepto || monto <= 0) return alert("Completa los datos del gasto.");
             if(supabaseClient) {
                 await supabaseClient.from('gastos').insert([{ concepto, monto, categoria }]);
             }
@@ -1726,9 +1725,9 @@
                     const fecha = g.created_at ? new Date(g.created_at).toLocaleDateString() : '';
                     tbody.innerHTML += `
                         <tr class="border-b border-[#e8dbd3]">
-                            <td class="p-3 font-medium text-[#2c2c2c]">${g.concepto}</td>
-                            <td class="p-3 text-xs"><span class="bg-gray-100 px-2 py-1 rounded text-gray-600">${g.categoria}</span></td>
-                            <td class="p-3 font-bold text-rose-600">$${g.monto.toFixed(2)}</td>
+                            <td class="p-3">${g.concepto}</td>
+                            <td class="p-3"><span class="bg-[#faf8f6] px-2 py-1 rounded border border-[#e8dbd3] text-xs">${g.categoria}</span></td>
+                            <td class="p-3 font-semibold text-rose-600">$${g.monto.toFixed(2)}</td>
                             <td class="p-3 text-xs text-gray-500">${fecha}</td>
                         </tr>`;
                 });
@@ -1737,41 +1736,38 @@
 
         async function cargarHistorialVentas() {
             if(!supabaseClient) return;
-            const { data } = await supabaseClient.from('ventas').select('*').order('created_at', { ascending: false }).limit(10);
+            const { data } = await supabaseClient.from('ventas').select('*').order('created_at', { ascending: false });
             const tbody = document.getElementById('tabla-historial-ventas');
             if(data && tbody) {
-                tbody.innerHTML = data.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin ventas registradas.</td></tr>';
-                let totalVentasGlobal = 0;
+                tbody.innerHTML = data.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin ventas recientes.</td></tr>';
+                let totalVentas = 0;
                 data.forEach(v => {
-                    totalVentasGlobal += v.total_usd;
+                    totalVentas += v.total_usd || 0;
                     const fecha = v.created_at ? new Date(v.created_at).toLocaleDateString() : '';
                     let pagosStr = v.metodo_pago;
                     try {
                         const parsed = JSON.parse(v.metodo_pago);
                         if(Array.isArray(parsed)) {
-                            pagosStr = parsed.map(p => `${p.metodo}: $${p.monto} ${p.moneda}`).join(', ');
+                            pagosStr = parsed.map(p => `${p.metodo}: ${p.moneda === 'VES' ? 'Bs.' : '$'}${p.monto.toFixed(2)}`).join(' | ');
                         }
                     } catch(e) {}
 
                     tbody.innerHTML += `
                         <tr class="border-b border-[#e8dbd3]">
-                            <td class="p-3 text-xs text-gray-500">${fecha}</td>
-                            <td class="p-3 font-semibold text-[#2c2c2c]">${v.cliente}</td>
-                            <td class="p-3 text-xs text-gray-700">${v.items}</td>
-                            <td class="p-3 font-bold text-[#b88a73]">$${v.total_usd.toFixed(2)}</td>
-                            <td class="p-3 text-xs text-gray-600">${pagosStr}</td>
+                            <td class="p-3 text-xs">${fecha}</td>
+                            <td class="p-3 font-semibold">${v.cliente}</td>
+                            <td class="p-3 text-xs text-gray-600">${v.items}</td>
+                            <td class="p-3 font-bold text-[#b88a73]">$${(v.total_usd || 0).toFixed(2)}</td>
+                            <td class="p-3 text-xs text-gray-500">${pagosStr}</td>
                         </tr>`;
                 });
-                document.getElementById('dash-ventas').innerText = `$${totalVentasGlobal.toFixed(2)}`;
+                document.getElementById('dash-ventas').innerText = `$${totalVentas.toFixed(2)}`;
             }
+            cargarContadorStandBy();
         }
 
         async function cargarRegistrosCajaEditable() {
-            // Inicializar filas de pago si está vacío
-            const listaPagos = document.getElementById('lista-pagos');
-            if(listaPagos && listaPagos.children.length === 0) {
-                agregarMetodoPago();
-            }
+            // Ya contemplado en el historial de ventas / caja
         }
 
         function actualizarLogo() {
@@ -1783,26 +1779,28 @@
                     document.getElementById('logo-container').innerHTML = globalLogoHTML;
                     document.getElementById('doc-logo-preview').innerHTML = globalLogoHTML;
                     alert("Logo actualizado con éxito.");
-                }
+                };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                alert("Selecciona una imagen válida.");
+                alert("Selecciona una imagen primero.");
             }
         }
 
-        // Inicialización general al cargar la página
+        // Inicialización al cargar la página
         window.addEventListener('DOMContentLoaded', () => {
             fetchBCVRate();
-            cargarContadorStandBy();
+            syncRoute();
             cargarInsumos();
             cargarServicios();
             cargarClientes();
             cargarHistorialVentas();
-            syncRoute();
-            actualizarRelojFecha();
+            cargarContadorStandBy();
+            
+            // Si no hay filas en el presupuesto por defecto, agregar una inicial
+            if(document.querySelectorAll('#lista-renglones-presupuesto tr').length === 0) {
+                agregarRenglonServicio("Servicio de Diseño e Impresión", 10.00);
+            }
         });
     </script>
 </body>
 </html>
-[cite: 3]
-```[cite: 3]

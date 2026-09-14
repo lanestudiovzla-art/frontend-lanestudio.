@@ -158,7 +158,7 @@
                 <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
                     <div>
                         <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-clock text-[#b88a73] mr-2"></i> Cotizaciones en Stand By (En Espera)</h2>
-                        <p class="text-xs text-gray-500">Administra presupuestos guardados. Cuando el cliente concrete, envíalos directo a caja para facturar.</p>
+                        <p class="text-xs text-gray-500">Administra presupuestos guardados en cola local. Cuando el cliente concrete, envíalos directo a caja para facturar.</p>
                     </div>
                 </div>
 
@@ -848,7 +848,7 @@
             recalcularPresupuestoTotal();
         }
 
-        async function guardarPresupuestoStandBy() {
+        function guardarPresupuestoStandBy() {
             const cliente = document.getElementById('presupuesto-cliente').value;
             const validez = document.getElementById('presupuesto-validez').value;
             const totalUSD = parseFloat(document.getElementById('doc-total-usd').innerText.replace('$', '')) || 0;
@@ -869,41 +869,27 @@
                 }
             });
 
+            let standByLocal = JSON.parse(localStorage.getItem('lan_standby') || '[]');
             const cotizacionData = {
+                id: Date.now(),
                 cliente: cliente,
                 validez: validez,
                 total_usd: totalUSD,
-                items: JSON.stringify(items)
+                items: JSON.stringify(items),
+                created_at: new Date().toISOString()
             };
+            
+            standByLocal.push(cotizacionData);
+            localStorage.setItem('lan_standby', JSON.stringify(standByLocal));
 
-            if (supabaseClient) {
-                const { error } = await supabaseClient.from('standby_presupuestos').insert([cotizacionData]);
-                if (error) {
-                    alert("Error al guardar en Stand By. Verifique la conexión con Supabase.");
-                    return;
-                }
-            } else {
-                let standByLocal = JSON.parse(localStorage.getItem('lan_standby') || '[]');
-                cotizacionData.id = Date.now();
-                cotizacionData.created_at = new Date().toISOString();
-                standByLocal.push(cotizacionData);
-                localStorage.setItem('lan_standby', JSON.stringify(standByLocal));
-            }
-
-            alert("¡Cotización guardada exitosamente en Stand By!");
+            alert("¡Cotización guardada exitosamente en Stand By local!");
             cargarContadorStandBy();
             switchTab('standby');
         }
 
-        async function cargarContadorStandBy() {
-            let totalCount = 0;
-            if (supabaseClient) {
-                const { data, error } = await supabaseClient.from('standby_presupuestos').select('id');
-                if (!error && data) totalCount = data.length;
-            } else {
-                let standByLocal = JSON.parse(localStorage.getItem('lan_standby') || '[]');
-                totalCount = standByLocal.length;
-            }
+        function cargarContadorStandBy() {
+            let standByLocal = JSON.parse(localStorage.getItem('lan_standby') || '[]');
+            let totalCount = standByLocal.length;
             
             const badge = document.getElementById('badge-standby');
             const dashCount = document.getElementById('dash-standby');
@@ -911,17 +897,11 @@
             if(dashCount) dashCount.innerText = totalCount;
         }
 
-        async function cargarCotizacionesStandBy() {
+        function cargarCotizacionesStandBy() {
             const tbody = document.getElementById('tabla-standby');
             if(!tbody) return;
 
-            let registros = [];
-            if (supabaseClient) {
-                const { data } = await supabaseClient.from('standby_presupuestos').select('*').order('created_at', { ascending: false });
-                if(data) registros = data;
-            } else {
-                registros = JSON.parse(localStorage.getItem('lan_standby') || '[]');
-            }
+            let registros = JSON.parse(localStorage.getItem('lan_standby') || '[]');
 
             tbody.innerHTML = registros.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">No hay cotizaciones en espera.</td></tr>';
             
@@ -973,15 +953,11 @@
             }, 200);
         }
 
-        async function eliminarStandBy(id) {
+        function eliminarStandBy(id) {
             if(!confirm("¿Estás seguro de eliminar esta cotización en stand by?")) return;
-            if (supabaseClient) {
-                await supabaseClient.from('standby_presupuestos').delete().eq('id', id);
-            } else {
-                let standByLocal = JSON.parse(localStorage.getItem('lan_standby') || '[]');
-                standByLocal = standByLocal.filter(c => c.id !== id);
-                localStorage.setItem('lan_standby', JSON.stringify(standByLocal));
-            }
+            let standByLocal = JSON.parse(localStorage.getItem('lan_standby') || '[]');
+            standByLocal = standByLocal.filter(c => c.id !== id);
+            localStorage.setItem('lan_standby', JSON.stringify(standByLocal));
             cargarCotizacionesStandBy();
         }
 

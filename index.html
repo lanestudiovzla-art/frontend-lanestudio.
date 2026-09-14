@@ -877,7 +877,7 @@
             };
 
             if (supabaseClient) {
-                const { error } = await supabaseClient.from('standby_presupuestos').insert([cotizacionData]);
+                const { error } = await supabaseClient.from('standby_presupuestos') .insert([cotizacionData]);
                 if (error) {
                     alert("Error al guardar en Stand By. Verifique la conexión con Supabase.");
                     return;

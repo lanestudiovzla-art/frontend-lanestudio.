@@ -1,362 +1,205 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAN ESTUDIO - Sistema Administrativo</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+<td class="p-3 space-x-2 whitespace-nowrap">
+                                <button onclick="actualizarServicio(${s.id})" title="Guardar Cambios" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs"><i class="fa-solid fa-check"></i></button>
+                                <button onclick="eliminarServicio(${s.id})" title="Eliminar" class="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1 rounded text-xs"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>`;
+                });
+            }
+        }
 
-    <!-- HEADER / NAVEGACIÓN -->
-    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="bg-indigo-600 p-2 rounded-lg text-white">
-                    <i class="fa-solid fa-layer-group text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold tracking-wider text-white">LAN ESTUDIO</h1>
-                    <span class="text-xs text-indigo-400 font-medium">Sistema de Gestión y Caja</span>
-                </div>
-            </div>
-            <nav class="flex space-x-2 md:space-x-4">
-                <button onclick="cambiarTab('pos')" id="btn-pos" class="px-3 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white transition flex items-center space-x-2">
-                    <i class="fa-solid fa-cash-register"></i> <span class="hidden md:inline">Caja / POS</span>
-                </button>
-                <button onclick="cambiarTab('inventario')" id="btn-inventario" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 transition flex items-center space-x-2">
-                    <i class="fa-solid fa-boxes-stacked"></i> <span class="hidden md:inline">Insumos</span>
-                </button>
-                <button onclick="cambiarTab('ventas')" id="btn-ventas" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 transition flex items-center space-x-2">
-                    <i class="fa-solid fa-chart-line"></i> <span class="hidden md:inline">Historial</span>
-                </button>
-            </nav>
-        </div>
-    </header>
+        async function actualizarServicio(id) {
+            const nombre = document.getElementById(`edit-srv-nombre-${id}`).value;
+            const precio = parseFloat(document.getElementById(`edit-srv-precio-${id}`).value) || 0;
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
-
-        <!-- SECCIÓN: CAJA / POS -->
-        <section id="tab-pos" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Catálogo de Servicios / Productos -->
-            <div class="lg:col-span-2 space-y-4">
-                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-base font-semibold text-white"><i class="fa-solid fa-list-check text-indigo-400 mr-2"></i>Servicios y Productos</h2>
-                        <input type="text" id="buscador-pos" placeholder="Buscar servicio..." class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-indigo-500 w-48">
-                    </div>
-                    <div id="grid-servicios" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-1">
-                        <!-- Dinámico desde JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Panel de Facturación / Carrito -->
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm flex flex-col justify-between">
-                <div>
-                    <h2 class="text-base font-semibold text-white mb-3"><i class="fa-solid fa-cart-shopping text-indigo-400 mr-2"></i>Orden Actual</h2>
-                    
-                    <!-- Datos del Cliente -->
-                    <div class="mb-3">
-                        <label class="block text-xs text-slate-400 mb-1">Cliente</label>
-                        <input type="text" id="pos-cliente" placeholder="Nombre del cliente o Cédula" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-
-                    <!-- Items en Carrito -->
-                    <div id="lista-carrito" class="space-y-2 max-h-[35vh] overflow-y-auto mb-4 border-t border-b border-slate-700 py-2">
-                        <p class="text-slate-500 text-sm text-center py-4">No hay servicios agregados</p>
-                    </div>
-                </div>
-
-                <!-- Totales y Pago -->
-                <div class="space-y-3 pt-2 border-t border-slate-700">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-400">Total USD:</span>
-                        <span id="lbl-total-usd" class="font-bold text-white text-base">$0.00</span>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Método de Pago</label>
-                        <select id="pos-metodo-pago" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                            <option value="Efectivo USD">Efectivo USD</option>
-                            <option value="Pago Móvil">Pago Móvil</option>
-                            <option value="Zelle">Zelle</option>
-                            <option value="Binance">Binance / USDT</option>
-                            <option value="Stand By / Pendiente">Stand By / Pendiente</option>
-                        </select>
-                    </div>
-
-                    <button onclick="procesarPagoFinal()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-lg transition text-sm shadow-md flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-check"></i> <span>Completar Transacción</span>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECCIÓN: INSUMOS -->
-        <section id="tab-inventario" class="hidden space-y-4">
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm flex justify-between items-center">
-                <h2 class="text-base font-semibold text-white"><i class="fa-solid fa-boxes-stacked text-indigo-400 mr-2"></i>Inventario de Insumos</h2>
-                <button onclick="abrirModalInsumo()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-sm font-medium transition flex items-center space-x-2">
-                    <i class="fa-solid fa-plus"></i> <span>Nuevo Insumo</span>
-                </button>
-            </div>
-
-            <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-sm">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-900 text-slate-400 uppercase text-xs">
-                            <tr>
-                                <th class="p-3">Nombre</th>
-                                <th class="p-3">Categoría</th>
-                                <th class="p-3">Costo Unit.</th>
-                                <th class="p-3">Stock</th>
-                                <th class="p-3 text-right">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-insumos-body" class="divide-y divide-slate-700">
-                            <!-- Dinámico desde JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECCIÓN: HISTORIAL DE VENTAS -->
-        <section id="tab-ventas" class="hidden space-y-4">
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm flex justify-between items-center">
-                <h2 class="text-base font-semibold text-white"><i class="fa-solid fa-chart-line text-indigo-400 mr-2"></i>Historial de Transacciones</h2>
-                <button onclick="cargarHistorialVentas()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition flex items-center space-x-2">
-                    <i class="fa-solid fa-rotate"></i> <span>Actualizar</span>
-                </button>
-            </div>
-
-            <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-sm">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-900 text-slate-400 uppercase text-xs">
-                            <tr>
-                                <th class="p-3">ID</th>
-                                <th class="p-3">Fecha</th>
-                                <th class="p-3">Cliente</th>
-                                <th class="p-3">Método</th>
-                                <th class="p-3">Total ($)</th>
-                                <th class="p-3">Detalle / Items</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-ventas-body" class="divide-y divide-slate-700">
-                            <!-- Dinámico desde JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- SCRIPT DE CONEXIÓN Y LÓGICA -->
-    <script>
-        // CONFIGURACIÓN DE SUPABASE (Reemplaza con tus credenciales reales si es necesario)
-        const SUPABASE_URL = 'https://tu-proyecto.supabase.co';
-        const SUPABASE_ANON_KEY = 'tu-anon-key';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // Estado Global de la App
-        let carrito = [];
-        let serviciosCache = [];
-        let insumosCache = [];
-
-        // Inicialización al cargar la página
-        document.addEventListener("DOMContentLoaded", () => {
+            if(supabaseClient) {
+                const { error } = await supabaseClient.from('servicios').update({ nombre, precio }).eq('id', id);
+                if(error) return alert("Error al actualizar servicio.");
+            }
+            alert("Servicio actualizado correctamente.");
             cargarServicios();
-            cargarInsumos();
-            cargarHistorialVentas();
-        });
-
-        // Cambio de pestañas
-        function cambiarTab(tab) {
-            ['pos', 'inventario', 'ventas'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`btn-${t}`).classList.remove('bg-indigo-600', 'text-white');
-                document.getElementById(`btn-${t}`).classList.add('text-slate-300', 'hover:bg-slate-700');
-            });
-            document.getElementById(`tab-${tab}`).classList.remove('hidden');
-            document.getElementById(`btn-${tab}`).classList.add('bg-indigo-600', 'text-white');
-            document.getElementById(`btn-${tab}`).classList.remove('text-slate-300', 'hover:bg-slate-700');
         }
 
-        // CARGAR SERVICIOS
-        async function cargarServicios() {
-            try {
-                const { data, error } = await supabaseClient.from('servicios').select('*');
-                if (error) throw error;
-                serviciosCache = data || [];
-                renderizarServicios(serviciosCache);
-            } catch (err) {
-                console.error("Error al cargar servicios:", err);
-                // Datos de respaldo locales si falla la red
-                serviciosCache = [
-                    { id: 1, nombre: "Diseño de Flyer", precio: 15.00 },
-                    { id: 2, nombre: "Impresión Vinil (m²)", precio: 12.00 },
-                    { id: 3, nombre: "Corte Cake Topper", precio: 8.00 }
-                ];
-                renderizarServicios(serviciosCache);
+        async function eliminarServicio(id) {
+            if(!confirm("¿Estás seguro de eliminar este servicio?")) return;
+            if(supabaseClient) {
+                await supabaseClient.from('servicios').delete().eq('id', id);
+            }
+            cargarServicios();
+        }
+
+        async function guardarCliente() {
+            const nombre = document.getElementById('cliente-nombre').value;
+            const tel = document.getElementById('cliente-tel').value;
+            const instagram = document.getElementById('cliente-insta').value;
+            if(!nombre) return alert("Ingresa el nombre del cliente.");
+            
+            if(supabaseClient) {
+                await supabaseClient.from('clientes').insert([{ nombre, tel, instagram }]);
+            }
+            alert("Cliente guardado en CRM.");
+            document.getElementById('cliente-nombre').value = '';
+            document.getElementById('cliente-tel').value = '';
+            document.getElementById('cliente-insta').value = '';
+            cargarClientes();
+        }
+
+        async function cargarClientes() {
+            if(!supabaseClient) return;
+            const { data } = await supabaseClient.from('clientes').select('*');
+            const tbody = document.getElementById('tabla-clientes');
+            if(data && tbody) {
+                tbody.innerHTML = data.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>';
+                data.forEach(c => {
+                    tbody.innerHTML += `
+                        <tr class="border-b border-[#e8dbd3]">
+                            <td class="p-3"><input type="text" value="${c.nombre}" id="edit-cli-nombre-${c.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-full text-sm"></td>
+                            <td class="p-3"><input type="text" value="${c.tel || ''}" id="edit-cli-tel-${c.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-full text-sm"></td>
+                            <td class="p-3"><input type="text" value="${c.instagram || ''}" id="edit-cli-insta-${c.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-full text-sm"></td>
+                            <td class="p-3 space-x-2 whitespace-nowrap">
+                                <button onclick="actualizarCliente(${c.id})" title="Guardar Cambios" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs"><i class="fa-solid fa-check"></i></button>
+                                <button onclick="eliminarCliente(${c.id})" title="Eliminar" class="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1 rounded text-xs"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>`;
+                });
+                document.getElementById('dash-clientes').innerText = data.length;
             }
         }
 
-        function renderizarServicios(lista) {
-            const grid = document.getElementById('grid-servicios');
-            grid.innerHTML = lista.map(s => `
-                <div onclick="agregarAlCarrito(${s.id})" class="bg-slate-900 border border-slate-700 hover:border-indigo-500 p-3 rounded-lg cursor-pointer transition flex justify-between items-center">
-                    <div>
-                        <h3 class="text-sm font-medium text-white">${s.nombre}</h3>
-                        <span class="text-xs text-indigo-400 font-semibold">$${Number(s.precio).toFixed(2)}</span>
-                    </div>
-                    <button class="bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white p-2 rounded-lg text-xs transition">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
+        async function actualizarCliente(id) {
+            const nombre = document.getElementById(`edit-cli-nombre-${id}`).value;
+            const tel = document.getElementById(`edit-cli-tel-${id}`).value;
+            const instagram = document.getElementById(`edit-cli-insta-${id}`).value;
 
-        // CARRITO / POS
-        function agregarAlCarrito(id) {
-            const servicio = serviciosCache.find(s => s.id === id);
-            if (!servicio) return;
-
-            const existente = carrito.find(item => item.id === id);
-            if (existente) {
-                existente.cantidad += 1;
-            } else {
-                carrito.push({ ...servicio, cantidad: 1 });
+            if(supabaseClient) {
+                const { error } = await supabaseClient.from('clientes').update({ nombre, tel, instagram }).eq('id', id);
+                if(error) return alert("Error al actualizar cliente.");
             }
-            renderizarCarrito();
+            alert("Cliente actualizado correctamente.");
+            cargarClientes();
         }
 
-        function renderizarCarrito() {
-            const contenedor = document.getElementById('lista-carrito');
-            if (carrito.length === 0) {
-                contenedor.innerHTML = '<p class="text-slate-500 text-sm text-center py-4">No hay servicios agregados</p>';
-                document.getElementById('lbl-total-usd').innerText = '$0.00';
-                return;
+        async function eliminarCliente(id) {
+            if(!confirm("¿Estás seguro de eliminar este cliente?")) return;
+            if(supabaseClient) {
+                await supabaseClient.from('clientes').delete().eq('id', id);
             }
-
-            let total = 0;
-            contenedor.innerHTML = carrito.map((item, index) => {
-                const subtotal = item.precio * item.cantidad;
-                total += subtotal;
-                return `
-                    <div class="flex justify-between items-center bg-slate-900 p-2 rounded-lg text-sm">
-                        <div>
-                            <span class="font-medium text-white block">${item.nombre}</span>
-                            <span class="text-xs text-slate-400">$${Number(item.precio).toFixed(2)} x ${item.cantidad}</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-indigo-400 font-semibold">$${subtotal.toFixed(2)}</span>
-                            <button onclick="removerDelCarrito(${index})" class="text-rose-400 hover:text-rose-300 px-1.5 py-1 text-xs">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            document.getElementById('lbl-total-usd').innerText = `$${total.toFixed(2)}`;
+            cargarClientes();
         }
 
-        function removerDelCarrito(index) {
-            carrito.splice(index, 1);
-            renderizarCarrito();
-        }
+        async function guardarGasto() {
+            const concepto = document.getElementById('gasto-concepto').value;
+            const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
+            const categoria = document.getElementById('gasto-categoria').value;
+            if(!concepto) return alert("Ingresa el concepto del gasto.");
 
-        // PROCESAR PAGO / TRANSACCIÓN
-        async function procesarPagoFinal() {
-            if (carrito.length === 0) {
-                alert("Agrega al menos un servicio a la orden.");
-                return;
+            if(supabaseClient) {
+                await supabaseClient.from('gastos').insert([{ concepto, monto, categoria }]);
             }
+            alert("Gasto registrado.");
+            document.getElementById('gasto-concepto').value = '';
+            document.getElementById('gasto-monto').value = '';
+            cargarGastos();
+        }
 
-            const cliente = document.getElementById('pos-cliente').value.trim() || "Cliente General";
-            const metodo_pago = document.getElementById('pos-metodo-pago').value;
-            const total_usd = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-            const itemsResumen = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(', ');
-
-            const nuevaVenta = {
-                cliente: cliente,
-                metodo_pago: metodo_pago,
-                total_usd: total_usd,
-                items: itemsResumen
-            };
-
-            try {
-                const { error } = await supabaseClient.from('ventas').insert([nuevaVenta]);
-                if (error) throw error;
-
-                alert("¡Transacción registrada con éxito!");
-                carrito = [];
-                document.getElementById('pos-cliente').value = '';
-                renderizarCarrito();
-                cargarHistorialVentas();
-            } catch (err) {
-                console.error("Error al registrar venta:", err);
-                alert("Error al guardar en la base de datos. Verifica la conexión.");
+        async function cargarGastos() {
+            if(!supabaseClient) return;
+            const { data } = await supabaseClient.from('gastos').select('*');
+            const tbody = document.getElementById('tabla-gastos');
+            if(data && tbody) {
+                tbody.innerHTML = data.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>';
+                data.forEach(g => {
+                    const fechaStr = g.created_at ? new Date(g.created_at).toLocaleDateString() : 'Reciente';
+                    tbody.innerHTML += `
+                        <tr class="border-b border-[#e8dbd3]">
+                            <td class="p-3">${g.concepto}</td>
+                            <td class="p-3">${g.categoria}</td>
+                            <td class="p-3 text-rose-600 font-semibold">$${parseFloat(g.monto).toFixed(2)}</td>
+                            <td class="p-3 text-xs text-gray-500">${fechaStr}</td>
+                        </tr>`;
+                });
             }
         }
 
-        // CARGAR INSUMOS
-        async function cargarInsumos() {
-            try {
-                const { data, error } = await supabaseClient.from('insumos').select('*');
-                if (error) throw error;
-                insumosCache = data || [];
-                const tbody = document.getElementById('tabla-insumos-body');
-                tbody.innerHTML = insumosCache.map(i => `
-                    <tr class="hover:bg-slate-900/50">
-                        <td class="p-3 font-medium text-white">${i.nombre}</td>
-                        <td class="p-3 text-slate-300">${i.categoria || 'General'}</td>
-                        <td class="p-3 text-indigo-400">$${Number(i.costo_unitario || 0).toFixed(2)}</td>
-                        <td class="p-3 text-slate-300">${i.stock || 0}</td>
-                        <td class="p-3 text-right">
-                            <span class="text-xs text-slate-500">Activo</span>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (err) {
-                console.error("Error al cargar insumos:", err);
-            }
-        }
-
-        // CARGAR HISTORIAL DE VENTAS
         async function cargarHistorialVentas() {
-            try {
-                const { data, error } = await supabaseClient.from('ventas').select('*').order('created_at', { ascending: false });
-                if (error) throw error;
-                
-                const tbody = document.getElementById('tabla-ventas-body');
-                tbody.innerHTML = (data || []).map(v => `
-                    <tr class="hover:bg-slate-900/50">
-                        <td class="p-3 text-slate-400 text-xs">#${v.id}</td>
-                        <td class="p-3 text-slate-300 text-xs">${new Date(v.created_at).toLocaleString()}</td>
-                        <td class="p-3 font-medium text-white">${v.cliente || 'General'}</td>
-                        <td class="p-3 text-slate-300">${v.metodo_pago}</td>
-                        <td class="p-3 text-indigo-400 font-semibold">$${Number(v.total_usd || 0).toFixed(2)}</td>
-                        <td class="p-3 text-slate-400 text-xs max-w-xs truncate">${v.items || ''}</td>
-                    </tr>
-                `).join('');
-            } catch (err) {
-                console.error("Error al cargar ventas:", err);
+            if(!supabaseClient) return;
+            const { data } = await supabaseClient.from('ventas').select('*').order('created_at', { ascending: false }).limit(10);
+            const tbody = document.getElementById('tabla-historial-ventas');
+            if(data && tbody) {
+                tbody.innerHTML = data.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin transacciones recientes.</td></tr>';
+                let ventasTotalesSum = 0;
+                data.forEach(v => {
+                    ventasTotalesSum += parseFloat(v.total_usd) || 0;
+                    const fechaStr = v.created_at ? new Date(v.created_at).toLocaleDateString() : 'Reciente';
+                    
+                    let pagosStr = v.metodo_pago;
+                    try {
+                        const parsed = JSON.parse(v.metodo_pago);
+                        if(Array.isArray(parsed)) {
+                            pagosStr = parsed.map(p => `${p.metodo}: $${p.monto} ${p.moneda}`).join(', ');
+                        }
+                    } catch(e) {}
+
+                    tbody.innerHTML += `
+                        <tr class="border-b border-[#e8dbd3]">
+                            <td class="p-3 text-xs">${fechaStr}</td>
+                            <td class="p-3 font-semibold text-[#2c2c2c]">${v.cliente}</td>
+                            <td class="p-3 text-xs text-gray-600">${v.items}</td>
+                            <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(v.total_usd).toFixed(2)}</td>
+                            <td class="p-3 text-xs text-gray-500">${pagosStr}</td>
+                        </tr>`;
+                });
+                document.getElementById('dash-ventas').innerText = `$${ventasTotalesSum.toFixed(2)}`;
             }
         }
 
-        function abrirModalInsumo() {
-            alert("Módulo de inserción rápida de insumos disponible desde Supabase.");
+        async function actualizarLogo() {
+            const fileInput = document.getElementById('logo-file-input');
+            if(fileInput && fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Img = e.target.result;
+                    globalLogoHTML = `<img src="${base64Img}" class="w-full h-full object-cover rounded-xl" alt="Logo">`;
+                    
+                    document.getElementById('logo-container').innerHTML = globalLogoHTML;
+                    document.getElementById('doc-logo-preview').innerHTML = globalLogoHTML;
+                    
+                    localStorage.setItem('lan_logo_img', base64Img);
+                    alert("Logotipo actualizado con éxito.");
+                }
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                alert("Selecciona una imagen válida.");
+            }
         }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const savedLogo = localStorage.getItem('lan_logo_img');
+            if(savedLogo) {
+                globalLogoHTML = `<img src="${savedLogo}" class="w-full h-full object-cover rounded-xl" alt="Logo">`;
+                const logoContainer = document.getElementById('logo-container');
+                const docLogoPreview = document.getElementById('doc-logo-preview');
+                if(logoContainer) logoContainer.innerHTML = globalLogoHTML;
+                if(docLogoPreview) docLogoPreview.innerHTML = globalLogoHTML;
+            }
+
+            await fetchBCVRate();
+            syncRoute();
+            cargarContadorStandBy();
+
+            if(supabaseClient) {
+                await cargarInsumos();
+                await cargarServicios();
+                await cargarClientes();
+                await cargarHistorialVentas();
+            }
+
+            if(document.querySelectorAll('#lista-renglones-presupuesto tr').length === 0) {
+                agregarRenglonServicio("Servicio de Diseño y Publicidad", 15.00);
+            }
+            if(document.querySelectorAll('#lista-pagos > div').length === 0) {
+                agregarMetodoPago();
+            }
+        });
     </script>
 </body>
 </html>

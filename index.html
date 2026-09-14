@@ -368,7 +368,7 @@
                             <input type="checkbox" id="chk-ocultar-bcv" onchange="alternarOcultarBCV()" class="rounded border-[#e8dbd3] text-[#b88a73] focus:ring-0">
                             <span>Ocultar Tasa BCV en PDF</span>
                         </label>
-                        <button onclick="guardarstandby_presupuestos()" class="bg-[#b88a73] hover:bg-[#a67963] text-white px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
+                        <button onclick="guardarPresupuestoStandBy()" class="bg-[#b88a73] hover:bg-[#a67963] text-white px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
                             <i class="fa-solid fa-clock"></i>
                             <span>Guardar en Stand By</span>
                         </button>
@@ -877,7 +877,7 @@
             };
 
             if (supabaseClient) {
-                const { error } = await supabaseClient.from('standby_presupuestos') .insert([cotizacionData]);
+                const { error } = await supabaseClient.from('standby_presupuestos').insert([cotizacionData]);
                 if (error) {
                     alert("Error al guardar en Stand By. Verifique la conexión con Supabase.");
                     return;
@@ -898,8 +898,8 @@
         async function cargarContadorStandBy() {
             let totalCount = 0;
             if (supabaseClient) {
-                const { count, error } = await supabaseClient.from('standby_presupuestos').select('*', { count: 'exact', head: true });
-                if (!error) totalCount = count || 0;
+                const { data, error } = await supabaseClient.from('standby_presupuestos').select('id');
+                if (!error && data) totalCount = data.length;
             } else {
                 let standByLocal = JSON.parse(localStorage.getItem('lan_standby') || '[]');
                 totalCount = standByLocal.length;
@@ -1804,5 +1804,3 @@
     </script>
 </body>
 </html>
-[cite: 3]
-```[cite: 3]

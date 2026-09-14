@@ -157,8 +157,8 @@
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
                     <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-clock text-[#b88a73] mr-2"></i> Cotizaciones en Stand By (En la Nube)</h2>
-                        <p class="text-xs text-gray-500">Presupuestos guardados y sincronizados en la nube. Cuando el cliente concrete, envíalos directo a caja para facturar desde cualquier dispositivo.</p>
+                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-clock text-[#b88a73] mr-2"></i> Cotizaciones en Stand By (En Espera)</h2>
+                        <p class="text-xs text-gray-500">Administra presupuestos guardados en cola local. Cuando el cliente concrete, envíalos directo a caja para facturar.</p>
                     </div>
                 </div>
 
@@ -174,7 +174,7 @@
                             </tr>
                         </thead>
                         <tbody id="tabla-standby">
-                            <tr><td colspan="5" class="p-4 text-center text-gray-400">Cargando cotizaciones desde la nube...</td></tr>
+                            <tr><td colspan="5" class="p-4 text-center text-gray-400">No hay cotizaciones en espera.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -370,7 +370,7 @@
                         </label>
                         <button onclick="guardarPresupuestoStandBy()" class="bg-[#b88a73] hover:bg-[#a67963] text-white px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
                             <i class="fa-solid fa-clock"></i>
-                            <span>Guardar en Stand By (Nube)</span>
+                            <span>Guardar en Stand By</span>
                         </button>
                         <button onclick="exportarPDFPresupuesto()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
                             <i class="fa-solid fa-file-pdf"></i>
@@ -848,7 +848,7 @@
             recalcularPresupuestoTotal();
         }
 
-        async function guardarPresupuestoStandBy() {
+        function guardarPresupuestoStandBy() {
             const cliente = document.getElementById('presupuesto-cliente').value;
             const validez = document.getElementById('presupuesto-validez').value;
             const totalUSD = parseFloat(document.getElementById('doc-total-usd').innerText.replace('$', '')) || 0;
@@ -869,92 +869,67 @@
                 }
             });
 
+            let standByLocal = JSON.parse(localStorage.getItem('lan_standby') || '[]');
             const cotizacionData = {
+                id: Date.now(),
                 cliente: cliente,
-                metodo_pago: JSON.stringify({ validez: validez }),
+                validez: validez,
                 total_usd: totalUSD,
                 items: JSON.stringify(items),
-                estatus: 'standby'
+                created_at: new Date().toISOString()
             };
+            
+            standByLocal.push(cotizacionData);
+            localStorage.setItem('lan_standby', JSON.stringify(standByLocal));
 
-            if (supabaseClient) {
-                const { error } = await supabaseClient.from('ventas').insert([cotizacionData]);
-                if (error) {
-                    alert("Error al guardar en la nube: " + error.message);
-                    return;
-                }
-            }
-
-            alert("¡Cotización guardada exitosamente en Stand By en la nube!");
+            alert("¡Cotización guardada exitosamente en Stand By local!");
             cargarContadorStandBy();
             switchTab('standby');
         }
 
-        async function cargarContadorStandBy() {
-            if (!supabaseClient) return;
-            const { data, error } = await supabaseClient.from('ventas').select('id').eq('estatus', 'standby');
-            if (!error && data) {
-                const totalCount = data.length;
-                const badge = document.getElementById('badge-standby');
-                const dashCount = document.getElementById('dash-standby');
-                if(badge) badge.innerText = totalCount;
-                if(dashCount) dashCount.innerText = totalCount;
-            }
+        function cargarContadorStandBy() {
+            let standByLocal = JSON.parse(localStorage.getItem('lan_standby') || '[]');
+            let totalCount = standByLocal.length;
+            
+            const badge = document.getElementById('badge-standby');
+            const dashCount = document.getElementById('dash-standby');
+            if(badge) badge.innerText = totalCount;
+            if(dashCount) dashCount.innerText = totalCount;
         }
 
-        async function cargarCotizacionesStandBy() {
+        function cargarCotizacionesStandBy() {
             const tbody = document.getElementById('tabla-standby');
             if(!tbody) return;
 
-            if (!supabaseClient) {
-                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">Cliente de Supabase no inicializado.</td></tr>';
-                return;
-            }
+            let registros = JSON.parse(localStorage.getItem('lan_standby') || '[]');
 
-            const { data, error } = await supabaseClient.from('ventas').select('*').eq('estatus', 'standby').order('created_at', { ascending: false });
-
-            if (error) {
-                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-500">Error al cargar cotizaciones de la nube.</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = data && data.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">No hay cotizaciones en espera en la nube.</td></tr>';
+            tbody.innerHTML = registros.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">No hay cotizaciones en espera.</td></tr>';
             
-            if (data) {
-                data.forEach(cot => {
-                    let itemsResumen = cot.items;
-                    let validez = '7 días';
-                    try {
-                        const parsedItems = JSON.parse(cot.items);
-                        if (Array.isArray(parsedItems)) {
-                            itemsResumen = parsedItems.map(i => `${i.cant}x ${i.desc}`).join(', ');
-                        }
-                    } catch(e) {}
+            registros.forEach(cot => {
+                let itemsResumen = cot.items;
+                try {
+                    const parsed = JSON.parse(cot.items);
+                    if (Array.isArray(parsed)) {
+                        itemsResumen = parsed.map(i => `${i.cant}x ${i.desc}`).join(', ');
+                    }
+                } catch(e) {}
 
-                    try {
-                        const parsedMeta = JSON.parse(cot.metodo_pago);
-                        if (parsedMeta && parsedMeta.validez) {
-                            validez = parsedMeta.validez;
-                        }
-                    } catch(e) {}
+                const fechaStr = cot.created_at ? new Date(cot.created_at).toLocaleDateString() : 'Reciente';
+                const cotJsonEscaped = JSON.stringify(cot).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-                    const fechaStr = cot.created_at ? new Date(cot.created_at).toLocaleDateString() : 'Reciente';
-                    const cotJsonEscaped = JSON.stringify(cot).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-
-                    tbody.innerHTML += `
-                        <tr class="border-b border-[#e8dbd3]" id="standby-row-${cot.id}">
-                            <td class="p-3 text-xs">${fechaStr}</td>
-                            <td class="p-3 font-semibold text-[#2c2c2c]">${cot.cliente}</td>
-                            <td class="p-3 text-xs text-gray-600 max-w-xs truncate" title="${itemsResumen}">${itemsResumen}</td>
-                            <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(cot.total_usd).toFixed(2)}</td>
-                            <td class="p-3 text-center space-x-2 whitespace-nowrap">
-                                <button onclick='enviarStandByACaja(${cotJsonEscaped})' title="Enviar a Facturar / Caja" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium"><i class="fa-solid fa-cash-register mr-1"></i> Facturar</button>
-                                <button onclick="eliminarStandBy(${cot.id})" title="Eliminar Cotización" class="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
+                tbody.innerHTML += `
+                    <tr class="border-b border-[#e8dbd3]" id="standby-row-${cot.id}">
+                        <td class="p-3 text-xs">${fechaStr}</td>
+                        <td class="p-3 font-semibold text-[#2c2c2c]">${cot.cliente}</td>
+                        <td class="p-3 text-xs text-gray-600 max-w-xs truncate" title="${itemsResumen}">${itemsResumen}</td>
+                        <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(cot.total_usd).toFixed(2)}</td>
+                        <td class="p-3 text-center space-x-2 whitespace-nowrap">
+                            <button onclick='enviarStandByACaja(${cotJsonEscaped})' title="Enviar a Facturar / Caja" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium"><i class="fa-solid fa-cash-register mr-1"></i> Facturar</button>
+                            <button onclick="eliminarStandBy(${cot.id})" title="Eliminar Cotización" class="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
             cargarContadorStandBy();
         }
 
@@ -978,15 +953,11 @@
             }, 200);
         }
 
-        async function eliminarStandBy(id) {
-            if(!confirm("¿Estás seguro de eliminar esta cotización en stand by de la nube?")) return;
-            if (supabaseClient) {
-                const { error } = await supabaseClient.from('ventas').delete().eq('id', id);
-                if (error) {
-                    alert("Error al eliminar de la nube.");
-                    return;
-                }
-            }
+        function eliminarStandBy(id) {
+            if(!confirm("¿Estás seguro de eliminar esta cotización en stand by?")) return;
+            let standByLocal = JSON.parse(localStorage.getItem('lan_standby') || '[]');
+            standByLocal = standByLocal.filter(c => c.id !== id);
+            localStorage.setItem('lan_standby', JSON.stringify(standByLocal));
             cargarCotizacionesStandBy();
         }
 
@@ -1524,8 +1495,7 @@
                     cliente: cliente,
                     metodo_pago: JSON.stringify(detallePagos),
                     total_usd: totalUSD,
-                    items: concepto,
-                    estatus: 'completada'
+                    items: concepto
                 }]);
             }
 
@@ -1621,7 +1591,7 @@
                 tbody.innerHTML = data.length ? '' : '<tr><td colspan="3" class="p-4 text-center text-gray-400">Sin servicios registrados.</td></tr>';
                 data.forEach(s => {
                     tbody.innerHTML += `
-                        <tr class="border-b border-[#e8dbd3]" id="servicio-row-${s.id}">
+                        <tr class="border-b border-[#e8dbd3]">
                             <td class="p-3"><input type="text" value="${s.nombre}" id="edit-srv-nombre-${s.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-full text-sm"></td>
                             <td class="p-3"><input type="number" step="0.01" value="${s.precio}" id="edit-srv-precio-${s.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-28 text-sm"></td>
                             <td class="p-3 space-x-2 whitespace-nowrap">
@@ -1636,12 +1606,10 @@
         async function actualizarServicio(id) {
             const nombre = document.getElementById(`edit-srv-nombre-${id}`).value;
             const precio = parseFloat(document.getElementById(`edit-srv-precio-${id}`).value) || 0;
-
             if(supabaseClient) {
-                const { error } = await supabaseClient.from('servicios').update({ nombre, precio }).eq('id', id);
-                if(error) return alert("Error al actualizar servicio.");
+                await supabaseClient.from('servicios').update({ nombre, precio }).eq('id', id);
             }
-            alert("Servicio actualizado correctamente.");
+            alert("Servicio actualizado.");
             cargarServicios();
         }
 
@@ -1676,7 +1644,7 @@
                 tbody.innerHTML = data.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>';
                 data.forEach(c => {
                     tbody.innerHTML += `
-                        <tr class="border-b border-[#e8dbd3]" id="cliente-row-${c.id}">
+                        <tr class="border-b border-[#e8dbd3]">
                             <td class="p-3"><input type="text" value="${c.nombre}" id="edit-cli-nombre-${c.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-full text-sm"></td>
                             <td class="p-3"><input type="text" value="${c.tel || ''}" id="edit-cli-tel-${c.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-full text-sm"></td>
                             <td class="p-3"><input type="text" value="${c.instagram || ''}" id="edit-cli-insta-${c.id}" class="bg-transparent border border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] rounded px-2 py-1 w-full text-sm"></td>
@@ -1688,18 +1656,17 @@
                 });
                 document.getElementById('dash-clientes').innerText = data.length;
             }
+            cargarClientesEnSelects();
         }
 
         async function actualizarCliente(id) {
             const nombre = document.getElementById(`edit-cli-nombre-${id}`).value;
             const tel = document.getElementById(`edit-cli-tel-${id}`).value;
             const instagram = document.getElementById(`edit-cli-insta-${id}`).value;
-
             if(supabaseClient) {
-                const { error } = await supabaseClient.from('clientes').update({ nombre, tel, instagram }).eq('id', id);
-                if(error) return alert("Error al actualizar cliente.");
+                await supabaseClient.from('clientes').update({ nombre, tel, instagram }).eq('id', id);
             }
-            alert("Cliente actualizado correctamente.");
+            alert("Cliente actualizado.");
             cargarClientes();
         }
 
@@ -1715,7 +1682,7 @@
             const concepto = document.getElementById('gasto-concepto').value;
             const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
             const categoria = document.getElementById('gasto-categoria').value;
-            if(!concepto) return alert("Ingresa el concepto del gasto.");
+            if(!concepto || monto <= 0) return alert("Completa el concepto y el monto del gasto.");
             if(supabaseClient) {
                 await supabaseClient.from('gastos').insert([{ concepto, monto, categoria }]);
             }
@@ -1727,17 +1694,17 @@
 
         async function cargarGastos() {
             if(!supabaseClient) return;
-            const { data } = await supabaseClient.from('gastos').select('*');
+            const { data } = await supabaseClient.from('gastos').select('*').order('created_at', { ascending: false });
             const tbody = document.getElementById('tabla-gastos');
             if(data && tbody) {
                 tbody.innerHTML = data.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>';
                 data.forEach(g => {
-                    const fecha = g.created_at ? new Date(g.created_at).toLocaleDateString() : 'Reciente';
+                    const fecha = g.created_at ? new Date(g.created_at).toLocaleDateString() : '';
                     tbody.innerHTML += `
                         <tr class="border-b border-[#e8dbd3]">
-                            <td class="p-3">${g.concepto}</td>
-                            <td class="p-3">${g.categoria}</td>
-                            <td class="p-3 text-rose-600 font-bold">$${parseFloat(g.monto).toFixed(2)}</td>
+                            <td class="p-3 font-medium text-[#2c2c2c]">${g.concepto}</td>
+                            <td class="p-3 text-xs"><span class="bg-gray-100 px-2 py-1 rounded text-gray-600">${g.categoria}</span></td>
+                            <td class="p-3 font-bold text-rose-600">$${g.monto.toFixed(2)}</td>
                             <td class="p-3 text-xs text-gray-500">${fecha}</td>
                         </tr>`;
                 });
@@ -1746,15 +1713,14 @@
 
         async function cargarHistorialVentas() {
             if(!supabaseClient) return;
-            const { data } = await supabaseClient.from('ventas').select('*').neq('estatus', 'standby').order('created_at', { ascending: false });
+            const { data } = await supabaseClient.from('ventas').select('*').order('created_at', { ascending: false }).limit(10);
             const tbody = document.getElementById('tabla-historial-ventas');
             if(data && tbody) {
-                tbody.innerHTML = data.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin transacciones recientes.</td></tr>';
-                let ventasTotales = 0;
+                tbody.innerHTML = data.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin ventas registradas.</td></tr>';
+                let totalVentasGlobal = 0;
                 data.forEach(v => {
-                    ventasTotales += parseFloat(v.total_usd) || 0;
-                    const fecha = v.created_at ? new Date(v.created_at).toLocaleDateString() : 'Reciente';
-                    
+                    totalVentasGlobal += v.total_usd;
+                    const fecha = v.created_at ? new Date(v.created_at).toLocaleDateString() : '';
                     let pagosStr = v.metodo_pago;
                     try {
                         const parsed = JSON.parse(v.metodo_pago);
@@ -1767,12 +1733,20 @@
                         <tr class="border-b border-[#e8dbd3]">
                             <td class="p-3 text-xs text-gray-500">${fecha}</td>
                             <td class="p-3 font-semibold text-[#2c2c2c]">${v.cliente}</td>
-                            <td class="p-3 text-xs text-gray-600">${v.items}</td>
-                            <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(v.total_usd).toFixed(2)}</td>
+                            <td class="p-3 text-xs text-gray-700">${v.items}</td>
+                            <td class="p-3 font-bold text-[#b88a73]">$${v.total_usd.toFixed(2)}</td>
                             <td class="p-3 text-xs text-gray-600">${pagosStr}</td>
                         </tr>`;
                 });
-                document.getElementById('dash-ventas').innerText = `$${ventasTotales.toFixed(2)}`;
+                document.getElementById('dash-ventas').innerText = `$${totalVentasGlobal.toFixed(2)}`;
+            }
+        }
+
+        async function cargarRegistrosCajaEditable() {
+            // Inicializar filas de pago si está vacío
+            const listaPagos = document.getElementById('lista-pagos');
+            if(listaPagos && listaPagos.children.length === 0) {
+                agregarMetodoPago();
             }
         }
 
@@ -1784,28 +1758,24 @@
                     globalLogoHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
                     document.getElementById('logo-container').innerHTML = globalLogoHTML;
                     document.getElementById('doc-logo-preview').innerHTML = globalLogoHTML;
-                    alert("Logo actualizado correctamente.");
+                    alert("Logo actualizado con éxito.");
                 }
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                alert("Selecciona una imagen de logo primero.");
+                alert("Selecciona una imagen válida.");
             }
         }
 
-        // Inicialización al cargar la página
+        // Inicialización general al cargar la página
         window.addEventListener('DOMContentLoaded', () => {
             fetchBCVRate();
-            syncRoute();
+            cargarContadorStandBy();
             cargarInsumos();
             cargarServicios();
             cargarClientes();
             cargarHistorialVentas();
-            cargarContadorStandBy();
-            
-            // Cargar renglón por defecto si el cotizador está vacío
-            if(document.querySelectorAll('#lista-renglones-presupuesto tr').length === 0) {
-                agregarRenglonServicio("Diseño de Publicidad", 15.00);
-            }
+            syncRoute();
+            actualizarRelojFecha();
         });
     </script>
 </body>

@@ -581,7 +581,7 @@
                     <input type="number" id="insumo-costo" placeholder="Costo Unit. ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="number" id="insumo-stock" placeholder="Stock Actual" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="number" id="insumo-minimo" placeholder="Stock Mínimo Alerta" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarInsumo()" class="sm:col-span-5 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Insumo en Nube</button>
+                    <button onclick="guardarInsumo()" class="sm:col-span-5 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Insumo Local</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-gray-700">
@@ -610,7 +610,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
                     <input type="text" id="servicio-nombre" placeholder="Nombre del Servicio" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="number" id="servicio-precio" placeholder="Precio Base ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarServicio()" class="sm:col-span-2 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Guardar Servicio en Nube</button>
+                    <button onclick="guardarServicio()" class="sm:col-span-2 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Guardar Servicio</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-gray-700">
@@ -704,7 +704,7 @@
 
     </main>
 
-    <!-- Script Lógico Integral -->
+    <!-- Script Lógico Integral Completo -->
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwB5AHv2GeTl3_FDqnpsf6DQS9DZTw6Z04DsQXrHAM_UDu9d4QaOxgxw-URvfetRR80iQ/exec';
 
@@ -772,6 +772,9 @@
 
             window.location.hash = tabId;
 
+            if(tabId === 'dashboard') {
+                cargarDashboard();
+            }
             if(tabId === 'caja') {
                 actualizarTotalesCaja();
                 cargarClientesEnSelects();
@@ -833,7 +836,6 @@
 
             if(inputEl) inputEl.value = "...";
             try {
-                // Endpoint optimizado para tasa BCV oficial diaria
                 const response = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
                 if(response.ok) {
                     const data = await response.json();
@@ -862,7 +864,6 @@
             }
         }
 
-        // Función para actualización manual inmediata desde el input de la barra superior
         function actualizarTasaManual(valorStr) {
             const val = parseFloat(valorStr);
             if (!isNaN(val) && val > 0) {
@@ -873,6 +874,253 @@
                 recalcularPresupuestoTotal();
                 actualizarTotalesCaja();
             }
+        }
+
+        // FUNCIONES DE CARGA Y GESTIÓN LOCAL (Insumos, Servicios, Clientes, Gastos, Ventas)
+        async function cargarInsumosBase() {
+            listaInsumosDB = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
+        }
+
+        async function cargarServiciosBase() {
+            listaServiciosDB = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
+        }
+
+        async function cargarClientesEnSelects() {
+            let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
+            const selects = ['presupuesto-cliente', 'caja-cliente'];
+            
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if(!select) return;
+                
+                const valorActual = select.value;
+                select.innerHTML = `
+                    <option value="Cliente General">-- Cliente General --</option>
+                    <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
+                `;
+                
+                clientes.forEach(c => {
+                    select.innerHTML += `<option value="${c.nombre}">${c.nombre} (${c.tel || 'Sin telf'})</option>`;
+                });
+                
+                if(valorActual) select.value = valorActual;
+            });
+        }
+
+        function guardarInsumo() {
+            const nombre = document.getElementById('insumo-nombre').value.trim();
+            const categoria = document.getElementById('insumo-categoria').value.trim();
+            const costo = parseFloat(document.getElementById('insumo-costo').value) || 0;
+            const stock = parseInt(document.getElementById('insumo-stock').value) || 0;
+            const minimo = parseInt(document.getElementById('insumo-minimo').value) || 0;
+
+            if(!nombre) {
+                alert("Por favor introduce el nombre del insumo.");
+                return;
+            }
+
+            let insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
+            insumos.push({ nombre, categoria, costo_unitario: costo, stock, stock_minimo: minimo });
+            localStorage.setItem('lan_insumos', JSON.stringify(insumos));
+
+            document.getElementById('insumo-nombre').value = '';
+            document.getElementById('insumo-categoria').value = '';
+            document.getElementById('insumo-costo').value = '';
+            document.getElementById('insumo-stock').value = '';
+            document.getElementById('insumo-minimo').value = '';
+
+            cargarInsumos();
+            alert("¡Insumo registrado con éxito!");
+        }
+
+        function cargarInsumos() {
+            const tbody = document.getElementById('tabla-insumos');
+            if(!tbody) return;
+            
+            let insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
+            listaInsumosDB = insumos;
+
+            tbody.innerHTML = insumos.length ? '' : '<tr><td colspan="6" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr>';
+            
+            insumos.forEach((ins, idx) => {
+                const alertaStock = ins.stock <= ins.stock_minimo ? 'text-rose-600 font-bold' : '';
+                tbody.innerHTML += `
+                    <tr class="border-b border-[#e8dbd3]">
+                        <td class="p-3 font-semibold text-[#2c2c2c]">${ins.nombre}</td>
+                        <td class="p-3 text-xs">${ins.categoria || 'General'}</td>
+                        <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(ins.costo_unitario).toFixed(2)}</td>
+                        <td class="p-3 ${alertaStock}">${ins.stock} uds</td>
+                        <td class="p-3 text-xs text-gray-500">${ins.stock_minimo}</td>
+                        <td class="p-3">
+                            <button onclick="eliminarInsumo(${idx})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function eliminarInsumo(idx) {
+            if(!confirm("¿Eliminar este insumo?")) return;
+            let insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
+            insumos.splice(idx, 1);
+            localStorage.setItem('lan_insumos', JSON.stringify(insumos));
+            cargarInsumos();
+        }
+
+        function guardarServicio() {
+            const nombre = document.getElementById('servicio-nombre').value.trim();
+            const precio = parseFloat(document.getElementById('servicio-precio').value) || 0;
+
+            if(!nombre) {
+                alert("Introduce el nombre del servicio.");
+                return;
+            }
+
+            let servicios = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
+            servicios.push({ nombre, precio });
+            localStorage.setItem('lan_servicios', JSON.stringify(servicios));
+
+            document.getElementById('servicio-nombre').value = '';
+            document.getElementById('servicio-precio').value = '';
+
+            cargarServicios();
+            alert("¡Servicio guardado con éxito!");
+        }
+
+        function cargarServicios() {
+            const tbody = document.getElementById('tabla-servicios');
+            if(!tbody) return;
+
+            let servicios = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
+            listaServiciosDB = servicios;
+
+            tbody.innerHTML = servicios.length ? '' : '<tr><td colspan="3" class="p-4 text-center text-gray-400">Sin servicios registrados.</td></tr>';
+            servicios.forEach((s, idx) => {
+                tbody.innerHTML += `
+                    <tr class="border-b border-[#e8dbd3]">
+                        <td class="p-3 font-semibold text-[#2c2c2c]">${s.nombre}</td>
+                        <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(s.precio).toFixed(2)}</td>
+                        <td class="p-3">
+                            <button onclick="eliminarServicio(${idx})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function eliminarServicio(idx) {
+            if(!confirm("¿Eliminar este servicio?")) return;
+            let servicios = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
+            servicios.splice(idx, 1);
+            localStorage.setItem('lan_servicios', JSON.stringify(servicios));
+            cargarServicios();
+        }
+
+        function guardarCliente() {
+            const nombre = document.getElementById('cliente-nombre').value.trim();
+            const tel = document.getElementById('cliente-tel').value.trim();
+            const instagram = document.getElementById('cliente-insta').value.trim();
+
+            if(!nombre) {
+                alert("Introduce el nombre o empresa del cliente.");
+                return;
+            }
+
+            let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
+            clientes.push({ nombre, tel, instagram });
+            localStorage.setItem('lan_clientes', JSON.stringify(clientes));
+
+            document.getElementById('cliente-nombre').value = '';
+            document.getElementById('cliente-tel').value = '';
+            document.getElementById('cliente-insta').value = '';
+
+            cargarClientes();
+            cargarClientesEnSelects();
+            alert("¡Cliente guardado en CRM!");
+        }
+
+        function cargarClientes() {
+            const tbody = document.getElementById('tabla-clientes');
+            if(!tbody) return;
+
+            let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
+            tbody.innerHTML = clientes.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>';
+            
+            clientes.forEach((c, idx) => {
+                tbody.innerHTML += `
+                    <tr class="border-b border-[#e8dbd3]">
+                        <td class="p-3 font-semibold text-[#2c2c2c]">${c.nombre}</td>
+                        <td class="p-3 text-xs">${c.tel || 'N/A'}</td>
+                        <td class="p-3 text-xs text-[#b88a73]">${c.instagram || 'N/A'}</td>
+                        <td class="p-3">
+                            <button onclick="eliminarCliente(${idx})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function eliminarCliente(idx) {
+            if(!confirm("¿Eliminar este cliente?")) return;
+            let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
+            clientes.splice(idx, 1);
+            localStorage.setItem('lan_clientes', JSON.stringify(clientes));
+            cargarClientes();
+            cargarClientesEnSelects();
+        }
+
+        function guardarGasto() {
+            const concepto = document.getElementById('gasto-concepto').value.trim();
+            const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
+            const categoria = document.getElementById('gasto-categoria').value;
+
+            if(!concepto || monto <= 0) {
+                alert("Por favor introduce un concepto y un monto válido.");
+                return;
+            }
+
+            let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
+            gastos.push({ concepto, monto, categoria, fecha: new Date().toLocaleDateString() });
+            localStorage.setItem('lan_gastos', JSON.stringify(gastos));
+
+            document.getElementById('gasto-concepto').value = '';
+            document.getElementById('gasto-monto').value = '';
+
+            cargarGastos();
+            alert("¡Gasto registrado con éxito!");
+        }
+
+        function cargarGastos() {
+            const tbody = document.getElementById('tabla-gastos');
+            if(!tbody) return;
+
+            let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
+            tbody.innerHTML = gastos.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>';
+            
+            gastos.forEach(g => {
+                tbody.innerHTML += `
+                    <tr class="border-b border-[#e8dbd3]">
+                        <td class="p-3 font-semibold text-[#2c2c2c]">${g.concepto}</td>
+                        <td class="p-3 text-xs"><span class="bg-[#faf8f6] px-2 py-1 rounded border border-[#e8dbd3]">${g.categoria}</span></td>
+                        <td class="p-3 text-rose-600 font-bold">$${parseFloat(g.monto).toFixed(2)}</td>
+                        <td class="p-3 text-xs text-gray-500">${g.fecha}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function cargarDashboard() {
+            let ventas = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
+            let totalVentasUSD = ventas.reduce((acc, v) => acc + (parseFloat(v.total_usd) || 0), 0);
+            
+            let insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
+            let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
+
+            document.getElementById('dash-ventas').innerText = `$${totalVentasUSD.toFixed(2)}`;
+            document.getElementById('dash-insumos').innerText = insumos.length;
+            document.getElementById('dash-clientes').innerText = clientes.length;
+
+            cargarRegistrosCajaEditable();
         }
 
         async function manejarCambioClientePresupuesto(selectEl) {
@@ -947,9 +1195,7 @@
                 await fetch(SCRIPT_URL, { 
                     method: 'POST', 
                     body: formData,
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
                 });
                 alert("¡Cotización en Stand By guardada!");
                 cargarCotizacionesStandBy();
@@ -1022,9 +1268,7 @@
                 await fetch(SCRIPT_URL, { 
                     method: 'POST', 
                     body: formData,
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
                 });
                 cargarCotizacionesStandBy();
             } catch (error) {
@@ -1592,7 +1836,6 @@
                 if(!confirm(`El pago está incompleto. Faltan $${(totalUSD - totalAbonado).toFixed(2)}. ¿Deseas procesar la venta de todas formas?`)) return;
             }
 
-            // Descontar inventario automáticamente al procesar la venta
             let insumosLocal = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
             document.querySelectorAll('.desc-insumo-row').forEach(row => {
                 const nombreInsumo = row.querySelector('.select-insumo-caja').value;
@@ -1602,7 +1845,6 @@
                     let insumoEncontrado = insumosLocal.find(i => i.nombre === nombreInsumo);
                     if(insumoEncontrado) {
                         insumoEncontrado.stock = Math.max(0, parseInt(insumoEncontrado.stock) - cantAUsar);
-                        
                         if(insumoEncontrado.stock <= (parseInt(insumoEncontrado.stock_minimo) || 0)) {
                             alert(`⚠️ ¡Alerta de Stock! El insumo "${insumoEncontrado.nombre}" ha quedado en ${insumoEncontrado.stock} unidades (por debajo o igual al mínimo estipulado).`);
                         }
@@ -1637,220 +1879,18 @@
             const tbody = document.getElementById('tabla-historial-ventas');
             if(!tbody) return;
 
-            let registros = JSON.parse(localStorage.getItem('lan_ventas') || '[]').reverse().slice(0,10);
+            let registros = JSON.parse(localStorage.getItem('lan_ventas') || '[]').reverse().slice(0, 10);
 
-            tbody.innerHTML = registros.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin historial reciente.</td></tr>';
+            tbody.innerHTML = registros.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin historial reciente de ventas.</td></tr>';
             registros.forEach(v => {
                 const d = new Date(v.fecha).toLocaleDateString();
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 text-xs">${d}</td>
+                        <td class="p-3 text-xs text-gray-500">${d}</td>
                         <td class="p-3 font-semibold text-[#2c2c2c]">${v.cliente}</td>
-                        <td class="p-3 text-xs text-gray-600">${v.concepto}</td>
-                        <td class="p-3 font-bold text-[#b88a73]">$${v.total_usd.toFixed(2)}</td>
-                        <td class="p-3 text-xs text-gray-500">${v.metodos_pago}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function cargarDashboard() {
-            await fetchBCVRate();
-            
-            let ventas = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
-            let totalVentasUSD = ventas.reduce((acc, v) => acc + (parseFloat(v.total_usd) || 0), 0);
-            
-            let insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
-
-            document.getElementById('dash-ventas').innerText = `$${totalVentasUSD.toFixed(2)}`;
-            document.getElementById('dash-insumos').innerText = insumos.length;
-            document.getElementById('dash-clientes').innerText = clientes.length;
-
-            cargarRegistrosCajaEditable();
-        }
-
-        // --- FUNCIONES CRUD PARA LOCALSTORAGE ---
-        function guardarInsumo() {
-            const nombre = document.getElementById('insumo-nombre').value;
-            const categoria = document.getElementById('insumo-categoria').value;
-            const costo = parseFloat(document.getElementById('insumo-costo').value) || 0;
-            const stock = parseInt(document.getElementById('insumo-stock').value) || 0;
-            const min = parseInt(document.getElementById('insumo-minimo').value) || 0;
-
-            if(!nombre) { alert("Ingrese el nombre del insumo."); return; }
-
-            let lista = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            lista.push({ nombre, categoria, costo_unitario: costo, stock, stock_minimo: min });
-            localStorage.setItem('lan_insumos', JSON.stringify(lista));
-
-            document.getElementById('insumo-nombre').value = '';
-            document.getElementById('insumo-categoria').value = '';
-            document.getElementById('insumo-costo').value = '';
-            document.getElementById('insumo-stock').value = '';
-            document.getElementById('insumo-minimo').value = '';
-            cargarInsumos();
-            alert("Insumo guardado exitosamente.");
-        }
-
-        function cargarInsumos() {
-            listaInsumosDB = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            const tbody = document.getElementById('tabla-insumos');
-            if(!tbody) return;
-
-            tbody.innerHTML = listaInsumosDB.length ? '' : '<tr><td colspan="6" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr>';
-            listaInsumosDB.forEach((i, idx) => {
-                tbody.innerHTML += `
-                    <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${i.nombre}</td>
-                        <td class="p-3 text-xs text-gray-600">${i.categoria}</td>
-                        <td class="p-3 text-[#b88a73] font-bold">$${i.costo_unitario.toFixed(2)}</td>
-                        <td class="p-3">${i.stock}</td>
-                        <td class="p-3 text-xs text-gray-500">${i.stock_minimo}</td>
-                        <td class="p-3"><button onclick="eliminarInsumo(${idx})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button></td>
-                    </tr>
-                `;
-            });
-        }
-
-        function eliminarInsumo(idx) {
-            let lista = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            lista.splice(idx, 1);
-            localStorage.setItem('lan_insumos', JSON.stringify(lista));
-            cargarInsumos();
-        }
-
-        function guardarServicio() {
-            const nombre = document.getElementById('servicio-nombre').value;
-            const precio = parseFloat(document.getElementById('servicio-precio').value) || 0;
-
-            if(!nombre) { alert("Ingrese el nombre del servicio."); return; }
-
-            let lista = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
-            lista.push({ nombre, precio });
-            localStorage.setItem('lan_servicios', JSON.stringify(lista));
-
-            document.getElementById('servicio-nombre').value = '';
-            document.getElementById('servicio-precio').value = '';
-            cargarServicios();
-            alert("Servicio guardado exitosamente.");
-        }
-
-        function cargarServicios() {
-            listaServiciosDB = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
-            const tbody = document.getElementById('tabla-servicios');
-            if(!tbody) return;
-
-            tbody.innerHTML = listaServiciosDB.length ? '' : '<tr><td colspan="3" class="p-4 text-center text-gray-400">Sin servicios registrados.</td></tr>';
-            listaServiciosDB.forEach((s, idx) => {
-                tbody.innerHTML += `
-                    <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${s.nombre}</td>
-                        <td class="p-3 text-[#b88a73] font-bold">$${s.precio.toFixed(2)}</td>
-                        <td class="p-3"><button onclick="eliminarServicio(${idx})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button></td>
-                    </tr>
-                `;
-            });
-        }
-
-        function eliminarServicio(idx) {
-            let lista = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
-            lista.splice(idx, 1);
-            localStorage.setItem('lan_servicios', JSON.stringify(lista));
-            cargarServicios();
-        }
-
-        function guardarCliente() {
-            const nombre = document.getElementById('cliente-nombre').value;
-            const tel = document.getElementById('cliente-tel').value;
-            const instagram = document.getElementById('cliente-insta').value;
-
-            if(!nombre) { alert("Ingrese el nombre del cliente."); return; }
-
-            let lista = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
-            lista.push({ nombre, tel, instagram });
-            localStorage.setItem('lan_clientes', JSON.stringify(lista));
-
-            document.getElementById('cliente-nombre').value = '';
-            document.getElementById('cliente-tel').value = '';
-            document.getElementById('cliente-insta').value = '';
-            cargarClientes();
-            alert("Cliente guardado en CRM.");
-        }
-
-        function cargarClientes() {
-            let lista = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
-            const tbody = document.getElementById('tabla-clientes');
-            if(!tbody) return;
-
-            tbody.innerHTML = lista.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>';
-            lista.forEach((c, idx) => {
-                tbody.innerHTML += `
-                    <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${c.nombre}</td>
-                        <td class="p-3 text-xs text-gray-600">${c.tel || 'N/A'}</td>
-                        <td class="p-3 text-xs text-gray-600">${c.instagram || 'N/A'}</td>
-                        <td class="p-3"><button onclick="eliminarCliente(${idx})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button></td>
-                    </tr>
-                `;
-            });
-        }
-
-        function eliminarCliente(idx) {
-            let lista = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
-            lista.splice(idx, 1);
-            localStorage.setItem('lan_clientes', JSON.stringify(lista));
-            cargarClientes();
-        }
-
-        async function cargarClientesEnSelects() {
-            let lista = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
-            const selects = [document.getElementById('presupuesto-cliente'), document.getElementById('caja-cliente')];
-            
-            selects.forEach(sel => {
-                if(!sel) return;
-                const valorActual = sel.value;
-                sel.innerHTML = `
-                    <option value="Cliente General">-- Cliente General --</option>
-                    <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
-                `;
-                lista.forEach(c => {
-                    sel.innerHTML += `<option value="${c.nombre}">${c.nombre}</option>`;
-                });
-                sel.value = valorActual;
-            });
-        }
-
-        function guardarGasto() {
-            const concepto = document.getElementById('gasto-concepto').value;
-            const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
-            const categoria = document.getElementById('gasto-categoria').value;
-
-            if(!concepto || monto <= 0) { alert("Ingrese concepto y monto válidos."); return; }
-
-            let lista = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
-            lista.push({ concepto, monto, categoria, fecha: new Date().toLocaleDateString() });
-            localStorage.setItem('lan_gastos', JSON.stringify(lista));
-
-            document.getElementById('gasto-concepto').value = '';
-            document.getElementById('gasto-monto').value = '';
-            cargarGastos();
-            alert("Gasto registrado.");
-        }
-
-        function cargarGastos() {
-            let lista = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
-            const tbody = document.getElementById('tabla-gastos');
-            if(!tbody) return;
-
-            tbody.innerHTML = lista.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>';
-            lista.forEach(g => {
-                tbody.innerHTML += `
-                    <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${g.concepto}</td>
-                        <td class="p-3 text-xs text-gray-600">${g.categoria}</td>
-                        <td class="p-3 text-rose-600 font-bold">$${g.monto.toFixed(2)}</td>
-                        <td class="p-3 text-xs text-gray-500">${g.fecha}</td>
+                        <td class="p-3 text-xs text-gray-700">${v.concepto}</td>
+                        <td class="p-3 font-bold text-[#b88a73]">$${parseFloat(v.total_usd).toFixed(2)}</td>
+                        <td class="p-3 text-xs text-gray-600">${v.metodos_pago}</td>
                     </tr>
                 `;
             });
@@ -1858,44 +1898,45 @@
 
         function actualizarLogo() {
             const fileInput = document.getElementById('logo-file-input');
-            if (fileInput.files && fileInput.files[0]) {
+            if(fileInput && fileInput.files && fileInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const base64Image = e.target.result;
-                    localStorage.setItem('lan_logo_img', base64Image);
-                    aplicarLogoEnUI(base64Image, true);
-                    alert("¡Logotipo actualizado con éxito!");
+                    const base64Img = e.target.result;
+                    localStorage.setItem('lan_logo_img', base64Img);
+                    aplicarLogoEnUI(base64Img);
+                    alert("¡Logo actualizado con éxito!");
                 }
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                alert("Por favor seleccione una imagen.");
+                alert("Por favor selecciona una imagen para el logotipo.");
             }
         }
 
-        function aplicarLogoEnUI(src, isImg = false) {
+        function aplicarLogoEnUI(imgSrc) {
             const container = document.getElementById('logo-container');
             const docPreview = document.getElementById('doc-logo-preview');
+            const htmlLogo = `<img src="${imgSrc}" class="w-full h-full object-cover rounded-xl">`;
             
-            let htmlVal = isImg ? `<img src="${src}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-layer-group"></i>`;
-            globalLogoHTML = htmlVal;
-
-            if(container) container.innerHTML = htmlVal;
-            if(docPreview) docPreview.innerHTML = htmlVal;
+            if(container) container.innerHTML = htmlLogo;
+            if(docPreview) docPreview.innerHTML = htmlLogo;
+            globalLogoHTML = htmlLogo;
         }
 
-        // Inicialización General al Cargar la Página
         window.addEventListener('DOMContentLoaded', async () => {
-            listaInsumosDB = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            listaServiciosDB = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
-            
+            await cargarInsumosBase();
+            await cargarServiciosBase();
+            await fetchBCVRate();
+
             const savedLogo = localStorage.getItem('lan_logo_img');
             if(savedLogo) {
-                aplicarLogoEnUI(savedLogo, true);
+                aplicarLogoEnUI(savedLogo);
             }
 
-            await fetchBCVRate();
+            if(document.querySelectorAll('#lista-renglones-presupuesto tr').length === 0) {
+                agregarRenglonServicio('Servicio de Diseño Gráfico e Impresión', 20.00);
+            }
+
             syncRoute();
-            cargarDashboard();
         });
     </script>
 </body>

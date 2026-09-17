@@ -40,7 +40,7 @@
 </head>
 <body class="bg-[#faf8f6] text-[#2c2c2c] antialiased min-h-screen flex flex-col">
 
-    <!-- Topbar con Barra de Tasa BCV Automática / Manual, Fecha/Hora en 12 Horas y Logo -->
+    <!-- Topbar con Tasa BCV y Reloj -->
     <header class="bg-[#2c2c2c] border-b border-[#e8dbd3] px-6 py-4 flex flex-wrap justify-between items-center shadow-sm text-white">
         <div class="flex items-center space-x-3">
             <div id="logo-container" class="bg-[#b88a73] p-2.5 rounded-xl text-white font-bold text-xl flex items-center justify-center shadow-sm overflow-hidden w-12 h-12">
@@ -53,13 +53,11 @@
         </div>
 
         <div class="flex flex-wrap items-center space-x-4 mt-2 sm:mt-0">
-            <!-- Reloj y Fecha Automática en formato 12 Horas -->
             <div class="bg-[#383838] px-3 py-2 rounded-xl border border-[#4d4d4d] text-xs text-gray-300 flex items-center space-x-2">
                 <i class="fa-regular fa-clock text-[#b88a73]"></i>
                 <span id="live-clock-display">Cargando fecha y hora...</span>
             </div>
 
-            <!-- Tasa BCV Oficial con Opción Manual -->
             <div class="flex items-center space-x-2 bg-[#383838] px-4 py-2 rounded-xl border border-[#4d4d4d]">
                 <div class="flex items-center space-x-2">
                     <span class="w-3 h-3 rounded-full bg-[#b88a73] animate-pulse"></span>
@@ -73,7 +71,7 @@
         </div>
     </header>
 
-    <!-- Navegación General Rediseñada -->
+    <!-- Navegación General -->
     <nav class="bg-white border-b border-[#e8dbd3] px-6 py-3 flex flex-wrap items-center justify-between shadow-xs relative">
         <div class="flex space-x-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
             <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap"><i class="fa-solid fa-chart-pie mr-2"></i>Dashboard</button>
@@ -82,7 +80,6 @@
             <button onclick="switchTab('caja')" id="tab-caja" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-cash-register mr-2"></i>Caja y Pagos</button>
         </div>
 
-        <!-- Menú Desplegable "Más Herramientas" -->
         <div class="relative mt-2 sm:mt-0">
             <button onclick="toggleMenuDropdown()" id="btn-dropdown-menu" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-2">
                 <i class="fa-solid fa-toolbox text-[#b88a73]"></i>
@@ -104,10 +101,10 @@
         </div>
     </nav>
 
-    <!-- Contenedor Principal de Módulos -->
+    <!-- Contenido Principal -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
         
-        <!-- MÓDULO: DASHBOARD -->
+        <!-- DASHBOARD -->
         <section id="module-dashboard" class="space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm">
@@ -149,16 +146,10 @@
             </div>
         </section>
 
-        <!-- MÓDULO: COTIZACIONES EN STAND BY -->
+        <!-- STAND BY -->
         <section id="module-standby" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-clock text-[#b88a73] mr-2"></i> Cotizaciones en Stand By (En Espera)</h2>
-                        <p class="text-xs text-gray-500">Administra presupuestos guardados en cola. Cuando el cliente concrete, envíalos directo a caja para facturar.</p>
-                    </div>
-                </div>
-
+                <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-clock text-[#b88a73] mr-2"></i> Cotizaciones en Stand By (En Espera)</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-gray-700">
                         <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
@@ -178,16 +169,10 @@
             </div>
         </section>
 
-        <!-- MÓDULO: CALCULADORA DE STICKERS -->
+        <!-- CALCULADORA STICKERS -->
         <section id="module-calc-stickers" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-note-sticky text-[#b88a73] mr-2"></i> Calculadora Especializada de Stickers y Etiquetas</h2>
-                        <p class="text-xs text-gray-500">Calcula pliegos, cantidad por hoja, costos de impresión/corte y margen de ganancia.</p>
-                    </div>
-                </div>
-
+                <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-note-sticky text-[#b88a73] mr-2"></i> Calculadora Especializada de Stickers y Etiquetas</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
                         <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Medidas del Sticker</h3>
@@ -200,7 +185,7 @@
                             <input type="number" id="stk-alto" value="5" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Espaciado / Sangrado entre Stickers (cm)</label>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Espaciado / Sangrado (cm)</label>
                             <input type="number" id="stk-gap" value="0.3" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
                         </div>
                         <div>
@@ -210,9 +195,9 @@
                     </div>
 
                     <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Material y Hoja de Impresión</h3>
+                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Material y Hoja</h3>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Seleccionar Insumo / Material</label>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Seleccionar Insumo</label>
                             <select id="stk-insumo-select" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" onchange="seleccionarInsumoSticker()">
                                 <option value="0">-- Cargar desde Insumos --</option>
                             </select>
@@ -232,7 +217,7 @@
                             <input type="number" id="stk-costo-hoja" value="0.50" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Impresión + Corte por Hoja ($)</label>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Impresión + Corte ($)</label>
                             <input type="number" id="stk-costo-corte" value="0.30" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
                         </div>
                         <div>
@@ -245,17 +230,17 @@
                         <div>
                             <h3 class="font-bold text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
                             <div class="space-y-2 text-xs">
-                                <div class="flex justify-between"><span class="text-gray-500">Stickers por Hoja/Pliego:</span><span id="stk-res-por-hoja" class="font-bold text-[#2c2c2c]">0 uds</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Stickers por Hoja:</span><span id="stk-res-por-hoja" class="font-bold text-[#2c2c2c]">0 uds</span></div>
                                 <div class="flex justify-between"><span class="text-gray-500">Hojas Requeridas:</span><span id="stk-res-hojas-req" class="font-bold text-[#2c2c2c]">0 hojas</span></div>
-                                <div class="flex justify-between border-t border-gray-100 pt-2"><span class="text-gray-500">Costo Total Materiales:</span><span id="stk-res-costo-mat" class="font-semibold text-gray-700">$0.00</span></div>
-                                <div class="flex justify-between"><span class="text-gray-500">Costo Total Operativo:</span><span id="stk-res-costo-op" class="font-semibold text-gray-700">$0.00</span></div>
-                                <div class="flex justify-between font-bold text-sm border-t border-[#e8dbd3] pt-2"><span class="text-gray-700">Costo Base Producción:</span><span id="stk-res-costo-total" class="text-rose-600">$0.00</span></div>
+                                <div class="flex justify-between border-t border-gray-100 pt-2"><span class="text-gray-500">Costo Materiales:</span><span id="stk-res-costo-mat" class="font-semibold text-gray-700">$0.00</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Costo Operativo:</span><span id="stk-res-costo-op" class="font-semibold text-gray-700">$0.00</span></div>
+                                <div class="flex justify-between font-bold text-sm border-t border-[#e8dbd3] pt-2"><span class="text-gray-700">Costo Base:</span><span id="stk-res-costo-total" class="text-rose-600">$0.00</span></div>
                             </div>
 
                             <div class="mt-4 bg-[#faf8f6] p-3 rounded-lg border border-[#e8dbd3] text-center space-y-1">
-                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Sugerido Venta Lote</p>
+                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Venta Lote</p>
                                 <p id="stk-res-precio-lote" class="text-2xl font-extrabold text-[#b88a73]">$0.00</p>
-                                <p class="text-xs text-gray-500">Precio Unitario: <span id="stk-res-precio-unit" class="font-bold text-[#2c2c2c]">$0.00</span> / unid.</p>
+                                <p class="text-xs text-gray-500">Unitario: <span id="stk-res-precio-unit" class="font-bold text-[#2c2c2c]">$0.00</span></p>
                             </div>
                         </div>
 
@@ -268,29 +253,23 @@
             </div>
         </section>
 
-        <!-- MÓDULO: CALCULADORA DE TOPPERS -->
+        <!-- CALCULADORA TOPPERS -->
         <section id="module-calc-toppers" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cake-candles text-[#b88a73] mr-2"></i> Calculadora Multicapa para Toppers</h2>
-                        <p class="text-xs text-gray-500">Suma capas de cartulina, accesorios (palitos, vinil, luces) y mano de obra/diseño.</p>
-                    </div>
-                </div>
-
+                <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cake-candles text-[#b88a73] mr-2"></i> Calculadora Multicapa para Toppers</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="md:col-span-2 space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre o Temática del Topper</label>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Temática del Topper</label>
                                 <input type="text" id="top-nombre" value="Topper Multicapa Personalizado" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Tiempo Estimado de Diseño/Armado (Horas)</label>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Horas de Diseño/Armado</label>
                                 <input type="number" id="top-horas" value="1" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularTopper()">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Valor de Mano de Obra ($/Hora)</label>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Valor Mano de Obra ($/Hora)</label>
                                 <input type="number" id="top-tarifa-hora" value="3.00" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularTopper()">
                             </div>
                             <div>
@@ -301,15 +280,15 @@
 
                         <div class="border border-[#e8dbd3] rounded-xl p-4 bg-white space-y-3">
                             <div class="flex justify-between items-center">
-                                <h3 class="font-bold text-sm text-[#2c2c2c]">Materiales y Capas Utilizadas</h3>
-                                <button onclick="agregarFilaTopper()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-plus mr-1"></i> Agregar Material</button>
+                                <h3 class="font-bold text-sm text-[#2c2c2c]">Materiales y Capas</h3>
+                                <button onclick="agregarFilaTopper()" class="text-xs bg-[#2c2c2c] text-white px-3 py-1.5 rounded-lg font-medium"><i class="fa-solid fa-plus mr-1"></i> Agregar Material</button>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full text-xs text-left">
                                     <thead class="bg-[#faf8f6] text-gray-500 uppercase">
                                         <tr>
                                             <th class="p-2 w-[40%]">Material / Capa</th>
-                                            <th class="p-2 w-[20%] text-center">Cant. Utilizada</th>
+                                            <th class="p-2 w-[20%] text-center">Cant.</th>
                                             <th class="p-2 w-[25%] text-center">Costo Unit. ($)</th>
                                             <th class="p-2 w-[15%] text-center">Acción</th>
                                         </tr>
@@ -326,11 +305,11 @@
                             <div class="space-y-2 text-xs">
                                 <div class="flex justify-between"><span class="text-gray-500">Costo Materiales:</span><span id="top-res-mat" class="font-semibold text-gray-700">$0.00</span></div>
                                 <div class="flex justify-between"><span class="text-gray-500">Costo Mano de Obra:</span><span id="top-res-mo" class="font-semibold text-gray-700">$0.00</span></div>
-                                <div class="flex justify-between font-bold text-sm border-t border-[#e8dbd3] pt-2"><span class="text-gray-700">Costo Total Producción:</span><span id="top-res-costo-total" class="text-rose-600">$0.00</span></div>
+                                <div class="flex justify-between font-bold text-sm border-t border-[#e8dbd3] pt-2"><span class="text-gray-700">Costo Producción:</span><span id="top-res-costo-total" class="text-rose-600">$0.00</span></div>
                             </div>
 
                             <div class="mt-6 bg-[#faf8f6] p-4 rounded-lg border border-[#e8dbd3] text-center space-y-1">
-                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Venta Recomendado</p>
+                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Recomendado</p>
                                 <p id="top-res-precio-final" class="text-3xl font-extrabold text-[#b88a73]">$0.00</p>
                             </div>
                         </div>
@@ -344,14 +323,14 @@
             </div>
         </section>
 
-        <!-- MÓDULO: COTIZADOR Y PRESUPUESTOS -->
+        <!-- COTIZADOR Y PRESUPUESTOS -->
         <section id="module-calculadora" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 
                 <div class="flex flex-wrap justify-between items-center gap-4">
                     <div>
                         <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-file-invoice-dollar text-[#b88a73] mr-2"></i> Generador de Presupuestos Profesionales</h2>
-                        <p class="text-xs text-gray-500">Selecciona tus servicios o insumos, ajusta la ganancia y genera el presupuesto listo para enviar.</p>
+                        <p class="text-xs text-gray-500">Selecciona tus servicios o insumos y genera el presupuesto.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
                         <label class="flex items-center space-x-2 text-xs font-semibold text-gray-600 bg-[#faf8f6] px-3 py-2 rounded-xl border border-[#e8dbd3] cursor-pointer">
@@ -382,7 +361,7 @@
                         <input type="text" id="presupuesto-validez" value="7 días hábiles" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm focus:outline-none" oninput="recalcularPresupuestoTotal()">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">% de Ganancia Global por Defecto</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">% Ganancia Global por Defecto</label>
                         <input type="number" id="presupuesto-ganancia-global" value="30" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm focus:outline-none" oninput="aplicarGananciaGlobalEnCascada()">
                     </div>
                 </div>
@@ -420,8 +399,8 @@
                             <div class="flex justify-between items-center no-print-controls mb-2">
                                 <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Ítems, Servicios e Insumos a Presupuestar</h4>
                                 <div class="space-x-2">
-                                    <button onclick="agregarRenglonServicio()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-bullhorn mr-1"></i> Añadir Servicio</button>
-                                    <button onclick="agregarRenglonInsumo()" class="text-xs bg-[#b88a73] hover:bg-[#a67963] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-box mr-1"></i> Añadir Insumo</button>
+                                    <button onclick="agregarRenglonServicio()" class="text-xs bg-[#2c2c2c] text-white px-3 py-1.5 rounded-lg font-medium"><i class="fa-solid fa-bullhorn mr-1"></i> Añadir Servicio</button>
+                                    <button onclick="agregarRenglonInsumo()" class="text-xs bg-[#b88a73] text-white px-3 py-1.5 rounded-lg font-medium"><i class="fa-solid fa-box mr-1"></i> Añadir Insumo</button>
                                 </div>
                             </div>
 
@@ -467,11 +446,10 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </section>
 
-        <!-- MÓDULO: FACTURA / CAJA Y PAGOS DESGLOSADOS -->
+        <!-- CAJA Y PAGOS -->
         <section id="module-caja" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
@@ -488,7 +466,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Descripción del Servicio / Venta</label>
-                            <input type="text" id="caja-concepto" placeholder="Ej: Servicio de diseño e impresión" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]">
+                            <input type="text" id="caja-concepto" placeholder="Ej: Servicio de diseño e impresión" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-[#2c2c2c] focus:outline-none">
                         </div>
                     </div>
 
@@ -514,9 +492,8 @@
                     <div class="mt-4 border-t border-[#e8dbd3] pt-4">
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="text-sm font-bold text-[#2c2c2c] uppercase tracking-wider">Desglose de Formas de Pago</h3>
-                            <button onclick="agregarMetodoPago()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-plus mr-1"></i> Añadir Método</button>
+                            <button onclick="agregarMetodoPago()" class="text-xs bg-[#2c2c2c] text-white px-3 py-1.5 rounded-lg font-medium"><i class="fa-solid fa-plus mr-1"></i> Añadir Método</button>
                         </div>
-
                         <div id="lista-pagos" class="space-y-3 max-h-56 overflow-y-auto pr-1"></div>
                     </div>
                 </div>
@@ -525,18 +502,9 @@
                     <div>
                         <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider border-b border-[#e8dbd3] pb-2 mb-3">Resumen de Cobro</h3>
                         <div class="space-y-2 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-gray-500">Total Factura:</span>
-                                <span id="resumen-total" class="font-bold text-[#2c2c2c]">$0.00</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-500">Total Abonado:</span>
-                                <span id="resumen-abonado" class="font-bold text-[#b88a73]">$0.00</span>
-                            </div>
-                            <div class="flex justify-between border-t border-[#e8dbd3] pt-2">
-                                <span class="text-gray-500">Restante / Vuelto:</span>
-                                <span id="resumen-restante" class="font-bold text-amber-600">$0.00</span>
-                            </div>
+                            <div class="flex justify-between"><span class="text-gray-500">Total Factura:</span><span id="resumen-total" class="font-bold text-[#2c2c2c]">$0.00</span></div>
+                            <div class="flex justify-between"><span class="text-gray-500">Total Abonado:</span><span id="resumen-abonado" class="font-bold text-[#b88a73]">$0.00</span></div>
+                            <div class="flex justify-between border-t border-[#e8dbd3] pt-2"><span class="text-gray-500">Restante / Vuelto:</span><span id="resumen-restante" class="font-bold text-amber-600">$0.00</span></div>
                         </div>
                     </div>
 
@@ -548,7 +516,7 @@
             </div>
         </section>
 
-        <!-- MÓDULO: INSUMOS Y STOCK -->
+        <!-- INSUMOS Y STOCK -->
         <section id="module-insumos" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <div class="flex justify-between items-center">
@@ -560,7 +528,7 @@
                     <input type="text" id="insumo-categoria" placeholder="Categoría" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="number" id="insumo-costo" placeholder="Costo Unit. ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="number" id="insumo-stock" placeholder="Stock Actual" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="insumo-minimo" placeholder="Stock Mínimo Alerta" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
+                    <input type="number" id="insumo-minimo" placeholder="Stock Mínimo" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <button onclick="guardarInsumo()" id="btn-guardar-insumo" class="sm:col-span-5 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Insumo Local</button>
                 </div>
                 <div class="overflow-x-auto">
@@ -583,7 +551,7 @@
             </div>
         </section>
 
-        <!-- MÓDULO: SERVICIOS -->
+        <!-- SERVICIOS -->
         <section id="module-servicios" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-bullhorn text-[#b88a73] mr-2"></i> Catálogo de Servicios Publicitarios</h2>
@@ -610,7 +578,7 @@
             </div>
         </section>
 
-        <!-- MÓDULO: CRM CLIENTES -->
+        <!-- CRM CLIENTES -->
         <section id="module-crm" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Directorio de Clientes (CRM)</h2>
@@ -639,7 +607,7 @@
             </div>
         </section>
 
-        <!-- MÓDULO: CONTROL FINANCIERO -->
+        <!-- CONTROL FINANCIERO -->
         <section id="module-finanzas" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-wallet text-[#b88a73] mr-2"></i> Control Financiero y Gastos Operativos</h2>
@@ -672,11 +640,11 @@
             </div>
         </section>
 
-        <!-- MÓDULO: CONFIGURAR LOGO -->
+        <!-- CONFIGURAR LOGO -->
         <section id="module-logo" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-image text-[#b88a73] mr-2"></i> Configuración del Logotipo</h2>
-                <p class="text-sm text-gray-500">Sube una imagen o introduce la URL de tu logo para personalizar la barra superior y los presupuestos en PDF.</p>
+                <p class="text-sm text-gray-500">Sube una imagen para personalizar la barra superior y tus presupuestos en PDF.</p>
                 <div class="flex items-center space-x-4">
                     <input type="file" id="logo-file-input" accept="image/*" class="bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2 text-sm text-gray-700" onchange="actualizarLogo(event)">
                 </div>
@@ -685,10 +653,8 @@
 
     </main>
 
-    <!-- Script Lógico Integral -->
+    <!-- Script Lógico Integral Completo -->
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwB5AHv2GeTl3_FDqnpsf6DQS9DZTw6Z04DsQXrHAM_UDu9d4QaOxgxw-URvfetRR80iQ/exec';
-
         let tasaBCV = 807.39;
         let listaInsumosDB = [];
         let listaServiciosDB = [];
@@ -755,6 +721,7 @@
                 cargarClientesEnSelects();
                 document.getElementById('presupuesto-fecha-doc').innerText = `Fecha: ${new Date().toLocaleDateString()}`;
                 document.getElementById('presupuesto-tasa-doc').innerText = `Bs. ${tasaBCV.toFixed(2)}`;
+                if(document.querySelectorAll('#lista-renglones-presupuesto tr').length === 0) agregarRenglonServicio();
             }
             if(tabId === 'calc-stickers') {
                 poblarSelectInsumosStickers();
@@ -784,7 +751,7 @@
             if (tasaGuardada && fechaGuardada === hoyStr) {
                 tasaBCV = parseFloat(tasaGuardada);
                 if(inputEl) inputEl.value = tasaBCV.toFixed(2);
-                recularTasaDoc();
+                recalcularTasaDoc();
                 return;
             }
 
@@ -802,10 +769,10 @@
                 if(tasaGuardada) tasaBCV = parseFloat(tasaGuardada);
             }
             if(inputEl) inputEl.value = tasaBCV.toFixed(2);
-            recularTasaDoc();
+            recalcularTasaDoc();
         }
 
-        function recularTasaDoc() {
+        function recalcularTasaDoc() {
             const tasaDocEl = document.getElementById('presupuesto-tasa-doc');
             if(tasaDocEl) tasaDocEl.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
             recalcularPresupuestoTotal();
@@ -816,12 +783,50 @@
             if (!isNaN(val) && val > 0) {
                 tasaBCV = val;
                 localStorage.setItem('lan_bcv_tasa', tasaBCV);
-                recularTasaDoc();
+                recalcularTasaDoc();
                 actualizarTotalesCaja();
             }
         }
 
-        // --- INSUMOS ---
+        // --- DASHBOARD ---
+        function cargarDashboardDatos() {
+            const ventas = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
+            const insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
+            const clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
+            const standby = JSON.parse(localStorage.getItem('lan_standby') || '[]');
+
+            let totalVentasUSD = 0;
+            ventas.forEach(v => totalVentasUSD += (v.total_usd || 0));
+
+            const dashVentas = document.getElementById('dash-ventas');
+            const dashInsumos = document.getElementById('dash-insumos');
+            const dashClientes = document.getElementById('dash-clientes');
+            const dashStandby = document.getElementById('dash-standby');
+
+            if(dashVentas) dashVentas.innerText = `$${totalVentasUSD.toFixed(2)}`;
+            if(dashInsumos) dashInsumos.innerText = insumos.length;
+            if(dashClientes) dashClientes.innerText = clientes.length;
+            if(dashStandby) dashStandby.innerText = standby.length;
+
+            const tbody = document.getElementById('tabla-historial-ventas');
+            if(tbody) {
+                tbody.innerHTML = ventas.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin transacciones registradas.</td></tr>';
+                ventas.slice().reverse().forEach(v => {
+                    const fechaFmt = new Date(v.fecha).toLocaleDateString();
+                    tbody.innerHTML += `
+                        <tr class="border-b border-[#e8dbd3]">
+                            <td class="p-3 text-xs">${fechaFmt}</td>
+                            <td class="p-3 font-semibold">${v.cliente}</td>
+                            <td class="p-3">${v.concepto}</td>
+                            <td class="p-3 font-bold text-[#b88a73]">$${v.total_usd.toFixed(2)}</td>
+                            <td class="p-3 text-xs text-gray-600">${v.metodos_pago}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        // --- INSUMOS Y STOCK ---
         function cargarInsumos() {
             listaInsumosDB = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
             const tbody = document.getElementById('tabla-insumos');
@@ -835,9 +840,9 @@
                         <td class="p-3">$${parseFloat(i.costo_unitario).toFixed(2)}</td>
                         <td class="p-3">${i.stock}</td>
                         <td class="p-3">${i.stock_minimo}</td>
-                        <td class="p-3 text-center space-x-2">
-                            <button onclick="editarInsumo(${idx})" class="text-amber-600 hover:text-amber-800 text-xs font-semibold" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="eliminarInsumo(${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-semibold" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        <td class="p-3 text-center space-x-3">
+                            <button onclick="editarInsumo(${idx})" class="text-amber-600 hover:text-amber-800 font-semibold text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+                            <button onclick="eliminarInsumo(${idx})" class="text-rose-500 hover:text-rose-700 font-semibold text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
                         </td>
                     </tr>
                 `;
@@ -855,23 +860,21 @@
 
             if(!nombre) { alert("Indique el nombre del insumo."); return; }
             
-            if(editIdx >= -1) {
-                if(editIdx === -1) {
-                    listaInsumosDB.push({ nombre, categoria, costo_unitario, stock, stock_minimo });
-                } else {
-                    listaInsumosDB[editIdx] = { nombre, categoria, costo_unitario, stock, stock_minimo };
-                }
-                localStorage.setItem('lan_insumos', JSON.stringify(listaInsumosDB));
-                
-                document.getElementById('insumo-edit-idx').value = '-1';
-                document.getElementById('insumo-nombre').value = '';
-                document.getElementById('insumo-categoria').value = '';
-                document.getElementById('insumo-costo').value = '';
-                document.getElementById('insumo-stock').value = '';
-                document.getElementById('insumo-minimo').value = '';
-                document.getElementById('btn-guardar-insumo').innerText = 'Registrar Insumo Local';
-                cargarInsumos();
+            if(editIdx === -1) {
+                listaInsumosDB.push({ nombre, categoria, costo_unitario, stock, stock_minimo });
+            } else {
+                listaInsumosDB[editIdx] = { nombre, categoria, costo_unitario, stock, stock_minimo };
             }
+            localStorage.setItem('lan_insumos', JSON.stringify(listaInsumosDB));
+            
+            document.getElementById('insumo-edit-idx').value = '-1';
+            document.getElementById('insumo-nombre').value = '';
+            document.getElementById('insumo-categoria').value = '';
+            document.getElementById('insumo-costo').value = '';
+            document.getElementById('insumo-stock').value = '';
+            document.getElementById('insumo-minimo').value = '';
+            document.getElementById('btn-guardar-insumo').innerText = 'Registrar Insumo Local';
+            cargarInsumos();
         }
 
         function editarInsumo(idx) {
@@ -904,9 +907,9 @@
                     <tr class="border-b border-[#e8dbd3]">
                         <td class="p-3 font-semibold">${s.nombre}</td>
                         <td class="p-3">$${parseFloat(s.precio).toFixed(2)}</td>
-                        <td class="p-3 text-center space-x-2">
-                            <button onclick="editarServicio(${idx})" class="text-amber-600 hover:text-amber-800 text-xs font-semibold" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="eliminarServicio(${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-semibold" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        <td class="p-3 text-center space-x-3">
+                            <button onclick="editarServicio(${idx})" class="text-amber-600 hover:text-amber-800 font-semibold text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+                            <button onclick="eliminarServicio(${idx})" class="text-rose-500 hover:text-rose-700 font-semibold text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
                         </td>
                     </tr>
                 `;
@@ -949,7 +952,7 @@
             cargarServicios();
         }
 
-        // --- CLIENTES CRM ---
+        // --- CRM CLIENTES ---
         function cargarClientes() {
             const clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
             const tbody = document.getElementById('tabla-clientes');
@@ -961,9 +964,9 @@
                         <td class="p-3 font-semibold">${c.nombre}</td>
                         <td class="p-3">${c.tel || 'N/A'}</td>
                         <td class="p-3">${c.instagram || 'N/A'}</td>
-                        <td class="p-3 text-center space-x-2">
-                            <button onclick="editarCliente(${idx})" class="text-amber-600 hover:text-amber-800 text-xs font-semibold" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="eliminarCliente(${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-semibold" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        <td class="p-3 text-center space-x-3">
+                            <button onclick="editarCliente(${idx})" class="text-amber-600 hover:text-amber-800 font-semibold text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+                            <button onclick="eliminarCliente(${idx})" class="text-rose-500 hover:text-rose-700 font-semibold text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i> Eliminar</button>
                         </td>
                     </tr>
                 `;
@@ -1060,63 +1063,491 @@
             }
         }
 
-        function cargarGastos() {
-            const gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
-            const tbody = document.getElementById('tabla-gastos');
+        // --- COTIZADOR / PRESUPUESTOS ---
+        function agregarRenglonServicio() {
+            const tbody = document.getElementById('lista-renglones-presupuesto');
             if(!tbody) return;
-            tbody.innerHTML = gastos.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>';
-            gastos.forEach(g => {
+            const tr = document.createElement('tr');
+            tr.className = "border-b border-[#e8dbd3]";
+            tr.innerHTML = `
+                <td class="p-3">
+                    <select class="w-full bg-white border border-[#e8dbd3] rounded p-1 text-xs select-servicio-item" onchange="actualizarDatosRenglonServicio(this)">
+                        <option value="">-- Seleccionar Servicio --</option>
+                        ${listaServiciosDB.map(s => `<option value="${s.nombre}" data-precio="${s.precio}">${s.nombre} ($${s.precio})</option>`).join('')}
+                    </select>
+                </td>
+                <td class="p-3 text-center"><input type="number" value="1" min="1" class="w-16 bg-white border border-[#e8dbd3] rounded p-1 text-center text-xs" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-3 text-center internal-col"><input type="number" value="0.00" step="0.01" class="w-20 bg-white border border-[#e8dbd3] rounded p-1 text-center text-xs" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-3 text-center internal-col"><input type="number" value="30" step="1" class="w-16 bg-white border border-[#e8dbd3] rounded p-1 text-center text-xs" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-3 text-right internal-col font-semibold text-gray-600 renglon-sug">$0.00</td>
+                <td class="p-3 text-right font-bold text-[#b88a73] renglon-final">$0.00</td>
+                <td class="p-3 text-center no-print-controls"><button onclick="this.closest('tr').remove(); recalcularPresupuestoTotal();" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+            recalcularPresupuestoTotal();
+        }
+
+        function agregarRenglonInsumo() {
+            const tbody = document.getElementById('lista-renglones-presupuesto');
+            if(!tbody) return;
+            const tr = document.createElement('tr');
+            tr.className = "border-b border-[#e8dbd3]";
+            tr.innerHTML = `
+                <td class="p-3">
+                    <select class="w-full bg-white border border-[#e8dbd3] rounded p-1 text-xs select-insumo-item" onchange="actualizarDatosRenglonInsumo(this)">
+                        <option value="">-- Seleccionar Insumo --</option>
+                        ${listaInsumosDB.map(i => `<option value="${i.nombre}" data-costo="${i.costo_unitario}">${i.nombre} (Costo: $${i.costo_unitario})</option>`).join('')}
+                    </select>
+                </td>
+                <td class="p-3 text-center"><input type="number" value="1" min="1" class="w-16 bg-white border border-[#e8dbd3] rounded p-1 text-center text-xs" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-3 text-center internal-col"><input type="number" value="0.00" step="0.01" class="w-20 bg-white border border-[#e8dbd3] rounded p-1 text-center text-xs" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-3 text-center internal-col"><input type="number" value="30" step="1" class="w-16 bg-white border border-[#e8dbd3] rounded p-1 text-center text-xs" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-3 text-right internal-col font-semibold text-gray-600 renglon-sug">$0.00</td>
+                <td class="p-3 text-right font-bold text-[#b88a73] renglon-final">$0.00</td>
+                <td class="p-3 text-center no-print-controls"><button onclick="this.closest('tr').remove(); recalcularPresupuestoTotal();" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+            recalcularPresupuestoTotal();
+        }
+
+        function actualizarDatosRenglonServicio(sel) {
+            const opt = sel.options[sel.selectedIndex];
+            const precio = parseFloat(opt.getAttribute('data-precio')) || 0;
+            const tr = sel.closest('tr');
+            const inputs = tr.querySelectorAll('input');
+            if(inputs.length >= 3) {
+                inputs[1].value = precio;
+            }
+            recalcularPresupuestoTotal();
+        }
+
+        function actualizarDatosRenglonInsumo(sel) {
+            const opt = sel.options[sel.selectedIndex];
+            const costo = parseFloat(opt.getAttribute('data-costo')) || 0;
+            const tr = sel.closest('tr');
+            const inputs = tr.querySelectorAll('input');
+            if(inputs.length >= 3) {
+                inputs[1].value = costo;
+            }
+            recalcularPresupuestoTotal();
+        }
+
+        function aplicarGananciaGlobalEnCascada() {
+            const globalG = parseFloat(document.getElementById('presupuesto-ganancia-global').value) || 0;
+            const filas = document.querySelectorAll('#lista-renglones-presupuesto tr');
+            filas.forEach(tr => {
+                const inputs = tr.querySelectorAll('input');
+                if(inputs.length >= 3) {
+                    inputs[2].value = globalG;
+                }
+            });
+            recalcularPresupuestoTotal();
+        }
+
+        function recalcularPresupuestoTotal() {
+            const filas = document.querySelectorAll('#lista-renglones-presupuesto tr');
+            let subCostos = 0;
+            let totalGanancias = 0;
+            let totalPresupuesto = 0;
+
+            filas.forEach(tr => {
+                const inputs = tr.querySelectorAll('input');
+                if(inputs.length >= 3) {
+                    const cant = parseFloat(inputs[0].value) || 0;
+                    const costoUnit = parseFloat(inputs[1].value) || 0;
+                    const gananciaPct = parseFloat(inputs[2].value) || 0;
+
+                    const costoTotalRenglon = cant * costoUnit;
+                    const sugUnit = costoUnit * (1 + (gananciaPct / 100));
+                    const precioFinalRenglon = cant * sugUnit;
+                    const gananciaRenglon = precioFinalRenglon - costoTotalRenglon;
+
+                    const tdSug = tr.querySelector('.renglon-sug');
+                    const tdFinal = tr.querySelector('.renglon-final');
+
+                    if(tdSug) tdSug.innerText = `$${sugUnit.toFixed(2)}`;
+                    if(tdFinal) tdFinal.innerText = `$${precioFinalRenglon.toFixed(2)}`;
+
+                    subCostos += costoTotalRenglon;
+                    totalGanancias += gananciaRenglon;
+                    totalPresupuesto += precioFinalRenglon;
+                }
+            });
+
+            const cliSel = document.getElementById('presupuesto-cliente');
+            const clienteNombre = cliSel ? cliSel.value : 'Cliente General';
+            const validezInput = document.getElementById('presupuesto-validez');
+            const validezTxt = validezInput ? validezInput.value : '7 días hábiles';
+
+            const docCli = document.getElementById('doc-cliente-nombre');
+            const docVal = document.getElementById('doc-validez-txt');
+            if(docCli) docCli.innerText = clienteNombre === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : clienteNombre;
+            if(docVal) docVal.innerText = validezTxt;
+
+            const sc = document.getElementById('doc-subtotal-costo');
+            const tg = document.getElementById('doc-total-ganancia');
+            const tu = document.getElementById('doc-total-usd');
+            const tv = document.getElementById('doc-total-ves');
+
+            if(sc) sc.innerText = `$${subCostos.toFixed(2)}`;
+            if(tg) tg.innerText = `$${totalGanancias.toFixed(2)}`;
+            if(tu) tu.innerText = `$${totalPresupuesto.toFixed(2)}`;
+            if(tv) tv.innerText = `Bs. ${(totalPresupuesto * tasaBCV).toFixed(2)}`;
+        }
+
+        function alternarOcultarBCV() {
+            const chk = document.getElementById('chk-ocultar-bcv');
+            const containerTasa = document.getElementById('container-tasa-doc');
+            const containerVes = document.getElementById('container-total-ves-doc');
+            if(chk && containerTasa && containerVes) {
+                if(chk.checked) {
+                    containerTasa.classList.add('hidden');
+                    containerVes.classList.add('hidden');
+                } else {
+                    containerTasa.classList.remove('hidden');
+                    containerVes.classList.remove('hidden');
+                }
+            }
+        }
+
+        function guardarPresupuestoStandBy() {
+            const clienteEl = document.getElementById('presupuesto-cliente');
+            const cliente = clienteEl ? clienteEl.value : 'Cliente General';
+            const totalUSD = document.getElementById('doc-total-usd').innerText;
+            
+            let standbyList = JSON.parse(localStorage.getItem('lan_standby') || '[]');
+            standbyList.push({
+                id: Date.now(),
+                fecha: new Date().toLocaleDateString(),
+                cliente: cliente === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : cliente,
+                resumen: 'Presupuesto Generado en Cotizador',
+                total: totalUSD
+            });
+            localStorage.setItem('lan_standby', JSON.stringify(standbyList));
+            alert("¡Presupuesto guardado en Stand By exitosamente!");
+            cargarCotizacionesStandBy();
+            switchTab('standby');
+        }
+
+        function cargarCotizacionesStandBy() {
+            const standbyList = JSON.parse(localStorage.getItem('lan_standby') || '[]');
+            const tbody = document.getElementById('tabla-standby');
+            const badge = document.getElementById('badge-standby');
+            const dashStandby = document.getElementById('dash-standby');
+
+            if(badge) badge.innerText = standbyList.length;
+            if(dashStandby) dashStandby.innerText = standbyList.length;
+
+            if(!tbody) return;
+            tbody.innerHTML = standbyList.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin cotizaciones en espera.</td></tr>';
+            standbyList.forEach((s, idx) => {
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 font-semibold">${g.concepto}</td>
-                        <td class="p-3">${g.categoria}</td>
-                        <td class="p-3 text-rose-600 font-bold">$${parseFloat(g.monto).toFixed(2)}</td>
-                        <td class="p-3 text-xs text-gray-500">${g.fecha}</td>
+                        <td class="p-3 text-xs">${s.fecha}</td>
+                        <td class="p-3 font-semibold">${s.cliente}</td>
+                        <td class="p-3 text-xs">${s.resumen}</td>
+                        <td class="p-3 font-bold text-[#b88a73]">${s.total}</td>
+                        <td class="p-3 text-center space-x-2">
+                            <button onclick="enviarStandByACaja(${idx})" class="text-xs bg-[#b88a73] text-white px-2.5 py-1.5 rounded font-medium">Facturar</button>
+                            <button onclick="eliminarStandBy(${idx})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        </td>
                     </tr>
                 `;
             });
         }
 
+        function eliminarStandBy(idx) {
+            let standbyList = JSON.parse(localStorage.getItem('lan_standby') || '[]');
+            standbyList.splice(idx, 1);
+            localStorage.setItem('lan_standby', JSON.stringify(standbyList));
+            cargarCotizacionesStandBy();
+        }
+
+        function enviarStandByACaja(idx) {
+            let standbyList = JSON.parse(localStorage.getItem('lan_standby') || '[]');
+            const item = standbyList[idx];
+            if(!item) return;
+            switchTab('caja');
+            const cajaCli = document.getElementById('caja-cliente');
+            const cajaCon = document.getElementById('caja-concepto');
+            const cajaTot = document.getElementById('caja-total-usd');
+            if(cajaCli) cajaCli.value = item.cliente;
+            if(cajaCon) cajaCon.value = item.resumen;
+            if(cajaTot) cajaTot.value = parseFloat(item.total.replace('$', '')) || 0;
+            actualizarTotalesCaja();
+        }
+
+        function exportarPDFPresupuesto() {
+            const element = document.getElementById('area-impresion-presupuesto');
+            const noPrintElements = element.querySelectorAll('.no-print-controls');
+            noPrintElements.forEach(el => el.classList.add('hidden'));
+            element.classList.add('pdf-mode');
+
+            const opt = {
+                margin: 0.5,
+                filename: 'Presupuesto_LAN_Estudio.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().from(element).set(opt).save().then(() => {
+                noPrintElements.forEach(el => el.classList.remove('hidden'));
+                element.classList.remove('pdf-mode');
+            });
+        }
+
+        // --- CAJA Y PAGOS ---
+        function actualizarTotalesCaja() {
+            const usd = parseFloat(document.getElementById('caja-total-usd').value) || 0;
+            const vesInput = document.getElementById('caja-total-ves');
+            if(vesInput) vesInput.value = `Bs. ${(usd * tasaBCV).toFixed(2)}`;
+            const resTotal = document.getElementById('resumen-total');
+            if(resTotal) resTotal.innerText = `$${usd.toFixed(2)}`;
+            calcularRestantePagosCaja();
+        }
+
+        function agregarMetodoPago() {
+            const lista = document.getElementById('lista-pagos');
+            if(!lista) return;
+            const div = document.createElement('div');
+            div.className = "flex items-center space-x-2 bg-[#faf8f6] p-2 rounded-xl border border-[#e8dbd3]";
+            div.innerHTML = `
+                <select class="bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs text-[#2c2c2c]">
+                    <option value="Efectivo USD">Efectivo USD</option>
+                    <option value="Zelle">Zelle</option>
+                    <option value="Pago Móvil">Pago Móvil</option>
+                    <option value="Punto de Venta">Punto de Venta</option>
+                    <option value="Cashea">Cashea</option>
+                </select>
+                <input type="number" placeholder="Monto ($)" step="0.01" class="w-24 bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs text-[#2c2c2c]" oninput="calcularRestantePagosCaja()">
+                <button onclick="this.closest('div').remove(); calcularRestantePagosCaja();" class="text-rose-500 hover:text-rose-700 text-xs px-2"><i class="fa-solid fa-trash"></i></button>
+            `;
+            lista.appendChild(div);
+        }
+
+        function calcularRestantePagosCaja() {
+            const totalUSD = parseFloat(document.getElementById('caja-total-usd').value) || 0;
+            const filas = document.querySelectorAll('#lista-pagos div');
+            let abonado = 0;
+            filas.forEach(f => {
+                const inp = f.querySelector('input');
+                if(inp) abonado += parseFloat(inp.value) || 0;
+            });
+            const restante = totalUSD - abonado;
+            const abEl = document.getElementById('resumen-abonado');
+            const restEl = document.getElementById('resumen-restante');
+            if(abEl) abEl.innerText = `$${abonado.toFixed(2)}`;
+            if(restEl) restEl.innerText = `$${restante.toFixed(2)}`;
+        }
+
+        function procesarPagoFinal() {
+            const cli = document.getElementById('caja-cliente').value;
+            const con = document.getElementById('caja-concepto').value || 'Venta general';
+            const tot = parseFloat(document.getElementById('caja-total-usd').value) || 0;
+            if(tot <= 0) { alert("El total a pagar debe ser mayor a 0."); return; }
+
+            let ventas = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
+            ventas.push({
+                fecha: new Date().toISOString(),
+                cliente: cli === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : cli,
+                concepto: con,
+                total_usd: tot,
+                metodos_pago: 'Múltiples / Registrados'
+            });
+            localStorage.setItem('lan_ventas', JSON.stringify(ventas));
+            alert("¡Venta procesada y guardada exitosamente!");
+            switchTab('dashboard');
+        }
+
+        // --- CALCULADORA STICKERS LOGICA ---
+        function poblarSelectInsumosStickers() {
+            const sel = document.getElementById('stk-insumo-select');
+            if(!sel) return;
+            sel.innerHTML = '<option value="0">-- Cargar desde Insumos --</option>';
+            listaInsumosDB.forEach(i => {
+                sel.innerHTML += `<option value="${i.costo_unitario}" data-nombre="${i.nombre}">${i.nombre} ($${i.costo_unitario})</option>`;
+            });
+        }
+
+        function seleccionarInsumoSticker() {
+            const sel = document.getElementById('stk-insumo-select');
+            const val = parseFloat(sel.value) || 0;
+            if(val > 0) {
+                document.getElementById('stk-costo-hoja').value = val;
+                calcularStickers();
+            }
+        }
+
+        function calcularStickers() {
+            const ancho = parseFloat(document.getElementById('stk-ancho').value) || 0;
+            const alto = parseFloat(document.getElementById('stk-alto').value) || 0;
+            const gap = parseFloat(document.getElementById('stk-gap').value) || 0;
+            const cantidad = parseInt(document.getElementById('stk-cantidad').value) || 0;
+
+            const hojaAncho = parseFloat(document.getElementById('stk-hoja-ancho').value) || 0;
+            const hojaAlto = parseFloat(document.getElementById('stk-hoja-alto').value) || 0;
+            const costoHoja = parseFloat(document.getElementById('stk-costo-hoja').value) || 0;
+            const costoCorte = parseFloat(document.getElementById('stk-costo-corte').value) || 0;
+            const gananciaPct = parseFloat(document.getElementById('stk-ganancia').value) || 0;
+
+            if(ancho <= 0 || alto <= 0 || hojaAncho <= 0 || hojaAlto <= 0) return;
+
+            const efectivoAncho = ancho + gap;
+            const efectivoAlto = alto + gap;
+
+            const porFila = Math.floor(hojaAncho / efectivoAncho);
+            const porColumna = Math.floor(hojaAlto / efectivoAlto);
+            const porHoja = Math.max(1, porFila * porColumna);
+
+            const hojasReq = Math.ceil(cantidad / porHoja);
+            const costoMat = hojasReq * costoHoja;
+            const costoOp = hojasReq * costoCorte;
+            const costoTotal = costoMat + costoOp;
+
+            const precioLote = costoTotal * (1 + (gananciaPct / 100));
+            const precioUnit = cantidad > 0 ? precioLote / cantidad : 0;
+
+            document.getElementById('stk-res-por-hoja').innerText = `${porHoja} uds`;
+            document.getElementById('stk-res-hojas-req').innerText = `${hojasReq} hojas`;
+            document.getElementById('stk-res-costo-mat').innerText = `$${costoMat.toFixed(2)}`;
+            document.getElementById('stk-res-costo-op').innerText = `$${costoOp.toFixed(2)}`;
+            document.getElementById('stk-res-costo-total').innerText = `$${costoTotal.toFixed(2)}`;
+            document.getElementById('stk-res-precio-lote').innerText = `$${precioLote.toFixed(2)}`;
+            document.getElementById('stk-res-precio-unit').innerText = `$${precioUnit.toFixed(3)}`;
+        }
+
+        function enviarStickerAPresupuesto() {
+            switchTab('calculadora');
+            agregarRenglonServicio();
+            const filas = document.querySelectorAll('#lista-renglones-presupuesto tr');
+            const ultimaFila = filas[filas.length - 1];
+            if(ultimaFila) {
+                const selectServ = ultimaFila.querySelector('select');
+                if(selectServ) {
+                    let opt = document.createElement('option');
+                    opt.value = "Lote de Stickers Personalizados";
+                    opt.text = "Lote de Stickers Personalizados";
+                    selectServ.appendChild(opt);
+                    selectServ.value = "Lote de Stickers Personalizados";
+                }
+                const inputs = ultimaFila.querySelectorAll('input');
+                const lotePrecio = parseFloat(document.getElementById('stk-res-precio-lote').innerText.replace('$', '')) || 0;
+                const cantStk = parseFloat(document.getElementById('stk-cantidad').value) || 1;
+                if(inputs.length >= 3) {
+                    inputs[0].value = cantStk;
+                    inputs[1].value = (lotePrecio / cantStk).toFixed(2);
+                    inputs[2].value = document.getElementById('stk-ganancia').value;
+                }
+                recalcularPresupuestoTotal();
+            }
+        }
+
+        // --- CALCULADORA TOPPERS LOGICA ---
+        function agregarFilaTopper() {
+            const tbody = document.getElementById('lista-insumos-topper');
+            if(!tbody) return;
+            const tr = document.createElement('tr');
+            tr.className = "border-b border-[#e8dbd3]";
+            tr.innerHTML = `
+                <td class="p-2"><input type="text" placeholder="Ej: Cartulina metalizada" class="w-full bg-white border border-[#e8dbd3] rounded p-1 text-xs"></td>
+                <td class="p-2 text-center"><input type="number" value="1" step="0.5" class="w-16 bg-white border border-[#e8dbd3] rounded p-1 text-center text-xs" oninput="calcularTopper()"></td>
+                <td class="p-2 text-center"><input type="number" value="0.20" step="0.01" class="w-20 bg-white border border-[#e8dbd3] rounded p-1 text-center text-xs" oninput="calcularTopper()"></td>
+                <td class="p-2 text-center"><button onclick="this.closest('tr').remove(); calcularTopper();" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+            calcularTopper();
+        }
+
+        function calcularTopper() {
+            const filas = document.querySelectorAll('#lista-insumos-topper tr');
+            let costoMat = 0;
+            filas.forEach(tr => {
+                const inputs = tr.querySelectorAll('input');
+                if(inputs.length >= 2) {
+                    const cant = parseFloat(inputs[1].value) || 0;
+                    const costoUnit = parseFloat(inputs[2].value) || 0;
+                    costoMat += cant * costoUnit;
+                }
+            });
+
+            const horas = parseFloat(document.getElementById('top-horas').value) || 0;
+            const tarifaHora = parseFloat(document.getElementById('top-tarifa-hora').value) || 0;
+            const ganancia = parseFloat(document.getElementById('top-ganancia').value) || 0;
+
+            const costoMO = horas * tarifaHora;
+            const costoTotal = costoMat + costoMO;
+            const precioFinal = costoTotal * (1 + (ganancia / 100));
+
+            document.getElementById('top-res-mat').innerText = `$${costoMat.toFixed(2)}`;
+            document.getElementById('top-res-mo').innerText = `$${costoMO.toFixed(2)}`;
+            document.getElementById('top-res-costo-total').innerText = `$${costoTotal.toFixed(2)}`;
+            document.getElementById('top-res-precio-final').innerText = `$${precioFinal.toFixed(2)}`;
+        }
+
+        function enviarTopperAPresupuesto() {
+            switchTab('calculadora');
+            agregarRenglonServicio();
+            const filas = document.querySelectorAll('#lista-renglones-presupuesto tr');
+            const ultimaFila = filas[filas.length - 1];
+            if(ultimaFila) {
+                const selectServ = ultimaFila.querySelector('select');
+                if(selectServ) {
+                    let opt = document.createElement('option');
+                    const nombreTopper = document.getElementById('top-nombre').value || 'Topper Multicapa';
+                    opt.value = nombreTopper;
+                    opt.text = nombreTopper;
+                    selectServ.appendChild(opt);
+                    selectServ.value = nombreTopper;
+                }
+                const inputs = ultimaFila.querySelectorAll('input');
+                const precioTopper = parseFloat(document.getElementById('top-res-precio-final').innerText.replace('$', '')) || 0;
+                if(inputs.length >= 3) {
+                    inputs[0].value = 1;
+                    inputs[1].value = precioTopper.toFixed(2);
+                    inputs[2].value = document.getElementById('top-ganancia').value;
+                }
+                recalcularPresupuestoTotal();
+            }
+        }
+
+        // --- CONTROL FINANCIERO ---
         function guardarGasto() {
             const concepto = document.getElementById('gasto-concepto').value.trim();
             const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
             const categoria = document.getElementById('gasto-categoria').value;
-            if(!concepto || monto <= 0) { alert("Complete los datos del gasto."); return; }
+
+            if(!concepto || monto <= 0) { alert("Indique un concepto y un monto válido para el gasto."); return; }
+
             let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
-            gastos.push({ concepto, monto, categoria, fecha: new Date().toLocaleDateString() });
+            gastos.push({
+                concepto,
+                monto,
+                categoria,
+                fecha: new Date().toLocaleDateString()
+            });
             localStorage.setItem('lan_gastos', JSON.stringify(gastos));
+
             document.getElementById('gasto-concepto').value = '';
             document.getElementById('gasto-monto').value = '';
             cargarGastos();
         }
 
-        function cargarDashboardDatos() {
-            const ventas = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
-            const insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            const clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
-
-            let totalV = 0;
-            ventas.forEach(v => totalV += parseFloat(v.total_usd) || 0);
-
-            document.getElementById('dash-ventas').innerText = `$${totalV.toFixed(2)}`;
-            document.getElementById('dash-insumos').innerText = insumos.length;
-            document.getElementById('dash-clientes').innerText = clientes.length;
-
-            const tbody = document.getElementById('tabla-historial-ventas');
-            if(tbody) {
-                tbody.innerHTML = ventas.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin ventas recientes.</td></tr>';
-                ventas.slice(-10).reverse().forEach(v => {
-                    tbody.innerHTML += `
-                        <tr class="border-b border-[#e8dbd3]">
-                            <td class="p-3 text-xs">${new Date(v.fecha).toLocaleString()}</td>
-                            <td class="p-3 font-semibold">${v.cliente}</td>
-                            <td class="p-3 text-xs">${v.concepto}</td>
-                            <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(v.total_usd).toFixed(2)}</td>
-                            <td class="p-3 text-xs text-gray-600">${v.metodos_pago}</td>
-                        </tr>
-                    `;
-                });
-            }
+        function cargarGastos() {
+            const gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
+            const tbody = document.getElementById('tabla-gastos');
+            if(!tbody) return;
+            tbody.innerHTML = gastos.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>';
+            gastos.slice().reverse().forEach(g => {
+                tbody.innerHTML += `
+                    <tr class="border-b border-[#e8dbd3]">
+                        <td class="p-3 font-semibold">${g.concepto}</td>
+                        <td class="p-3">${g.categoria}</td>
+                        <td class="p-3 text-rose-600 font-bold">$${g.monto.toFixed(2)}</td>
+                        <td class="p-3 text-xs">${g.fecha}</td>
+                    </tr>
+                `;
+            });
         }
 
         function actualizarLogo(e) {

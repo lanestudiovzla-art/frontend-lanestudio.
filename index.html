@@ -497,8 +497,9 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Seleccionar Cliente (CRM)</label>
-                            <select id="caja-cliente" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-[#2c2c2c] focus:outline-none">
+                            <select id="caja-cliente" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-[#2c2c2c] focus:outline-none" onchange="manejarCambioClienteCaja(this)">
                                 <option value="Cliente General">-- Cliente General --</option>
+                                <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
                             </select>
                         </div>
                         <div>
@@ -736,7 +737,6 @@
                 const el = document.getElementById(`module-${t}`);
                 const btn = document.getElementById(`tab-${t}`);
                 if(el) el.classList.add('hidden');
-                // Remover estilos activos tanto de botones principales como de los del dropdown
                 if(btn) {
                     if(btn.tagName === 'BUTTON' && btn.id.startsWith('tab-') && !btn.classList.contains('w-full')) {
                         btn.className = "px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap";
@@ -843,6 +843,25 @@
             recalcularPresupuestoTotal();
         }
 
+        async function manejarCambioClienteCaja(selectEl) {
+            if (selectEl.value === 'CREAR_NUEVO_CLIENTE') {
+                const nombreNuevo = prompt("Ingrese el nombre o empresa del nuevo cliente:");
+                if (nombreNuevo && nombreNuevo.trim() !== '') {
+                    const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
+                    const instaNuevo = prompt("Instagram (opcional):") || '';
+                    
+                    let local = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
+                    local.push({ nombre: nombreNuevo.trim(), tel: telNuevo, instagram: instaNuevo });
+                    localStorage.setItem('lan_clientes', JSON.stringify(local));
+                    
+                    await cargarClientesEnSelects();
+                    selectEl.value = nombreNuevo.trim();
+                } else {
+                    selectEl.value = "Cliente General";
+                }
+            }
+        }
+
         async function guardarPresupuestoStandBy() {
             const cliente = document.getElementById('presupuesto-cliente').value;
             const validez = document.getElementById('presupuesto-validez').value;
@@ -889,10 +908,6 @@
             } finally {
                 if(btn) btn.innerHTML = '<i class="fa-solid fa-clock mr-2"></i> Guardar en Stand By';
             }
-        }
-
-        function cargarContadorStandBy() {
-            // Se actualiza en cargarCotizacionesStandBy
         }
 
         async function cargarCotizacionesStandBy() {

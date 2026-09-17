@@ -519,6 +519,17 @@
                         </div>
                     </div>
 
+                    <!-- Descuento de Insumos Automático al Vender -->
+                    <div class="bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3] space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500">Descontar Insumo del Inventario al Vender</label>
+                            <button onclick="agregarFilaDescuentoCaja()" class="text-xs bg-[#2c2c2c] text-white px-2.5 py-1 rounded-lg"><i class="fa-solid fa-plus mr-1"></i> Vincular Insumo</button>
+                        </div>
+                        <div id="lista-descuento-insumos" class="space-y-2">
+                            <!-- Selectores dinámicos -->
+                        </div>
+                    </div>
+
                     <div class="mt-4 border-t border-[#e8dbd3] pt-4">
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="text-sm font-bold text-[#2c2c2c] uppercase tracking-wider">Desglose de Formas de Pago</h3>
@@ -564,12 +575,13 @@
                 <div class="flex justify-between items-center">
                     <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-boxes-stacked text-[#b88a73] mr-2"></i> Control de Insumos y Materiales</h2>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
                     <input type="text" id="insumo-nombre" placeholder="Nombre del Material" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="text" id="insumo-categoria" placeholder="Categoría" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="number" id="insumo-costo" placeholder="Costo Unit. ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="number" id="insumo-stock" placeholder="Stock Actual" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarInsumo()" class="sm:col-span-4 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Insumo en Nube</button>
+                    <input type="number" id="insumo-minimo" placeholder="Stock Mínimo Alerta" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
+                    <button onclick="guardarInsumo()" class="sm:col-span-5 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Insumo en Nube</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-gray-700">
@@ -578,12 +590,13 @@
                                 <th class="p-3">Nombre</th>
                                 <th class="p-3">Categoría</th>
                                 <th class="p-3">Costo ($)</th>
-                                <th class="p-3">Stock</th>
+                                <th class="p-3">Stock Actual</th>
+                                <th class="p-3">Stock Mínimo</th>
                                 <th class="p-3">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-insumos">
-                            <tr><td colspan="5" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr>
+                            <tr><td colspan="6" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -763,6 +776,7 @@
                 actualizarTotalesCaja();
                 cargarClientesEnSelects();
                 cargarRegistrosCajaEditable();
+                document.getElementById('lista-descuento-insumos').innerHTML = '';
             }
             if(tabId === 'standby') {
                 cargarCotizacionesStandBy();
@@ -1437,6 +1451,28 @@
             area.style.margin = '';
         }
 
+        function agregarFilaDescuentoCaja() {
+            const contenedor = document.getElementById('lista-descuento-insumos');
+            const rowId = `desc-insumo-${Date.now()}`;
+            
+            let opciones = '<option value="">-- Seleccionar Insumo a Descontar --</option>';
+            let insumosLocal = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
+            insumosLocal.forEach(i => {
+                opciones += `<option value="${i.nombre}">${i.nombre} (Stock actual: ${i.stock})</option>`;
+            });
+
+            const html = `
+                <div id="${rowId}" class="flex space-x-2 items-center desc-insumo-row">
+                    <select class="w-2/3 bg-white border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs select-insumo-caja">
+                        ${opciones}
+                    </select>
+                    <input type="number" value="1" min="1" placeholder="Cant." class="w-1/4 bg-white border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs text-center cant-insumo-caja">
+                    <button onclick="document.getElementById('${rowId}').remove()" class="text-rose-500 text-xs px-2"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+            contenedor.insertAdjacentHTML('beforeend', html);
+        }
+
         let pagoIndex = 0;
         function agregarMetodoPago() {
             pagoIndex++;
@@ -1518,6 +1554,25 @@
                 if(!confirm(`El pago está incompleto. Faltan $${(totalUSD - totalAbonado).toFixed(2)}. ¿Deseas procesar la venta de todas formas?`)) return;
             }
 
+            // Descontar inventario automáticamente al procesar la venta
+            let insumosLocal = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
+            document.querySelectorAll('.desc-insumo-row').forEach(row => {
+                const nombreInsumo = row.querySelector('.select-insumo-caja').value;
+                const cantAUsar = parseInt(row.querySelector('.cant-insumo-caja').value) || 0;
+                
+                if(nombreInsumo && cantAUsar > 0) {
+                    let insumoEncontrado = insumosLocal.find(i => i.nombre === nombreInsumo);
+                    if(insumoEncontrado) {
+                        insumoEncontrado.stock = Math.max(0, parseInt(insumoEncontrado.stock) - cantAUsar);
+                        
+                        if(insumoEncontrado.stock <= (parseInt(insumoEncontrado.stock_minimo) || 0)) {
+                            alert(`⚠️ ¡Alerta de Stock! El insumo "${insumoEncontrado.nombre}" ha quedado en ${insumoEncontrado.stock} unidades (por debajo o igual al mínimo estipulado).`);
+                        }
+                    }
+                }
+            });
+            localStorage.setItem('lan_insumos', JSON.stringify(insumosLocal));
+
             const metodosStr = metodosPago.join(' | ');
 
             let ventasLocales = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
@@ -1530,10 +1585,11 @@
             });
             localStorage.setItem('lan_ventas', JSON.stringify(ventasLocales));
 
-            alert("Venta procesada con éxito.");
+            alert("Venta procesada y stock descontado con éxito.");
             document.getElementById('caja-concepto').value = '';
             document.getElementById('caja-total-usd').value = '0.00';
             document.getElementById('lista-pagos').innerHTML = '';
+            document.getElementById('lista-descuento-insumos').innerHTML = '';
             actualizarTotalesCaja();
             switchTab('dashboard');
             cargarDashboard();
@@ -1562,7 +1618,6 @@
 
         async function cargarDashboard() {
             await fetchBCVRate();
-            cargarContadorStandBy();
             
             let ventas = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
             let clientesLocal = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
@@ -1582,14 +1637,23 @@
             const tbody = document.getElementById('tabla-insumos');
             listaInsumosDB = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
 
-            tbody.innerHTML = listaInsumosDB.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr>';
+            tbody.innerHTML = listaInsumosDB.length ? '' : '<tr><td colspan="6" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr>';
+            
             listaInsumosDB.forEach(i => {
+                const stockActual = parseInt(i.stock) || 0;
+                const stockMinimo = parseInt(i.stock_minimo) || 0;
+                const estaBajo = stockActual <= stockMinimo;
+
                 tbody.innerHTML += `
-                    <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 font-medium">${i.nombre}</td>
+                    <tr class="border-b border-[#e8dbd3] ${estaBajo ? 'bg-rose-50' : ''}">
+                        <td class="p-3 font-medium flex items-center justify-between">
+                            <span>${i.nombre}</span>
+                            ${estaBajo ? '<span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Stock Bajo</span>' : ''}
+                        </td>
                         <td class="p-3 text-xs">${i.categoria}</td>
                         <td class="p-3 font-bold text-[#b88a73]">$${parseFloat(i.costo_unitario).toFixed(2)}</td>
-                        <td class="p-3 text-xs">${i.stock}</td>
+                        <td class="p-3 text-xs font-bold ${estaBajo ? 'text-rose-600' : 'text-gray-700'}">${stockActual}</td>
+                        <td class="p-3 text-xs text-gray-500">${stockMinimo}</td>
                         <td class="p-3">
                             <button onclick="eliminarInsumo('${i.nombre}')" class="text-rose-500 text-xs"><i class="fa-solid fa-trash"></i></button>
                         </td>
@@ -1603,17 +1667,19 @@
             const categoria = document.getElementById('insumo-categoria').value;
             const costo = parseFloat(document.getElementById('insumo-costo').value);
             const stock = parseInt(document.getElementById('insumo-stock').value) || 0;
+            const stock_minimo = parseInt(document.getElementById('insumo-minimo').value) || 0;
 
-            if(!nombre || isNaN(costo)) return alert("Datos inválidos.");
+            if(!nombre || isNaN(costo)) return alert("Nombre y costo son obligatorios.");
 
             let local = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            local.push({ nombre, categoria, costo_unitario: costo, stock });
+            local.push({ nombre, categoria, costo_unitario: costo, stock, stock_minimo });
             localStorage.setItem('lan_insumos', JSON.stringify(local));
 
             document.getElementById('insumo-nombre').value = '';
             document.getElementById('insumo-categoria').value = '';
             document.getElementById('insumo-costo').value = '';
             document.getElementById('insumo-stock').value = '';
+            document.getElementById('insumo-minimo').value = '';
             cargarInsumos();
         }
 

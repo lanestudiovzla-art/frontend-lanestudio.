@@ -77,7 +77,7 @@
         </div>
     </header>
 
-    <!-- Navegación General -->
+    <!-- Navegación General con Menús Separados -->
     <nav class="bg-white border-b border-[#e8dbd3] px-6 py-3 flex flex-wrap items-center justify-between shadow-xs relative">
         <div class="flex space-x-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
             <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap"><i class="fa-solid fa-chart-pie mr-2"></i>Dashboard</button>
@@ -86,33 +86,45 @@
             <button onclick="switchTab('caja')" id="tab-caja" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-cash-register mr-2"></i>Caja y Pagos</button>
         </div>
 
-        <div class="relative mt-2 sm:mt-0">
-            <button onclick="toggleMenuDropdown()" id="btn-dropdown-menu" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-2">
-                <i class="fa-solid fa-toolbox text-[#b88a73]"></i>
-                <span>Herramientas y Gestión</span>
-                <i class="fa-solid fa-chevron-down text-xs ml-1"></i>
-            </button>
+        <div class="flex items-center space-x-2 mt-2 sm:mt-0">
+            <!-- Menú Desplegable: Calculadoras -->
+            <div class="relative">
+                <button onclick="toggleDropdown('calculadoras')" id="btn-calculadoras" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-2">
+                    <i class="fa-solid fa-calculator text-[#b88a73]"></i>
+                    <span>Calculadoras</span>
+                    <i class="fa-solid fa-chevron-down text-xs ml-1"></i>
+                </button>
 
-            <!-- Megamenú Rediseñado en 2 Columnas -->
-            <div id="dropdown-menu-content" class="hidden absolute right-0 mt-2 w-[340px] bg-white border border-[#e8dbd3] rounded-2xl shadow-xl p-3 z-50">
-                <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[#b88a73]">Calculadoras Especializadas</div>
-                <div class="grid grid-cols-2 gap-1 my-1">
-                    <button onclick="switchTab('calc-stickers'); toggleMenuDropdown();" id="tab-calc-stickers" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-note-sticky mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Stickers</span></button>
-                    <button onclick="switchTab('calc-toppers'); toggleMenuDropdown();" id="tab-calc-toppers" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-cake-candles mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Toppers</span></button>
-                    <button onclick="switchTab('calc-flyers'); toggleMenuDropdown();" id="tab-calc-flyers" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-file-lines mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Flyers</span></button>
-                    <button onclick="switchTab('calc-sublimacion'); toggleMenuDropdown();" id="tab-calc-sublimacion" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-mug-hot mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Sublimación</span></button>
-                    <button onclick="switchTab('calc-audiovisual'); toggleMenuDropdown();" id="tab-calc-audiovisual" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-video mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Audiovisual</span></button>
-                    <button onclick="switchTab('calc-vinil'); toggleMenuDropdown();" id="tab-calc-vinil" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-scroll mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Vinil y DTF</span></button>
+                <div id="dropdown-calculadoras" class="hidden absolute right-0 sm:left-auto sm:right-0 mt-2 w-[340px] bg-white border border-[#e8dbd3] rounded-2xl shadow-xl p-3 z-50">
+                    <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[#b88a73]">Calculadoras Especializadas</div>
+                    <div class="grid grid-cols-2 gap-1 my-1">
+                        <button onclick="switchTab('calc-stickers'); toggleDropdown('calculadoras');" id="tab-calc-stickers" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-note-sticky mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Stickers</span></button>
+                        <button onclick="switchTab('calc-toppers'); toggleDropdown('calculadoras');" id="tab-calc-toppers" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-cake-candles mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Toppers</span></button>
+                        <button onclick="switchTab('calc-flyers'); toggleDropdown('calculadoras');" id="tab-calc-flyers" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-file-lines mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Flyers</span></button>
+                        <button onclick="switchTab('calc-sublimacion'); toggleDropdown('calculadoras');" id="tab-calc-sublimacion" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-mug-hot mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Sublimación</span></button>
+                        <button onclick="switchTab('calc-audiovisual'); toggleDropdown('calculadoras');" id="tab-calc-audiovisual" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-video mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Audiovisual</span></button>
+                        <button onclick="switchTab('calc-vinil'); toggleDropdown('calculadoras');" id="tab-calc-vinil" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-scroll mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Vinil y DTF</span></button>
+                    </div>
                 </div>
-                
-                <div class="border-t border-[#e8dbd3] my-2"></div>
-                <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Administración y Operaciones</div>
-                <div class="space-y-0.5 mt-1">
-                    <button onclick="switchTab('insumos'); toggleMenuDropdown();" id="tab-insumos" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-boxes-stacked mr-2.5 text-[#b88a73]"></i>Insumos y Stock</button>
-                    <button onclick="switchTab('servicios'); toggleMenuDropdown();" id="tab-servicios" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-bullhorn mr-2.5 text-[#b88a73]"></i>Servicios</button>
-                    <button onclick="switchTab('crm'); toggleMenuDropdown();" id="tab-crm" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-users mr-2.5 text-[#b88a73]"></i>CRM Clientes</button>
-                    <button onclick="switchTab('finanzas'); toggleMenuDropdown();" id="tab-finanzas" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-wallet mr-2.5 text-[#b88a73]"></i>Control Financiero</button>
-                    <button onclick="switchTab('logo'); toggleMenuDropdown();" id="tab-logo" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-image mr-2.5 text-[#b88a73]"></i>Configurar Logo</button>
+            </div>
+
+            <!-- Menú Desplegable: Administración -->
+            <div class="relative">
+                <button onclick="toggleDropdown('admin')" id="btn-admin" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-2">
+                    <i class="fa-solid fa-gears text-[#b88a73]"></i>
+                    <span>Administración</span>
+                    <i class="fa-solid fa-chevron-down text-xs ml-1"></i>
+                </button>
+
+                <div id="dropdown-admin" class="hidden absolute right-0 mt-2 w-[240px] bg-white border border-[#e8dbd3] rounded-2xl shadow-xl p-3 z-50">
+                    <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Gestión y Operaciones</div>
+                    <div class="space-y-0.5 mt-1">
+                        <button onclick="switchTab('insumos'); toggleDropdown('admin');" id="tab-insumos" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-boxes-stacked mr-2.5 text-[#b88a73]"></i>Insumos y Stock</button>
+                        <button onclick="switchTab('servicios'); toggleDropdown('admin');" id="tab-servicios" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-bullhorn mr-2.5 text-[#b88a73]"></i>Servicios</button>
+                        <button onclick="switchTab('crm'); toggleDropdown('admin');" id="tab-crm" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-users mr-2.5 text-[#b88a73]"></i>CRM Clientes</button>
+                        <button onclick="switchTab('finanzas'); toggleDropdown('admin');" id="tab-finanzas" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-wallet mr-2.5 text-[#b88a73]"></i>Control Financiero</button>
+                        <button onclick="switchTab('logo'); toggleDropdown('admin');" id="tab-logo" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-image mr-2.5 text-[#b88a73]"></i>Configurar Logo</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1013,16 +1025,31 @@
         let listaServiciosDB = [];
         let globalLogoHTML = `<i class="fa-solid fa-layer-group"></i>`;
 
-        function toggleMenuDropdown() {
-            const dropdown = document.getElementById('dropdown-menu-content');
-            if(dropdown) dropdown.classList.toggle('hidden');
+        function toggleDropdown(type) {
+            const calcDropdown = document.getElementById('dropdown-calculadoras');
+            const adminDropdown = document.getElementById('dropdown-admin');
+            
+            if (type === 'calculadoras') {
+                calcDropdown.classList.toggle('hidden');
+                adminDropdown.classList.add('hidden');
+            } else if (type === 'admin') {
+                adminDropdown.classList.toggle('hidden');
+                calcDropdown.classList.add('hidden');
+            }
         }
 
         window.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('dropdown-menu-content');
-            const btn = document.getElementById('btn-dropdown-menu');
-            if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
-                dropdown.classList.add('hidden');
+            const calcDropdown = document.getElementById('dropdown-calculadoras');
+            const adminDropdown = document.getElementById('dropdown-admin');
+            const btnCalc = document.getElementById('btn-calculadoras');
+            const btnAdmin = document.getElementById('btn-admin');
+
+            if (calcDropdown && adminDropdown && btnCalc && btnAdmin) {
+                if (!calcDropdown.contains(e.target) && !btnCalc.contains(e.target) &&
+                    !adminDropdown.contains(e.target) && !btnAdmin.contains(e.target)) {
+                    calcDropdown.classList.add('hidden');
+                    adminDropdown.classList.add('hidden');
+                }
             }
             if (!e.target.closest('.relative')) {
                 document.querySelectorAll('.autocomplete-suggestions').forEach(el => el.classList.add('hidden'));

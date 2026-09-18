@@ -77,7 +77,7 @@
         </div>
     </header>
 
-    <!-- Navegación General con Menús Separados -->
+    <!-- Navegación General -->
     <nav class="bg-white border-b border-[#e8dbd3] px-6 py-3 flex flex-wrap items-center justify-between shadow-xs relative">
         <div class="flex space-x-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
             <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap"><i class="fa-solid fa-chart-pie mr-2"></i>Dashboard</button>
@@ -893,7 +893,7 @@
                     <input type="number" id="insumo-costo" placeholder="Costo Unit. ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="number" id="insumo-stock" placeholder="Stock Actual" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="number" id="insumo-minimo" placeholder="Stock Mínimo Alerta" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarInsumo()" class="sm:col-span-5 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Insumo Local</button>
+                    <button onclick="guardarInsumo()" class="sm:col-span-5 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Insumo en la Nube</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-gray-700">
@@ -908,7 +908,7 @@
                             </tr>
                         </thead>
                         <tbody id="tabla-insumos">
-                            <tr><td colspan="6" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr>
+                            <tr><td colspan="6" class="p-4 text-center text-gray-400">Cargando insumos...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -949,7 +949,7 @@
                     <input type="text" id="cliente-nombre" placeholder="Nombre o Empresa" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="text" id="cliente-tel" placeholder="Teléfono / WhatsApp" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="text" id="cliente-insta" placeholder="Instagram" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarCliente()" class="sm:col-span-3 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Guardar Cliente en CRM</button>
+                    <button onclick="guardarCliente()" class="sm:col-span-3 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Guardar Cliente en la Nube</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-gray-700">
@@ -962,18 +962,17 @@
                             </tr>
                         </thead>
                         <tbody id="tabla-clientes">
-                            <tr><td colspan="4" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>
+                            <tr><td colspan="4" class="p-4 text-center text-gray-400">Cargando clientes...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- CONTROL FINANCIERO MEJORADO (P&L, FILTROS Y CATEGORÍAS) -->
+        <!-- CONTROL FINANCIERO -->
         <section id="module-finanzas" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 
-                <!-- Encabezado y Selector Dinámico de Meses -->
                 <div class="flex flex-wrap justify-between items-center border-b border-[#e8dbd3] pb-4 gap-4">
                     <div>
                         <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-wallet text-[#b88a73] mr-2"></i> Control Financiero y Balance (P&L)</h2>
@@ -988,7 +987,6 @@
                     </div>
                 </div>
 
-                <!-- Tarjetas de Resumen Financiero -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div class="bg-[#faf8f6] p-5 rounded-2xl border border-[#e8dbd3]">
                         <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Total Ingresos (Ventas)</p>
@@ -1007,9 +1005,8 @@
                     </div>
                 </div>
 
-                <!-- Desglose por Categorías de Egresos -->
                 <div class="bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3] space-y-3">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-chart-pie mr-1 text-[#b88a73]"></i> Desglose de Gastos por Categoría (Periodo Seleccionado)</h3>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-chart-pie mr-1 text-[#b88a73]"></i> Desglose de Gastos por Categoría</h3>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                         <div class="bg-white p-3 rounded-xl border border-[#e8dbd3]">
                             <span class="text-gray-500 block font-medium">Operativo</span>
@@ -1030,7 +1027,6 @@
                     </div>
                 </div>
 
-                <!-- Formulario para Registrar Nuevo Gasto -->
                 <div class="bg-[#faf8f6] p-5 rounded-2xl border border-[#e8dbd3] space-y-4">
                     <h3 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-plus-circle mr-1 text-[#b88a73]"></i> Registrar Nuevo Egreso / Gasto</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -1049,7 +1045,6 @@
                     </div>
                 </div>
 
-                <!-- Tabla de Historial de Gastos -->
                 <div class="space-y-3">
                     <h3 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-list mr-1 text-[#b88a73]"></i> Historial de Egresos Registrados</h3>
                     <div class="overflow-x-auto">
@@ -1064,7 +1059,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tabla-gastos">
-                                <tr><td colspan="5" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>
+                                <tr><td colspan="5" class="p-4 text-center text-gray-400">Cargando gastos...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1086,13 +1081,16 @@
 
     </main>
 
-    <!-- Script Lógico Integral -->
+    <!-- Script Lógico Integral con Conexión a la Nube (Google Sheets) -->
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwB5AHv2GeTl3_FDqnpsf6DQS9DZTw6Z04DsQXrHAM_UDu9d4QaOxgxw-URvfetRR80iQ/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymhGD4yejqu6y9s1UquUhXzQSs_My3qtgCC2MTUiuGwExAWcFz6zSB80tsHkr9Jeg/exec';
 
         let tasaBCV = 807.39;
         let listaInsumosDB = [];
         let listaServiciosDB = [];
+        let listaClientesDB = [];
+        let listaVentasDB = [];
+        let listaGastosDB = [];
         let globalLogoHTML = `<i class="fa-solid fa-layer-group"></i>`;
 
         function toggleDropdown(type) {
@@ -1261,8 +1259,17 @@
             }
         }
 
+        // ================= CARGAS DESDE LA NUBE (GOOGLE SHEETS) =================
         async function cargarInsumosBase() {
-            listaInsumosDB = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=insumos`);
+                if(response.ok) {
+                    listaInsumosDB = await response.json();
+                }
+            } catch(e) {
+                console.error("Error cargando insumos", e);
+                listaInsumosDB = [];
+            }
         }
 
         async function cargarServiciosBase() {
@@ -1270,9 +1277,14 @@
         }
 
         async function cargarClientesEnSelects() {
-            let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=clientes`);
+                if(response.ok) {
+                    listaClientesDB = await response.json();
+                }
+            } catch(e) { listaClientesDB = []; }
+
             const selects = ['presupuesto-cliente', 'caja-cliente'];
-            
             selects.forEach(selectId => {
                 const select = document.getElementById(selectId);
                 if(!select) return;
@@ -1281,7 +1293,7 @@
                     <option value="Cliente General">-- Cliente General --</option>
                     <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
                 `;
-                clientes.forEach(c => {
+                listaClientesDB.forEach(c => {
                     select.innerHTML += `<option value="${c.nombre}">${c.nombre} (${c.tel || 'Sin telf'})</option>`;
                 });
                 if(valorActual) select.value = valorActual;
@@ -1289,39 +1301,44 @@
         }
 
         // ================= GESTIÓN DE INSUMOS =================
-        function guardarInsumo() {
+        async function guardarInsumo() {
             const nombre = document.getElementById('insumo-nombre').value.trim();
             const categoria = document.getElementById('insumo-categoria').value.trim();
-            const costo = parseFloat(document.getElementById('insumo-costo').value) || 0;
+            const costo_unitario = parseFloat(document.getElementById('insumo-costo').value) || 0;
             const stock = parseInt(document.getElementById('insumo-stock').value) || 0;
-            const minimo = parseInt(document.getElementById('insumo-minimo').value) || 0;
+            const stock_minimo = parseInt(document.getElementById('insumo-minimo').value) || 0;
 
             if(!nombre) { alert("Introduce el nombre del insumo."); return; }
 
-            let insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            insumos.push({ nombre, categoria, costo_unitario: costo, stock, stock_minimo: minimo });
-            localStorage.setItem('lan_insumos', JSON.stringify(insumos));
+            const formData = new URLSearchParams();
+            formData.append('action', 'save_insumo');
+            formData.append('nombre', nombre);
+            formData.append('categoria', categoria);
+            formData.append('costo_unitario', costo_unitario);
+            formData.append('stock', stock);
+            formData.append('stock_minimo', stock_minimo);
 
-            document.getElementById('insumo-nombre').value = '';
-            document.getElementById('insumo-categoria').value = '';
-            document.getElementById('insumo-costo').value = '';
-            document.getElementById('insumo-stock').value = '';
-            document.getElementById('insumo-minimo').value = '';
-
-            cargarInsumos();
-            alert("¡Insumo registrado con éxito!");
+            try {
+                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                document.getElementById('insumo-nombre').value = '';
+                document.getElementById('insumo-categoria').value = '';
+                document.getElementById('insumo-costo').value = '';
+                document.getElementById('insumo-stock').value = '';
+                document.getElementById('insumo-minimo').value = '';
+                await cargarInsumos();
+                alert("¡Insumo registrado en la nube con éxito!");
+            } catch(e) { alert("Error al guardar insumo."); }
         }
 
-        function cargarInsumos() {
+        async function cargarInsumos() {
             const tbody = document.getElementById('tabla-insumos');
             if(!tbody) return;
-            
-            let insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            listaInsumosDB = insumos;
+            tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando insumos...</td></tr>';
 
-            tbody.innerHTML = insumos.length ? '' : '<tr><td colspan="6" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr>';
+            await cargarInsumosBase();
+            tbody.innerHTML = listaInsumosDB.length ? '' : '<tr><td colspan="6" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr>';
             
-            insumos.forEach((ins, idx) => {
+            listaInsumosDB.forEach((ins) => {
                 const alertaStock = ins.stock <= ins.stock_minimo ? 'text-rose-600 font-bold' : '';
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
@@ -1331,61 +1348,34 @@
                         <td class="p-3 ${alertaStock}">${ins.stock} uds</td>
                         <td class="p-3 text-xs text-gray-500">${ins.stock_minimo}</td>
                         <td class="p-3 space-x-1.5 whitespace-nowrap">
-                            <button onclick="editarInsumo(${idx})" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-2 rounded-xl transition text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="eliminarInsumo(${idx})" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="eliminarInsumo('${ins.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        function editarInsumo(idx) {
-            let insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            let ins = insumos[idx];
-            let nuevoNombre = prompt("Editar nombre del insumo:", ins.nombre);
-            if(nuevoNombre === null) return;
-            let nuevaCat = prompt("Editar categoría:", ins.categoria || '') || '';
-            let nuevoCosto = prompt("Editar costo unitario ($):", ins.costo_unitario);
-            if(nuevoCosto === null) return;
-            let nuevoStock = prompt("Editar stock actual:", ins.stock);
-            if(nuevoStock === null) return;
-            let nuevoMin = prompt("Editar stock mínimo alerta:", ins.stock_minimo);
-            if(nuevoMin === null) return;
-
-            insumos[idx] = {
-                nombre: nuevoNombre.trim(),
-                categoria: nuevaCat.trim(),
-                costo_unitario: parseFloat(nuevoCosto) || 0,
-                stock: parseInt(nuevoStock) || 0,
-                stock_minimo: parseInt(nuevoMin) || 0
-            };
-            localStorage.setItem('lan_insumos', JSON.stringify(insumos));
-            cargarInsumos();
-            alert("¡Insumo actualizado con éxito!");
-        }
-
-        function eliminarInsumo(idx) {
+        async function eliminarInsumo(id) {
             if(!confirm("¿Eliminar este insumo?")) return;
-            let insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            insumos.splice(idx, 1);
-            localStorage.setItem('lan_insumos', JSON.stringify(insumos));
-            cargarInsumos();
+            const formData = new URLSearchParams();
+            formData.append('action', 'delete_insumo');
+            formData.append('id', id);
+            try {
+                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                cargarInsumos();
+            } catch(e) { alert("Error al eliminar."); }
         }
 
         // ================= GESTIÓN DE SERVICIOS =================
         function guardarServicio() {
             const nombre = document.getElementById('servicio-nombre').value.trim();
             const precio = parseFloat(document.getElementById('servicio-precio').value) || 0;
-
             if(!nombre) { alert("Introduce el nombre del servicio."); return; }
-
             let servicios = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
             servicios.push({ nombre, precio });
             localStorage.setItem('lan_servicios', JSON.stringify(servicios));
-
             document.getElementById('servicio-nombre').value = '';
             document.getElementById('servicio-precio').value = '';
-
             cargarServicios();
             alert("¡Servicio guardado con éxito!");
         }
@@ -1393,10 +1383,8 @@
         function cargarServicios() {
             const tbody = document.getElementById('tabla-servicios');
             if(!tbody) return;
-
             let servicios = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
             listaServiciosDB = servicios;
-
             tbody.innerHTML = servicios.length ? '' : '<tr><td colspan="3" class="p-4 text-center text-gray-400">Sin servicios registrados.</td></tr>';
             servicios.forEach((s, idx) => {
                 tbody.innerHTML += `
@@ -1404,29 +1392,11 @@
                         <td class="p-3 font-semibold text-[#2c2c2c]">${s.nombre}</td>
                         <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(s.precio).toFixed(2)}</td>
                         <td class="p-3 space-x-1.5 whitespace-nowrap">
-                            <button onclick="editarServicio(${idx})" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-2 rounded-xl transition text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
                             <button onclick="eliminarServicio(${idx})" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
             });
-        }
-
-        function editarServicio(idx) {
-            let servicios = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
-            let s = servicios[idx];
-            let nuevoNombre = prompt("Editar nombre del servicio:", s.nombre);
-            if(nuevoNombre === null) return;
-            let nuevoPrecio = prompt("Editar precio base ($):", s.precio);
-            if(nuevoPrecio === null) return;
-
-            servicios[idx] = {
-                nombre: nuevoNombre.trim(),
-                precio: parseFloat(nuevoPrecio) || 0
-            };
-            localStorage.setItem('lan_servicios', JSON.stringify(servicios));
-            cargarServicios();
-            alert("¡Servicio actualizado con éxito!");
         }
 
         function eliminarServicio(idx) {
@@ -1438,117 +1408,107 @@
         }
 
         // ================= GESTIÓN DE CRM CLIENTES =================
-        function guardarCliente() {
+        async function guardarCliente() {
             const nombre = document.getElementById('cliente-nombre').value.trim();
             const tel = document.getElementById('cliente-tel').value.trim();
             const instagram = document.getElementById('cliente-insta').value.trim();
 
             if(!nombre) { alert("Introduce el nombre del cliente."); return; }
 
-            let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
-            clientes.push({ nombre, tel, instagram });
-            localStorage.setItem('lan_clientes', JSON.stringify(clientes));
+            const formData = new URLSearchParams();
+            formData.append('action', 'save_cliente');
+            formData.append('nombre', nombre);
+            formData.append('tel', tel);
+            formData.append('instagram', instagram);
 
-            document.getElementById('cliente-nombre').value = '';
-            document.getElementById('cliente-tel').value = '';
-            document.getElementById('cliente-insta').value = '';
-
-            cargarClientes();
-            cargarClientesEnSelects();
-            alert("¡Cliente guardado en CRM!");
+            try {
+                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                document.getElementById('cliente-nombre').value = '';
+                document.getElementById('cliente-tel').value = '';
+                document.getElementById('cliente-insta').value = '';
+                cargarClientes();
+                cargarClientesEnSelects();
+                alert("¡Cliente guardado en la nube!");
+            } catch(e) { alert("Error al guardar cliente."); }
         }
 
-        function cargarClientes() {
+        async function cargarClientes() {
             const tbody = document.getElementById('tabla-clientes');
             if(!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando clientes...</td></tr>';
 
-            let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
-            tbody.innerHTML = clientes.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>';
-            
-            clientes.forEach((c, idx) => {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=clientes`);
+                listaClientesDB = response.ok ? await response.json() : [];
+            } catch(e) { listaClientesDB = []; }
+
+            tbody.innerHTML = listaClientesDB.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>';
+            listaClientesDB.forEach((c) => {
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
                         <td class="p-3 font-semibold text-[#2c2c2c]">${c.nombre}</td>
                         <td class="p-3 text-xs">${c.tel || 'N/A'}</td>
                         <td class="p-3 text-xs text-[#b88a73]">${c.instagram || 'N/A'}</td>
                         <td class="p-3 space-x-1.5 whitespace-nowrap">
-                            <button onclick="editarCliente(${idx})" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-2 rounded-xl transition text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="eliminarCliente(${idx})" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="eliminarCliente('${c.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        function editarCliente(idx) {
-            let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
-            let c = clientes[idx];
-            let nuevoNombre = prompt("Editar nombre o empresa:", c.nombre);
-            if(nuevoNombre === null) return;
-            let nuevoTel = prompt("Editar teléfono / WhatsApp:", c.tel || '') || '';
-            let nuevoInsta = prompt("Editar Instagram:", c.instagram || '') || '';
-
-            clientes[idx] = {
-                nombre: nuevoNombre.trim(),
-                tel: nuevoTel.trim(),
-                instagram: nuevoInsta.trim()
-            };
-            localStorage.setItem('lan_clientes', JSON.stringify(clientes));
-            cargarClientes();
-            cargarClientesEnSelects();
-            alert("¡Cliente actualizado con éxito!");
-        }
-
-        function eliminarCliente(idx) {
+        async function eliminarCliente(id) {
             if(!confirm("¿Eliminar este cliente?")) return;
-            let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
-            clientes.splice(idx, 1);
-            localStorage.setItem('lan_clientes', JSON.stringify(clientes));
-            cargarClientes();
-            cargarClientesEnSelects();
+            const formData = new URLSearchParams();
+            formData.append('action', 'delete_cliente');
+            formData.append('id', id);
+            try {
+                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                cargarClientes();
+                cargarClientesEnSelects();
+            } catch(e) { alert("Error al eliminar."); }
         }
 
-        // ================= CONTROL FINANCIERO DINÁMICO =================
-        function guardarGasto() {
+        // ================= CONTROL FINANCIERO / GASTOS EN NUBE =================
+        async function guardarGasto() {
             const concepto = document.getElementById('gasto-concepto').value.trim();
             const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
             const categoria = document.getElementById('gasto-categoria').value;
 
             if(!concepto || monto <= 0) { alert("Introduce un concepto y monto válido."); return; }
 
-            let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
-            
-            gastos.push({ 
-                concepto, 
-                monto, 
-                categoria, 
-                fechaISO: new Date().toISOString(),
-                fecha: new Date().toLocaleDateString() 
-            });
-            localStorage.setItem('lan_gastos', JSON.stringify(gastos));
+            const formData = new URLSearchParams();
+            formData.append('action', 'save_gasto');
+            formData.append('concepto', concepto);
+            formData.append('monto', monto);
+            formData.append('categoria', categoria);
+            formData.append('fechaISO', new Date().toISOString());
+            formData.append('fecha', new Date().toLocaleDateString());
 
-            document.getElementById('gasto-concepto').value = '';
-            document.getElementById('gasto-monto').value = '';
-            cargarGastosYBalance();
-            alert("¡Gasto registrado con éxito!");
+            try {
+                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                document.getElementById('gasto-concepto').value = '';
+                document.getElementById('gasto-monto').value = '';
+                cargarGastosYBalance();
+                alert("¡Gasto registrado en la nube con éxito!");
+            } catch(e) { alert("Error al registrar gasto."); }
         }
 
-        function eliminarGasto(idx) {
+        async function eliminarGasto(id) {
             if(!confirm("¿Eliminar este registro de gasto?")) return;
-            let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
-            gastos.splice(idx, 1);
-            localStorage.setItem('lan_gastos', JSON.stringify(gastos));
-            cargarGastosYBalance();
+            const formData = new URLSearchParams();
+            formData.append('action', 'delete_gasto');
+            formData.append('id', id);
+            try {
+                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                cargarGastosYBalance();
+            } catch(e) { alert("Error al eliminar gasto."); }
         }
 
-        function poblarSelectorPeriodos() {
+        function poblarSelectorPeriodos(gastos, ventas) {
             const select = document.getElementById('filtro-periodo');
             if(!select) return;
             const valorActual = select.value;
-
-            let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
-            let ventas = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
-            
             let periodosSet = new Set();
             gastos.forEach(g => {
                 if(g.fechaISO) {
@@ -1574,7 +1534,6 @@
                 <option value="este_mes">Este Mes (Actual)</option>
                 <option value="todos">Todo el Histórico</option>
             `;
-
             periodosOrdenados.forEach(p => {
                 const [anio, mes] = p.split('-');
                 const nombreMes = nombresMeses[parseInt(mes) - 1];
@@ -1582,52 +1541,45 @@
             });
 
             select.innerHTML = html;
-            if(valorActual && select.querySelector(`option[value="${valorActual}"]`)) {
-                select.value = valorActual;
-            } else {
-                select.value = 'este_mes';
-            }
+            if(valorActual && select.querySelector(`option[value="${valorActual}"]`)) select.value = valorActual;
+            else select.value = 'este_mes';
         }
 
-        function cargarGastosYBalance() {
+        async function cargarGastosYBalance() {
             const tbody = document.getElementById('tabla-gastos');
             if(!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando balance...</td></tr>';
 
-            // Poblamos el selector de meses dinámicamente al cargar
-            poblarSelectorPeriodos();
+            let gastos = [];
+            let ventas = [];
+            try {
+                const resG = await fetch(`${SCRIPT_URL}?action=gastos`);
+                if(resG.ok) gastos = await resG.json();
+                const resV = await fetch(`${SCRIPT_URL}?action=ventas`);
+                if(resV.ok) ventas = await resV.json();
+            } catch(e) {}
 
-            let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
-            let ventas = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
+            poblarSelectorPeriodos(gastos, ventas);
             let filtro = document.getElementById('filtro-periodo').value;
 
             const ahora = new Date();
             const mesActual = ahora.getMonth();
             const anioActual = ahora.getFullYear();
 
-            // Filtrar gastos según periodo seleccionado (este_mes, todos, o YYYY-MM)
             let gastosFiltrados = gastos.filter(g => {
                 const fechaObj = g.fechaISO ? new Date(g.fechaISO) : new Date();
-                if (filtro === 'este_mes') {
-                    return fechaObj.getMonth() === mesActual && fechaObj.getFullYear() === anioActual;
-                } else if (filtro === 'todos') {
-                    return true;
-                } else {
-                    const [anioSel, mesSel] = filtro.split('-');
-                    return fechaObj.getFullYear() == anioSel && (fechaObj.getMonth() + 1) == mesSel;
-                }
+                if (filtro === 'este_mes') return fechaObj.getMonth() === mesActual && fechaObj.getFullYear() === anioActual;
+                if (filtro === 'todos') return true;
+                const [anioSel, mesSel] = filtro.split('-');
+                return fechaObj.getFullYear() == anioSel && (fechaObj.getMonth() + 1) == mesSel;
             });
 
-            // Filtrar ventas según periodo seleccionado
             let ventasFiltradas = ventas.filter(v => {
                 const fechaObj = v.fechaISO ? new Date(v.fechaISO) : new Date();
-                if (filtro === 'este_mes') {
-                    return fechaObj.getMonth() === mesActual && fechaObj.getFullYear() === anioActual;
-                } else if (filtro === 'todos') {
-                    return true;
-                } else {
-                    const [anioSel, mesSel] = filtro.split('-');
-                    return fechaObj.getFullYear() == anioSel && (fechaObj.getMonth() + 1) == mesSel;
-                }
+                if (filtro === 'este_mes') return fechaObj.getMonth() === mesActual && fechaObj.getFullYear() === anioActual;
+                if (filtro === 'todos') return true;
+                const [anioSel, mesSel] = filtro.split('-');
+                return fechaObj.getFullYear() == anioSel && (fechaObj.getMonth() + 1) == mesSel;
             });
 
             let totalIngresos = ventasFiltradas.reduce((acc, v) => acc + (parseFloat(v.total_usd) || 0), 0);
@@ -1658,25 +1610,16 @@
             const utilidadVesEl = document.getElementById('fin-utilidad-neta-ves');
             utilidadEl.innerText = `$${utilidadNeta.toFixed(2)}`;
             utilidadVesEl.innerText = `Bs. ${(utilidadNeta * tasaBCV).toFixed(2)}`;
-
-            if(utilidadNeta < 0) {
-                utilidadEl.className = "text-2xl font-extrabold text-rose-600 mt-2";
-            } else {
-                utilidadEl.className = "text-2xl font-extrabold text-[#b88a73] mt-2";
-            }
+            utilidadEl.className = utilidadNeta < 0 ? "text-2xl font-extrabold text-rose-600 mt-2" : "text-2xl font-extrabold text-[#b88a73] mt-2";
 
             tbody.innerHTML = gastosFiltrados.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin egresos registrados para este periodo.</td></tr>';
             
-            gastos.slice().reverse().forEach((g, originalIdx) => {
-                const reverseIdx = gastos.length - 1 - originalIdx;
+            gastos.slice().reverse().forEach((g) => {
                 const fechaObj = g.fechaISO ? new Date(g.fechaISO) : new Date();
-                
                 let cumpleFiltro = false;
-                if (filtro === 'este_mes') {
-                    cumpleFiltro = (fechaObj.getMonth() === mesActual && fechaObj.getFullYear() === anioActual);
-                } else if (filtro === 'todos') {
-                    cumpleFiltro = true;
-                } else {
+                if (filtro === 'este_mes') cumpleFiltro = (fechaObj.getMonth() === mesActual && fechaObj.getFullYear() === anioActual);
+                else if (filtro === 'todos') cumpleFiltro = true;
+                else {
                     const [anioSel, mesSel] = filtro.split('-');
                     cumpleFiltro = (fechaObj.getFullYear() == anioSel && (fechaObj.getMonth() + 1) == mesSel);
                 }
@@ -1689,7 +1632,7 @@
                             <td class="p-3 text-xs"><span class="bg-[#faf8f6] px-2 py-1 rounded border border-[#e8dbd3]">${g.categoria}</span></td>
                             <td class="p-3 text-rose-600 font-bold">$${parseFloat(g.monto).toFixed(2)}</td>
                             <td class="p-3 text-center">
-                                <button onclick="eliminarGasto(${reverseIdx})" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="eliminarGasto('${g.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                             </td>
                         </tr>
                     `;
@@ -1697,14 +1640,22 @@
             });
         }
 
-        function cargarDashboard() {
-            let ventas = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
+        async function cargarDashboard() {
+            let ventas = [];
+            let insumos = [];
+            let clientes = [];
+            try {
+                const resV = await fetch(`${SCRIPT_URL}?action=ventas`);
+                if(resV.ok) ventas = await resV.json();
+                const resI = await fetch(`${SCRIPT_URL}?action=insumos`);
+                if(resI.ok) insumos = await resI.json();
+                const resC = await fetch(`${SCRIPT_URL}?action=clientes`);
+                if(resC.ok) clientes = await resC.json();
+            } catch(e) {}
+
             let totalVentasUSD = ventas.reduce((acc, v) => acc + (parseFloat(v.total_usd) || 0), 0);
             let totalVentasVES = totalVentasUSD * tasaBCV;
             
-            let insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
-
             document.getElementById('dash-ventas').innerHTML = `$${totalVentasUSD.toFixed(2)} <span class="block text-xs font-normal text-gray-500">Bs. ${totalVentasVES.toFixed(2)}</span>`;
             document.getElementById('dash-insumos').innerText = insumos.length;
             document.getElementById('dash-clientes').innerText = clientes.length;
@@ -1718,9 +1669,12 @@
                 if (nombreNuevo && nombreNuevo.trim() !== '') {
                     const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
                     const instaNuevo = prompt("Instagram (opcional):") || '';
-                    let local = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
-                    local.push({ nombre: nombreNuevo.trim(), tel: telNuevo, instagram: instaNuevo });
-                    localStorage.setItem('lan_clientes', JSON.stringify(local));
+                    const formData = new URLSearchParams();
+                    formData.append('action', 'save_cliente');
+                    formData.append('nombre', nombreNuevo.trim());
+                    formData.append('tel', telNuevo);
+                    formData.append('instagram', instaNuevo);
+                    await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
                     await cargarClientesEnSelects();
                     selectEl.value = nombreNuevo.trim();
                 } else {
@@ -1736,9 +1690,12 @@
                 if (nombreNuevo && nombreNuevo.trim() !== '') {
                     const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
                     const instaNuevo = prompt("Instagram (opcional):") || '';
-                    let local = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
-                    local.push({ nombre: nombreNuevo.trim(), tel: telNuevo, instagram: instaNuevo });
-                    localStorage.setItem('lan_clientes', JSON.stringify(local));
+                    const formData = new URLSearchParams();
+                    formData.append('action', 'save_cliente');
+                    formData.append('nombre', nombreNuevo.trim());
+                    formData.append('tel', telNuevo);
+                    formData.append('instagram', instaNuevo);
+                    await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
                     await cargarClientesEnSelects();
                     selectEl.value = nombreNuevo.trim();
                 } else {
@@ -1766,23 +1723,18 @@
             if(btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Guardando...';
 
             const formData = new URLSearchParams();
-            formData.append('action', 'save');
+            formData.append('action', 'save_standby');
             formData.append('cliente', cliente);
             formData.append('validez', validez);
             formData.append('total', totalUSD);
             formData.append('items', JSON.stringify(items));
 
             try {
-                await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: formData,
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-                });
-                alert("¡Cotización en Stand By guardada!");
+                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                alert("¡Cotización en Stand By guardada en la nube!");
                 cargarCotizacionesStandBy();
                 switchTab('standby');
             } catch (error) {
-                console.error("Error al guardar Stand By", error);
                 alert("Error al guardar Stand By.");
             } finally {
                 if(btn) btn.innerHTML = '<i class="fa-solid fa-clock mr-2"></i> Guardar en Stand By';
@@ -1792,13 +1744,11 @@
         async function cargarCotizacionesStandBy() {
             const tbody = document.getElementById('tabla-standby');
             if(!tbody) return;
-            
             tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando cotizaciones...</td></tr>';
 
             try {
-                const response = await fetch(SCRIPT_URL);
-                if (!response.ok) throw new Error("Network response was not ok");
-                const registros = await response.json();
+                const response = await fetch(`${SCRIPT_URL}?action=standby`);
+                const registros = response.ok ? await response.json() : [];
 
                 tbody.innerHTML = registros.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">No hay cotizaciones en espera.</td></tr>';
                 
@@ -1830,10 +1780,8 @@
                 const dashCount = document.getElementById('dash-standby');
                 if(badge) badge.innerText = registros.length;
                 if(dashCount) dashCount.innerText = registros.length;
-                
             } catch (error) {
-                console.error("Error al cargar cotizaciones", error);
-                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">Error al cargar datos desde Google Sheets.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">Error al cargar datos desde la nube.</td></tr>';
             }
         }
 
@@ -1874,17 +1822,13 @@
         async function eliminarStandBy(id) {
             if(!confirm("¿Eliminar esta cotización en stand by?")) return;
             const formData = new URLSearchParams();
-            formData.append('action', 'delete');
+            formData.append('action', 'delete_standby');
             formData.append('id', id);
 
             try {
-                await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: formData,
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-                });
+                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
                 cargarCotizacionesStandBy();
-            } catch (error) { console.error("Error al eliminar", error); }
+            } catch (error) {}
         }
 
         function enviarStandByACaja(cot) {
@@ -1910,7 +1854,7 @@
             }, 200);
         }
 
-        // ================= LÓGICA CALCULADORAS ESPECIALES =================
+        // ================= CALCULADORAS ESPECIALES =================
         function poblarSelectInsumosStickers() {
             const select = document.getElementById('stk-insumo-select');
             if(!select) return;
@@ -2060,7 +2004,6 @@
             }
         }
 
-        // Flyers & Papelería
         function calcularFlyers() {
             const cant = parseInt(document.getElementById('fly-cantidad').value) || 1;
             const porHoja = parseInt(document.getElementById('fly-por-hoja').value) || 1;
@@ -2095,7 +2038,6 @@
             }
         }
 
-        // Sublimación
         function calcularSublimacion() {
             const cant = parseInt(document.getElementById('sub-cantidad').value) || 1;
             const virgen = parseFloat(document.getElementById('sub-costo-virgen').value) || 0;
@@ -2129,7 +2071,6 @@
             }
         }
 
-        // Audiovisual
         function calcularAudiovisual() {
             const hGrab = parseFloat(document.getElementById('vid-horas-grab').value) || 0;
             const hEdit = parseFloat(document.getElementById('vid-horas-edit').value) || 0;
@@ -2160,7 +2101,6 @@
             }
         }
 
-        // Vinil y DTF
         function calcularVinil() {
             const ancho = parseFloat(document.getElementById('vin-ancho').value) || 0;
             const alto = parseFloat(document.getElementById('vin-alto').value) || 0;
@@ -2428,7 +2368,6 @@
                 btnStandBy.classList.remove('hidden');
                 btnPDF.classList.remove('hidden');
             }).catch(err => {
-                console.error(err);
                 restaurarVistaNormal(area);
                 btnStandBy.classList.remove('hidden');
                 btnPDF.classList.remove('hidden');
@@ -2713,51 +2652,39 @@
                 if(!confirm(`Pago incompleto. Faltan $${(totalUSD - totalAbonado).toFixed(2)}. ¿Procesar de todas formas?`)) return;
             }
 
-            let insumosLocal = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            let alertasStockBajo = [];
-
-            itemsFactura.forEach(item => {
-                let insumoEncontrado = insumosLocal.find(i => i.nombre.toLowerCase() === item.desc.toLowerCase());
-                if(insumoEncontrado) {
-                    insumoEncontrado.stock = Math.max(0, parseInt(insumoEncontrado.stock) - item.cant);
-                    if(insumoEncontrado.stock <= (parseInt(insumoEncontrado.stock_minimo) || 0)) {
-                        alertasStockBajo.push(`⚠️ ${insumoEncontrado.nombre} (Stock: ${insumoEncontrado.stock})`);
-                    }
-                }
-            });
-            localStorage.setItem('lan_insumos', JSON.stringify(insumosLocal));
-
-            if(alertasStockBajo.length > 0) {
-                alert(`¡Venta procesada!\n\n⚠️ Insumos en stock mínimo:\n` + alertasStockBajo.join('\n'));
-            } else {
-                alert("¡Venta procesada y stock descontado con éxito!");
-            }
-
             const conceptoResumen = itemsFactura.map(i => `${i.cant}x ${i.desc}`).join(' + ');
-            let ventasLocales = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
-            ventasLocales.push({
-                fechaISO: new Date().toISOString(),
-                fecha: new Date().toLocaleDateString(),
-                cliente: cliente,
-                concepto: conceptoResumen,
-                total_usd: totalUSD,
-                metodos_pago: metodosPago.join(' | ') || 'No especificado'
-            });
-            localStorage.setItem('lan_ventas', JSON.stringify(ventasLocales));
+            const formData = new URLSearchParams();
+            formData.append('action', 'save_venta');
+            formData.append('fechaISO', new Date().toISOString());
+            formData.append('fecha', new Date().toLocaleDateString());
+            formData.append('cliente', cliente);
+            formData.append('concepto', conceptoResumen);
+            formData.append('total_usd', totalUSD);
+            formData.append('metodos_pago', metodosPago.join(' | ') || 'No especificado');
 
-            document.getElementById('lista-items-caja').innerHTML = '';
-            document.getElementById('lista-pagos').innerHTML = '';
-            agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
-            actualizarTotalesCaja();
-            switchTab('dashboard');
-            cargarDashboard();
+            try {
+                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                alert("¡Venta procesada y guardada en la nube con éxito!");
+                document.getElementById('lista-items-caja').innerHTML = '';
+                document.getElementById('lista-pagos').innerHTML = '';
+                agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
+                actualizarTotalesCaja();
+                switchTab('dashboard');
+                cargarDashboard();
+            } catch(e) { alert("Error al procesar la venta."); }
         }
 
         async function cargarRegistrosCajaEditable() {
             const tbody = document.getElementById('tabla-historial-ventas');
             if(!tbody) return;
 
-            let registros = JSON.parse(localStorage.getItem('lan_ventas') || '[]').reverse().slice(0, 10);
+            let ventas = [];
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=ventas`);
+                if(res.ok) ventas = await res.json();
+            } catch(e) {}
+
+            let registros = ventas.reverse().slice(0, 10);
             tbody.innerHTML = registros.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin historial reciente de ventas.</td></tr>';
             registros.forEach(v => {
                 const d = v.fecha || new Date(v.fechaISO).toLocaleDateString();

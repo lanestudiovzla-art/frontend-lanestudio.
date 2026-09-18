@@ -93,16 +93,22 @@
                 <i class="fa-solid fa-chevron-down text-xs ml-1"></i>
             </button>
 
-            <div id="dropdown-menu-content" class="hidden absolute right-0 mt-2 w-56 bg-white border border-[#e8dbd3] rounded-2xl shadow-lg py-2 z-50">
-                <button onclick="switchTab('calc-stickers'); toggleMenuDropdown();" id="tab-calc-stickers" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-note-sticky mr-2.5 text-[#b88a73]"></i>Calculadora Stickers</button>
-                <button onclick="switchTab('calc-toppers'); toggleMenuDropdown();" id="tab-calc-toppers" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cake-candles mr-2.5 text-[#b88a73]"></i>Calculadora Toppers</button>
+            <div id="dropdown-menu-content" class="hidden absolute right-0 mt-2 w-64 bg-white border border-[#e8dbd3] rounded-2xl shadow-lg py-2 z-50">
+                <div class="px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Calculadoras Especiales</div>
+                <button onclick="switchTab('calc-stickers'); toggleMenuDropdown();" id="tab-calc-stickers" class="w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-note-sticky mr-2.5 text-[#b88a73]"></i>Stickers y Etiquetas</button>
+                <button onclick="switchTab('calc-toppers'); toggleMenuDropdown();" id="tab-calc-toppers" class="w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cake-candles mr-2.5 text-[#b88a73]"></i>Toppers Multicapa</button>
+                <button onclick="switchTab('calc-flyers'); toggleMenuDropdown();" id="tab-calc-flyers" class="w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-file-lines mr-2.5 text-[#b88a73]"></i>Flyers y Papelería</button>
+                <button onclick="switchTab('calc-sublimacion'); toggleMenuDropdown();" id="tab-calc-sublimacion" class="w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-mug-hot mr-2.5 text-[#b88a73]"></i>Sublimación y Artículos</button>
+                <button onclick="switchTab('calc-audiovisual'); toggleMenuDropdown();" id="tab-calc-audiovisual" class="w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-video mr-2.5 text-[#b88a73]"></i>Producción Audiovisual</button>
+                <button onclick="switchTab('calc-vinil'); toggleMenuDropdown();" id="tab-calc-vinil" class="w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-scroll mr-2.5 text-[#b88a73]"></i>Vinil, DTF y Rotulación</button>
                 <div class="border-t border-[#e8dbd3] my-1"></div>
-                <button onclick="switchTab('insumos'); toggleMenuDropdown();" id="tab-insumos" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-boxes-stacked mr-2.5 text-[#b88a73]"></i>Insumos y Stock</button>
-                <button onclick="switchTab('servicios'); toggleMenuDropdown();" id="tab-servicios" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-bullhorn mr-2.5 text-[#b88a73]"></i>Servicios</button>
-                <button onclick="switchTab('crm'); toggleMenuDropdown();" id="tab-crm" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-users mr-2.5 text-[#b88a73]"></i>CRM Clientes</button>
-                <button onclick="switchTab('finanzas'); toggleMenuDropdown();" id="tab-finanzas" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-wallet mr-2.5 text-[#b88a73]"></i>Control Financiero</button>
+                <div class="px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Administración</div>
+                <button onclick="switchTab('insumos'); toggleMenuDropdown();" id="tab-insumos" class="w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-boxes-stacked mr-2.5 text-[#b88a73]"></i>Insumos y Stock</button>
+                <button onclick="switchTab('servicios'); toggleMenuDropdown();" id="tab-servicios" class="w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-bullhorn mr-2.5 text-[#b88a73]"></i>Servicios</button>
+                <button onclick="switchTab('crm'); toggleMenuDropdown();" id="tab-crm" class="w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-users mr-2.5 text-[#b88a73]"></i>CRM Clientes</button>
+                <button onclick="switchTab('finanzas'); toggleMenuDropdown();" id="tab-finanzas" class="w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-wallet mr-2.5 text-[#b88a73]"></i>Control Financiero</button>
                 <div class="border-t border-[#e8dbd3] my-1"></div>
-                <button onclick="switchTab('logo'); toggleMenuDropdown();" id="tab-logo" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-image mr-2.5 text-[#b88a73]"></i>Configurar Logo</button>
+                <button onclick="switchTab('logo'); toggleMenuDropdown();" id="tab-logo" class="w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-image mr-2.5 text-[#b88a73]"></i>Configurar Logo</button>
             </div>
         </div>
     </nav>
@@ -152,7 +158,7 @@
             </div>
         </section>
 
-        <!-- STAND BY CON BOTONES MINIMALISTAS -->
+        <!-- STAND BY -->
         <section id="module-standby" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
@@ -339,6 +345,269 @@
                         </div>
 
                         <button onclick="enviarTopperAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-3 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>Agregar a Presupuesto Actual</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CALCULADORA FLYERS Y PAPELERÍA -->
+        <section id="module-calc-flyers" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
+                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-file-lines text-[#b88a73] mr-2"></i> Calculadora de Flyers, Revistas y Papelería</h2>
+                        <p class="text-xs text-gray-500">Calcula costos de impresión por millares o lotes con papel base y tintas.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Detalles del Tiraje</h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre del Trabajo</label>
+                            <input type="text" id="fly-nombre" value="Flyers Publicitarios A6 (Couché)" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Cantidad Total (Unidades)</label>
+                            <input type="number" id="fly-cantidad" value="1000" step="100" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularFlyers()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Unidades por Pliego / Hoja</label>
+                            <input type="number" id="fly-por-hoja" value="4" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularFlyers()">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Costos de Insumos</h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Hoja / Resma Base ($)</label>
+                            <input type="number" id="fly-costo-hoja" value="0.10" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularFlyers()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Tinta y Desgaste por Hoja ($)</label>
+                            <input type="number" id="fly-costo-tinta" value="0.05" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularFlyers()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">% Margen Ganancia</label>
+                            <input type="number" id="fly-ganancia" value="50" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularFlyers()">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-white p-5 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between"><span class="text-gray-500">Hojas Requeridas:</span><span id="fly-res-hojas" class="font-bold text-[#2c2c2c]">0 hojas</span></div>
+                                <div class="flex justify-between border-t border-gray-100 pt-2"><span class="text-gray-500">Costo Producción:</span><span id="fly-res-costo" class="font-semibold text-gray-700">$0.00</span></div>
+                            </div>
+
+                            <div class="mt-6 bg-[#faf8f6] p-4 rounded-lg border border-[#e8dbd3] text-center space-y-1">
+                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Venta Total</p>
+                                <p id="fly-res-precio" class="text-2xl font-extrabold text-[#b88a73]">$0.00</p>
+                                <p class="text-xs text-gray-500">Unitario: <span id="fly-res-unit" class="font-bold text-[#2c2c2c]">$0.00</span></p>
+                            </div>
+                        </div>
+
+                        <button onclick="enviarFlyersAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-3 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>Agregar a Presupuesto Actual</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CALCULADORA SUBLIMACIÓN -->
+        <section id="module-calc-sublimacion" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
+                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-mug-hot text-[#b88a73] mr-2"></i> Calculadora de Sublimación y Artículos</h2>
+                        <p class="text-xs text-gray-500">Calcula costos de tazas, chemises, gorras con insumo virgen y plancha.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Artículo y Cantidad</h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre del Artículo</label>
+                            <input type="text" id="sub-nombre" value="Taza Mágica Sublimada" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Cantidad (Unidades)</label>
+                            <input type="number" id="sub-cantidad" value="1" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularSublimacion()">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Costos Unitarios ($)</h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo del Artículo Virgen ($)</label>
+                            <input type="number" id="sub-costo-virgen" value="1.80" step="0.10" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularSublimacion()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Papel + Tinta Transfer ($)</label>
+                            <input type="number" id="sub-costo-transfer" value="0.30" step="0.05" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularSublimacion()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">% Margen Ganancia</label>
+                            <input type="number" id="sub-ganancia" value="60" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularSublimacion()">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-white p-5 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between"><span class="text-gray-500">Costo Producción Unit.:</span><span id="sub-res-unit-cost" class="font-semibold text-gray-700">$0.00</span></div>
+                                <div class="flex justify-between border-t border-gray-100 pt-2"><span class="text-gray-500">Costo Total Lote:</span><span id="sub-res-total-cost" class="font-semibold text-rose-600">$0.00</span></div>
+                            </div>
+
+                            <div class="mt-6 bg-[#faf8f6] p-4 rounded-lg border border-[#e8dbd3] text-center space-y-1">
+                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Venta Lote</p>
+                                <p id="sub-res-precio-lote" class="text-2xl font-extrabold text-[#b88a73]">$0.00</p>
+                                <p class="text-xs text-gray-500">Por Unidad: <span id="sub-res-precio-unit" class="font-bold text-[#2c2c2c]">$0.00</span></p>
+                            </div>
+                        </div>
+
+                        <button onclick="enviarSublimacionAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-3 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>Agregar a Presupuesto Actual</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CALCULADORA AUDIOVISUAL -->
+        <section id="module-calc-audiovisual" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
+                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-video text-[#b88a73] mr-2"></i> Calculadora de Producción Audiovisual y Videos</h2>
+                        <p class="text-xs text-gray-500">Calcula cotizaciones para reels, videos corporativos y montaje según horas de trabajo.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Horas de Trabajo</h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Concepto del Proyecto</label>
+                            <input type="text" id="vid-nombre" value="Pack 4 Reels para Redes Sociales" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Horas de Grabación / Campo</label>
+                            <input type="number" id="vid-horas-grab" value="3" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularAudiovisual()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Horas de Edición y Montaje</label>
+                            <input type="number" id="vid-horas-edit" value="5" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularAudiovisual()">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Tarifas y Equipos</h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Tarifa por Hora de Producción ($)</label>
+                            <input type="number" id="vid-tarifa" value="10.00" step="1.00" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularAudiovisual()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Alquiler Equipos / Luces / Extras ($)</label>
+                            <input type="number" id="vid-equipos" value="15.00" step="5.00" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularAudiovisual()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">% Margen Ganancia / Agencia</label>
+                            <input type="number" id="vid-ganancia" value="30" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularAudiovisual()">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-white p-5 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between"><span class="text-gray-500">Costo Base Servicios:</span><span id="vid-res-base" class="font-semibold text-gray-700">$0.00</span></div>
+                                <div class="flex justify-between border-t border-gray-100 pt-2"><span class="text-gray-500">Costo Total Producción:</span><span id="vid-res-costo" class="font-semibold text-rose-600">$0.00</span></div>
+                            </div>
+
+                            <div class="mt-6 bg-[#faf8f6] p-4 rounded-lg border border-[#e8dbd3] text-center space-y-1">
+                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Venta Proyecto</p>
+                                <p id="vid-res-precio" class="text-3xl font-extrabold text-[#b88a73]">$0.00</p>
+                            </div>
+                        </div>
+
+                        <button onclick="enviarAudiovisualAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-3 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>Agregar a Presupuesto Actual</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CALCULADORA VINIL Y DTF -->
+        <section id="module-calc-vinil" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
+                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-scroll text-[#b88a73] mr-2"></i> Calculadora de Vinil, DTF y Rotulación</h2>
+                        <p class="text-xs text-gray-500">Calcula cotizaciones para vinil autoadhesivo por metros, rotulación de vidrios o DTF textil.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Medidas y Metraje</h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Concepto del Trabajo</label>
+                            <input type="text" id="vin-nombre" value="Rotulación de Vidrio con Vinil de Corte" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Ancho (cm)</label>
+                            <input type="number" id="vin-ancho" value="100" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularVinil()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Alto (cm)</label>
+                            <input type="number" id="vin-alto" value="50" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularVinil()">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Costos y Tarifas</h3>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Material por Metro Cuadrado ($)</label>
+                            <input type="number" id="vin-costo-m2" value="8.00" step="0.50" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularVinil()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Mano de Obra / Instalación ($)</label>
+                            <input type="number" id="vin-mano-obra" value="5.00" step="1.00" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularVinil()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">% Margen Ganancia</label>
+                            <input type="number" id="vin-ganancia" value="40" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularVinil()">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-white p-5 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between"><span class="text-gray-500">Metros Cuadrados (m²):</span><span id="vin-res-m2" class="font-bold text-[#2c2c2c]">0 m²</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Costo Materiales:</span><span id="vin-res-costo-mat" class="font-semibold text-gray-700">$0.00</span></div>
+                                <div class="flex justify-between border-t border-gray-100 pt-2"><span class="text-gray-500">Costo Producción Total:</span><span id="vin-res-costo-total" class="font-semibold text-rose-600">$0.00</span></div>
+                            </div>
+
+                            <div class="mt-6 bg-[#faf8f6] p-4 rounded-lg border border-[#e8dbd3] text-center space-y-1">
+                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Venta Recomendado</p>
+                                <p id="vin-res-precio" class="text-3xl font-extrabold text-[#b88a73]">$0.00</p>
+                            </div>
+                        </div>
+
+                        <button onclick="enviarVinilAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-3 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-plus-circle"></i>
                             <span>Agregar a Presupuesto Actual</span>
                         </button>
@@ -595,7 +864,7 @@
             </div>
         </section>
 
-        <!-- INSUMOS Y STOCK CON BOTONES SUTILES -->
+        <!-- INSUMOS Y STOCK -->
         <section id="module-insumos" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <div class="flex justify-between items-center">
@@ -629,7 +898,7 @@
             </div>
         </section>
 
-        <!-- SERVICIOS CON BOTONES SUTILES -->
+        <!-- SERVICIOS -->
         <section id="module-servicios" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-bullhorn text-[#b88a73] mr-2"></i> Catálogo de Servicios Publicitarios</h2>
@@ -655,7 +924,7 @@
             </div>
         </section>
 
-        <!-- CRM CLIENTES CON BOTONES SUTILES -->
+        <!-- CRM CLIENTES -->
         <section id="module-crm" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Directorio de Clientes (CRM)</h2>
@@ -730,7 +999,7 @@
 
     </main>
 
-    <!-- Script Lógico Integral con Botones de Acción Sutiles -->
+    <!-- Script Lógico Integral con 6 Calculadoras Especializadas -->
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwB5AHv2GeTl3_FDqnpsf6DQS9DZTw6Z04DsQXrHAM_UDu9d4QaOxgxw-URvfetRR80iQ/exec';
 
@@ -767,7 +1036,7 @@
         setInterval(actualizarRelojFecha, 1000);
 
         function switchTab(tabId) {
-            const tabs = ['dashboard', 'calculadora', 'standby', 'calc-stickers', 'calc-toppers', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo'];
+            const tabs = ['dashboard', 'calculadora', 'standby', 'calc-stickers', 'calc-toppers', 'calc-flyers', 'calc-sublimacion', 'calc-audiovisual', 'calc-vinil', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo'];
             tabs.forEach(t => {
                 const el = document.getElementById(`module-${t}`);
                 const btn = document.getElementById(`tab-${t}`);
@@ -776,7 +1045,7 @@
                     if(btn.tagName === 'BUTTON' && btn.id.startsWith('tab-') && !btn.classList.contains('w-full')) {
                         btn.className = "px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap";
                     } else if(btn.tagName === 'BUTTON') {
-                        btn.className = "w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center";
+                        btn.className = "w-full text-left px-4 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center";
                     }
                 }
             });
@@ -788,7 +1057,7 @@
                 if(!activeBtn.classList.contains('w-full')) {
                     activeBtn.className = "px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap";
                 } else {
-                    activeBtn.className = "w-full text-left px-4 py-2.5 text-xs font-medium bg-[#faf8f6] text-[#2c2c2c] font-bold flex items-center";
+                    activeBtn.className = "w-full text-left px-4 py-2 bg-[#faf8f6] text-[#2c2c2c] font-bold flex items-center";
                 }
             }
 
@@ -818,6 +1087,10 @@
                 if(document.querySelectorAll('#lista-insumos-topper tr').length === 0) agregarFilaTopper();
                 calcularTopper();
             }
+            if(tabId === 'calc-flyers') calcularFlyers();
+            if(tabId === 'calc-sublimacion') calcularSublimacion();
+            if(tabId === 'calc-audiovisual') calcularAudiovisual();
+            if(tabId === 'calc-vinil') calcularVinil();
             if(tabId === 'insumos') cargarInsumos();
             if(tabId === 'servicios') cargarServicios();
             if(tabId === 'crm') cargarClientes();
@@ -826,7 +1099,7 @@
 
         function syncRoute() {
             const hash = window.location.hash.replace('#', '');
-            const tabs = ['dashboard', 'calculadora', 'standby', 'calc-stickers', 'calc-toppers', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo'];
+            const tabs = ['dashboard', 'calculadora', 'standby', 'calc-stickers', 'calc-toppers', 'calc-flyers', 'calc-sublimacion', 'calc-audiovisual', 'calc-vinil', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo'];
             if (tabs.includes(hash)) switchTab(hash);
             else switchTab('dashboard');
         }
@@ -1381,6 +1654,7 @@
             }, 200);
         }
 
+        // ================= LÓGICA CALCULADORAS ESPECIALES =================
         function poblarSelectInsumosStickers() {
             const select = document.getElementById('stk-insumo-select');
             if(!select) return;
@@ -1522,6 +1796,140 @@
 
             switchTab('calculadora');
             agregarRenglonServicio(nombre, costoBase);
+            const ultimaFila = document.querySelector('#lista-renglones-presupuesto tr:last-child');
+            if(ultimaFila) {
+                ultimaFila.querySelector('.cant-input').value = 1;
+                ultimaFila.querySelector('.ganancia-input').value = ganancia;
+                recalcularPresupuestoTotal();
+            }
+        }
+
+        // Flyers & Papelería
+        function calcularFlyers() {
+            const cant = parseInt(document.getElementById('fly-cantidad').value) || 1;
+            const porHoja = parseInt(document.getElementById('fly-por-hoja').value) || 1;
+            const costoHoja = parseFloat(document.getElementById('fly-costo-hoja').value) || 0;
+            const costoTinta = parseFloat(document.getElementById('fly-costo-tinta').value) || 0;
+            const ganancia = parseFloat(document.getElementById('fly-ganancia').value) || 0;
+
+            const hojasReq = Math.ceil(cant / porHoja);
+            const costoTotal = hojasReq * (costoHoja + costoTinta);
+            const precioTotal = costoTotal * (1 + (ganancia / 100));
+            const precioUnit = cant > 0 ? (precioTotal / cant) : 0;
+
+            document.getElementById('fly-res-hojas').innerText = `${hojasReq} hojas`;
+            document.getElementById('fly-res-costo').innerText = `$${costoTotal.toFixed(2)}`;
+            document.getElementById('fly-res-precio').innerText = `$${precioTotal.toFixed(2)}`;
+            document.getElementById('fly-res-unit').innerText = `$${precioUnit.toFixed(3)}`;
+        }
+
+        function enviarFlyersAPresupuesto() {
+            const nombre = document.getElementById('fly-nombre').value || "Flyers Publicitarios";
+            const cant = parseInt(document.getElementById('fly-cantidad').value) || 1;
+            const costo = parseFloat(document.getElementById('fly-res-costo').innerText.replace('$', '')) || 0;
+            const ganancia = parseFloat(document.getElementById('fly-ganancia').value) || 50;
+
+            switchTab('calculadora');
+            agregarRenglonServicio(nombre, costo);
+            const ultimaFila = document.querySelector('#lista-renglones-presupuesto tr:last-child');
+            if(ultimaFila) {
+                ultimaFila.querySelector('.cant-input').value = cant;
+                ultimaFila.querySelector('.ganancia-input').value = ganancia;
+                recalcularPresupuestoTotal();
+            }
+        }
+
+        // Sublimación
+        function calcularSublimacion() {
+            const cant = parseInt(document.getElementById('sub-cantidad').value) || 1;
+            const virgen = parseFloat(document.getElementById('sub-costo-virgen').value) || 0;
+            const transfer = parseFloat(document.getElementById('sub-costo-transfer').value) || 0;
+            const ganancia = parseFloat(document.getElementById('sub-ganancia').value) || 0;
+
+            const costoUnit = virgen + transfer;
+            const costoTotal = costoUnit * cant;
+            const precioTotal = costoTotal * (1 + (ganancia / 100));
+            const precioUnit = cant > 0 ? (precioTotal / cant) : 0;
+
+            document.getElementById('sub-res-unit-cost').innerText = `$${costoUnit.toFixed(2)}`;
+            document.getElementById('sub-res-total-cost').innerText = `$${costoTotal.toFixed(2)}`;
+            document.getElementById('sub-res-precio-lote').innerText = `$${precioTotal.toFixed(2)}`;
+            document.getElementById('sub-res-precio-unit').innerText = `$${precioUnit.toFixed(2)}`;
+        }
+
+        function enviarSublimacionAPresupuesto() {
+            const nombre = document.getElementById('sub-nombre').value || "Artículo Sublimado";
+            const cant = parseInt(document.getElementById('sub-cantidad').value) || 1;
+            const costoUnit = parseFloat(document.getElementById('sub-res-unit-cost').innerText.replace('$', '')) || 0;
+            const ganancia = parseFloat(document.getElementById('sub-ganancia').value) || 60;
+
+            switchTab('calculadora');
+            agregarRenglonServicio(nombre, costoUnit);
+            const ultimaFila = document.querySelector('#lista-renglones-presupuesto tr:last-child');
+            if(ultimaFila) {
+                ultimaFila.querySelector('.cant-input').value = cant;
+                ultimaFila.querySelector('.ganancia-input').value = ganancia;
+                recalcularPresupuestoTotal();
+            }
+        }
+
+        // Audiovisual
+        function calcularAudiovisual() {
+            const hGrab = parseFloat(document.getElementById('vid-horas-grab').value) || 0;
+            const hEdit = parseFloat(document.getElementById('vid-horas-edit').value) || 0;
+            const tarifa = parseFloat(document.getElementById('vid-tarifa').value) || 0;
+            const equipos = parseFloat(document.getElementById('vid-equipos').value) || 0;
+            const ganancia = parseFloat(document.getElementById('vid-ganancia').value) || 0;
+
+            const costoBase = ((hGrab + hEdit) * tarifa) + equipos;
+            const precioTotal = costoBase * (1 + (ganancia / 100));
+
+            document.getElementById('vid-res-base').innerText = `$${costoBase.toFixed(2)}`;
+            document.getElementById('vid-res-costo').innerText = `$${costoBase.toFixed(2)}`;
+            document.getElementById('vid-res-precio').innerText = `$${precioTotal.toFixed(2)}`;
+        }
+
+        function enviarAudiovisualAPresupuesto() {
+            const nombre = document.getElementById('vid-nombre').value || "Producción Audiovisual";
+            const costo = parseFloat(document.getElementById('vid-res-costo').innerText.replace('$', '')) || 0;
+            const ganancia = parseFloat(document.getElementById('vid-ganancia').value) || 30;
+
+            switchTab('calculadora');
+            agregarRenglonServicio(nombre, costo);
+            const ultimaFila = document.querySelector('#lista-renglones-presupuesto tr:last-child');
+            if(ultimaFila) {
+                ultimaFila.querySelector('.cant-input').value = 1;
+                ultimaFila.querySelector('.ganancia-input').value = ganancia;
+                recalcularPresupuestoTotal();
+            }
+        }
+
+        // Vinil y DTF
+        function calcularVinil() {
+            const ancho = parseFloat(document.getElementById('vin-ancho').value) || 0;
+            const alto = parseFloat(document.getElementById('vin-alto').value) || 0;
+            const costoM2 = parseFloat(document.getElementById('vin-costo-m2').value) || 0;
+            const manoObra = parseFloat(document.getElementById('vin-mano-obra').value) || 0;
+            const ganancia = parseFloat(document.getElementById('vin-ganancia').value) || 0;
+
+            const m2 = (ancho * alto) / 10000;
+            const costoMat = m2 * costoM2;
+            const costoTotal = costoMat + manoObra;
+            const precioTotal = costoTotal * (1 + (ganancia / 100));
+
+            document.getElementById('vin-res-m2').innerText = `${m2.toFixed(2)} m²`;
+            document.getElementById('vin-res-costo-mat').innerText = `$${costoMat.toFixed(2)}`;
+            document.getElementById('vin-res-costo-total').innerText = `$${costoTotal.toFixed(2)}`;
+            document.getElementById('vin-res-precio').innerText = `$${precioTotal.toFixed(2)}`;
+        }
+
+        function enviarVinilAPresupuesto() {
+            const nombre = document.getElementById('vin-nombre').value || "Rotulación Vinil";
+            const costo = parseFloat(document.getElementById('vin-res-costo-total').innerText.replace('$', '')) || 0;
+            const ganancia = parseFloat(document.getElementById('vin-ganancia').value) || 40;
+
+            switchTab('calculadora');
+            agregarRenglonServicio(nombre, costo);
             const ultimaFila = document.querySelector('#lista-renglones-presupuesto tr:last-child');
             if(ultimaFila) {
                 ultimaFila.querySelector('.cant-input').value = 1;

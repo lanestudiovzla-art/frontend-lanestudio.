@@ -46,7 +46,7 @@
 </head>
 <body class="bg-[#faf8f6] text-[#2c2c2c] antialiased min-h-screen flex flex-col">
 
-    <!-- Topbar con Barra de Tasa BCV Automática / Manual, Fecha/Hora en 12 Horas y Logo -->
+    <!-- Topbar con Tasa BCV, Fecha/Hora y Logo -->
     <header class="bg-[#2c2c2c] border-b border-[#e8dbd3] px-6 py-4 flex flex-wrap justify-between items-center shadow-sm text-white">
         <div class="flex items-center space-x-3">
             <div id="logo-container" class="bg-[#b88a73] p-2.5 rounded-xl text-white font-bold text-xl flex items-center justify-center shadow-sm overflow-hidden w-12 h-12">
@@ -59,27 +59,25 @@
         </div>
 
         <div class="flex flex-wrap items-center space-x-4 mt-2 sm:mt-0">
-            <!-- Reloj y Fecha Automática en formato 12 Horas -->
             <div class="bg-[#383838] px-3 py-2 rounded-xl border border-[#4d4d4d] text-xs text-gray-300 flex items-center space-x-2">
                 <i class="fa-regular fa-clock text-[#b88a73]"></i>
                 <span id="live-clock-display">Cargando fecha y hora...</span>
             </div>
 
-            <!-- Tasa BCV Oficial con Opción Manual -->
             <div class="flex items-center space-x-2 bg-[#383838] px-4 py-2 rounded-xl border border-[#4d4d4d]">
                 <div class="flex items-center space-x-2">
                     <span class="w-3 h-3 rounded-full bg-[#b88a73] animate-pulse"></span>
                     <span class="text-xs text-gray-300 font-medium">Tasa BCV:</span>
-                    <input type="number" id="bcv-rate-input" step="0.01" value="807.39" class="w-24 bg-[#2c2c2c] border border-[#5e5e5e] rounded px-2 py-0.5 text-sm font-bold text-white text-center focus:outline-none focus:border-[#b88a73]" oninput="actualizarTasaManual(this.value)" title="Haz clic para editar la tasa manualmente">
+                    <input type="number" id="bcv-rate-input" step="0.01" value="807.39" class="w-24 bg-[#2c2c2c] border border-[#5e5e5e] rounded px-2 py-0.5 text-sm font-bold text-white text-center focus:outline-none focus:border-[#b88a73]" oninput="actualizarTasaManual(this.value)">
                 </div>
-                <button onclick="fetchBCVRate()" title="Sincronizar Tasa BCV Automática" class="text-xs bg-[#4d4d4d] hover:bg-[#5e5e5e] text-white px-2.5 py-1 rounded transition">
+                <button onclick="fetchBCVRate()" title="Sincronizar Tasa BCV" class="text-xs bg-[#4d4d4d] hover:bg-[#5e5e5e] text-white px-2.5 py-1 rounded transition">
                     <i class="fa-solid fa-sync"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Navegación General Rediseñada -->
+    <!-- Navegación General -->
     <nav class="bg-white border-b border-[#e8dbd3] px-6 py-3 flex flex-wrap items-center justify-between shadow-xs relative">
         <div class="flex space-x-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
             <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap"><i class="fa-solid fa-chart-pie mr-2"></i>Dashboard</button>
@@ -88,7 +86,6 @@
             <button onclick="switchTab('caja')" id="tab-caja" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-cash-register mr-2"></i>Caja y Pagos</button>
         </div>
 
-        <!-- Menú Desplegable "Más Herramientas" -->
         <div class="relative mt-2 sm:mt-0">
             <button onclick="toggleMenuDropdown()" id="btn-dropdown-menu" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-2">
                 <i class="fa-solid fa-toolbox text-[#b88a73]"></i>
@@ -96,7 +93,6 @@
                 <i class="fa-solid fa-chevron-down text-xs ml-1"></i>
             </button>
 
-            <!-- Dropdown Container -->
             <div id="dropdown-menu-content" class="hidden absolute right-0 mt-2 w-56 bg-white border border-[#e8dbd3] rounded-2xl shadow-lg py-2 z-50">
                 <button onclick="switchTab('calc-stickers'); toggleMenuDropdown();" id="tab-calc-stickers" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-note-sticky mr-2.5 text-[#b88a73]"></i>Calculadora Stickers</button>
                 <button onclick="switchTab('calc-toppers'); toggleMenuDropdown();" id="tab-calc-toppers" class="w-full text-left px-4 py-2.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cake-candles mr-2.5 text-[#b88a73]"></i>Calculadora Toppers</button>
@@ -111,10 +107,10 @@
         </div>
     </nav>
 
-    <!-- Contenedor Principal de Módulos -->
+    <!-- Contenedor Principal -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
         
-        <!-- MÓDULO: DASHBOARD -->
+        <!-- DASHBOARD -->
         <section id="module-dashboard" class="space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm">
@@ -156,13 +152,13 @@
             </div>
         </section>
 
-        <!-- MÓDULO: COTIZACIONES EN STAND BY -->
+        <!-- STAND BY CON OPCIÓN DE EDITAR -->
         <section id="module-standby" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
                     <div>
                         <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-clock text-[#b88a73] mr-2"></i> Cotizaciones en Stand By (En Espera)</h2>
-                        <p class="text-xs text-gray-500">Administra presupuestos guardados en cola. Cuando el cliente concrete, envíalos directo a caja para facturar.</p>
+                        <p class="text-xs text-gray-500">Administra presupuestos guardados en cola. Puedes editarlos, facturarlos o eliminarlos.</p>
                     </div>
                 </div>
 
@@ -185,7 +181,7 @@
             </div>
         </section>
 
-        <!-- MÓDULO: CALCULADORA DE STICKERS -->
+        <!-- CALCULADORA STICKERS -->
         <section id="module-calc-stickers" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
@@ -196,7 +192,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Parámetros del Sticker -->
                     <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
                         <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Medidas del Sticker</h3>
                         <div>
@@ -208,20 +203,19 @@
                             <input type="number" id="stk-alto" value="5" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Espaciado / Sangrado entre Stickers (cm)</label>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Espaciado / Sangrado (cm)</label>
                             <input type="number" id="stk-gap" value="0.3" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Cantidad Total Deseada (Unidades)</label>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Cantidad Total (Unidades)</label>
                             <input type="number" id="stk-cantidad" value="100" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
                         </div>
                     </div>
 
-                    <!-- Parámetros del Pliego y Costos -->
                     <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Material y Hoja de Impresión</h3>
+                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Material y Hoja</h3>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Seleccionar Insumo / Material</label>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Seleccionar Insumo</label>
                             <select id="stk-insumo-select" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" onchange="seleccionarInsumoSticker()">
                                 <option value="0">-- Cargar desde Insumos --</option>
                             </select>
@@ -241,31 +235,30 @@
                             <input type="number" id="stk-costo-hoja" value="0.50" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Impresión + Corte por Hoja ($)</label>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Impresión + Corte ($)</label>
                             <input type="number" id="stk-costo-corte" value="0.30" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">% Ganancia Deseada</label>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">% Ganancia</label>
                             <input type="number" id="stk-ganancia" value="50" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
                         </div>
                     </div>
 
-                    <!-- Resultados -->
                     <div class="space-y-4 bg-white p-5 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
                         <div>
                             <h3 class="font-bold text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
                             <div class="space-y-2 text-xs">
-                                <div class="flex justify-between"><span class="text-gray-500">Stickers por Hoja/Pliego:</span><span id="stk-res-por-hoja" class="font-bold text-[#2c2c2c]">0 uds</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Stickers por Hoja:</span><span id="stk-res-por-hoja" class="font-bold text-[#2c2c2c]">0 uds</span></div>
                                 <div class="flex justify-between"><span class="text-gray-500">Hojas Requeridas:</span><span id="stk-res-hojas-req" class="font-bold text-[#2c2c2c]">0 hojas</span></div>
-                                <div class="flex justify-between border-t border-gray-100 pt-2"><span class="text-gray-500">Costo Total Materiales:</span><span id="stk-res-costo-mat" class="font-semibold text-gray-700">$0.00</span></div>
-                                <div class="flex justify-between"><span class="text-gray-500">Costo Total Operativo:</span><span id="stk-res-costo-op" class="font-semibold text-gray-700">$0.00</span></div>
-                                <div class="flex justify-between font-bold text-sm border-t border-[#e8dbd3] pt-2"><span class="text-gray-700">Costo Base Producción:</span><span id="stk-res-costo-total" class="text-rose-600">$0.00</span></div>
+                                <div class="flex justify-between border-t border-gray-100 pt-2"><span class="text-gray-500">Costo Materiales:</span><span id="stk-res-costo-mat" class="font-semibold text-gray-700">$0.00</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Costo Operativo:</span><span id="stk-res-costo-op" class="font-semibold text-gray-700">$0.00</span></div>
+                                <div class="flex justify-between font-bold text-sm border-t border-[#e8dbd3] pt-2"><span class="text-gray-700">Costo Producción:</span><span id="stk-res-costo-total" class="text-rose-600">$0.00</span></div>
                             </div>
 
                             <div class="mt-4 bg-[#faf8f6] p-3 rounded-lg border border-[#e8dbd3] text-center space-y-1">
-                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Sugerido Venta Lote</p>
+                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Venta Lote</p>
                                 <p id="stk-res-precio-lote" class="text-2xl font-extrabold text-[#b88a73]">$0.00</p>
-                                <p class="text-xs text-gray-500">Precio Unitario: <span id="stk-res-precio-unit" class="font-bold text-[#2c2c2c]">$0.00</span> / unid.</p>
+                                <p class="text-xs text-gray-500">Unitario: <span id="stk-res-precio-unit" class="font-bold text-[#2c2c2c]">$0.00</span></p>
                             </div>
                         </div>
 
@@ -278,13 +271,13 @@
             </div>
         </section>
 
-        <!-- MÓDULO: CALCULADORA DE TOPPERS -->
+        <!-- CALCULADORA TOPPERS -->
         <section id="module-calc-toppers" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
                     <div>
                         <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cake-candles text-[#b88a73] mr-2"></i> Calculadora Multicapa para Toppers</h2>
-                        <p class="text-xs text-gray-500">Suma capas de cartulina, accesorios (palitos, vinil, luces) y mano de obra/diseño.</p>
+                        <p class="text-xs text-gray-500">Suma capas de cartulina, accesorios y mano de obra.</p>
                     </div>
                 </div>
 
@@ -292,15 +285,15 @@
                     <div class="md:col-span-2 space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre o Temática del Topper</label>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Temática del Topper</label>
                                 <input type="text" id="top-nombre" value="Topper Multicapa Personalizado" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Tiempo Estimado de Diseño/Armado (Horas)</label>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Horas de Diseño/Armado</label>
                                 <input type="number" id="top-horas" value="1" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularTopper()">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Valor de Mano de Obra ($/Hora)</label>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Mano de Obra ($/Hora)</label>
                                 <input type="number" id="top-tarifa-hora" value="3.00" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularTopper()">
                             </div>
                             <div>
@@ -309,10 +302,9 @@
                             </div>
                         </div>
 
-                        <!-- Lista de Insumos / Capas para el Topper -->
                         <div class="border border-[#e8dbd3] rounded-xl p-4 bg-white space-y-3">
                             <div class="flex justify-between items-center">
-                                <h3 class="font-bold text-sm text-[#2c2c2c]">Materiales y Capas Utilizadas</h3>
+                                <h3 class="font-bold text-sm text-[#2c2c2c]">Materiales y Capas</h3>
                                 <button onclick="agregarFilaTopper()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-plus mr-1"></i> Agregar Material</button>
                             </div>
                             <div class="overflow-x-auto">
@@ -320,27 +312,24 @@
                                     <thead class="bg-[#faf8f6] text-gray-500 uppercase">
                                         <tr>
                                             <th class="p-2 w-[40%]">Material / Capa</th>
-                                            <th class="p-2 w-[20%] text-center">Cant. Utilizada</th>
+                                            <th class="p-2 w-[20%] text-center">Cant</th>
                                             <th class="p-2 w-[25%] text-center">Costo Unit. ($)</th>
                                             <th class="p-2 w-[15%] text-center">Acción</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="lista-insumos-topper">
-                                        <!-- Filas dinámicas -->
-                                    </tbody>
+                                    <tbody id="lista-insumos-topper"></tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Resumen Topper -->
                     <div class="space-y-4 bg-white p-5 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
                         <div>
                             <h3 class="font-bold text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen de Topper</h3>
                             <div class="space-y-2 text-xs">
                                 <div class="flex justify-between"><span class="text-gray-500">Costo Materiales:</span><span id="top-res-mat" class="font-semibold text-gray-700">$0.00</span></div>
-                                <div class="flex justify-between"><span class="text-gray-500">Costo Mano de Obra:</span><span id="top-res-mo" class="font-semibold text-gray-700">$0.00</span></div>
-                                <div class="flex justify-between font-bold text-sm border-t border-[#e8dbd3] pt-2"><span class="text-gray-700">Costo Total Producción:</span><span id="top-res-costo-total" class="text-rose-600">$0.00</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Costo Mano Obra:</span><span id="top-res-mo" class="font-semibold text-gray-700">$0.00</span></div>
+                                <div class="flex justify-between font-bold text-sm border-t border-[#e8dbd3] pt-2"><span class="text-gray-700">Costo Producción:</span><span id="top-res-costo-total" class="text-rose-600">$0.00</span></div>
                             </div>
 
                             <div class="mt-6 bg-[#faf8f6] p-4 rounded-lg border border-[#e8dbd3] text-center space-y-1">
@@ -358,14 +347,14 @@
             </div>
         </section>
 
-        <!-- MÓDULO: COTIZADOR Y PRESUPUESTOS -->
+        <!-- COTIZADOR Y PRESUPUESTOS -->
         <section id="module-calculadora" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 
                 <div class="flex flex-wrap justify-between items-center gap-4">
                     <div>
                         <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-file-invoice-dollar text-[#b88a73] mr-2"></i> Generador de Presupuestos Profesionales</h2>
-                        <p class="text-xs text-gray-500">Selecciona tus servicios o insumos, ajusta la ganancia y genera el presupuesto listo para enviar.</p>
+                        <p class="text-xs text-gray-500">Selecciona servicios o insumos, ajusta ganancias y genera presupuestos.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
                         <label class="flex items-center space-x-2 text-xs font-semibold text-gray-600 bg-[#faf8f6] px-3 py-2 rounded-xl border border-[#e8dbd3] cursor-pointer">
@@ -383,7 +372,6 @@
                     </div>
                 </div>
 
-                <!-- Datos del Cliente y Configuración del Presupuesto -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3] no-print-controls">
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Cliente Destino</label>
@@ -397,16 +385,14 @@
                         <input type="text" id="presupuesto-validez" value="7 días hábiles" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm focus:outline-none" oninput="recalcularPresupuestoTotal()">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">% de Ganancia Global por Defecto</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">% Ganancia Global por Defecto</label>
                         <input type="number" id="presupuesto-ganancia-global" value="30" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm focus:outline-none" oninput="aplicarGananciaGlobalEnCascada()">
                     </div>
                 </div>
 
-                <!-- Contenedor Imprimible del Presupuesto -->
                 <div class="w-full flex justify-center py-2 overflow-x-auto">
                     <div id="area-impresion-presupuesto" class="bg-white p-8 rounded-2xl border-2 border-[#b88a73] space-y-6 shadow-xs w-full max-w-4xl mx-auto">
                         
-                        <!-- Cabecera del Documento PDF -->
                         <div class="flex justify-between items-start border-b border-[#e8dbd3] pb-6">
                             <div class="flex items-center space-x-3">
                                 <div id="doc-logo-preview" class="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center bg-[#b88a73] text-white font-bold shrink-0">
@@ -424,7 +410,6 @@
                             </div>
                         </div>
 
-                        <!-- Datos del Cliente en el Documento -->
                         <div class="text-xs text-gray-700 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3] flex justify-between items-center">
                             <div>
                                 <span class="text-gray-500 font-semibold">Preparado para:</span> <span id="doc-cliente-nombre" class="text-[#2c2c2c] font-bold">Cliente General</span>
@@ -434,10 +419,9 @@
                             </div>
                         </div>
 
-                        <!-- Tabla de Renglones / Ítems del Presupuesto -->
                         <div class="space-y-3">
                             <div class="flex justify-between items-center no-print-controls mb-2">
-                                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Ítems, Servicios e Insumos a Presupuestar</h4>
+                                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Ítems, Servicios e Insumos</h4>
                                 <div class="space-x-2">
                                     <button onclick="agregarRenglonServicio()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-bullhorn mr-1"></i> Añadir Servicio</button>
                                     <button onclick="agregarRenglonInsumo()" class="text-xs bg-[#b88a73] hover:bg-[#a67963] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-box mr-1"></i> Añadir Insumo</button>
@@ -448,7 +432,7 @@
                                 <table class="w-full text-left text-xs text-gray-700">
                                     <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
                                         <tr>
-                                            <th class="p-3 w-[36%] col-desc">Descripción / Concepto</th>
+                                            <th class="p-3 w-[36%] col-desc">Descripción</th>
                                             <th class="p-3 w-[10%] text-center col-cant">Cant</th>
                                             <th class="p-3 w-[12%] text-center internal-col">Costo Unit. ($)</th>
                                             <th class="p-3 w-[10%] text-center internal-col">% Ganancia</th>
@@ -457,22 +441,19 @@
                                             <th class="p-3 w-[10%] text-center no-print-controls">Acción</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="lista-renglones-presupuesto">
-                                        <!-- Inyectado por JS -->
-                                    </tbody>
+                                    <tbody id="lista-renglones-presupuesto"></tbody>
                                 </table>
                             </div>
                         </div>
 
-                        <!-- Totales y Resumen del Presupuesto -->
                         <div class="flex justify-end pt-4 border-t border-[#e8dbd3]">
                             <div class="w-full sm:w-80 space-y-2.5 text-sm bg-[#faf8f6] p-5 rounded-xl border border-[#e8dbd3]">
                                 <div class="flex justify-between text-gray-500 text-xs internal-col">
-                                    <span>Costo Total Producción:</span>
+                                    <span>Costo Producción:</span>
                                     <span id="doc-subtotal-costo" class="font-bold text-[#2c2c2c]">$0.00</span>
                                 </div>
                                 <div class="flex justify-between text-gray-500 text-xs internal-col">
-                                    <span>Ganancia Total Estimada:</span>
+                                    <span>Ganancia Estimada:</span>
                                     <span id="doc-total-ganancia" class="font-bold text-[#b88a73]">$0.00</span>
                                 </div>
                                 
@@ -482,29 +463,26 @@
                                 </div>
 
                                 <div id="container-total-ves-doc" class="flex justify-between items-center text-xs text-gray-600 font-semibold border-t border-dashed border-[#e8dbd3] pt-2">
-                                    <span>Equivalente en Bolívares (VES):</span>
+                                    <span>Equivalente Bolívares (VES):</span>
                                     <span id="doc-total-ves" class="font-bold text-[#2c2c2c]">Bs. 0.00</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </section>
 
-        <!-- MÓDULO: CAJA Y PAGOS CON DOBLE MONEDA EN RESUMEN -->
+        <!-- CAJA Y PAGOS -->
         <section id="module-caja" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                <!-- Columna Izquierda: Datos, Tabla con Buscador por Teclado y Pagos Rápidos (2 cols) -->
                 <div class="lg:col-span-2 space-y-5">
                     <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
                         <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cash-register text-[#b88a73] mr-2"></i> Caja Rápida / Punto de Venta</h2>
                         <span class="text-xs bg-[#faf8f6] border border-[#e8dbd3] px-3 py-1 rounded-full text-gray-600 font-medium"><i class="fa-solid fa-keyboard text-[#b88a73] mr-1"></i> Teclado activado (↑ ↓ Enter)</span>
                     </div>
                     
-                    <!-- Datos del Cliente -->
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Cliente (CRM)</label>
                         <select id="caja-cliente" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]" onchange="manejarCambioClienteCaja(this)">
@@ -513,10 +491,9 @@
                         </select>
                     </div>
 
-                    <!-- TABLA DE DETALLE DE ÍTEMS CON BUSCADOR INTELIGENTE POR TECLADO -->
                     <div class="space-y-2 bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3]">
                         <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-magnifying-glass text-[#b88a73] mr-1"></i> Detalle de Servicios / Insumos a Facturar</span>
+                            <span class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-magnifying-glass text-[#b88a73] mr-1"></i> Detalle de Servicios / Insumos</span>
                             <button onclick="agregarItemCajaFila()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-plus mr-1"></i> Añadir Fila</button>
                         </div>
                         <div class="overflow-x-visible">
@@ -529,14 +506,11 @@
                                         <th class="p-2 w-[15%] text-center">Acción</th>
                                     </tr>
                                 </thead>
-                                <tbody id="lista-items-caja">
-                                    <!-- Inyectado dinámicamente -->
-                                </tbody>
+                                <tbody id="lista-items-caja"></tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- Totales Grandes y Visibles -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3]">
                         <div>
                             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Total a Pagar ($)</label>
@@ -548,9 +522,8 @@
                         </div>
                     </div>
 
-                    <!-- BOTONES DE PAGO RÁPIDO (1 CLIC) -->
                     <div class="space-y-2">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500">Seleccionar Método de Pago (Pago Exacto al Instante)</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500">Métodos de Pago Rápidos (1 Clic)</label>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                             <button onclick="registrarPagoRapido('Efectivo USD')" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-xs">
                                 <i class="fa-solid fa-money-bill-wave text-emerald-400"></i>
@@ -571,19 +544,15 @@
                         </div>
                     </div>
 
-                    <!-- Lista de Pagos Aplicados -->
                     <div class="space-y-2">
                         <div class="flex justify-between items-center">
-                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Pagos Registrados en esta Transacción</span>
+                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Pagos Registrados</span>
                             <button onclick="agregarMetodoPago()" class="text-xs text-[#b88a73] font-bold hover:underline"><i class="fa-solid fa-plus mr-1"></i> Añadir pago manual / parcial</button>
                         </div>
-                        <div id="lista-pagos" class="space-y-2 max-h-40 overflow-y-auto pr-1">
-                            <!-- Inyectado dinámicamente -->
-                        </div>
+                        <div id="lista-pagos" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
                     </div>
                 </div>
 
-                <!-- Columna Derecha: Resumen con Doble Moneda y Botón Final (1 col) -->
                 <div class="bg-[#faf8f6] p-5 rounded-2xl border border-[#e8dbd3] flex flex-col justify-between space-y-6">
                     <div class="space-y-4">
                         <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider border-b border-[#e8dbd3] pb-2">Resumen de Cobro</h3>
@@ -614,7 +583,7 @@
 
                         <div class="bg-white p-3 rounded-xl border border-[#e8dbd3] text-xs text-gray-500 space-y-1">
                             <p class="font-semibold text-gray-700"><i class="fa-solid fa-keyboard text-[#b88a73] mr-1"></i> Atajo Teclado:</p>
-                            <p>Usa <b>↑</b> y <b>↓</b> en el buscador para navegar y presiona <b>Enter</b> para elegir tu insumo sin usar el mouse.</p>
+                            <p>Usa <b>↑</b> y <b>↓</b> para navegar y <b>Enter</b> para elegir tu insumo.</p>
                         </div>
                     </div>
 
@@ -626,7 +595,7 @@
             </div>
         </section>
 
-        <!-- MÓDULO: INSUMOS Y STOCK -->
+        <!-- INSUMOS Y STOCK CON EDITAR -->
         <section id="module-insumos" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <div class="flex justify-between items-center">
@@ -660,7 +629,7 @@
             </div>
         </section>
 
-        <!-- MÓDULO: SERVICIOS -->
+        <!-- SERVICIOS CON EDITAR -->
         <section id="module-servicios" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-bullhorn text-[#b88a73] mr-2"></i> Catálogo de Servicios Publicitarios</h2>
@@ -686,7 +655,7 @@
             </div>
         </section>
 
-        <!-- MÓDULO: CRM CLIENTES -->
+        <!-- CRM CLIENTES CON EDITAR -->
         <section id="module-crm" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Directorio de Clientes (CRM)</h2>
@@ -714,7 +683,7 @@
             </div>
         </section>
 
-        <!-- MÓDULO: CONTROL FINANCIERO -->
+        <!-- CONTROL FINANCIERO -->
         <section id="module-finanzas" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-wallet text-[#b88a73] mr-2"></i> Control Financiero y Gastos Operativos</h2>
@@ -747,7 +716,7 @@
             </div>
         </section>
 
-        <!-- MÓDULO: CONFIGURAR LOGO -->
+        <!-- CONFIGURAR LOGO -->
         <section id="module-logo" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-image text-[#b88a73] mr-2"></i> Configuración del Logotipo</h2>
@@ -761,7 +730,7 @@
 
     </main>
 
-    <!-- Script Lógico Integral con Doble Moneda -->
+    <!-- Script Lógico Integral con Funciones de Edición -->
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwB5AHv2GeTl3_FDqnpsf6DQS9DZTw6Z04DsQXrHAM_UDu9d4QaOxgxw-URvfetRR80iQ/exec';
 
@@ -772,9 +741,7 @@
 
         function toggleMenuDropdown() {
             const dropdown = document.getElementById('dropdown-menu-content');
-            if(dropdown) {
-                dropdown.classList.toggle('hidden');
-            }
+            if(dropdown) dropdown.classList.toggle('hidden');
         }
 
         window.addEventListener('click', function(e) {
@@ -795,9 +762,7 @@
             const horaStr = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
             
             const relojEl = document.getElementById('live-clock-display');
-            if(relojEl) {
-                relojEl.innerText = `${fechaStr} - ${horaStr}`;
-            }
+            if(relojEl) relojEl.innerText = `${fechaStr} - ${horaStr}`;
         }
         setInterval(actualizarRelojFecha, 1000);
 
@@ -829,9 +794,7 @@
 
             window.location.hash = tabId;
 
-            if(tabId === 'dashboard') {
-                cargarDashboard();
-            }
+            if(tabId === 'dashboard') cargarDashboard();
             if(tabId === 'caja') {
                 cargarClientesEnSelects();
                 cargarRegistrosCajaEditable();
@@ -841,9 +804,7 @@
                     recalcularTotalesCaja();
                 }
             }
-            if(tabId === 'standby') {
-                cargarCotizacionesStandBy();
-            }
+            if(tabId === 'standby') cargarCotizacionesStandBy();
             if(tabId === 'calculadora') {
                 cargarClientesEnSelects();
                 document.getElementById('presupuesto-fecha-doc').innerText = `Fecha: ${new Date().toLocaleDateString()}`;
@@ -854,9 +815,7 @@
                 calcularStickers();
             }
             if(tabId === 'calc-toppers') {
-                if(document.querySelectorAll('#lista-insumos-topper tr').length === 0) {
-                    agregarFilaTopper();
-                }
+                if(document.querySelectorAll('#lista-insumos-topper tr').length === 0) agregarFilaTopper();
                 calcularTopper();
             }
             if(tabId === 'insumos') cargarInsumos();
@@ -868,19 +827,14 @@
         function syncRoute() {
             const hash = window.location.hash.replace('#', '');
             const tabs = ['dashboard', 'calculadora', 'standby', 'calc-stickers', 'calc-toppers', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo'];
-            if (tabs.includes(hash)) {
-                switchTab(hash);
-            } else {
-                switchTab('dashboard');
-            }
+            if (tabs.includes(hash)) switchTab(hash);
+            else switchTab('dashboard');
         }
-
         window.addEventListener('hashchange', syncRoute);
 
         async function fetchBCVRate() {
             const inputEl = document.getElementById('bcv-rate-input');
             const hoyStr = new Date().toISOString().split('T')[0];
-            
             const tasaGuardada = localStorage.getItem('lan_bcv_tasa');
             const fechaGuardada = localStorage.getItem('lan_bcv_fecha');
 
@@ -911,9 +865,7 @@
                 }
                 throw new Error("Respuesta inválida");
             } catch (error) {
-                if (tasaGuardada) {
-                    tasaBCV = parseFloat(tasaGuardada);
-                }
+                if (tasaGuardada) tasaBCV = parseFloat(tasaGuardada);
                 if(inputEl) inputEl.value = tasaBCV.toFixed(2);
                 const tasaDocEl = document.getElementById('presupuesto-tasa-doc');
                 if(tasaDocEl) tasaDocEl.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
@@ -949,21 +901,19 @@
             selects.forEach(selectId => {
                 const select = document.getElementById(selectId);
                 if(!select) return;
-                
                 const valorActual = select.value;
                 select.innerHTML = `
                     <option value="Cliente General">-- Cliente General --</option>
                     <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
                 `;
-                
                 clientes.forEach(c => {
                     select.innerHTML += `<option value="${c.nombre}">${c.nombre} (${c.tel || 'Sin telf'})</option>`;
                 });
-                
                 if(valorActual) select.value = valorActual;
             });
         }
 
+        // ================= GESTIÓN DE INSUMOS (CON EDITAR) =================
         function guardarInsumo() {
             const nombre = document.getElementById('insumo-nombre').value.trim();
             const categoria = document.getElementById('insumo-categoria').value.trim();
@@ -971,10 +921,7 @@
             const stock = parseInt(document.getElementById('insumo-stock').value) || 0;
             const minimo = parseInt(document.getElementById('insumo-minimo').value) || 0;
 
-            if(!nombre) {
-                alert("Por favor introduce el nombre del insumo.");
-                return;
-            }
+            if(!nombre) { alert("Introduce el nombre del insumo."); return; }
 
             let insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
             insumos.push({ nombre, categoria, costo_unitario: costo, stock, stock_minimo: minimo });
@@ -1008,12 +955,38 @@
                         <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(ins.costo_unitario).toFixed(2)}</td>
                         <td class="p-3 ${alertaStock}">${ins.stock} uds</td>
                         <td class="p-3 text-xs text-gray-500">${ins.stock_minimo}</td>
-                        <td class="p-3">
+                        <td class="p-3 space-x-2 whitespace-nowrap">
+                            <button onclick="editarInsumo(${idx})" class="text-amber-600 hover:text-amber-800 text-xs font-medium"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
                             <button onclick="eliminarInsumo(${idx})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i> Eliminar</button>
                         </td>
                     </tr>
                 `;
             });
+        }
+
+        function editarInsumo(idx) {
+            let insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
+            let ins = insumos[idx];
+            let nuevoNombre = prompt("Editar nombre del insumo:", ins.nombre);
+            if(nuevoNombre === null) return;
+            let nuevaCat = prompt("Editar categoría:", ins.categoria || '') || '';
+            let nuevoCosto = prompt("Editar costo unitario ($):", ins.costo_unitario);
+            if(nuevoCosto === null) return;
+            let nuevoStock = prompt("Editar stock actual:", ins.stock);
+            if(nuevoStock === null) return;
+            let nuevoMin = prompt("Editar stock mínimo alerta:", ins.stock_minimo);
+            if(nuevoMin === null) return;
+
+            insumos[idx] = {
+                nombre: nuevoNombre.trim(),
+                categoria: nuevaCat.trim(),
+                costo_unitario: parseFloat(nuevoCosto) || 0,
+                stock: parseInt(nuevoStock) || 0,
+                stock_minimo: parseInt(nuevoMin) || 0
+            };
+            localStorage.setItem('lan_insumos', JSON.stringify(insumos));
+            cargarInsumos();
+            alert("¡Insumo actualizado con éxito!");
         }
 
         function eliminarInsumo(idx) {
@@ -1024,14 +997,12 @@
             cargarInsumos();
         }
 
+        // ================= GESTIÓN DE SERVICIOS (CON EDITAR) =================
         function guardarServicio() {
             const nombre = document.getElementById('servicio-nombre').value.trim();
             const precio = parseFloat(document.getElementById('servicio-precio').value) || 0;
 
-            if(!nombre) {
-                alert("Introduce el nombre del servicio.");
-                return;
-            }
+            if(!nombre) { alert("Introduce el nombre del servicio."); return; }
 
             let servicios = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
             servicios.push({ nombre, precio });
@@ -1057,12 +1028,30 @@
                     <tr class="border-b border-[#e8dbd3]">
                         <td class="p-3 font-semibold text-[#2c2c2c]">${s.nombre}</td>
                         <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(s.precio).toFixed(2)}</td>
-                        <td class="p-3">
+                        <td class="p-3 space-x-2 whitespace-nowrap">
+                            <button onclick="editarServicio(${idx})" class="text-amber-600 hover:text-amber-800 text-xs font-medium"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
                             <button onclick="eliminarServicio(${idx})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i> Eliminar</button>
                         </td>
                     </tr>
                 `;
             });
+        }
+
+        function editarServicio(idx) {
+            let servicios = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
+            let s = servicios[idx];
+            let nuevoNombre = prompt("Editar nombre del servicio:", s.nombre);
+            if(nuevoNombre === null) return;
+            let nuevoPrecio = prompt("Editar precio base ($):", s.precio);
+            if(nuevoPrecio === null) return;
+
+            servicios[idx] = {
+                nombre: nuevoNombre.trim(),
+                precio: parseFloat(nuevoPrecio) || 0
+            };
+            localStorage.setItem('lan_servicios', JSON.stringify(servicios));
+            cargarServicios();
+            alert("¡Servicio actualizado con éxito!");
         }
 
         function eliminarServicio(idx) {
@@ -1073,15 +1062,13 @@
             cargarServicios();
         }
 
+        // ================= GESTIÓN DE CRM CLIENTES (CON EDITAR) =================
         function guardarCliente() {
             const nombre = document.getElementById('cliente-nombre').value.trim();
             const tel = document.getElementById('cliente-tel').value.trim();
             const instagram = document.getElementById('cliente-insta').value.trim();
 
-            if(!nombre) {
-                alert("Introduce el nombre o empresa del cliente.");
-                return;
-            }
+            if(!nombre) { alert("Introduce el nombre del cliente."); return; }
 
             let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
             clientes.push({ nombre, tel, instagram });
@@ -1109,12 +1096,32 @@
                         <td class="p-3 font-semibold text-[#2c2c2c]">${c.nombre}</td>
                         <td class="p-3 text-xs">${c.tel || 'N/A'}</td>
                         <td class="p-3 text-xs text-[#b88a73]">${c.instagram || 'N/A'}</td>
-                        <td class="p-3">
+                        <td class="p-3 space-x-2 whitespace-nowrap">
+                            <button onclick="editarCliente(${idx})" class="text-amber-600 hover:text-amber-800 text-xs font-medium"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
                             <button onclick="eliminarCliente(${idx})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i> Eliminar</button>
                         </td>
                     </tr>
                 `;
             });
+        }
+
+        function editarCliente(idx) {
+            let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
+            let c = clientes[idx];
+            let nuevoNombre = prompt("Editar nombre o empresa:", c.nombre);
+            if(nuevoNombre === null) return;
+            let nuevoTel = prompt("Editar teléfono / WhatsApp:", c.tel || '') || '';
+            let nuevoInsta = prompt("Editar Instagram:", c.instagram || '') || '';
+
+            clientes[idx] = {
+                nombre: nuevoNombre.trim(),
+                tel: nuevoTel.trim(),
+                instagram: nuevoInsta.trim()
+            };
+            localStorage.setItem('lan_clientes', JSON.stringify(clientes));
+            cargarClientes();
+            cargarClientesEnSelects();
+            alert("¡Cliente actualizado con éxito!");
         }
 
         function eliminarCliente(idx) {
@@ -1126,15 +1133,13 @@
             cargarClientesEnSelects();
         }
 
+        // ================= GESTIÓN DE GASTOS =================
         function guardarGasto() {
             const concepto = document.getElementById('gasto-concepto').value.trim();
             const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
             const categoria = document.getElementById('gasto-categoria').value;
 
-            if(!concepto || monto <= 0) {
-                alert("Por favor introduce un concepto y un monto válido.");
-                return;
-            }
+            if(!concepto || monto <= 0) { alert("Introduce un concepto y monto válido."); return; }
 
             let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
             gastos.push({ concepto, monto, categoria, fecha: new Date().toLocaleDateString() });
@@ -1142,7 +1147,6 @@
 
             document.getElementById('gasto-concepto').value = '';
             document.getElementById('gasto-monto').value = '';
-
             cargarGastos();
             alert("¡Gasto registrado con éxito!");
         }
@@ -1150,10 +1154,8 @@
         function cargarGastos() {
             const tbody = document.getElementById('tabla-gastos');
             if(!tbody) return;
-
             let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
             tbody.innerHTML = gastos.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>';
-            
             gastos.forEach(g => {
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
@@ -1221,14 +1223,10 @@
             const validez = document.getElementById('presupuesto-validez').value;
             const totalUSD = parseFloat(document.getElementById('doc-total-usd').innerText.replace('$', '')) || 0;
 
-            if (totalUSD <= 0) {
-                alert("La cotización está vacía.");
-                return;
-            }
+            if (totalUSD <= 0) { alert("La cotización está vacía."); return; }
 
             const items = [];
-            const filas = document.querySelectorAll('.renglon-item');
-            filas.forEach(row => {
+            document.querySelectorAll('.renglon-item').forEach(row => {
                 const desc = row.querySelector('.desc-input').value;
                 const cant = parseFloat(row.querySelector('.cant-input').value) || 1;
                 const precio = parseFloat(row.querySelector('.precio-cliente-input').value) || 0;
@@ -1255,8 +1253,8 @@
                 cargarCotizacionesStandBy();
                 switchTab('standby');
             } catch (error) {
-                console.error("Error al guardar en Stand By", error);
-                alert("Error al guardar en Stand By. Revisa la consola.");
+                console.error("Error al guardar Stand By", error);
+                alert("Error al guardar Stand By.");
             } finally {
                 if(btn) btn.innerHTML = '<i class="fa-solid fa-clock mr-2"></i> Guardar en Stand By';
             }
@@ -1279,9 +1277,7 @@
                     let itemsResumen = cot.items;
                     try {
                         const parsed = JSON.parse(cot.items);
-                        if (Array.isArray(parsed)) {
-                            itemsResumen = parsed.map(i => `${i.cant}x ${i.desc}`).join(', ');
-                        }
+                        if (Array.isArray(parsed)) itemsResumen = parsed.map(i => `${i.cant}x ${i.desc}`).join(', ');
                     } catch(e) {}
 
                     const cotJsonEscaped = JSON.stringify(cot).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -1292,9 +1288,10 @@
                             <td class="p-3 font-semibold text-[#2c2c2c]">${cot.cliente}</td>
                             <td class="p-3 text-xs text-gray-600 max-w-xs truncate" title="${itemsResumen}">${itemsResumen}</td>
                             <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(cot.total_usd).toFixed(2)}</td>
-                            <td class="p-3 text-center space-x-2 whitespace-nowrap">
-                                <button onclick='enviarStandByACaja(${cotJsonEscaped})' class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium"><i class="fa-solid fa-cash-register mr-1"></i> Facturar</button>
-                                <button onclick="eliminarStandBy('${cot.id}')" class="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>
+                            <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
+                                <button onclick='editarStandByAsCotizacion(${cotJsonEscaped})' class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium"><i class="fa-solid fa-pen-to-square mr-1"></i> Editar</button>
+                                <button onclick='enviarStandByACaja(${cotJsonEscaped})' class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium"><i class="fa-solid fa-cash-register mr-1"></i> Facturar</button>
+                                <button onclick="eliminarStandBy('${cot.id}')" class="bg-rose-500 hover:bg-rose-600 text-white px-2 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>
                             </td>
                         </tr>
                     `;
@@ -1311,6 +1308,40 @@
             }
         }
 
+        function editarStandByAsCotizacion(cot) {
+            switchTab('calculadora');
+            setTimeout(() => {
+                const clienteSelect = document.getElementById('presupuesto-cliente');
+                if(clienteSelect) clienteSelect.value = cot.cliente;
+                const validezInput = document.getElementById('presupuesto-validez');
+                if(validezInput) validezInput.value = cot.validez || '7 días hábiles';
+
+                const tbody = document.getElementById('lista-renglones-presupuesto');
+                tbody.innerHTML = '';
+
+                try {
+                    const parsed = JSON.parse(cot.items);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        parsed.forEach(i => {
+                            agregarRenglonServicio(i.desc, i.precio / 1.3);
+                            const ultimaFila = document.querySelector('#lista-renglones-presupuesto tr:last-child');
+                            if(ultimaFila) {
+                                ultimaFila.querySelector('.cant-input').value = i.cant;
+                                ultimaFila.querySelector('.precio-cliente-input').value = i.precio.toFixed(2);
+                                ultimaFila.querySelector('.precio-cliente-input').classList.add('modificado-manual');
+                            }
+                        });
+                    } else {
+                        agregarRenglonServicio('Presupuesto Stand By', cot.total_usd);
+                    }
+                } catch(e) {
+                    agregarRenglonServicio('Presupuesto / Servicios', cot.total_usd);
+                }
+                recalcularPresupuestoTotal();
+                alert("Cotización cargada en el cotizador para edición.");
+            }, 200);
+        }
+
         async function eliminarStandBy(id) {
             if(!confirm("¿Eliminar esta cotización en stand by?")) return;
             const formData = new URLSearchParams();
@@ -1324,9 +1355,7 @@
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
                 });
                 cargarCotizacionesStandBy();
-            } catch (error) {
-                console.error("Error al eliminar", error);
-            }
+            } catch (error) { console.error("Error al eliminar", error); }
         }
 
         function enviarStandByACaja(cot) {
@@ -1341,16 +1370,13 @@
                 try {
                     const parsed = JSON.parse(cot.items);
                     if (Array.isArray(parsed) && parsed.length > 0) {
-                        parsed.forEach(i => {
-                            agregarItemCajaFila(i.desc, i.cant, i.precio);
-                        });
+                        parsed.forEach(i => { agregarItemCajaFila(i.desc, i.cant, i.precio); });
                     } else {
                         agregarItemCajaFila('Presupuesto Stand By #' + cot.id, 1, cot.total_usd);
                     }
                 } catch(e) {
                     agregarItemCajaFila('Presupuesto / Servicios', 1, cot.total_usd);
                 }
-
                 recalcularTotalesCaja();
             }, 200);
         }
@@ -1387,15 +1413,7 @@
 
             if(anchoStk <= 0 || altoStk <= 0) return;
 
-            const fil1 = Math.floor(anchoHoja / anchoStk);
-            const col1 = Math.floor(altoHoja / altoStk);
-            const totalOp1 = fil1 * col1;
-
-            const fil2 = Math.floor(anchoHoja / altoStk);
-            const col2 = Math.floor(altoHoja / anchoStk);
-            const totalOp2 = fil2 * col2;
-
-            const porHoja = Math.max(totalOp1, totalOp2, 1);
+            const porHoja = Math.max(Math.floor(anchoHoja / anchoStk) * Math.floor(altoHoja / altoStk), 1);
             const hojasNecesarias = Math.ceil(cantRequerida / porHoja);
 
             const costoMaterialTotal = hojasNecesarias * costoHoja;
@@ -1419,7 +1437,6 @@
             const ancho = document.getElementById('stk-ancho').value;
             const alto = document.getElementById('stk-alto').value;
             const concepto = `Stickers Personalizados (${ancho}x${alto}cm) - Pack de ${cant} uds`;
-            
             const costoBase = parseFloat(document.getElementById('stk-res-costo-total').innerText.replace('$', '')) || 0;
             const ganancia = parseFloat(document.getElementById('stk-ganancia').value) || 50;
 
@@ -1472,7 +1489,6 @@
             const select = row.querySelector('select');
             const selected = select.options[select.selectedIndex];
             const costo = parseFloat(selected.getAttribute('data-costo')) || 0;
-            
             row.querySelector('.top-mat-nombre').value = select.value;
             row.querySelector('.top-mat-costo').value = costo;
             calcularTopper();
@@ -1489,7 +1505,6 @@
             const horas = parseFloat(document.getElementById('top-horas').value) || 0;
             const tarifaHora = parseFloat(document.getElementById('top-tarifa-hora').value) || 0;
             const costoManoObra = horas * tarifaHora;
-
             const costoTotalProduccion = costoMateriales + costoManoObra;
             const gananciaPct = parseFloat(document.getElementById('top-ganancia').value) || 0;
             const precioVentaFinal = costoTotalProduccion * (1 + (gananciaPct / 100));
@@ -1501,7 +1516,7 @@
         }
 
         function enviarTopperAPresupuesto() {
-            const nombre = document.getElementById('top-nombre').value || "Topper Multicapa Personalizado";
+            const nombre = document.getElementById('top-nombre').value || "Topper Multicapa";
             const costoBase = parseFloat(document.getElementById('top-res-costo-total').innerText.replace('$', '')) || 0;
             const ganancia = parseFloat(document.getElementById('top-ganancia').value) || 40;
 
@@ -1516,7 +1531,6 @@
         }
 
         let renglonIndex = 0;
-
         function agregarRenglonServicio(nombreDefault = '', costoDefault = 0) {
             renglonIndex++;
             const tbody = document.getElementById('lista-renglones-presupuesto');
@@ -1609,7 +1623,6 @@
             row.querySelector('.costo-input').value = (precioBase * 0.4).toFixed(2);
             row.querySelector('.precio-cliente-input').value = precioBase.toFixed(2);
             row.querySelector('.precio-cliente-input').classList.add('modificado-manual');
-            
             recalcularPresupuestoTotal();
         }
 
@@ -1622,7 +1635,6 @@
             row.querySelector('.desc-input').value = select.value;
             row.querySelector('.costo-input').value = costo.toFixed(2);
             row.querySelector('.precio-cliente-input').classList.remove('modificado-manual');
-            
             recalcularPresupuestoTotal();
         }
 
@@ -1714,21 +1726,18 @@
                 const cantInput = row.querySelector('.cant-input');
                 const precioInput = row.querySelector('.precio-cliente-input');
 
-                descInput.setAttribute('data-original-value', descInput.value);
                 const descText = document.createElement('span');
                 descText.className = 'print-text print-clean-cell font-medium text-[#2c2c2c] block';
                 descText.innerText = descInput.value;
                 descInput.style.display = 'none';
                 descInput.parentNode.appendChild(descText);
 
-                cantInput.setAttribute('data-original-value', cantInput.value);
                 const cantText = document.createElement('span');
                 cantText.className = 'print-text print-clean-cell text-center block';
                 cantText.innerText = cantInput.value;
                 cantInput.style.display = 'none';
                 cantInput.parentNode.appendChild(cantText);
 
-                precioInput.setAttribute('data-original-value', precioInput.value);
                 const precioText = document.createElement('span');
                 precioText.className = 'print-text print-clean-cell font-bold text-[#b88a73] text-right block';
                 precioText.innerText = `$${parseFloat(precioInput.value || 0).toFixed(2)}`;
@@ -1785,7 +1794,7 @@
             area.style.margin = '';
         }
 
-        // FUNCIONES DE LA CAJA CON DOBLE MONEDA EN RESUMEN Y TECLADO
+        // ================= CAJA Y PAGOS CON TECLADO =================
         let cajaItemIdx = 0;
         function agregarItemCajaFila(nombre = '', cant = 1, precio = 0) {
             cajaItemIdx++;
@@ -1839,7 +1848,7 @@
                 if (matches.length > 0) {
                     suggestionsBox.innerHTML = '';
                     suggestionsBox.classList.remove('hidden');
-                    matches.forEach((m, idx) => {
+                    matches.forEach((m) => {
                         const badgeColor = m.tipo === 'Insumo' ? 'bg-[#b88a73] text-white' : 'bg-slate-700 text-white';
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'px-3 py-2 text-xs hover:bg-[#faf8f6] cursor-pointer flex justify-between items-center border-b border-gray-100 last:border-none';
@@ -1879,11 +1888,8 @@
                     e.preventDefault();
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
-                    if (currentFocus > -1 && items[currentFocus]) {
-                        items[currentFocus].click();
-                    } else if (items.length > 0) {
-                        items[0].click();
-                    }
+                    if (currentFocus > -1 && items[currentFocus]) items[currentFocus].click();
+                    else if (items.length > 0) items[0].click();
                 }
             });
 
@@ -2015,10 +2021,7 @@
             const cliente = document.getElementById('caja-cliente').value;
             const totalUSD = parseFloat(document.getElementById('caja-total-usd').value) || 0;
             
-            if(totalUSD <= 0) {
-                alert("La factura está vacía o el total es $0.00.");
-                return;
-            }
+            if(totalUSD <= 0) { alert("La factura está vacía."); return; }
 
             let itemsFactura = [];
             document.querySelectorAll('.caja-item-row').forEach(row => {
@@ -2028,10 +2031,7 @@
                 if(desc) itemsFactura.push({ desc, cant, precio });
             });
 
-            if(itemsFactura.length === 0) {
-                alert("Añade al menos un ítem a la factura.");
-                return;
-            }
+            if(itemsFactura.length === 0) { alert("Añade al menos un ítem."); return; }
 
             let metodosPago = [];
             let totalAbonado = 0;
@@ -2046,7 +2046,7 @@
             });
 
             if (totalAbonado < totalUSD) {
-                if(!confirm(`El pago está incompleto. Faltan $${(totalUSD - totalAbonado).toFixed(2)}. ¿Deseas procesar la venta de todas formas?`)) return;
+                if(!confirm(`Pago incompleto. Faltan $${(totalUSD - totalAbonado).toFixed(2)}. ¿Procesar de todas formas?`)) return;
             }
 
             let insumosLocal = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
@@ -2057,28 +2057,26 @@
                 if(insumoEncontrado) {
                     insumoEncontrado.stock = Math.max(0, parseInt(insumoEncontrado.stock) - item.cant);
                     if(insumoEncontrado.stock <= (parseInt(insumoEncontrado.stock_minimo) || 0)) {
-                        alertasStockBajo.push(`⚠️ ${insumoEncontrado.nombre} (Stock actual: ${insumoEncontrado.stock})`);
+                        alertasStockBajo.push(`⚠️ ${insumoEncontrado.nombre} (Stock: ${insumoEncontrado.stock})`);
                     }
                 }
             });
             localStorage.setItem('lan_insumos', JSON.stringify(insumosLocal));
 
             if(alertasStockBajo.length > 0) {
-                alert(`¡Venta procesada con éxito!\n\n⚠️ Los siguientes insumos alcanzaron o pasaron su stock mínimo:\n` + alertasStockBajo.join('\n'));
+                alert(`¡Venta procesada!\n\n⚠️ Insumos en stock mínimo:\n` + alertasStockBajo.join('\n'));
             } else {
-                alert("¡Venta procesada y stock descontado automáticamente con éxito!");
+                alert("¡Venta procesada y stock descontado con éxito!");
             }
 
             const conceptoResumen = itemsFactura.map(i => `${i.cant}x ${i.desc}`).join(' + ');
-            const metodosStr = metodosPago.join(' | ');
-
             let ventasLocales = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
             ventasLocales.push({
                 fecha: new Date().toISOString(),
                 cliente: cliente,
                 concepto: conceptoResumen,
                 total_usd: totalUSD,
-                metodos_pago: metodosStr || 'No especificado'
+                metodos_pago: metodosPago.join(' | ') || 'No especificado'
             });
             localStorage.setItem('lan_ventas', JSON.stringify(ventasLocales));
 
@@ -2095,7 +2093,6 @@
             if(!tbody) return;
 
             let registros = JSON.parse(localStorage.getItem('lan_ventas') || '[]').reverse().slice(0, 10);
-
             tbody.innerHTML = registros.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin historial reciente de ventas.</td></tr>';
             registros.forEach(v => {
                 const d = new Date(v.fecha).toLocaleDateString();
@@ -2122,9 +2119,7 @@
                     alert("¡Logo actualizado con éxito!");
                 }
                 reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                alert("Por favor selecciona una imagen para el logotipo.");
-            }
+            } else { alert("Selecciona una imagen para el logotipo."); }
         }
 
         function aplicarLogoEnUI(imgSrc) {
@@ -2133,7 +2128,6 @@
             const htmlLogo = `<img src="${imgSrc}" class="w-full h-full object-cover rounded-xl">`;
             if(container) container.innerHTML = htmlLogo;
             if(docPreview) docPreview.innerHTML = htmlLogo;
-            globalLogoHTML = htmlLogo;
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
@@ -2142,14 +2136,11 @@
             await fetchBCVRate();
 
             const savedLogo = localStorage.getItem('lan_logo_img');
-            if(savedLogo) {
-                aplicarLogoEnUI(savedLogo);
-            }
+            if(savedLogo) aplicarLogoEnUI(savedLogo);
 
             if(document.querySelectorAll('#lista-renglones-presupuesto tr').length === 0) {
                 agregarRenglonServicio('Servicio de Diseño Gráfico e Impresión', 20.00);
             }
-
             syncRoute();
         });
     </script>

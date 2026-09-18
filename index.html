@@ -36,6 +36,12 @@
             word-break: break-word !important;
             white-space: normal !important;
         }
+
+        .autocomplete-active {
+            background-color: #faf8f6 !important;
+            font-weight: bold;
+            border-left: 3px solid #b88a73;
+        }
     </style>
 </head>
 <body class="bg-[#faf8f6] text-[#2c2c2c] antialiased min-h-screen flex flex-col">
@@ -487,15 +493,15 @@
             </div>
         </section>
 
-        <!-- MÓDULO: CAJA Y PAGOS CON BUSCADOR INTELIGENTE Y AUTOCOMPLETADO -->
+        <!-- MÓDULO: CAJA Y PAGOS CON NAVEGACIÓN TOTAL POR TECLADO -->
         <section id="module-caja" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                <!-- Columna Izquierda: Datos, Tabla con Buscador y Pagos Rápidos (2 cols) -->
+                <!-- Columna Izquierda: Datos, Tabla con Buscador por Teclado y Pagos Rápidos (2 cols) -->
                 <div class="lg:col-span-2 space-y-5">
                     <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
                         <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cash-register text-[#b88a73] mr-2"></i> Caja Rápida / Punto de Venta</h2>
-                        <span class="text-xs bg-[#faf8f6] border border-[#e8dbd3] px-3 py-1 rounded-full text-gray-600 font-medium">Buscador instantáneo activado</span>
+                        <span class="text-xs bg-[#faf8f6] border border-[#e8dbd3] px-3 py-1 rounded-full text-gray-600 font-medium"><i class="fa-solid fa-keyboard text-[#b88a73] mr-1"></i> Navegación por teclado activada (↑ ↓ Enter)</span>
                     </div>
                     
                     <!-- Datos del Cliente -->
@@ -507,7 +513,7 @@
                         </select>
                     </div>
 
-                    <!-- TABLA DE DETALLE DE ÍTEMS CON BUSCADOR INTELIGENTE -->
+                    <!-- TABLA DE DETALLE DE ÍTEMS CON BUSCADOR INTELIGENTE POR TECLADO -->
                     <div class="space-y-2 bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3]">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-magnifying-glass text-[#b88a73] mr-1"></i> Detalle de Servicios / Insumos a Facturar</span>
@@ -517,14 +523,14 @@
                             <table class="w-full text-left text-xs text-gray-700">
                                 <thead class="bg-white text-gray-500 uppercase border-b border-[#e8dbd3]">
                                     <tr>
-                                        <th class="p-2 w-[52%]">Buscar Insumo / Servicio</th>
+                                        <th class="p-2 w-[52%]">Buscar Insumo / Servicio (Usa ↑ ↓ Enter)</th>
                                         <th class="p-2 w-[13%] text-center">Cant</th>
                                         <th class="p-2 w-[20%] text-right">Precio ($)</th>
                                         <th class="p-2 w-[15%] text-center">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody id="lista-items-caja">
-                                    <!-- Inyectado dinámicamente con buscador -->
+                                    <!-- Inyectado dinámicamente -->
                                 </tbody>
                             </table>
                         </div>
@@ -598,8 +604,8 @@
                         </div>
 
                         <div class="bg-white p-3 rounded-xl border border-[#e8dbd3] text-xs text-gray-500 space-y-1">
-                            <p class="font-semibold text-gray-700"><i class="fa-solid fa-circle-info text-[#b88a73] mr-1"></i> Buscador Inteligente:</p>
-                            <p>Escribe las primeras letras de cualquier insumo o servicio en la factura y selecciónalo de la lista desplegable. Se autocompletará el precio y se descontará del inventario al procesar.</p>
+                            <p class="font-semibold text-gray-700"><i class="fa-solid fa-keyboard text-[#b88a73] mr-1"></i> Atajo Teclado:</p>
+                            <p>Usa <b>↑</b> y <b>↓</b> en el buscador para navegar y presiona <b>Enter</b> para elegir tu insumo sin usar el mouse.</p>
                         </div>
                     </div>
 
@@ -746,7 +752,7 @@
 
     </main>
 
-    <!-- Script Lógico Integral Completo con Buscador Inteligente -->
+    <!-- Script Lógico Integral con Navegación por Teclado en Autocompletado -->
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwB5AHv2GeTl3_FDqnpsf6DQS9DZTw6Z04DsQXrHAM_UDu9d4QaOxgxw-URvfetRR80iQ/exec';
 
@@ -768,13 +774,11 @@
             if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
                 dropdown.classList.add('hidden');
             }
-            // Cerrar sugerencias de autocompletado si se hace clic fuera
             if (!e.target.closest('.relative')) {
                 document.querySelectorAll('.autocomplete-suggestions').forEach(el => el.classList.add('hidden'));
             }
         });
 
-        // Reloj y Fecha Automática en formato 12 Horas
         function actualizarRelojFecha() {
             const ahora = new Date();
             const opcionesFecha = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
@@ -1769,7 +1773,7 @@
             area.style.margin = '';
         }
 
-        // FUNCIONES DE LA TABLA DE ÍTEMS EN CAJA CON BUSCADOR INTELIGENTE
+        // FUNCIONES DE LA CAJA CON NAVEGACIÓN POR TECLADO EN AUTOCOMPLETADO
         let cajaItemIdx = 0;
         function agregarItemCajaFila(nombre = '', cant = 1, precio = 0) {
             cajaItemIdx++;
@@ -1780,7 +1784,7 @@
                 <tr id="${rowId}" class="border-b border-[#e8dbd3] caja-item-row relative">
                     <td class="p-2 relative">
                         <div class="relative">
-                            <input type="text" value="${nombre}" placeholder="Escribe para buscar insumo o servicio..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-xs caja-search-input font-medium focus:outline-none focus:border-[#b88a73]" oninput="filtrarCatalogoCaja(this, '${rowId}')" autocomplete="off">
+                            <input type="text" value="${nombre}" placeholder="Escribe o usa flechas ↑ ↓ y Enter..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-xs caja-search-input font-medium focus:outline-none focus:border-[#b88a73]" autocomplete="off">
                             <div class="autocomplete-suggestions hidden absolute left-0 right-0 top-full mt-1 bg-white border border-[#e8dbd3] rounded-xl shadow-lg max-h-48 overflow-y-auto z-50"></div>
                         </div>
                     </td>
@@ -1796,54 +1800,96 @@
                 </tr>
             `;
             tbody.insertAdjacentHTML('beforeend', html);
-            recalcularTotalesCaja();
-        }
-
-        function filtrarCatalogoCaja(inputEl, rowId) {
-            const query = inputEl.value.toLowerCase().trim();
+            
+            // Configurar eventos de teclado y autocompletado para esta fila nueva
             const row = document.getElementById(rowId);
+            const inputEl = row.querySelector('.caja-search-input');
             const suggestionsBox = row.querySelector('.autocomplete-suggestions');
+            let currentFocus = -1;
 
-            let matches = [];
+            inputEl.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                let matches = [];
+                currentFocus = -1;
 
-            if (query.length > 0) {
-                listaInsumosDB.forEach(i => {
-                    if (i.nombre.toLowerCase().includes(query)) {
-                        matches.push({ tipo: 'Insumo', nombre: i.nombre, precio: (parseFloat(i.costo_unitario) * 1.5).toFixed(2) });
+                if (query.length > 0) {
+                    listaInsumosDB.forEach(i => {
+                        if (i.nombre.toLowerCase().includes(query)) {
+                            matches.push({ tipo: 'Insumo', nombre: i.nombre, precio: (parseFloat(i.costo_unitario) * 1.5).toFixed(2) });
+                        }
+                    });
+                    listaServiciosDB.forEach(s => {
+                        if (s.nombre.toLowerCase().includes(query)) {
+                            matches.push({ tipo: 'Servicio', nombre: s.nombre, precio: parseFloat(s.precio).toFixed(2) });
+                        }
+                    });
+                }
+
+                if (matches.length > 0) {
+                    suggestionsBox.innerHTML = '';
+                    suggestionsBox.classList.remove('hidden');
+                    matches.forEach((m, idx) => {
+                        const badgeColor = m.tipo === 'Insumo' ? 'bg-[#b88a73] text-white' : 'bg-slate-700 text-white';
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'px-3 py-2 text-xs hover:bg-[#faf8f6] cursor-pointer flex justify-between items-center border-b border-gray-100 last:border-none';
+                        itemDiv.innerHTML = `
+                            <span class="font-medium text-gray-800">${m.nombre}</span>
+                            <div class="space-x-2">
+                                <span class="text-[10px] px-1.5 py-0.5 rounded ${badgeColor}">${m.tipo}</span>
+                                <span class="font-bold text-[#b88a73]">$${m.precio}</span>
+                            </div>
+                        `;
+                        itemDiv.onclick = function() {
+                            inputEl.value = m.nombre;
+                            row.querySelector('.caja-precio-input').value = m.precio;
+                            suggestionsBox.classList.add('hidden');
+                            recalcularTotalesCaja();
+                        };
+                        suggestionsBox.appendChild(itemDiv);
+                    });
+                } else {
+                    suggestionsBox.classList.add('hidden');
+                }
+            });
+
+            inputEl.addEventListener('keydown', function(e) {
+                const items = suggestionsBox.querySelectorAll('div');
+                if (items.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    currentFocus++;
+                    if (currentFocus >= items.length) currentFocus = 0;
+                    updateActiveSuggestion(items);
+                    e.preventDefault();
+                } else if (e.key === 'ArrowUp') {
+                    currentFocus--;
+                    if (currentFocus < 0) currentFocus = items.length - 1;
+                    updateActiveSuggestion(items);
+                    e.preventDefault();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (currentFocus > -1 && items[currentFocus]) {
+                        items[currentFocus].click();
+                    } else if (items.length > 0) {
+                        items[0].click();
                     }
-                });
-                listaServiciosDB.forEach(s => {
-                    if (s.nombre.toLowerCase().includes(query)) {
-                        matches.push({ tipo: 'Servicio', nombre: s.nombre, precio: parseFloat(s.precio).toFixed(2) });
+                }
+            });
+
+            function updateActiveSuggestion(items) {
+                items.forEach((item, idx) => {
+                    if (idx === currentFocus) {
+                        item.classList.add('autocomplete-active');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('autocomplete-active');
                     }
                 });
             }
 
-            if (matches.length > 0) {
-                suggestionsBox.innerHTML = '';
-                suggestionsBox.classList.remove('hidden');
-                matches.forEach(m => {
-                    const badgeColor = m.tipo === 'Insumo' ? 'bg-[#b88a73] text-white' : 'bg-slate-700 text-white';
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'px-3 py-2 text-xs hover:bg-[#faf8f6] cursor-pointer flex justify-between items-center border-b border-gray-100 last:border-none';
-                    itemDiv.innerHTML = `
-                        <span class="font-medium text-gray-800">${m.nombre}</span>
-                        <div class="space-x-2">
-                            <span class="text-[10px] px-1.5 py-0.5 rounded ${badgeColor}">${m.tipo}</span>
-                            <span class="font-bold text-[#b88a73]">$${m.precio}</span>
-                        </div>
-                    `;
-                    itemDiv.onclick = function() {
-                        inputEl.value = m.nombre;
-                        row.querySelector('.caja-precio-input').value = m.precio;
-                        suggestionsBox.classList.add('hidden');
-                        recalcularTotalesCaja();
-                    };
-                    suggestionsBox.appendChild(itemDiv);
-                });
-            } else {
-                suggestionsBox.classList.add('hidden');
-            }
+            // Enfocar automáticamente el nuevo input de búsqueda
+            inputEl.focus();
+            recalcularTotalesCaja();
         }
 
         function recalcularTotalesCaja() {

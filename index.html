@@ -152,7 +152,7 @@
             </div>
         </section>
 
-        <!-- STAND BY CON OPCIÓN DE EDITAR -->
+        <!-- STAND BY CON BOTONES MINIMALISTAS -->
         <section id="module-standby" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
@@ -595,7 +595,7 @@
             </div>
         </section>
 
-        <!-- INSUMOS Y STOCK CON EDITAR -->
+        <!-- INSUMOS Y STOCK CON BOTONES SUTILES -->
         <section id="module-insumos" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <div class="flex justify-between items-center">
@@ -629,7 +629,7 @@
             </div>
         </section>
 
-        <!-- SERVICIOS CON EDITAR -->
+        <!-- SERVICIOS CON BOTONES SUTILES -->
         <section id="module-servicios" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-bullhorn text-[#b88a73] mr-2"></i> Catálogo de Servicios Publicitarios</h2>
@@ -655,7 +655,7 @@
             </div>
         </section>
 
-        <!-- CRM CLIENTES CON EDITAR -->
+        <!-- CRM CLIENTES CON BOTONES SUTILES -->
         <section id="module-crm" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Directorio de Clientes (CRM)</h2>
@@ -730,7 +730,7 @@
 
     </main>
 
-    <!-- Script Lógico Integral con Funciones de Edición -->
+    <!-- Script Lógico Integral con Botones de Acción Sutiles -->
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwB5AHv2GeTl3_FDqnpsf6DQS9DZTw6Z04DsQXrHAM_UDu9d4QaOxgxw-URvfetRR80iQ/exec';
 
@@ -913,7 +913,7 @@
             });
         }
 
-        // ================= GESTIÓN DE INSUMOS (CON EDITAR) =================
+        // ================= GESTIÓN DE INSUMOS =================
         function guardarInsumo() {
             const nombre = document.getElementById('insumo-nombre').value.trim();
             const categoria = document.getElementById('insumo-categoria').value.trim();
@@ -955,9 +955,9 @@
                         <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(ins.costo_unitario).toFixed(2)}</td>
                         <td class="p-3 ${alertaStock}">${ins.stock} uds</td>
                         <td class="p-3 text-xs text-gray-500">${ins.stock_minimo}</td>
-                        <td class="p-3 space-x-2 whitespace-nowrap">
-                            <button onclick="editarInsumo(${idx})" class="text-amber-600 hover:text-amber-800 text-xs font-medium"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
-                            <button onclick="eliminarInsumo(${idx})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                        <td class="p-3 space-x-1.5 whitespace-nowrap">
+                            <button onclick="editarInsumo(${idx})" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-2 rounded-xl transition text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="eliminarInsumo(${idx})" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -997,7 +997,7 @@
             cargarInsumos();
         }
 
-        // ================= GESTIÓN DE SERVICIOS (CON EDITAR) =================
+        // ================= GESTIÓN DE SERVICIOS =================
         function guardarServicio() {
             const nombre = document.getElementById('servicio-nombre').value.trim();
             const precio = parseFloat(document.getElementById('servicio-precio').value) || 0;
@@ -1028,9 +1028,9 @@
                     <tr class="border-b border-[#e8dbd3]">
                         <td class="p-3 font-semibold text-[#2c2c2c]">${s.nombre}</td>
                         <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(s.precio).toFixed(2)}</td>
-                        <td class="p-3 space-x-2 whitespace-nowrap">
-                            <button onclick="editarServicio(${idx})" class="text-amber-600 hover:text-amber-800 text-xs font-medium"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
-                            <button onclick="eliminarServicio(${idx})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                        <td class="p-3 space-x-1.5 whitespace-nowrap">
+                            <button onclick="editarServicio(${idx})" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-2 rounded-xl transition text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="eliminarServicio(${idx})" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -1062,7 +1062,7 @@
             cargarServicios();
         }
 
-        // ================= GESTIÓN DE CRM CLIENTES (CON EDITAR) =================
+        // ================= GESTIÓN DE CRM CLIENTES =================
         function guardarCliente() {
             const nombre = document.getElementById('cliente-nombre').value.trim();
             const tel = document.getElementById('cliente-tel').value.trim();
@@ -1096,9 +1096,9 @@
                         <td class="p-3 font-semibold text-[#2c2c2c]">${c.nombre}</td>
                         <td class="p-3 text-xs">${c.tel || 'N/A'}</td>
                         <td class="p-3 text-xs text-[#b88a73]">${c.instagram || 'N/A'}</td>
-                        <td class="p-3 space-x-2 whitespace-nowrap">
-                            <button onclick="editarCliente(${idx})" class="text-amber-600 hover:text-amber-800 text-xs font-medium"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
-                            <button onclick="eliminarCliente(${idx})" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                        <td class="p-3 space-x-1.5 whitespace-nowrap">
+                            <button onclick="editarCliente(${idx})" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-2 rounded-xl transition text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="eliminarCliente(${idx})" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -1289,9 +1289,9 @@
                             <td class="p-3 text-xs text-gray-600 max-w-xs truncate" title="${itemsResumen}">${itemsResumen}</td>
                             <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(cot.total_usd).toFixed(2)}</td>
                             <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                                <button onclick='editarStandByAsCotizacion(${cotJsonEscaped})' class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium"><i class="fa-solid fa-pen-to-square mr-1"></i> Editar</button>
-                                <button onclick='enviarStandByACaja(${cotJsonEscaped})' class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium"><i class="fa-solid fa-cash-register mr-1"></i> Facturar</button>
-                                <button onclick="eliminarStandBy('${cot.id}')" class="bg-rose-500 hover:bg-rose-600 text-white px-2 py-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick='editarStandByAsCotizacion(${cotJsonEscaped})' class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-2 rounded-xl transition text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick='enviarStandByACaja(${cotJsonEscaped})' class="bg-gray-100 hover:bg-emerald-100 text-emerald-700 p-2 rounded-xl transition text-xs" title="Facturar"><i class="fa-solid fa-cash-register"></i></button>
+                                <button onclick="eliminarStandBy('${cot.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                             </td>
                         </tr>
                     `;

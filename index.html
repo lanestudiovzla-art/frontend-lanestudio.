@@ -969,35 +969,73 @@
             </div>
         </section>
 
-        <!-- CONTROL FINANCIERO -->
+        <!-- CONTROL FINANCIERO MEJORADO (P&L) -->
         <section id="module-finanzas" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-wallet text-[#b88a73] mr-2"></i> Control Financiero y Gastos Operativos</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                    <input type="text" id="gasto-concepto" placeholder="Concepto del Gasto" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="gasto-monto" placeholder="Monto ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <select id="gasto-categoria" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                        <option value="Operativo">Operativo (Alquiler, Servicios)</option>
-                        <option value="Insumos">Compra de Insumos</option>
-                        <option value="Marketing">Marketing / Publicidad</option>
-                        <option value="Otros">Otros</option>
-                    </select>
-                    <button onclick="guardarGasto()" class="sm:col-span-3 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Gasto</button>
+                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-wallet text-[#b88a73] mr-2"></i> Control Financiero y Balance (P&L)</h2>
+                        <p class="text-xs text-gray-500">Resumen en tiempo real de ingresos por ventas, egresos operativos y utilidad neta.</p>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-700">
-                        <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
-                            <tr>
-                                <th class="p-3">Concepto</th>
-                                <th class="p-3">Categoría</th>
-                                <th class="p-3">Monto ($)</th>
-                                <th class="p-3">Fecha</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-gastos">
-                            <tr><td colspan="4" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>
-                        </tbody>
-                    </table>
+
+                <!-- Tarjetas de Resumen Financiero -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <div class="bg-[#faf8f6] p-5 rounded-2xl border border-[#e8dbd3]">
+                        <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Total Ingresos (Ventas)</p>
+                        <h3 id="fin-total-ingresos" class="text-2xl font-bold text-emerald-600 mt-2">$0.00</h3>
+                        <p id="fin-total-ingresos-ves" class="text-xs text-gray-500 mt-1">Bs. 0.00</p>
+                    </div>
+                    <div class="bg-[#faf8f6] p-5 rounded-2xl border border-[#e8dbd3]">
+                        <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Total Egresos (Gastos)</p>
+                        <h3 id="fin-total-egresos" class="text-2xl font-bold text-rose-600 mt-2">$0.00</h3>
+                        <p id="fin-total-egresos-ves" class="text-xs text-gray-500 mt-1">Bs. 0.00</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border-2 border-[#b88a73] shadow-xs">
+                        <p class="text-xs uppercase tracking-wider text-[#b88a73] font-bold">Utilidad Neta (Beneficio)</p>
+                        <h3 id="fin-utilidad-neta" class="text-2xl font-extrabold text-[#2c2c2c] mt-2">$0.00</h3>
+                        <p id="fin-utilidad-neta-ves" class="text-xs text-gray-500 mt-1">Bs. 0.00</p>
+                    </div>
+                </div>
+
+                <!-- Formulario para Registrar Nuevo Gasto -->
+                <div class="bg-[#faf8f6] p-5 rounded-2xl border border-[#e8dbd3] space-y-4">
+                    <h3 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-plus-circle mr-1 text-[#b88a73]"></i> Registrar Nuevo Egreso / Gasto</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                        <input type="text" id="gasto-concepto" placeholder="Concepto (Ej. Alquiler, Tinta...)" class="bg-white border border-[#e8dbd3] rounded-xl px-3 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]">
+                        <input type="number" id="gasto-monto" placeholder="Monto ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-xl px-3 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]">
+                        <select id="gasto-categoria" class="bg-white border border-[#e8dbd3] rounded-xl px-3 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]">
+                            <option value="Operativo">Operativo (Alquiler, Servicios)</option>
+                            <option value="Insumos">Compra de Insumos / Materiales</option>
+                            <option value="Marketing">Marketing / Publicidad</option>
+                            <option value="Otros">Otros Egresos</option>
+                        </select>
+                        <button onclick="guardarGasto()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold transition text-sm shadow-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-save"></i>
+                            <span>Registrar Gasto</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabla de Historial de Gastos -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-list mr-1 text-[#b88a73]"></i> Historial de Egresos Registrados</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-gray-700">
+                            <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
+                                <tr>
+                                    <th class="p-3">Fecha</th>
+                                    <th class="p-3">Concepto</th>
+                                    <th class="p-3">Categoría</th>
+                                    <th class="p-3">Monto ($)</th>
+                                    <th class="p-3 text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-gastos">
+                                <tr><td colspan="5" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1126,7 +1164,7 @@
             if(tabId === 'insumos') cargarInsumos();
             if(tabId === 'servicios') cargarServicios();
             if(tabId === 'crm') cargarClientes();
-            if(tabId === 'finanzas') cargarGastos();
+            if(tabId === 'finanzas') cargarGastosYBalance();
         }
 
         function syncRoute() {
@@ -1438,7 +1476,7 @@
             cargarClientesEnSelects();
         }
 
-        // ================= GESTIÓN DE GASTOS =================
+        // ================= CONTROL FINANCIERO MEJORADO (P&L) =================
         function guardarGasto() {
             const concepto = document.getElementById('gasto-concepto').value.trim();
             const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
@@ -1452,22 +1490,60 @@
 
             document.getElementById('gasto-concepto').value = '';
             document.getElementById('gasto-monto').value = '';
-            cargarGastos();
+            cargarGastosYBalance();
             alert("¡Gasto registrado con éxito!");
         }
 
-        function cargarGastos() {
+        function eliminarGasto(idx) {
+            if(!confirm("¿Eliminar este registro de gasto?")) return;
+            let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
+            gastos.splice(idx, 1);
+            localStorage.setItem('lan_gastos', JSON.stringify(gastos));
+            cargarGastosYBalance();
+        }
+
+        function cargarGastosYBalance() {
             const tbody = document.getElementById('tabla-gastos');
             if(!tbody) return;
+
             let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
-            tbody.innerHTML = gastos.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin gastos registrados.</td></tr>';
-            gastos.forEach(g => {
+            let ventas = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
+
+            let totalIngresos = ventas.reduce((acc, v) => acc + (parseFloat(v.total_usd) || 0), 0);
+            let totalEgresos = gastos.reduce((acc, g) => acc + (parseFloat(g.monto) || 0), 0);
+            let utilidadNeta = totalIngresos - totalEgresos;
+
+            // Actualizar tarjetas de balance
+            document.getElementById('fin-total-ingresos').innerText = `$${totalIngresos.toFixed(2)}`;
+            document.getElementById('fin-total-ingresos-ves').innerText = `Bs. ${(totalIngresos * tasaBCV).toFixed(2)}`;
+
+            document.getElementById('fin-total-egresos').innerText = `$${totalEgresos.toFixed(2)}`;
+            document.getElementById('fin-total-egresos-ves').innerText = `Bs. ${(totalEgresos * tasaBCV).toFixed(2)}`;
+
+            const utilidadEl = document.getElementById('fin-utilidad-neta');
+            const utilidadVesEl = document.getElementById('fin-utilidad-neta-ves');
+            utilidadEl.innerText = `$${utilidadNeta.toFixed(2)}`;
+            utilidadVesEl.innerText = `Bs. ${(utilidadNeta * tasaBCV).toFixed(2)}`;
+
+            if(utilidadNeta < 0) {
+                utilidadEl.className = "text-2xl font-extrabold text-rose-600 mt-2";
+            } else {
+                utilidadEl.className = "text-2xl font-extrabold text-[#b88a73] mt-2";
+            }
+
+            // Llenar tabla de gastos
+            tbody.innerHTML = gastos.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin egresos registrados.</td></tr>';
+            gastos.slice().reverse().forEach((g, originalIdx) => {
+                const reverseIdx = gastos.length - 1 - originalIdx;
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
+                        <td class="p-3 text-xs text-gray-500">${g.fecha}</td>
                         <td class="p-3 font-semibold text-[#2c2c2c]">${g.concepto}</td>
                         <td class="p-3 text-xs"><span class="bg-[#faf8f6] px-2 py-1 rounded border border-[#e8dbd3]">${g.categoria}</span></td>
                         <td class="p-3 text-rose-600 font-bold">$${parseFloat(g.monto).toFixed(2)}</td>
-                        <td class="p-3 text-xs text-gray-500">${g.fecha}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="eliminarGasto(${reverseIdx})" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </td>
                     </tr>
                 `;
             });

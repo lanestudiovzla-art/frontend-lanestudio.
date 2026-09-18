@@ -119,7 +119,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm">
                     <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Ventas Totales</p>
-                    <h3 id="dash-ventas" class="text-2xl font-bold text-[#b88a73] mt-2">$0.00</h3>
+                    <h3 id="dash-ventas" class="text-xl font-bold text-[#b88a73] mt-2">$0.00 <span class="block text-xs font-normal text-gray-500">Bs. 0.00</span></h3>
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm">
                     <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Insumos Registrados</p>
@@ -493,7 +493,7 @@
             </div>
         </section>
 
-        <!-- MÓDULO: CAJA Y PAGOS CON NAVEGACIÓN TOTAL POR TECLADO -->
+        <!-- MÓDULO: CAJA Y PAGOS CON DOBLE MONEDA EN RESUMEN -->
         <section id="module-caja" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
@@ -501,7 +501,7 @@
                 <div class="lg:col-span-2 space-y-5">
                     <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
                         <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cash-register text-[#b88a73] mr-2"></i> Caja Rápida / Punto de Venta</h2>
-                        <span class="text-xs bg-[#faf8f6] border border-[#e8dbd3] px-3 py-1 rounded-full text-gray-600 font-medium"><i class="fa-solid fa-keyboard text-[#b88a73] mr-1"></i> Navegación por teclado activada (↑ ↓ Enter)</span>
+                        <span class="text-xs bg-[#faf8f6] border border-[#e8dbd3] px-3 py-1 rounded-full text-gray-600 font-medium"><i class="fa-solid fa-keyboard text-[#b88a73] mr-1"></i> Teclado activado (↑ ↓ Enter)</span>
                     </div>
                     
                     <!-- Datos del Cliente -->
@@ -583,23 +583,32 @@
                     </div>
                 </div>
 
-                <!-- Columna Derecha: Resumen y Botón Final (1 col) -->
+                <!-- Columna Derecha: Resumen con Doble Moneda y Botón Final (1 col) -->
                 <div class="bg-[#faf8f6] p-5 rounded-2xl border border-[#e8dbd3] flex flex-col justify-between space-y-6">
                     <div class="space-y-4">
                         <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider border-b border-[#e8dbd3] pb-2">Resumen de Cobro</h3>
                         
-                        <div class="space-y-3 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-gray-500">Total Factura:</span>
-                                <span id="resumen-total" class="font-bold text-[#2c2c2c] text-base">$0.00</span>
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-500 font-semibold">Total Factura:</span>
+                                <div class="text-right">
+                                    <span id="resumen-total" class="font-bold text-[#2c2c2c] text-sm block">$0.00</span>
+                                    <span id="resumen-total-ves" class="text-gray-500 block">Bs. 0.00</span>
+                                </div>
                             </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-500">Total Abonado:</span>
-                                <span id="resumen-abonado" class="font-bold text-[#b88a73] text-base">$0.00</span>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-500 font-semibold">Total Abonado:</span>
+                                <div class="text-right">
+                                    <span id="resumen-abonado" class="font-bold text-[#b88a73] text-sm block">$0.00</span>
+                                    <span id="resumen-abonado-ves" class="text-gray-500 block">Bs. 0.00</span>
+                                </div>
                             </div>
-                            <div class="flex justify-between border-t border-[#e8dbd3] pt-3">
+                            <div class="flex justify-between items-center border-t border-[#e8dbd3] pt-3">
                                 <span class="text-gray-500 font-semibold">Restante / Vuelto:</span>
-                                <span id="resumen-restante" class="font-bold text-amber-600 text-base">$0.00</span>
+                                <div class="text-right">
+                                    <span id="resumen-restante" class="font-bold text-amber-600 text-sm block">Falta: $0.00</span>
+                                    <span id="resumen-restante-ves" class="text-gray-500 block">Bs. 0.00</span>
+                                </div>
                             </div>
                         </div>
 
@@ -752,7 +761,7 @@
 
     </main>
 
-    <!-- Script Lógico Integral con Navegación por Teclado en Autocompletado -->
+    <!-- Script Lógico Integral con Doble Moneda -->
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwB5AHv2GeTl3_FDqnpsf6DQS9DZTw6Z04DsQXrHAM_UDu9d4QaOxgxw-URvfetRR80iQ/exec';
 
@@ -921,6 +930,7 @@
                 if(tasaDocEl) tasaDocEl.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
                 recalcularPresupuestoTotal();
                 actualizarTotalesCaja();
+                recalcularRestanteCaja();
             }
         }
 
@@ -1159,10 +1169,12 @@
         function cargarDashboard() {
             let ventas = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
             let totalVentasUSD = ventas.reduce((acc, v) => acc + (parseFloat(v.total_usd) || 0), 0);
+            let totalVentasVES = totalVentasUSD * tasaBCV;
+            
             let insumos = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
             let clientes = JSON.parse(localStorage.getItem('lan_clientes') || '[]');
 
-            document.getElementById('dash-ventas').innerText = `$${totalVentasUSD.toFixed(2)}`;
+            document.getElementById('dash-ventas').innerHTML = `$${totalVentasUSD.toFixed(2)} <span class="block text-xs font-normal text-gray-500">Bs. ${totalVentasVES.toFixed(2)}</span>`;
             document.getElementById('dash-insumos').innerText = insumos.length;
             document.getElementById('dash-clientes').innerText = clientes.length;
 
@@ -1773,7 +1785,7 @@
             area.style.margin = '';
         }
 
-        // FUNCIONES DE LA CAJA CON NAVEGACIÓN POR TECLADO EN AUTOCOMPLETADO
+        // FUNCIONES DE LA CAJA CON DOBLE MONEDA EN RESUMEN Y TECLADO
         let cajaItemIdx = 0;
         function agregarItemCajaFila(nombre = '', cant = 1, precio = 0) {
             cajaItemIdx++;
@@ -1801,7 +1813,6 @@
             `;
             tbody.insertAdjacentHTML('beforeend', html);
             
-            // Configurar eventos de teclado y autocompletado para esta fila nueva
             const row = document.getElementById(rowId);
             const inputEl = row.querySelector('.caja-search-input');
             const suggestionsBox = row.querySelector('.autocomplete-suggestions');
@@ -1887,7 +1898,6 @@
                 });
             }
 
-            // Enfocar automáticamente el nuevo input de búsqueda
             inputEl.focus();
             recalcularTotalesCaja();
         }
@@ -1903,7 +1913,10 @@
             document.getElementById('caja-total-usd').value = totalUSD.toFixed(2);
             const totalVES = totalUSD * tasaBCV;
             document.getElementById('caja-total-ves').value = `Bs. ${totalVES.toFixed(2)}`;
+            
             document.getElementById('resumen-total').innerText = `$${totalUSD.toFixed(2)}`;
+            document.getElementById('resumen-total-ves').innerText = `Bs. ${totalVES.toFixed(2)}`;
+            
             calcularRestanteCaja();
         }
 
@@ -1975,19 +1988,26 @@
             document.querySelectorAll('.pago-item .monto-pago').forEach(input => {
                 abonado += parseFloat(input.value) || 0;
             });
+
             document.getElementById('resumen-abonado').innerText = `$${abonado.toFixed(2)}`;
+            document.getElementById('resumen-abonado-ves').innerText = `Bs. ${(abonado * tasaBCV).toFixed(2)}`;
+            
             const restante = total - abonado;
             const restanteEl = document.getElementById('resumen-restante');
+            const restanteVesEl = document.getElementById('resumen-restante-ves');
             
             if(restante > 0) {
                 restanteEl.innerText = `Falta: $${restante.toFixed(2)}`;
-                restanteEl.className = "font-bold text-rose-600 text-base";
+                restanteEl.className = "font-bold text-rose-600 text-sm block";
+                restanteVesEl.innerText = `Bs. ${(restante * tasaBCV).toFixed(2)}`;
             } else if (restante < 0) {
                 restanteEl.innerText = `Vuelto: $${Math.abs(restante).toFixed(2)}`;
-                restanteEl.className = "font-bold text-emerald-600 text-base";
+                restanteEl.className = "font-bold text-emerald-600 text-sm block";
+                restanteVesEl.innerText = `Bs. ${(Math.abs(restante) * tasaBCV).toFixed(2)}`;
             } else {
                 restanteEl.innerText = "Pagado Exacto";
-                restanteEl.className = "font-bold text-emerald-600 text-base";
+                restanteEl.className = "font-bold text-emerald-600 text-sm block";
+                restanteVesEl.innerText = "Bs. 0.00";
             }
         }
 
@@ -2084,7 +2104,7 @@
                         <td class="p-3 text-xs text-gray-500">${d}</td>
                         <td class="p-3 font-semibold text-[#2c2c2c]">${v.cliente}</td>
                         <td class="p-3 text-xs text-gray-700 max-w-xs truncate" title="${v.concepto}">${v.concepto}</td>
-                        <td class="p-3 font-bold text-[#b88a73]">$${parseFloat(v.total_usd).toFixed(2)}</td>
+                        <td class="p-3 font-bold text-[#b88a73]">$${parseFloat(v.total_usd).toFixed(2)} <span class="block text-[11px] font-normal text-gray-500">Bs. ${(v.total_usd * tasaBCV).toFixed(2)}</span></td>
                         <td class="p-3 text-xs text-gray-600">${v.metodos_pago}</td>
                     </tr>
                 `;

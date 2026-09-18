@@ -73,7 +73,7 @@
         </div>
     </header>
 
-    <!-- Navegación General Rediseñada (Estructura Limpia y Menú Desplegable) -->
+    <!-- Navegación General Rediseñada -->
     <nav class="bg-white border-b border-[#e8dbd3] px-6 py-3 flex flex-wrap items-center justify-between shadow-xs relative">
         <div class="flex space-x-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
             <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap"><i class="fa-solid fa-chart-pie mr-2"></i>Dashboard</button>
@@ -82,7 +82,7 @@
             <button onclick="switchTab('caja')" id="tab-caja" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-cash-register mr-2"></i>Caja y Pagos</button>
         </div>
 
-        <!-- Menú Desplegable "Más Herramientas" para despejar la barra principal -->
+        <!-- Menú Desplegable "Más Herramientas" -->
         <div class="relative mt-2 sm:mt-0">
             <button onclick="toggleMenuDropdown()" id="btn-dropdown-menu" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-2">
                 <i class="fa-solid fa-toolbox text-[#b88a73]"></i>
@@ -137,7 +137,7 @@
                             <tr>
                                 <th class="p-3">Fecha</th>
                                 <th class="p-3">Cliente</th>
-                                <th class="p-3">Concepto</th>
+                                <th class="p-3">Concepto / Ítems</th>
                                 <th class="p-3">Total</th>
                                 <th class="p-3">Métodos de Pago</th>
                             </tr>
@@ -396,7 +396,7 @@
                     </div>
                 </div>
 
-                <!-- Contenedor Imprimible del Presupuesto con Padding Seguro -->
+                <!-- Contenedor Imprimible del Presupuesto -->
                 <div class="w-full flex justify-center py-2 overflow-x-auto">
                     <div id="area-impresion-presupuesto" class="bg-white p-8 rounded-2xl border-2 border-[#b88a73] space-y-6 shadow-xs w-full max-w-4xl mx-auto">
                         
@@ -487,29 +487,46 @@
             </div>
         </section>
 
-        <!-- MÓDULO: FACTURA / CAJA Y PAGOS REDISEÑADO (RÁPIDO Y VISUAL) -->
+        <!-- MÓDULO: CAJA Y PAGOS CON DETALLE DE ÍTEMS Y DESCUENTO AUTOMÁTICO DE INVENTARIO -->
         <section id="module-caja" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                <!-- Columna Izquierda: Datos y Pagos Rápidos (2 cols) -->
+                <!-- Columna Izquierda: Datos, Tabla de Ítems y Pagos Rápidos (2 cols) -->
                 <div class="lg:col-span-2 space-y-5">
                     <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
                         <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cash-register text-[#b88a73] mr-2"></i> Caja Rápida / Punto de Venta</h2>
-                        <span class="text-xs bg-[#faf8f6] border border-[#e8dbd3] px-3 py-1 rounded-full text-gray-600 font-medium">Cobro ágil en 1 clic</span>
+                        <span class="text-xs bg-[#faf8f6] border border-[#e8dbd3] px-3 py-1 rounded-full text-gray-600 font-medium">Inventario se descuenta solo</span>
                     </div>
                     
-                    <!-- Datos Principales -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Cliente (CRM)</label>
-                            <select id="caja-cliente" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]" onchange="manejarCambioClienteCaja(this)">
-                                <option value="Cliente General">-- Cliente General --</option>
-                                <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
-                            </select>
+                    <!-- Datos del Cliente -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Cliente (CRM)</label>
+                        <select id="caja-cliente" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]" onchange="manejarCambioClienteCaja(this)">
+                            <option value="Cliente General">-- Cliente General --</option>
+                            <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
+                        </select>
+                    </div>
+
+                    <!-- TABLA DE DETALLE DE ÍTEMS A FACTURAR (NUEVO) -->
+                    <div class="space-y-2 bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3]">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-list-check text-[#b88a73] mr-1"></i> Detalle de Servicios / Insumos a Facturar</span>
+                            <button onclick="agregarItemCajaFila()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-plus mr-1"></i> Añadir Ítem</button>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Concepto / Servicio</label>
-                            <input type="text" id="caja-concepto" placeholder="Ej: Servicio de diseño e impresión" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-gray-700">
+                                <thead class="bg-white text-gray-500 uppercase border-b border-[#e8dbd3]">
+                                    <tr>
+                                        <th class="p-2 w-[50%]">Descripción / Insumo</th>
+                                        <th class="p-2 w-[15%] text-center">Cant</th>
+                                        <th class="p-2 w-[20%] text-right">Precio ($)</th>
+                                        <th class="p-2 w-[15%] text-center">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lista-items-caja">
+                                    <!-- Inyectado dinámicamente -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
@@ -517,7 +534,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3]">
                         <div>
                             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Total a Pagar ($)</label>
-                            <input type="number" id="caja-total-usd" value="50.00" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-xl font-extrabold text-[#b88a73] focus:outline-none focus:border-[#b88a73]" oninput="actualizarTotalesCaja()">
+                            <input type="number" id="caja-total-usd" value="0.00" step="0.01" readonly class="w-full bg-white border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-xl font-extrabold text-[#b88a73] focus:outline-none">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Total en Bolívares (VES)</label>
@@ -548,7 +565,7 @@
                         </div>
                     </div>
 
-                    <!-- Lista de Pagos Aplicados (Compacta y Limpia) -->
+                    <!-- Lista de Pagos Aplicados -->
                     <div class="space-y-2">
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Pagos Registrados en esta Transacción</span>
@@ -556,17 +573,6 @@
                         </div>
                         <div id="lista-pagos" class="space-y-2 max-h-40 overflow-y-auto pr-1">
                             <!-- Inyectado dinámicamente -->
-                        </div>
-                    </div>
-
-                    <!-- Insumo a Descontar (Opcional Colapsable) -->
-                    <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3] space-y-2">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-semibold text-gray-600"><i class="fa-solid fa-boxes-stacked mr-1 text-[#b88a73]"></i> Descontar Insumo del Inventario (Opcional)</span>
-                            <button onclick="agregarFilaDescuentoCaja()" class="text-xs bg-[#2c2c2c] text-white px-2 py-1 rounded-lg">Vincular Insumo</button>
-                        </div>
-                        <div id="lista-descuento-insumos" class="space-y-1.5">
-                            <!-- Dinámico -->
                         </div>
                     </div>
                 </div>
@@ -592,8 +598,8 @@
                         </div>
 
                         <div class="bg-white p-3 rounded-xl border border-[#e8dbd3] text-xs text-gray-500 space-y-1">
-                            <p class="font-semibold text-gray-700"><i class="fa-solid fa-circle-info text-[#b88a73] mr-1"></i> Nota de Caja:</p>
-                            <p>Haz clic en los botones superiores de pago rápido para cobrar el monto exacto en un segundo, o añade pagos parciales si el cliente divide su forma de pago.</p>
+                            <p class="font-semibold text-gray-700"><i class="fa-solid fa-circle-info text-[#b88a73] mr-1"></i> Nota de Inventario:</p>
+                            <p>Cualquier ítem añadido en la factura cuyo nombre coincida con un insumo de tu inventario se descontará automáticamente al procesar la venta.</p>
                         </div>
                     </div>
 
@@ -757,7 +763,6 @@
             }
         }
 
-        // Cerrar el dropdown si se hace clic fuera de él
         window.addEventListener('click', function(e) {
             const dropdown = document.getElementById('dropdown-menu-content');
             const btn = document.getElementById('btn-dropdown-menu');
@@ -766,7 +771,7 @@
             }
         });
 
-        // Actualizar reloj y fecha en formato 12 horas en tiempo real
+        // Reloj y Fecha Automática en formato 12 Horas
         function actualizarRelojFecha() {
             const ahora = new Date();
             const opcionesFecha = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
@@ -812,10 +817,13 @@
                 cargarDashboard();
             }
             if(tabId === 'caja') {
-                actualizarTotalesCaja();
                 cargarClientesEnSelects();
                 cargarRegistrosCajaEditable();
-                document.getElementById('lista-descuento-insumos').innerHTML = '';
+                if(document.querySelectorAll('#lista-items-caja tr').length === 0) {
+                    agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 50.00);
+                } else {
+                    recalcularTotalesCaja();
+                }
             }
             if(tabId === 'standby') {
                 cargarCotizacionesStandBy();
@@ -853,7 +861,7 @@
 
         window.addEventListener('hashchange', syncRoute);
 
-        // Actualización Automática Diaria del BCV y soporte manual
+        // Actualización Automática Diaria del BCV
         async function fetchBCVRate() {
             const inputEl = document.getElementById('bcv-rate-input');
             const hoyStr = new Date().toISOString().split('T')[0];
@@ -912,7 +920,6 @@
             }
         }
 
-        // FUNCIONES DE CARGA Y GESTIÓN LOCAL (Insumos, Servicios, Clientes, Gastos, Ventas)
         async function cargarInsumosBase() {
             listaInsumosDB = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
         }
@@ -1313,23 +1320,30 @@
             }
         }
 
+        // ENVIAR STAND BY A CAJA CON DETALLE DE ÍTEMS
         function enviarStandByACaja(cot) {
             switchTab('caja');
             setTimeout(() => {
                 const clienteSelect = document.getElementById('caja-cliente');
                 if(clienteSelect) clienteSelect.value = cot.cliente;
 
-                let itemsResumen = cot.items;
+                const tbody = document.getElementById('lista-items-caja');
+                tbody.innerHTML = '';
+
                 try {
                     const parsed = JSON.parse(cot.items);
-                    if (Array.isArray(parsed)) {
-                        itemsResumen = parsed.map(i => `${i.cant}x ${i.desc}`).join(' + ');
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        parsed.forEach(i => {
+                            agregarItemCajaFila(i.desc, i.cant, i.precio);
+                        });
+                    } else {
+                        agregarItemCajaFila('Presupuesto Stand By #' + cot.id, 1, cot.total_usd);
                     }
-                } catch(e) {}
+                } catch(e) {
+                    agregarItemCajaFila('Presupuesto / Servicios', 1, cot.total_usd);
+                }
 
-                document.getElementById('caja-concepto').value = itemsResumen;
-                document.getElementById('caja-total-usd').value = cot.total_usd;
-                actualizarTotalesCaja();
+                recalcularTotalesCaja();
             }, 200);
         }
 
@@ -1769,26 +1783,70 @@
             area.style.margin = '';
         }
 
-        function agregarFilaDescuentoCaja() {
-            const contenedor = document.getElementById('lista-descuento-insumos');
-            const rowId = `desc-insumo-${Date.now()}`;
-            
-            let opciones = '<option value="">-- Seleccionar Insumo a Descontar --</option>';
-            let insumosLocal = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            insumosLocal.forEach(i => {
-                opciones += `<option value="${i.nombre}">${i.nombre} (Stock actual: ${i.stock})</option>`;
+        // FUNCIONES DE LA TABLA DE ÍTEMS EN CAJA Y CÁLCULO AUTOMÁTICO
+        let cajaItemIdx = 0;
+        function agregarItemCajaFila(nombre = '', cant = 1, precio = 0) {
+            cajaItemIdx++;
+            const tbody = document.getElementById('lista-items-caja');
+            const rowId = `caja-item-${cajaItemIdx}`;
+
+            let opcionesInsumos = '<option value="">-- Seleccionar de Insumos / Servicios --</option>';
+            listaInsumosDB.forEach(i => {
+                opcionesInsumos += `<option value="${i.nombre}" data-precio="${i.costo_unitario * 1.5}">${i.nombre} (Insumo - Stock: ${i.stock})</option>`;
+            });
+            listaServiciosDB.forEach(s => {
+                opcionesInsumos += `<option value="${s.nombre}" data-precio="${s.precio}">${s.nombre} (Servicio - $${s.precio})</option>`;
             });
 
             const html = `
-                <div id="${rowId}" class="flex space-x-2 items-center desc-insumo-row">
-                    <select class="w-2/3 bg-white border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs select-insumo-caja">
-                        ${opciones}
-                    </select>
-                    <input type="number" value="1" min="1" placeholder="Cant." class="w-1/4 bg-white border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs text-center cant-insumo-caja">
-                    <button onclick="document.getElementById('${rowId}').remove()" class="text-rose-500 text-xs px-2"><i class="fa-solid fa-trash"></i></button>
-                </div>
+                <tr id="${rowId}" class="border-b border-[#e8dbd3] caja-item-row">
+                    <td class="p-2">
+                        <select class="w-full bg-white border border-[#e8dbd3] rounded px-1 py-1 text-[11px] mb-1 select-item-catalogo" onchange="seleccionarCatalogoCaja('${rowId}')">
+                            ${opcionesInsumos}
+                        </select>
+                        <input type="text" value="${nombre}" placeholder="Descripción del ítem" class="w-full bg-white border border-[#e8dbd3] rounded px-2 py-1 text-xs caja-desc-input font-medium">
+                    </td>
+                    <td class="p-2 text-center">
+                        <input type="number" value="${cant}" min="1" class="w-full bg-white border border-[#e8dbd3] rounded px-1 py-1 text-xs text-center caja-cant-input font-medium" oninput="recalcularTotalesCaja()">
+                    </td>
+                    <td class="p-2 text-right">
+                        <input type="number" step="0.01" value="${parseFloat(precio).toFixed(2)}" class="w-full bg-white border border-[#e8dbd3] rounded px-1 py-1 text-xs text-right caja-precio-input font-bold text-[#b88a73]" oninput="recalcularTotalesCaja()">
+                    </td>
+                    <td class="p-2 text-center">
+                        <button onclick="document.getElementById('${rowId}').remove(); recalcularTotalesCaja();" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
             `;
-            contenedor.insertAdjacentHTML('beforeend', html);
+            tbody.insertAdjacentHTML('beforeend', html);
+            recalcularTotalesCaja();
+        }
+
+        function seleccionarCatalogoCaja(rowId) {
+            const row = document.getElementById(rowId);
+            const select = row.querySelector('.select-item-catalogo');
+            const selectedOpt = select.options[select.selectedIndex];
+            const precioBase = parseFloat(selectedOpt.getAttribute('data-precio')) || 0;
+            
+            row.querySelector('.caja-desc-input').value = select.value;
+            if(precioBase > 0) {
+                row.querySelector('.caja-precio-input').value = precioBase.toFixed(2);
+            }
+            recalcularTotalesCaja();
+        }
+
+        function recalcularTotalesCaja() {
+            let totalUSD = 0;
+            document.querySelectorAll('.caja-item-row').forEach(row => {
+                const cant = parseFloat(row.querySelector('.caja-cant-input').value) || 0;
+                const precio = parseFloat(row.querySelector('.caja-precio-input').value) || 0;
+                totalUSD += (cant * precio);
+            });
+
+            document.getElementById('caja-total-usd').value = totalUSD.toFixed(2);
+            const totalVES = totalUSD * tasaBCV;
+            document.getElementById('caja-total-ves').value = `Bs. ${totalVES.toFixed(2)}`;
+            document.getElementById('resumen-total').innerText = `$${totalUSD.toFixed(2)}`;
+            calcularRestanteCaja();
         }
 
         let pagoIndex = 0;
@@ -1853,14 +1911,6 @@
             calcularRestanteCaja();
         }
 
-        function actualizarTotalesCaja() {
-            const totalUSD = parseFloat(document.getElementById('caja-total-usd').value) || 0;
-            const totalVES = totalUSD * tasaBCV;
-            document.getElementById('caja-total-ves').value = `Bs. ${totalVES.toFixed(2)}`;
-            document.getElementById('resumen-total').innerText = `$${totalUSD.toFixed(2)}`;
-            calcularRestanteCaja();
-        }
-
         function calcularRestanteCaja() {
             const total = parseFloat(document.getElementById('caja-total-usd').value) || 0;
             let abonado = 0;
@@ -1886,11 +1936,29 @@
             }
         }
 
+        // PROCESAR PAGO Y DESCONTAR INVENTARIO AUTOMÁTICO BASADO EN LOS ÍTEMS DE LA FACTURA
         async function procesarPagoFinal() {
             const cliente = document.getElementById('caja-cliente').value;
-            const concepto = document.getElementById('caja-concepto').value || 'Venta General';
             const totalUSD = parseFloat(document.getElementById('caja-total-usd').value) || 0;
             
+            if(totalUSD <= 0) {
+                alert("La factura está vacía o el total es $0.00.");
+                return;
+            }
+
+            let itemsFactura = [];
+            document.querySelectorAll('.caja-item-row').forEach(row => {
+                const desc = row.querySelector('.caja-desc-input').value.trim();
+                const cant = parseInt(row.querySelector('.caja-cant-input').value) || 1;
+                const precio = parseFloat(row.querySelector('.caja-precio-input').value) || 0;
+                if(desc) itemsFactura.push({ desc, cant, precio });
+            });
+
+            if(itemsFactura.length === 0) {
+                alert("Añade al menos un ítem a la factura.");
+                return;
+            }
+
             let metodosPago = [];
             let totalAbonado = 0;
             
@@ -1908,40 +1976,43 @@
                 if(!confirm(`El pago está incompleto. Faltan $${(totalUSD - totalAbonado).toFixed(2)}. ¿Deseas procesar la venta de todas formas?`)) return;
             }
 
+            // DESCUENTO AUTOMÁTICO DE INVENTARIO BASADO EN EL NOMBRE DE LOS ÍTEMS
             let insumosLocal = JSON.parse(localStorage.getItem('lan_insumos') || '[]');
-            document.querySelectorAll('.desc-insumo-row').forEach(row => {
-                const nombreInsumo = row.querySelector('.select-insumo-caja').value;
-                const cantAUsar = parseInt(row.querySelector('.cant-insumo-caja').value) || 0;
-                
-                if(nombreInsumo && cantAUsar > 0) {
-                    let insumoEncontrado = insumosLocal.find(i => i.nombre === nombreInsumo);
-                    if(insumoEncontrado) {
-                        insumoEncontrado.stock = Math.max(0, parseInt(insumoEncontrado.stock) - cantAUsar);
-                        if(insumoEncontrado.stock <= (parseInt(insumoEncontrado.stock_minimo) || 0)) {
-                            alert(`⚠️ ¡Alerta de Stock! El insumo "${insumoEncontrado.nombre}" ha quedado en ${insumoEncontrado.stock} unidades (por debajo o igual al mínimo estipulado).`);
-                        }
+            let alertasStockBajo = [];
+
+            itemsFactura.forEach(item => {
+                let insumoEncontrado = insumosLocal.find(i => i.nombre.toLowerCase() === item.desc.toLowerCase());
+                if(insumoEncontrado) {
+                    insumoEncontrado.stock = Math.max(0, parseInt(insumoEncontrado.stock) - item.cant);
+                    if(insumoEncontrado.stock <= (parseInt(insumoEncontrado.stock_minimo) || 0)) {
+                        alertasStockBajo.push(`⚠️ ${insumoEncontrado.nombre} (Stock actual: ${insumoEncontrado.stock})`);
                     }
                 }
             });
             localStorage.setItem('lan_insumos', JSON.stringify(insumosLocal));
 
+            if(alertasStockBajo.length > 0) {
+                alert(`¡Venta procesada con éxito!\n\n⚠️ Los siguientes insumos alcanzaron o pasaron su stock mínimo:\n` + alertasStockBajo.join('\n'));
+            } else {
+                alert("¡Venta procesada y stock descontado automáticamente con éxito!");
+            }
+
+            const conceptoResumen = itemsFactura.map(i => `${i.cant}x ${i.desc}`).join(' + ');
             const metodosStr = metodosPago.join(' | ');
 
             let ventasLocales = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
             ventasLocales.push({
                 fecha: new Date().toISOString(),
                 cliente: cliente,
-                concepto: concepto,
+                concepto: conceptoResumen,
                 total_usd: totalUSD,
                 metodos_pago: metodosStr || 'No especificado'
             });
             localStorage.setItem('lan_ventas', JSON.stringify(ventasLocales));
 
-            alert("Venta procesada y stock descontado con éxito.");
-            document.getElementById('caja-concepto').value = '';
-            document.getElementById('caja-total-usd').value = '0.00';
+            document.getElementById('lista-items-caja').innerHTML = '';
             document.getElementById('lista-pagos').innerHTML = '';
-            document.getElementById('lista-descuento-insumos').innerHTML = '';
+            agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
             actualizarTotalesCaja();
             switchTab('dashboard');
             cargarDashboard();
@@ -1960,7 +2031,7 @@
                     <tr class="border-b border-[#e8dbd3]">
                         <td class="p-3 text-xs text-gray-500">${d}</td>
                         <td class="p-3 font-semibold text-[#2c2c2c]">${v.cliente}</td>
-                        <td class="p-3 text-xs text-gray-700">${v.concepto}</td>
+                        <td class="p-3 text-xs text-gray-700 max-w-xs truncate" title="${v.concepto}">${v.concepto}</td>
                         <td class="p-3 font-bold text-[#b88a73]">$${parseFloat(v.total_usd).toFixed(2)}</td>
                         <td class="p-3 text-xs text-gray-600">${v.metodos_pago}</td>
                     </tr>

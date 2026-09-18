@@ -969,13 +969,22 @@
             </div>
         </section>
 
-        <!-- CONTROL FINANCIERO MEJORADO (P&L) -->
+        <!-- CONTROL FINANCIERO MEJORADO (P&L, FILTROS Y CATEGORÍAS) -->
         <section id="module-finanzas" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
+                
+                <!-- Encabezado y Selector Dinámico de Meses -->
+                <div class="flex flex-wrap justify-between items-center border-b border-[#e8dbd3] pb-4 gap-4">
                     <div>
                         <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-wallet text-[#b88a73] mr-2"></i> Control Financiero y Balance (P&L)</h2>
                         <p class="text-xs text-gray-500">Resumen en tiempo real de ingresos por ventas, egresos operativos y utilidad neta.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs font-semibold text-gray-600">Periodo:</label>
+                        <select id="filtro-periodo" onchange="cargarGastosYBalance()" class="bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-3 py-1.5 text-xs font-semibold text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]">
+                            <option value="este_mes">Este Mes (Actual)</option>
+                            <option value="todos">Todo el Histórico</option>
+                        </select>
                     </div>
                 </div>
 
@@ -995,6 +1004,29 @@
                         <p class="text-xs uppercase tracking-wider text-[#b88a73] font-bold">Utilidad Neta (Beneficio)</p>
                         <h3 id="fin-utilidad-neta" class="text-2xl font-extrabold text-[#2c2c2c] mt-2">$0.00</h3>
                         <p id="fin-utilidad-neta-ves" class="text-xs text-gray-500 mt-1">Bs. 0.00</p>
+                    </div>
+                </div>
+
+                <!-- Desglose por Categorías de Egresos -->
+                <div class="bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3] space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-chart-pie mr-1 text-[#b88a73]"></i> Desglose de Gastos por Categoría (Periodo Seleccionado)</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                        <div class="bg-white p-3 rounded-xl border border-[#e8dbd3]">
+                            <span class="text-gray-500 block font-medium">Operativo</span>
+                            <span id="cat-operativo" class="font-bold text-[#2c2c2c] text-sm">$0.00</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-[#e8dbd3]">
+                            <span class="text-gray-500 block font-medium">Insumos</span>
+                            <span id="cat-insumos" class="font-bold text-[#2c2c2c] text-sm">$0.00</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-[#e8dbd3]">
+                            <span class="text-gray-500 block font-medium">Marketing</span>
+                            <span id="cat-marketing" class="font-bold text-[#2c2c2c] text-sm">$0.00</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-[#e8dbd3]">
+                            <span class="text-gray-500 block font-medium">Otros</span>
+                            <span id="cat-otros" class="font-bold text-[#2c2c2c] text-sm">$0.00</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1476,7 +1508,7 @@
             cargarClientesEnSelects();
         }
 
-        // ================= CONTROL FINANCIERO MEJORADO (P&L) =================
+        // ================= CONTROL FINANCIERO DINÁMICO =================
         function guardarGasto() {
             const concepto = document.getElementById('gasto-concepto').value.trim();
             const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
@@ -1485,7 +1517,14 @@
             if(!concepto || monto <= 0) { alert("Introduce un concepto y monto válido."); return; }
 
             let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
-            gastos.push({ concepto, monto, categoria, fecha: new Date().toLocaleDateString() });
+            
+            gastos.push({ 
+                concepto, 
+                monto, 
+                categoria, 
+                fechaISO: new Date().toISOString(),
+                fecha: new Date().toLocaleDateString() 
+            });
             localStorage.setItem('lan_gastos', JSON.stringify(gastos));
 
             document.getElementById('gasto-concepto').value = '';
@@ -1502,18 +1541,113 @@
             cargarGastosYBalance();
         }
 
+        function poblarSelectorPeriodos() {
+            const select = document.getElementById('filtro-periodo');
+            if(!select) return;
+            const valorActual = select.value;
+
+            let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
+            let ventas = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
+            
+            let periodosSet = new Set();
+            gastos.forEach(g => {
+                if(g.fechaISO) {
+                    const d = new Date(g.fechaISO);
+                    periodosSet.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+                }
+            });
+            ventas.forEach(v => {
+                if(v.fechaISO) {
+                    const d = new Date(v.fechaISO);
+                    periodosSet.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+                }
+            });
+
+            const ahora = new Date();
+            const mesActualStr = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}`;
+            periodosSet.add(mesActualStr);
+
+            let periodosOrdenados = Array.from(periodosSet).sort().reverse();
+            const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+            let html = `
+                <option value="este_mes">Este Mes (Actual)</option>
+                <option value="todos">Todo el Histórico</option>
+            `;
+
+            periodosOrdenados.forEach(p => {
+                const [anio, mes] = p.split('-');
+                const nombreMes = nombresMeses[parseInt(mes) - 1];
+                html += `<option value="${p}">${nombreMes} ${anio}</option>`;
+            });
+
+            select.innerHTML = html;
+            if(valorActual && select.querySelector(`option[value="${valorActual}"]`)) {
+                select.value = valorActual;
+            } else {
+                select.value = 'este_mes';
+            }
+        }
+
         function cargarGastosYBalance() {
             const tbody = document.getElementById('tabla-gastos');
             if(!tbody) return;
 
+            // Poblamos el selector de meses dinámicamente al cargar
+            poblarSelectorPeriodos();
+
             let gastos = JSON.parse(localStorage.getItem('lan_gastos') || '[]');
             let ventas = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
+            let filtro = document.getElementById('filtro-periodo').value;
 
-            let totalIngresos = ventas.reduce((acc, v) => acc + (parseFloat(v.total_usd) || 0), 0);
-            let totalEgresos = gastos.reduce((acc, g) => acc + (parseFloat(g.monto) || 0), 0);
+            const ahora = new Date();
+            const mesActual = ahora.getMonth();
+            const anioActual = ahora.getFullYear();
+
+            // Filtrar gastos según periodo seleccionado (este_mes, todos, o YYYY-MM)
+            let gastosFiltrados = gastos.filter(g => {
+                const fechaObj = g.fechaISO ? new Date(g.fechaISO) : new Date();
+                if (filtro === 'este_mes') {
+                    return fechaObj.getMonth() === mesActual && fechaObj.getFullYear() === anioActual;
+                } else if (filtro === 'todos') {
+                    return true;
+                } else {
+                    const [anioSel, mesSel] = filtro.split('-');
+                    return fechaObj.getFullYear() == anioSel && (fechaObj.getMonth() + 1) == mesSel;
+                }
+            });
+
+            // Filtrar ventas según periodo seleccionado
+            let ventasFiltradas = ventas.filter(v => {
+                const fechaObj = v.fechaISO ? new Date(v.fechaISO) : new Date();
+                if (filtro === 'este_mes') {
+                    return fechaObj.getMonth() === mesActual && fechaObj.getFullYear() === anioActual;
+                } else if (filtro === 'todos') {
+                    return true;
+                } else {
+                    const [anioSel, mesSel] = filtro.split('-');
+                    return fechaObj.getFullYear() == anioSel && (fechaObj.getMonth() + 1) == mesSel;
+                }
+            });
+
+            let totalIngresos = ventasFiltradas.reduce((acc, v) => acc + (parseFloat(v.total_usd) || 0), 0);
+            let totalEgresos = gastosFiltrados.reduce((acc, g) => acc + (parseFloat(g.monto) || 0), 0);
             let utilidadNeta = totalIngresos - totalEgresos;
 
-            // Actualizar tarjetas de balance
+            let catOperativo = 0, catInsumos = 0, catMarketing = 0, catOtros = 0;
+            gastosFiltrados.forEach(g => {
+                const m = parseFloat(g.monto) || 0;
+                if (g.categoria === 'Operativo') catOperativo += m;
+                else if (g.categoria === 'Insumos') catInsumos += m;
+                else if (g.categoria === 'Marketing') catMarketing += m;
+                else catOtros += m;
+            });
+
+            document.getElementById('cat-operativo').innerText = `$${catOperativo.toFixed(2)}`;
+            document.getElementById('cat-insumos').innerText = `$${catInsumos.toFixed(2)}`;
+            document.getElementById('cat-marketing').innerText = `$${catMarketing.toFixed(2)}`;
+            document.getElementById('cat-otros').innerText = `$${catOtros.toFixed(2)}`;
+
             document.getElementById('fin-total-ingresos').innerText = `$${totalIngresos.toFixed(2)}`;
             document.getElementById('fin-total-ingresos-ves').innerText = `Bs. ${(totalIngresos * tasaBCV).toFixed(2)}`;
 
@@ -1531,21 +1665,35 @@
                 utilidadEl.className = "text-2xl font-extrabold text-[#b88a73] mt-2";
             }
 
-            // Llenar tabla de gastos
-            tbody.innerHTML = gastos.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin egresos registrados.</td></tr>';
+            tbody.innerHTML = gastosFiltrados.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin egresos registrados para este periodo.</td></tr>';
+            
             gastos.slice().reverse().forEach((g, originalIdx) => {
                 const reverseIdx = gastos.length - 1 - originalIdx;
-                tbody.innerHTML += `
-                    <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 text-xs text-gray-500">${g.fecha}</td>
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${g.concepto}</td>
-                        <td class="p-3 text-xs"><span class="bg-[#faf8f6] px-2 py-1 rounded border border-[#e8dbd3]">${g.categoria}</span></td>
-                        <td class="p-3 text-rose-600 font-bold">$${parseFloat(g.monto).toFixed(2)}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="eliminarGasto(${reverseIdx})" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
+                const fechaObj = g.fechaISO ? new Date(g.fechaISO) : new Date();
+                
+                let cumpleFiltro = false;
+                if (filtro === 'este_mes') {
+                    cumpleFiltro = (fechaObj.getMonth() === mesActual && fechaObj.getFullYear() === anioActual);
+                } else if (filtro === 'todos') {
+                    cumpleFiltro = true;
+                } else {
+                    const [anioSel, mesSel] = filtro.split('-');
+                    cumpleFiltro = (fechaObj.getFullYear() == anioSel && (fechaObj.getMonth() + 1) == mesSel);
+                }
+                
+                if (cumpleFiltro) {
+                    tbody.innerHTML += `
+                        <tr class="border-b border-[#e8dbd3]">
+                            <td class="p-3 text-xs text-gray-500">${g.fecha}</td>
+                            <td class="p-3 font-semibold text-[#2c2c2c]">${g.concepto}</td>
+                            <td class="p-3 text-xs"><span class="bg-[#faf8f6] px-2 py-1 rounded border border-[#e8dbd3]">${g.categoria}</span></td>
+                            <td class="p-3 text-rose-600 font-bold">$${parseFloat(g.monto).toFixed(2)}</td>
+                            <td class="p-3 text-center">
+                                <button onclick="eliminarGasto(${reverseIdx})" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }
             });
         }
 
@@ -2588,7 +2736,8 @@
             const conceptoResumen = itemsFactura.map(i => `${i.cant}x ${i.desc}`).join(' + ');
             let ventasLocales = JSON.parse(localStorage.getItem('lan_ventas') || '[]');
             ventasLocales.push({
-                fecha: new Date().toISOString(),
+                fechaISO: new Date().toISOString(),
+                fecha: new Date().toLocaleDateString(),
                 cliente: cliente,
                 concepto: conceptoResumen,
                 total_usd: totalUSD,
@@ -2611,7 +2760,7 @@
             let registros = JSON.parse(localStorage.getItem('lan_ventas') || '[]').reverse().slice(0, 10);
             tbody.innerHTML = registros.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin historial reciente de ventas.</td></tr>';
             registros.forEach(v => {
-                const d = new Date(v.fecha).toLocaleDateString();
+                const d = v.fecha || new Date(v.fechaISO).toLocaleDateString();
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
                         <td class="p-3 text-xs text-gray-500">${d}</td>

@@ -10,6 +10,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- html2pdf para exportar presupuestos en PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #faf8f6; color: #2c2c2c; }
@@ -893,7 +898,7 @@
                     <input type="number" id="insumo-costo" placeholder="Costo Unit. ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="number" id="insumo-stock" placeholder="Stock Actual" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="number" id="insumo-minimo" placeholder="Stock Mínimo Alerta" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarInsumo()" class="sm:col-span-5 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Insumo en la Nube</button>
+                    <button onclick="guardarInsumo()" class="sm:col-span-5 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Insumo en Firebase</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-gray-700">
@@ -949,7 +954,7 @@
                     <input type="text" id="cliente-nombre" placeholder="Nombre o Empresa" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="text" id="cliente-tel" placeholder="Teléfono / WhatsApp" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="text" id="cliente-insta" placeholder="Instagram" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarCliente()" class="sm:col-span-3 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Guardar Cliente en la Nube</button>
+                    <button onclick="guardarCliente()" class="sm:col-span-3 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Guardar Cliente en Firebase</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-gray-700">
@@ -1081,9 +1086,21 @@
 
     </main>
 
-    <!-- Script Lógico Integral Optimizado -->
+    <!-- Script Lógico Integrado con Firebase -->
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymhGD4yejqu6y9s1UquUhXzQSs_My3qtgCC2MTUiuGwExAWcFz6zSB80tsHkr9Jeg/exec';
+        // ================= CONFIGURACIÓN DE FIREBASE =================
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2aL5Qi-ewIGYy9cCmLZ4JU_5-59p8las",
+            authDomain: "lan-estudio-f9b2b.firebaseapp.com",
+            projectId: "lan-estudio-f9b2b",
+            storageBucket: "lan-estudio-f9b2b.firebasestorage.app",
+            messagingSenderId: "456021907085",
+            appId: "1:456021907085:web:c4ee69f500f06ce5a9b4c4"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
         let tasaBCV = 807.39;
         let listaInsumosDB = [];
@@ -1091,7 +1108,6 @@
         let listaClientesDB = [];
         let listaVentasDB = [];
         let listaGastosDB = [];
-        let globalLogoHTML = `<i class="fa-solid fa-layer-group"></i>`;
 
         function toggleDropdown(type) {
             const calcDropdown = document.getElementById('dropdown-calculadoras');
@@ -1261,10 +1277,11 @@
 
         async function cargarInsumosBase() {
             try {
-                const response = await fetch(`${SCRIPT_URL}?action=insumos`);
-                if(response.ok) {
-                    listaInsumosDB = await response.json();
-                }
+                const snapshot = await db.collection('insumos').get();
+                listaInsumosDB = [];
+                snapshot.forEach(doc => {
+                    listaInsumosDB.push({ id: doc.id, ...doc.data() });
+                });
             } catch(e) {
                 listaInsumosDB = [];
             }
@@ -1276,10 +1293,11 @@
 
         async function cargarClientesEnSelects() {
             try {
-                const response = await fetch(`${SCRIPT_URL}?action=clientes`);
-                if(response.ok) {
-                    listaClientesDB = await response.json();
-                }
+                const snapshot = await db.collection('clientes').get();
+                listaClientesDB = [];
+                snapshot.forEach(doc => {
+                    listaClientesDB.push({ id: doc.id, ...doc.data() });
+                });
             } catch(e) { listaClientesDB = []; }
 
             const selects = ['presupuesto-cliente', 'caja-cliente'];
@@ -1308,17 +1326,15 @@
 
             if(!nombre) { alert("Introduce el nombre del insumo."); return; }
 
-            const url = `${SCRIPT_URL}?action=save_insumo&nombre=${encodeURIComponent(nombre)}&categoria=${encodeURIComponent(categoria)}&costo_unitario=${costo_unitario}&stock=${stock}&stock_minimo=${stock_minimo}`;
-
             try {
-                await fetch(url);
+                await db.collection('insumos').add({ nombre, categoria, costo_unitario, stock, stock_minimo });
                 document.getElementById('insumo-nombre').value = '';
                 document.getElementById('insumo-categoria').value = '';
                 document.getElementById('insumo-costo').value = '';
                 document.getElementById('insumo-stock').value = '';
                 document.getElementById('insumo-minimo').value = '';
                 await cargarInsumos();
-                alert("¡Insumo registrado en la nube con éxito!");
+                alert("¡Insumo registrado en Firebase con éxito!");
             } catch(e) { alert("Error al guardar insumo."); }
         }
 
@@ -1350,7 +1366,7 @@
         async function eliminarInsumo(id) {
             if(!confirm("¿Eliminar este insumo?")) return;
             try {
-                await fetch(`${SCRIPT_URL}?action=delete_insumo&id=${encodeURIComponent(id)}`);
+                await db.collection('insumos').doc(id).delete();
                 cargarInsumos();
             } catch(e) { alert("Error al eliminar."); }
         }
@@ -1404,16 +1420,14 @@
 
             if(!nombre) { alert("Introduce el nombre del cliente."); return; }
 
-            const url = `${SCRIPT_URL}?action=save_cliente&nombre=${encodeURIComponent(nombre)}&tel=${encodeURIComponent(tel)}&instagram=${encodeURIComponent(instagram)}`;
-
             try {
-                await fetch(url);
+                await db.collection('clientes').add({ nombre, tel, instagram });
                 document.getElementById('cliente-nombre').value = '';
                 document.getElementById('cliente-tel').value = '';
                 document.getElementById('cliente-insta').value = '';
                 cargarClientes();
                 cargarClientesEnSelects();
-                alert("¡Cliente guardado en la nube!");
+                alert("¡Cliente guardado en Firebase!");
             } catch(e) { alert("Error al guardar cliente."); }
         }
 
@@ -1423,8 +1437,9 @@
             tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando clientes...</td></tr>';
 
             try {
-                const response = await fetch(`${SCRIPT_URL}?action=clientes`);
-                listaClientesDB = response.ok ? await response.json() : [];
+                const snapshot = await db.collection('clientes').get();
+                listaClientesDB = [];
+                snapshot.forEach(doc => { listaClientesDB.push({ id: doc.id, ...doc.data() }); });
             } catch(e) { listaClientesDB = []; }
 
             tbody.innerHTML = listaClientesDB.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>';
@@ -1445,13 +1460,13 @@
         async function eliminarCliente(id) {
             if(!confirm("¿Eliminar este cliente?")) return;
             try {
-                await fetch(`${SCRIPT_URL}?action=delete_cliente&id=${encodeURIComponent(id)}`);
+                await db.collection('clientes').doc(id).delete();
                 cargarClientes();
                 cargarClientesEnSelects();
             } catch(e) { alert("Error al eliminar."); }
         }
 
-        // ================= CONTROL FINANCIERO / GASTOS EN NUBE =================
+        // ================= CONTROL FINANCIERO / GASTOS EN FIREBASE =================
         async function guardarGasto() {
             const concepto = document.getElementById('gasto-concepto').value.trim();
             const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
@@ -1459,21 +1474,23 @@
 
             if(!concepto || monto <= 0) { alert("Introduce un concepto y monto válido."); return; }
 
-            const url = `${SCRIPT_URL}?action=save_gasto&concepto=${encodeURIComponent(concepto)}&monto=${monto}&categoria=${encodeURIComponent(categoria)}&fechaISO=${encodeURIComponent(new Date().toISOString())}&fecha=${encodeURIComponent(new Date().toLocaleDateString())}`;
-
             try {
-                await fetch(url);
+                await db.collection('gastos').add({
+                    concepto, monto, categoria,
+                    fechaISO: new Date().toISOString(),
+                    fecha: new Date().toLocaleDateString()
+                });
                 document.getElementById('gasto-concepto').value = '';
                 document.getElementById('gasto-monto').value = '';
                 cargarGastosYBalance();
-                alert("¡Gasto registrado en la nube con éxito!");
+                alert("¡Gasto registrado en Firebase con éxito!");
             } catch(e) { alert("Error al registrar gasto."); }
         }
 
         async function eliminarGasto(id) {
             if(!confirm("¿Eliminar este registro de gasto?")) return;
             try {
-                await fetch(`${SCRIPT_URL}?action=delete_gasto&id=${encodeURIComponent(id)}`);
+                await db.collection('gastos').doc(id).delete();
                 cargarGastosYBalance();
             } catch(e) { alert("Error al eliminar gasto."); }
         }
@@ -1526,10 +1543,10 @@
             let gastos = [];
             let ventas = [];
             try {
-                const resG = await fetch(`${SCRIPT_URL}?action=gastos`);
-                if(resG.ok) gastos = await resG.json();
-                const resV = await fetch(`${SCRIPT_URL}?action=ventas`);
-                if(resV.ok) ventas = await resV.json();
+                const resG = await db.collection('gastos').get();
+                resG.forEach(doc => gastos.push({ id: doc.id, ...doc.data() }));
+                const resV = await db.collection('ventas').get();
+                resV.forEach(doc => ventas.push({ id: doc.id, ...doc.data() }));
             } catch(e) {}
 
             poblarSelectorPeriodos(gastos, ventas);
@@ -1618,12 +1635,12 @@
             let insumos = [];
             let clientes = [];
             try {
-                const resV = await fetch(`${SCRIPT_URL}?action=ventas`);
-                if(resV.ok) ventas = await resV.json();
-                const resI = await fetch(`${SCRIPT_URL}?action=insumos`);
-                if(resI.ok) insumos = await resI.json();
-                const resC = await fetch(`${SCRIPT_URL}?action=clientes`);
-                if(resC.ok) clientes = await resC.json();
+                const resV = await db.collection('ventas').get();
+                resV.forEach(doc => ventas.push(doc.data()));
+                const resI = await db.collection('insumos').get();
+                resI.forEach(doc => insumos.push(doc.data()));
+                const resC = await db.collection('clientes').get();
+                resC.forEach(doc => clientes.push(doc.data()));
             } catch(e) {}
 
             let totalVentasUSD = ventas.reduce((acc, v) => acc + (parseFloat(v.total_usd) || 0), 0);
@@ -1642,8 +1659,7 @@
                 if (nombreNuevo && nombreNuevo.trim() !== '') {
                     const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
                     const instaNuevo = prompt("Instagram (opcional):") || '';
-                    const url = `${SCRIPT_URL}?action=save_cliente&nombre=${encodeURIComponent(nombreNuevo.trim())}&tel=${encodeURIComponent(telNuevo)}&instagram=${encodeURIComponent(instaNuevo)}`;
-                    await fetch(url);
+                    await db.collection('clientes').add({ nombre: nombreNuevo.trim(), tel: telNuevo, instagram: instaNuevo });
                     await cargarClientesEnSelects();
                     selectEl.value = nombreNuevo.trim();
                 } else {
@@ -1659,8 +1675,7 @@
                 if (nombreNuevo && nombreNuevo.trim() !== '') {
                     const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
                     const instaNuevo = prompt("Instagram (opcional):") || '';
-                    const url = `${SCRIPT_URL}?action=save_cliente&nombre=${encodeURIComponent(nombreNuevo.trim())}&tel=${encodeURIComponent(telNuevo)}&instagram=${encodeURIComponent(instaNuevo)}`;
-                    await fetch(url);
+                    await db.collection('clientes').add({ nombre: nombreNuevo.trim(), tel: telNuevo, instagram: instaNuevo });
                     await cargarClientesEnSelects();
                     selectEl.value = nombreNuevo.trim();
                 } else {
@@ -1687,11 +1702,13 @@
             const btn = document.getElementById('btn-guardar-standby');
             if(btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Guardando...';
 
-            const url = `${SCRIPT_URL}?action=save_standby&cliente=${encodeURIComponent(cliente)}&validez=${encodeURIComponent(validez)}&total=${totalUSD}&items=${encodeURIComponent(JSON.stringify(items))}`;
-
             try {
-                await fetch(url);
-                alert("¡Cotización en Stand By guardada en la nube!");
+                await db.collection('standby').add({
+                    cliente, validez, total_usd: totalUSD,
+                    items: JSON.stringify(items),
+                    created_at: new Date().toLocaleString()
+                });
+                alert("¡Cotización en Stand By guardada en Firebase!");
                 cargarCotizacionesStandBy();
                 switchTab('standby');
             } catch (error) {
@@ -1707,8 +1724,9 @@
             tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando cotizaciones...</td></tr>';
 
             try {
-                const response = await fetch(`${SCRIPT_URL}?action=standby`);
-                const registros = response.ok ? await response.json() : [];
+                const snapshot = await db.collection('standby').get();
+                let registros = [];
+                snapshot.forEach(doc => { registros.push({ id: doc.id, ...doc.data() }); });
 
                 tbody.innerHTML = registros.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">No hay cotizaciones en espera.</td></tr>';
                 
@@ -1741,7 +1759,7 @@
                 if(badge) badge.innerText = registros.length;
                 if(dashCount) dashCount.innerText = registros.length;
             } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">Error al cargar datos desde la nube.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">Error al cargar datos desde Firebase.</td></tr>';
             }
         }
 
@@ -1782,7 +1800,7 @@
         async function eliminarStandBy(id) {
             if(!confirm("¿Eliminar esta cotización en stand by?")) return;
             try {
-                await fetch(`${SCRIPT_URL}?action=delete_standby&id=${encodeURIComponent(id)}`);
+                await db.collection('standby').doc(id).delete();
                 cargarCotizacionesStandBy();
             } catch (error) {}
         }
@@ -2609,11 +2627,17 @@
             }
 
             const conceptoResumen = itemsFactura.map(i => `${i.cant}x ${i.desc}`).join(' + ');
-            const url = `${SCRIPT_URL}?action=save_venta&fechaISO=${encodeURIComponent(new Date().toISOString())}&fecha=${encodeURIComponent(new Date().toLocaleDateString())}&cliente=${encodeURIComponent(cliente)}&concepto=${encodeURIComponent(conceptoResumen)}&total_usd=${totalUSD}&metodos_pago=${encodeURIComponent(metodosPago.join(' | ') || 'No especificado')}`;
 
             try {
-                await fetch(url);
-                alert("¡Venta procesada y guardada en la nube con éxito!");
+                await db.collection('ventas').add({
+                    fechaISO: new Date().toISOString(),
+                    fecha: new Date().toLocaleDateString(),
+                    cliente,
+                    concepto: conceptoResumen,
+                    total_usd: totalUSD,
+                    metodos_pago: metodosPago.join(' | ') || 'No especificado'
+                });
+                alert("¡Venta procesada y guardada en Firebase con éxito!");
                 document.getElementById('lista-items-caja').innerHTML = '';
                 document.getElementById('lista-pagos').innerHTML = '';
                 agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
@@ -2629,8 +2653,8 @@
 
             let ventas = [];
             try {
-                const res = await fetch(`${SCRIPT_URL}?action=ventas`);
-                if(res.ok) ventas = await res.json();
+                const snapshot = await db.collection('ventas').get();
+                snapshot.forEach(doc => { ventas.push({ id: doc.id, ...doc.data() }); });
             } catch(e) {}
 
             let registros = ventas.reverse().slice(0, 10);

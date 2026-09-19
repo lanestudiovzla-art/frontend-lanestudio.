@@ -35,7 +35,7 @@
         .print-clean-cell {
             border: none !important;
             background: transparent !important;
-            padding: 4px 0 !important;
+            padding: 8px 4px !important;
             font-weight: normal !important;
             color: #2c2c2c !important;
             word-break: break-word !important;
@@ -723,12 +723,12 @@
                                 <table class="w-full text-left text-xs text-gray-700">
                                     <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
                                         <tr>
-                                            <th class="p-3 w-[36%] col-desc">Descripción</th>
-                                            <th class="p-3 w-[10%] text-center col-cant">Cant</th>
-                                            <th class="p-3 w-[12%] text-center internal-col">Costo Unit. ($)</th>
+                                            <th class="p-3 w-[52%] col-desc">Descripción</th>
+                                            <th class="p-3 w-[12%] text-center col-cant">Cant</th>
+                                            <th class="p-3 w-[10%] text-center internal-col">Costo Unit. ($)</th>
                                             <th class="p-3 w-[10%] text-center internal-col">% Ganancia</th>
-                                            <th class="p-3 w-[14%] text-right internal-col">Precio Sug. ($)</th>
-                                            <th class="p-3 w-[18%] text-right font-bold text-[#b88a73] col-precio">Precio Final ($)</th>
+                                            <th class="p-3 w-[12%] text-right internal-col">Precio Sug. ($)</th>
+                                            <th class="p-3 w-[24%] text-right font-bold text-[#b88a73] col-precio">Precio Final ($)</th>
                                             <th class="p-3 w-[10%] text-center no-print-controls">Acción</th>
                                         </tr>
                                     </thead>
@@ -2112,23 +2112,23 @@
 
             const html = `
                 <tr id="${rowId}" class="border-b border-[#e8dbd3] renglon-item">
-                    <td class="p-3 w-[36%] col-desc overflow-hidden">
+                    <td class="p-3 w-[52%] col-desc overflow-hidden">
                         <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-servicio no-print-controls mb-1 truncate" onchange="seleccionarServicioCatalogo('${rowId}')">
                             ${opcionesServicios}
                         </select>
                         <input type="text" value="${nombreDefault}" placeholder="Descripción" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium">
                     </td>
-                    <td class="p-3 w-[10%] col-cant text-center align-middle">
+                    <td class="p-3 w-[12%] col-cant text-center align-middle">
                         <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
-                    <td class="p-3 w-[12%] text-center align-middle internal-col">
+                    <td class="p-3 w-[10%] text-center align-middle internal-col">
                         <input type="number" step="0.01" value="${costoDefault}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle internal-col">
                         <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
-                    <td class="p-3 w-[14%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle internal-col truncate">$0.00</td>
-                    <td class="p-3 w-[18%] col-precio text-right align-middle">
+                    <td class="p-3 w-[12%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle internal-col truncate">$0.00</td>
+                    <td class="p-3 w-[24%] col-precio text-right align-middle">
                         <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}')">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle no-print-controls">
@@ -2153,23 +2153,23 @@
 
             const html = `
                 <tr id="${rowId}" class="border-b border-[#e8dbd3] renglon-item">
-                    <td class="p-3 w-[36%] col-desc overflow-hidden">
+                    <td class="p-3 w-[52%] col-desc overflow-hidden">
                         <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-insumo no-print-controls mb-1 truncate" onchange="seleccionarInsumoCatalogo('${rowId}')">
                             ${opcionesInsumos}
                         </select>
                         <input type="text" placeholder="Insumo" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium">
                     </td>
-                    <td class="p-3 w-[10%] col-cant text-center align-middle">
+                    <td class="p-3 w-[12%] col-cant text-center align-middle">
                         <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
-                    <td class="p-3 w-[12%] text-center align-middle internal-col">
+                    <td class="p-3 w-[10%] text-center align-middle internal-col">
                         <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle internal-col">
                         <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
-                    <td class="p-3 w-[14%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle internal-col truncate">$0.00</td>
-                    <td class="p-3 w-[18%] col-precio text-right align-middle">
+                    <td class="p-3 w-[12%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle internal-col truncate">$0.00</td>
+                    <td class="p-3 w-[24%] col-precio text-right align-middle">
                         <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}')">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle no-print-controls">
@@ -2285,8 +2285,9 @@
             document.querySelectorAll('.no-print-controls').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.internal-col').forEach(el => el.style.display = 'none');
 
-            document.querySelectorAll('.col-desc').forEach(el => el.style.width = '65%');
-            document.querySelectorAll('.col-cant').forEach(el => el.style.width = '10%');
+            // Asignar anchos limpios y proporcionados para el PDF
+            document.querySelectorAll('.col-desc').forEach(el => el.style.width = '60%');
+            document.querySelectorAll('.col-cant').forEach(el => el.style.width = '15%');
             document.querySelectorAll('.col-precio').forEach(el => el.style.width = '25%');
 
             document.querySelectorAll('.renglon-item').forEach(row => {
@@ -2314,16 +2315,17 @@
             });
 
             area.style.border = 'none';
-            area.style.padding = '40px';
+            area.style.padding = '30px';
             area.style.boxShadow = 'none';
-            area.style.width = '800px'; 
+            area.style.width = '100%';
+            area.style.maxWidth = '750px';
             area.style.margin = '0 auto';
 
             const opt = {
                 margin:       10,
                 filename:     `Presupuesto_LANEstudio_${Date.now()}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
@@ -2342,9 +2344,9 @@
             area.classList.remove('pdf-mode');
             document.querySelectorAll('.no-print-controls').forEach(el => el.style.display = '');
             document.querySelectorAll('.internal-col').forEach(el => el.style.display = '');
-            document.querySelectorAll('.col-desc').forEach(el => el.style.width = '36%');
-            document.querySelectorAll('.col-cant').forEach(el => el.style.width = '10%');
-            document.querySelectorAll('.col-precio').forEach(el => el.style.width = '18%');
+            document.querySelectorAll('.col-desc').forEach(el => el.style.width = '52%');
+            document.querySelectorAll('.col-cant').forEach(el => el.style.width = '12%');
+            document.querySelectorAll('.col-precio').forEach(el => el.style.width = '24%');
             document.querySelectorAll('.print-text').forEach(el => el.remove());
             document.querySelectorAll('.renglon-item').forEach(row => {
                 const descInput = row.querySelector('.desc-input');
@@ -2358,6 +2360,7 @@
             area.style.padding = '';
             area.style.boxShadow = '';
             area.style.width = '';
+            area.style.maxWidth = '';
             area.style.margin = '';
         }
 

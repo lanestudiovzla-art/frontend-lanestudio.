@@ -804,7 +804,7 @@
                         </div>
                     </div>
 
-                    <!-- NUEVAS OPCIONES DE CAJA: DESCUENTO Y NOTAS -->
+                    <!-- OPCIONES DE CAJA: DESCUENTO Y NOTAS -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3]">
                         <div>
                             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Descuento Global (%)</label>
@@ -972,7 +972,7 @@
             </div>
         </section>
 
-        <!-- CRM CLIENTES MEJORADO (CON RIF, DIRECCIÓN Y TIPO) -->
+        <!-- CRM CLIENTES MEJORADO -->
         <section id="module-crm" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Directorio de Clientes y Datos Fiscales (CRM)</h2>
@@ -1155,7 +1155,7 @@
         </div>
     </div>
 
-    <!-- Script Lógico Integrado con Firebase y Mejoras -->
+    <!-- Script Lógico Integrado con Firebase y Motor PDF Universal -->
     <script>
         // ================= CONFIGURACIÓN DE FIREBASE =================
         const firebaseConfig = {
@@ -1200,1127 +1200,183 @@
             }, 3500);
         }
 
-        function toggleDropdown(type) {
-            const calcDropdown = document.getElementById('dropdown-calculadoras');
-            const adminDropdown = document.getElementById('dropdown-admin');
-            
-            if (type === 'calculadoras') {
-                calcDropdown.classList.toggle('hidden');
-                adminDropdown.classList.add('hidden');
-            } else if (type === 'admin') {
-                adminDropdown.classList.toggle('hidden');
-                calcDropdown.classList.add('hidden');
-            }
-        }
-
-        window.addEventListener('click', function(e) {
-            const calcDropdown = document.getElementById('dropdown-calculadoras');
-            const adminDropdown = document.getElementById('dropdown-admin');
-            const btnCalc = document.getElementById('btn-calculadoras');
-            const btnAdmin = document.getElementById('btn-admin');
-
-            if (calcDropdown && adminDropdown && btnCalc && btnAdmin) {
-                if (!calcDropdown.contains(e.target) && !btnCalc.contains(e.target) &&
-                    !adminDropdown.contains(e.target) && !btnAdmin.contains(e.target)) {
-                    calcDropdown.classList.add('hidden');
-                    adminDropdown.classList.add('hidden');
-                }
-            }
-            if (!e.target.closest('.relative')) {
-                document.querySelectorAll('.autocomplete-suggestions').forEach(el => el.classList.add('hidden'));
-            }
-        });
-
-        function actualizarRelojFecha() {
+        // ================= RELOJ Y TASA BCV =================
+        function actualizarReloj() {
             const ahora = new Date();
-            const opcionesFecha = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
-            const fechaStr = ahora.toLocaleDateString('es-ES', opcionesFecha);
-            const horaStr = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-            
-            const relojEl = document.getElementById('live-clock-display');
-            if(relojEl) relojEl.innerText = `${fechaStr} - ${horaStr}`;
+            const opciones = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('live-clock-display').innerText = ahora.toLocaleDateString('es-VE', opciones);
         }
-        setInterval(actualizarRelojFecha, 1000);
-
-        function switchTab(tabId) {
-            const tabs = ['dashboard', 'calculadora', 'standby', 'calc-stickers', 'calc-toppers', 'calc-flyers', 'calc-sublimacion', 'calc-audiovisual', 'calc-vinil', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo'];
-            tabs.forEach(t => {
-                const el = document.getElementById(`module-${t}`);
-                const btn = document.getElementById(`tab-${t}`);
-                if(el) el.classList.add('hidden');
-                if(btn) {
-                    if(btn.tagName === 'BUTTON' && btn.id.startsWith('tab-') && !btn.classList.contains('w-full')) {
-                        btn.className = "px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap";
-                    } else if(btn.tagName === 'BUTTON') {
-                        btn.className = "w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center";
-                    }
-                }
-            });
-
-            const activeEl = document.getElementById(`module-${tabId}`);
-            const activeBtn = document.getElementById(`tab-${tabId}`);
-            if(activeEl) activeEl.classList.remove('hidden');
-            if(activeBtn) {
-                if(!activeBtn.classList.contains('w-full')) {
-                    activeBtn.className = "px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap";
-                } else {
-                    activeBtn.className = "w-full text-left px-3 py-2 text-xs font-medium bg-[#faf8f6] text-[#2c2c2c] font-bold rounded-xl flex items-center";
-                }
-            }
-
-            window.location.hash = tabId;
-
-            if(tabId === 'dashboard') cargarDashboard();
-            if(tabId === 'caja') {
-                cargarClientesEnSelects();
-                cargarRegistrosCajaEditable();
-                const borradorCaja = localStorage.getItem('lan_borrador_caja');
-                if (borradorCaja) {
-                    try {
-                        const parsed = JSON.parse(borradorCaja);
-                        if (Array.isArray(parsed) && parsed.length > 0) {
-                            const tbody = document.getElementById('lista-items-caja');
-                            tbody.innerHTML = '';
-                            parsed.forEach(i => agregarItemCajaFila(i.desc, i.cant, i.precio));
-                            recalcularTotalesCaja();
-                        } else if(document.querySelectorAll('#lista-items-caja tr').length === 0) {
-                            agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
-                        }
-                    } catch(e) {
-                        if(document.querySelectorAll('#lista-items-caja tr').length === 0) {
-                            agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
-                        }
-                    }
-                } else if(document.querySelectorAll('#lista-items-caja tr').length === 0) {
-                    agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
-                } else {
-                    recalcularTotalesCaja();
-                }
-            }
-            if(tabId === 'standby') cargarCotizacionesStandBy();
-            if(tabId === 'calculadora') {
-                cargarClientesEnSelects();
-                document.getElementById('presupuesto-fecha-doc').innerText = `Fecha: ${new Date().toLocaleDateString()}`;
-                document.getElementById('presupuesto-tasa-doc').innerText = `Bs. ${tasaBCV.toFixed(2)}`;
-            }
-            if(tabId === 'calc-stickers') {
-                poblarSelectInsumosStickers();
-                calcularStickers();
-            }
-            if(tabId === 'calc-toppers') {
-                if(document.querySelectorAll('#lista-insumos-topper tr').length === 0) agregarFilaTopper();
-                calcularTopper();
-            }
-            if(tabId === 'calc-flyers') calcularFlyers();
-            if(tabId === 'calc-sublimacion') calcularSublimacion();
-            if(tabId === 'calc-audiovisual') calcularAudiovisual();
-            if(tabId === 'calc-vinil') calcularVinil();
-            if(tabId === 'insumos') cargarInsumos();
-            if(tabId === 'servicios') cargarServicios();
-            if(tabId === 'crm') cargarClientes();
-            if(tabId === 'finanzas') cargarGastosYBalance();
-        }
-
-        function syncRoute() {
-            const hash = window.location.hash.replace('#', '');
-            const tabs = ['dashboard', 'calculadora', 'standby', 'calc-stickers', 'calc-toppers', 'calc-flyers', 'calc-sublimacion', 'calc-audiovisual', 'calc-vinil', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo'];
-            if (tabs.includes(hash)) switchTab(hash);
-            else switchTab('dashboard');
-        }
-        window.addEventListener('hashchange', syncRoute);
-
-        async function fetchBCVRate() {
-            const inputEl = document.getElementById('bcv-rate-input');
-            const hoyStr = new Date().toISOString().split('T')[0];
-            const tasaGuardada = localStorage.getItem('lan_bcv_tasa');
-            const fechaGuardada = localStorage.getItem('lan_bcv_fecha');
-
-            if (tasaGuardada && fechaGuardada === hoyStr) {
-                tasaBCV = parseFloat(tasaGuardada);
-                if(inputEl) inputEl.value = tasaBCV.toFixed(2);
-                const tasaDocEl = document.getElementById('presupuesto-tasa-doc');
-                if(tasaDocEl) tasaDocEl.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
-                recalcularPresupuestoTotal();
-                return;
-            }
-
-            if(inputEl) inputEl.value = "...";
-            try {
-                const response = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
-                if(response.ok) {
-                    const data = await response.json();
-                    if(data.promedio) {
-                        tasaBCV = parseFloat(data.promedio);
-                        localStorage.setItem('lan_bcv_tasa', tasaBCV);
-                        localStorage.setItem('lan_bcv_fecha', hoyStr);
-                        if(inputEl) inputEl.value = tasaBCV.toFixed(2);
-                        const tasaDocEl = document.getElementById('presupuesto-tasa-doc');
-                        if(tasaDocEl) tasaDocEl.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
-                        recalcularPresupuestoTotal();
-                        return;
-                    }
-                }
-                throw new Error("Respuesta inválida");
-            } catch (error) {
-                if (tasaGuardada) tasaBCV = parseFloat(tasaGuardada);
-                if(inputEl) inputEl.value = tasaBCV.toFixed(2);
-                const tasaDocEl = document.getElementById('presupuesto-tasa-doc');
-                if(tasaDocEl) tasaDocEl.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
-                recalcularPresupuestoTotal();
-            }
-        }
-
-        function actualizarTasaManual(valorStr) {
-            const val = parseFloat(valorStr);
-            if (!isNaN(val) && val > 0) {
-                tasaBCV = val;
-                localStorage.setItem('lan_bcv_tasa', tasaBCV);
-                const tasaDocEl = document.getElementById('presupuesto-tasa-doc');
-                if(tasaDocEl) tasaDocEl.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
-                recalcularPresupuestoTotal();
-                actualizarTotalesCaja();
-                recalcularRestanteCaja();
-            }
-        }
-
-        // ================= SINCRONIZACIÓN EN TIEMPO REAL (ONSNAPSHOT) =================
-        function iniciarListenersTiempoReal() {
-            db.collection('insumos').onSnapshot((snapshot) => {
-                listaInsumosDB = [];
-                snapshot.forEach(doc => listaInsumosDB.push({ id: doc.id, ...doc.data() }));
-                if(document.getElementById('module-insumos') && !document.getElementById('module-insumos').classList.contains('hidden')) {
-                    cargarInsumos();
-                }
-                poblarSelectInsumosStickers();
-            }, (error) => {});
-
-            db.collection('servicios').onSnapshot((snapshot) => {
-                listaServiciosDB = [];
-                snapshot.forEach(doc => listaServiciosDB.push({ id: doc.id, ...doc.data() }));
-                if(document.getElementById('module-servicios') && !document.getElementById('module-servicios').classList.contains('hidden')) {
-                    cargarServicios();
-                }
-            }, (error) => {});
-
-            db.collection('clientes').onSnapshot((snapshot) => {
-                listaClientesDB = [];
-                snapshot.forEach(doc => listaClientesDB.push({ id: doc.id, ...doc.data() }));
-                if(document.getElementById('module-crm') && !document.getElementById('module-crm').classList.contains('hidden')) {
-                    cargarClientes();
-                }
-                cargarClientesEnSelects();
-            }, (error) => {});
-        }
-
-        async function cargarClientesEnSelects() {
-            const selects = ['presupuesto-cliente', 'caja-cliente'];
-            selects.forEach(selectId => {
-                const select = document.getElementById(selectId);
-                if(!select) return;
-                const valorActual = select.value;
-                select.innerHTML = `
-                    <option value="Cliente General">-- Cliente General --</option>
-                    <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
-                `;
-                listaClientesDB.forEach(c => {
-                    select.innerHTML += `<option value="${c.nombre}">${c.nombre} (${c.tel || 'Sin telf'})</option>`;
-                });
-                if(valorActual) select.value = valorActual;
-            });
-        }
-
-        // ================= GESTIÓN DE INSUMOS (FIREBASE) =================
-        async function guardarInsumo() {
-            const nombre = document.getElementById('insumo-nombre').value.trim();
-            const categoria = document.getElementById('insumo-categoria').value.trim();
-            const costo_unitario = Math.max(0, parseFloat(document.getElementById('insumo-costo').value) || 0);
-            const stock = Math.max(0, parseInt(document.getElementById('insumo-stock').value) || 0);
-            const stock_minimo = Math.max(0, parseInt(document.getElementById('insumo-minimo').value) || 0);
-
-            if(!nombre) { mostrarNotificacion("Introduce el nombre del insumo.", "error"); return; }
-
-            try {
-                await db.collection('insumos').add({ nombre, categoria, costo_unitario, stock, stock_minimo });
-                document.getElementById('insumo-nombre').value = '';
-                document.getElementById('insumo-categoria').value = '';
-                document.getElementById('insumo-costo').value = '';
-                document.getElementById('insumo-stock').value = '';
-                document.getElementById('insumo-minimo').value = '';
-                mostrarNotificacion("¡Insumo registrado en la nube con éxito!");
-            } catch(e) { mostrarNotificacion("Error al guardar insumo.", "error"); }
-        }
-
-        async function cargarInsumos() {
-            const tbody = document.getElementById('tabla-insumos');
-            if(!tbody) return;
-            tbody.innerHTML = listaInsumosDB.length ? '' : '<tr><td colspan="6" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr>';
-            
-            listaInsumosDB.forEach((ins) => {
-                const alertaStock = ins.stock <= ins.stock_minimo ? 'text-rose-600 font-bold' : '';
-                tbody.innerHTML += `
-                    <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${ins.nombre}</td>
-                        <td class="p-3 text-xs">${ins.categoria || 'General'}</td>
-                        <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(ins.costo_unitario).toFixed(2)}</td>
-                        <td class="p-3 ${alertaStock}">${ins.stock} uds</td>
-                        <td class="p-3 text-xs text-gray-500">${ins.stock_minimo}</td>
-                        <td class="p-3 space-x-1.5 whitespace-nowrap">
-                            <button onclick="eliminarInsumo('${ins.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function eliminarInsumo(id) {
-            if(!confirm("¿Eliminar este insumo?")) return;
-            try {
-                await db.collection('insumos').doc(id).delete();
-                mostrarNotificacion("Insumo eliminado con éxito.");
-            } catch(e) { mostrarNotificacion("Error al eliminar.", "error"); }
-        }
-
-        // ================= GESTIÓN DE SERVICIOS (FIREBASE) =================
-        async function guardarServicio() {
-            const nombre = document.getElementById('servicio-nombre').value.trim();
-            const precio = Math.max(0, parseFloat(document.getElementById('servicio-precio').value) || 0);
-            if(!nombre) { mostrarNotificacion("Introduce el nombre del servicio.", "error"); return; }
-
-            try {
-                await db.collection('servicios').add({ nombre, precio });
-                document.getElementById('servicio-nombre').value = '';
-                document.getElementById('servicio-precio').value = '';
-                mostrarNotificacion("¡Servicio guardado en la nube con éxito!");
-            } catch(e) { mostrarNotificacion("Error al guardar servicio.", "error"); }
-        }
-
-        async function cargarServicios() {
-            const tbody = document.getElementById('tabla-servicios');
-            if(!tbody) return;
-            tbody.innerHTML = listaServiciosDB.length ? '' : '<tr><td colspan="3" class="p-4 text-center text-gray-400">Sin servicios registrados.</td></tr>';
-            
-            listaServiciosDB.forEach((s) => {
-                tbody.innerHTML += `
-                    <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${s.nombre}</td>
-                        <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(s.precio).toFixed(2)}</td>
-                        <td class="p-3 space-x-1.5 whitespace-nowrap">
-                            <button onclick="eliminarServicio('${s.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function eliminarServicio(id) {
-            if(!confirm("¿Eliminar este servicio?")) return;
-            try {
-                await db.collection('servicios').doc(id).delete();
-                mostrarNotificacion("Servicio eliminado con éxito.");
-            } catch(e) { mostrarNotificacion("Error al eliminar.", "error"); }
-        }
-
-        // ================= GESTIÓN DE CRM CLIENTES (ACTUALIZADO CON RIF, DIRECCIÓN Y TIPO) =================
-        async function guardarCliente() {
-            const nombre = document.getElementById('cliente-nombre').value.trim();
-            const rif = document.getElementById('cliente-rif').value.trim();
-            const tipo = document.getElementById('cliente-tipo').value;
-            const tel = document.getElementById('cliente-tel').value.trim();
-            const email = document.getElementById('cliente-email').value.trim();
-            const instagram = document.getElementById('cliente-insta').value.trim();
-            const direccion = document.getElementById('cliente-direccion').value.trim();
-
-            if(!nombre) { mostrarNotificacion("Introduce el nombre o empresa del cliente.", "error"); return; }
-
-            try {
-                await db.collection('clientes').add({ nombre, rif, tipo, tel, email, instagram, direccion });
-                document.getElementById('cliente-nombre').value = '';
-                document.getElementById('cliente-rif').value = '';
-                document.getElementById('cliente-tel').value = '';
-                document.getElementById('cliente-email').value = '';
-                document.getElementById('cliente-insta').value = '';
-                document.getElementById('cliente-direccion').value = '';
-                mostrarNotificacion("¡Cliente guardado en la nube con éxito!");
-            } catch(e) { mostrarNotificacion("Error al guardar cliente.", "error"); }
-        }
-
-        async function cargarClientes() {
-            const tbody = document.getElementById('tabla-clientes');
-            if(!tbody) return;
-            tbody.innerHTML = listaClientesDB.length ? '' : '<tr><td colspan="6" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>';
-            
-            listaClientesDB.forEach((c) => {
-                const tipoBadge = c.tipo === 'Empresa (B2B)' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                tbody.innerHTML += `
-                    <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${c.nombre}</td>
-                        <td class="p-3 text-xs font-mono">${c.rif || 'S/R'}</td>
-                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded-full border text-[10px] font-semibold ${tipoBadge}">${c.tipo || 'Persona Natural'}</span></td>
-                        <td class="p-3 text-xs">
-                            <div>${c.tel || 'Sin telf'}</div>
-                            <div class="text-[10px] text-gray-500">${c.email || 'Sin correo'}</div>
-                        </td>
-                        <td class="p-3 text-xs text-gray-600 truncate max-w-xs" title="${c.direccion || 'Sin dirección'}">${c.direccion || 'N/A'}</td>
-                        <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                            <button onclick="verHistorialCliente('${c.nombre}')" class="bg-gray-100 hover:bg-indigo-100 text-indigo-700 p-2 rounded-xl transition text-xs" title="Ver Historial de Compras"><i class="fa-solid fa-clock-rotate-left"></i></button>
-                            <button onclick="eliminarCliente('${c.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function eliminarCliente(id) {
-            if(!confirm("¿Eliminar este cliente?")) return;
-            try {
-                await db.collection('clientes').doc(id).delete();
-                mostrarNotificacion("Cliente eliminado con éxito.");
-            } catch(e) { mostrarNotificacion("Error al eliminar.", "error"); }
-        }
-
-        // ================= HISTORIAL DE CLIENTES (CRM MEJORA) =================
-        async function verHistorialCliente(nombreCliente) {
-            document.getElementById('titulo-historial-cliente').innerHTML = `<i class="fa-solid fa-clock-rotate-left mr-2 text-[#b88a73]"></i> Historial de: ${nombreCliente}`;
-            const contenedor = document.getElementById('contenido-historial-cliente');
-            contenedor.innerHTML = '<p class="text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Buscando transacciones...</p>';
-            document.getElementById('modal-historial-cliente').classList.remove('hidden');
-
-            try {
-                const ventasSnap = await db.collection('ventas').where('cliente', '==', nombreCliente).get();
-                let ventasCliente = [];
-                ventasSnap.forEach(doc => ventasCliente.push(doc.data()));
-
-                const standbySnap = await db.collection('standby').where('cliente', '==', nombreCliente).get();
-                let standbyCliente = [];
-                standbySnap.forEach(doc => standbyCliente.push(doc.data()));
-
-                let html = '';
-                if(ventasCliente.length > 0) {
-                    html += '<h4 class="font-bold text-[#2c2c2c] border-b pb-1 mb-2">Ventas Concretadas</h4><div class="space-y-2 mb-4">';
-                    ventasCliente.forEach(v => {
-                        html += `<div class="bg-[#faf8f6] p-2.5 rounded-xl border border-[#e8dbd3] flex justify-between items-center">
-                            <div><p class="font-bold text-gray-800">${v.concepto}</p><p class="text-[10px] text-gray-500">${v.fecha || 'Fecha reciente'} • ${v.metodos_pago}</p></div>
-                            <span class="font-extrabold text-[#b88a73]">$${parseFloat(v.total_usd).toFixed(2)}</span>
-                        </div>`;
-                    });
-                    html += '</div>';
-                }
-
-                if(standbyCliente.length > 0) {
-                    html += '<h4 class="font-bold text-[#2c2c2c] border-b pb-1 mb-2">Cotizaciones en Stand By</h4><div class="space-y-2">';
-                    standbyCliente.forEach(s => {
-                        html += `<div class="bg-[#faf8f6] p-2.5 rounded-xl border border-[#e8dbd3] flex justify-between items-center">
-                            <div><p class="font-bold text-gray-800">Cotización en espera</p><p class="text-[10px] text-gray-500">${s.created_at}</p></div>
-                            <span class="font-extrabold text-amber-600">$${parseFloat(s.total_usd).toFixed(2)}</span>
-                        </div>`;
-                    });
-                    html += '</div>';
-                }
-
-                if(ventasCliente.length === 0 && standbyCliente.length === 0) {
-                    html = '<p class="text-center text-gray-400 py-6">Este cliente aún no registra compras ni cotizaciones.</p>';
-                }
-
-                contenedor.innerHTML = html;
-            } catch(e) {
-                contenedor.innerHTML = '<p class="text-center text-rose-500">Error al cargar el historial.</p>';
-            }
-        }
-
-        function cerrarHistorialCliente() {
-            document.getElementById('modal-historial-cliente').classList.add('hidden');
-        }
-
-        // ================= CONTROL FINANCIERO / GASTOS EN FIREBASE (OPTIMIZADO) =================
-        async function guardarGasto() {
-            const concepto = document.getElementById('gasto-concepto').value.trim();
-            const monto = Math.max(0, parseFloat(document.getElementById('gasto-monto').value) || 0);
-            const categoria = document.getElementById('gasto-categoria').value;
-
-            if(!concepto || monto <= 0) { mostrarNotificacion("Introduce un concepto y monto válido.", "error"); return; }
-
-            try {
-                await db.collection('gastos').add({
-                    concepto, monto, categoria,
-                    fechaISO: new Date().toISOString(),
-                    fecha: new Date().toLocaleDateString()
-                });
-                document.getElementById('gasto-concepto').value = '';
-                document.getElementById('gasto-monto').value = '';
-                cargarGastosYBalance();
-                mostrarNotificacion("¡Gasto registrado en la nube con éxito!");
-            } catch(e) { mostrarNotificacion("Error al registrar gasto.", "error"); }
-        }
-
-        async function eliminarGasto(id) {
-            if(!confirm("¿Eliminar este registro de gasto?")) return;
-            try {
-                await db.collection('gastos').doc(id).delete();
-                cargarGastosYBalance();
-                mostrarNotificacion("Gasto eliminado con éxito.");
-            } catch(e) { mostrarNotificacion("Error al eliminar gasto.", "error"); }
-        }
-
-        function poblarSelectorPeriodos(gastos, ventas) {
-            const select = document.getElementById('filtro-periodo');
-            if(!select) return;
-            const valorActual = select.value;
-            let periodosSet = new Set();
-            gastos.forEach(g => {
-                if(g.fechaISO) {
-                    const d = new Date(g.fechaISO);
-                    periodosSet.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
-                }
-            });
-            ventas.forEach(v => {
-                if(v.fechaISO) {
-                    const d = new Date(v.fechaISO);
-                    periodosSet.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
-                }
-            });
-
-            const ahora = new Date();
-            const mesActualStr = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}`;
-            periodosSet.add(mesActualStr);
-
-            let periodosOrdenados = Array.from(periodosSet).sort().reverse();
-            const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-
-            let html = `
-                <option value="este_mes">Este Mes (Actual)</option>
-                <option value="todos">Todo el Histórico</option>
-            `;
-            periodosOrdenados.forEach(p => {
-                const [anio, mes] = p.split('-');
-                const nombreMes = nombresMeses[parseInt(mes) - 1];
-                html += `<option value="${p}">${nombreMes} ${anio}</option>`;
-            });
-
-            select.innerHTML = html;
-            if(valorActual && select.querySelector(`option[value="${valorActual}"]`)) select.value = valorActual;
-            else select.value = 'este_mes';
-        }
-
-        async function cargarGastosYBalance() {
-            const tbody = document.getElementById('tabla-gastos');
-            if(!tbody) return;
-
-            let filtro = document.getElementById('filtro-periodo')?.value || 'este_mes';
-            const ahora = new Date();
-            const mesActual = ahora.getMonth();
-            const anioActual = ahora.getFullYear();
-
-            let gastos = [];
-            let ventas = [];
-
-            try {
-                let queryGastos = db.collection('gastos');
-                let queryVentas = db.collection('ventas');
-
-                if (filtro === 'este_mes') {
-                    const inicioMes = new Date(anioActual, mesActual, 1).toISOString();
-                    const finMes = new Date(anioActual, mesActual + 1, 0, 23, 59, 59).toISOString();
-                    queryGastos = queryGastos.where('fechaISO', '>=', inicioMes).where('fechaISO', '<=', finMes);
-                    queryVentas = queryVentas.where('fechaISO', '>=', inicioMes).where('fechaISO', '<=', finMes);
-                } else if (filtro !== 'todos') {
-                    const [anioSel, mesSel] = filtro.split('-');
-                    const inicioMes = new Date(parseInt(anioSel), parseInt(mesSel) - 1, 1).toISOString();
-                    const finMes = new Date(parseInt(anioSel), parseInt(mesSel), 0, 23, 59, 59).toISOString();
-                    queryGastos = queryGastos.where('fechaISO', '>=', inicioMes).where('fechaISO', '<=', finMes);
-                    queryVentas = queryVentas.where('fechaISO', '>=', inicioMes).where('fechaISO', '<=', finMes);
-                }
-
-                const resG = await queryGastos.get();
-                resG.forEach(doc => gastos.push({ id: doc.id, ...doc.data() }));
-
-                const resV = await queryVentas.get();
-                resV.forEach(doc => ventas.push({ id: doc.id, ...doc.data() }));
-
-                const allG = await db.collection('gastos').get();
-                let fullGastos = [];
-                allG.forEach(doc => fullGastos.push(doc.data()));
-                const allV = await db.collection('ventas').get();
-                let fullVentas = [];
-                allV.forEach(doc => fullVentas.push(doc.data()));
-
-                poblarSelectorPeriodos(fullGastos, fullVentas);
-
-            } catch(e) {
-                const resG = await db.collection('gastos').get();
-                resG.forEach(doc => gastos.push({ id: doc.id, ...doc.data() }));
-                const resV = await db.collection('ventas').get();
-                resV.forEach(doc => ventas.push({ id: doc.id, ...doc.data() }));
-                poblarSelectorPeriodos(gastos, ventas);
-            }
-
-            let gastosFiltrados = gastos.filter(g => {
-                const fechaObj = g.fechaISO ? new Date(g.fechaISO) : new Date();
-                if (filtro === 'este_mes') return fechaObj.getMonth() === mesActual && fechaObj.getFullYear() === anioActual;
-                if (filtro === 'todos') return true;
-                const [anioSel, mesSel] = filtro.split('-');
-                return fechaObj.getFullYear() == anioSel && (fechaObj.getMonth() + 1) == mesSel;
-            });
-
-            let ventasFiltradas = ventas.filter(v => {
-                const fechaObj = v.fechaISO ? new Date(v.fechaISO) : new Date();
-                if (filtro === 'este_mes') return fechaObj.getMonth() === mesActual && fechaObj.getFullYear() === anioActual;
-                if (filtro === 'todos') return true;
-                const [anioSel, mesSel] = filtro.split('-');
-                return fechaObj.getFullYear() == anioSel && (fechaObj.getMonth() + 1) == mesSel;
-            });
-
-            let totalIngresos = ventasFiltradas.reduce((acc, v) => acc + (parseFloat(v.total_usd) || 0), 0);
-            let totalEgresos = gastosFiltrados.reduce((acc, g) => acc + (parseFloat(g.monto) || 0), 0);
-            let utilidadNeta = totalIngresos - totalEgresos;
-
-            let catOperativo = 0, catInsumos = 0, catMarketing = 0, catOtros = 0;
-            gastosFiltrados.forEach(g => {
-                const m = parseFloat(g.monto) || 0;
-                if (g.categoria === 'Operativo') catOperativo += m;
-                else if (g.categoria === 'Insumos') catInsumos += m;
-                else if (g.categoria === 'Marketing') catMarketing += m;
-                else catOtros += m;
-            });
-
-            document.getElementById('cat-operativo').innerText = `$${catOperativo.toFixed(2)}`;
-            document.getElementById('cat-insumos').innerText = `$${catInsumos.toFixed(2)}`;
-            document.getElementById('cat-marketing').innerText = `$${catMarketing.toFixed(2)}`;
-            document.getElementById('cat-otros').innerText = `$${catOtros.toFixed(2)}`;
-
-            document.getElementById('fin-total-ingresos').innerText = `$${totalIngresos.toFixed(2)}`;
-            document.getElementById('fin-total-ingresos-ves').innerText = `Bs. ${(totalIngresos * tasaBCV).toFixed(2)}`;
-
-            document.getElementById('fin-total-egresos').innerText = `$${totalEgresos.toFixed(2)}`;
-            document.getElementById('fin-total-egresos-ves').innerText = `Bs. ${(totalEgresos * tasaBCV).toFixed(2)}`;
-
-            const utilidadEl = document.getElementById('fin-utilidad-neta');
-            const utilidadVesEl = document.getElementById('fin-utilidad-neta-ves');
-            utilidadEl.innerText = `$${utilidadNeta.toFixed(2)}`;
-            utilidadVesEl.innerText = `Bs. ${(utilidadNeta * tasaBCV).toFixed(2)}`;
-            utilidadEl.className = utilidadNeta < 0 ? "text-2xl font-extrabold text-rose-600 mt-2" : "text-2xl font-extrabold text-[#b88a73] mt-2";
-
-            tbody.innerHTML = gastosFiltrados.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin egresos registrados para este periodo.</td></tr>';
-            
-            gastosFiltrados.slice().reverse().forEach((g) => {
-                tbody.innerHTML += `
-                    <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 text-xs text-gray-500">${g.fecha}</td>
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${g.concepto}</td>
-                        <td class="p-3 text-xs"><span class="bg-[#faf8f6] px-2 py-1 rounded border border-[#e8dbd3]">${g.categoria}</span></td>
-                        <td class="p-3 text-rose-600 font-bold">$${parseFloat(g.monto).toFixed(2)}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="eliminarGasto('${g.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function cargarDashboard() {
-            let ventas = [];
-            let insumos = [];
-            let clientes = [];
-            try {
-                const resV = await db.collection('ventas').get();
-                resV.forEach(doc => ventas.push(doc.data()));
-                const resI = await db.collection('insumos').get();
-                resI.forEach(doc => insumos.push(doc.data()));
-                const resC = await db.collection('clientes').get();
-                resC.forEach(doc => clientes.push(doc.data()));
-            } catch(e) {}
-
-            let totalVentasUSD = ventas.reduce((acc, v) => acc + (parseFloat(v.total_usd) || 0), 0);
-            let totalVentasVES = totalVentasUSD * tasaBCV;
-            let insumosAlerta = insumos.filter(i => parseInt(i.stock || 0) <= parseInt(i.stock_minimo || 0)).length;
-            
-            document.getElementById('dash-ventas').innerHTML = `$${totalVentasUSD.toFixed(2)} <span class="block text-xs font-normal text-gray-500">Bs. ${totalVentasVES.toFixed(2)}</span>`;
-            document.getElementById('dash-insumos').innerText = insumos.length;
-            document.getElementById('dash-insumos-alerta').innerText = insumosAlerta;
-            document.getElementById('dash-clientes').innerText = clientes.length;
-
-            cargarRegistrosCajaEditable();
-        }
-
-        async function manejarCambioClientePresupuesto(selectEl) {
-            if (selectEl.value === 'CREAR_NUEVO_CLIENTE') {
-                const nombreNuevo = prompt("Ingrese el nombre o empresa del nuevo cliente:");
-                if (nombreNuevo && nombreNuevo.trim() !== '') {
-                    const rifNuevo = prompt("RIF o Cédula (opcional):") || '';
-                    const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
-                    const dirNuevo = prompt("Dirección fiscal (opcional):") || '';
-                    await db.collection('clientes').add({ nombre: nombreNuevo.trim(), rif: rifNuevo, tipo: 'Persona Natural', tel: telNuevo, email: '', instagram: '', direccion: dirNuevo });
-                    selectEl.value = nombreNuevo.trim();
-                    mostrarNotificacion("¡Cliente creado con éxito!");
-                } else {
-                    selectEl.value = "Cliente General";
-                }
-            }
+        setInterval(actualizarReloj, 1000);
+
+        function actualizarTasaManual(val) {
+            tasaBCV = parseFloat(val) || 1;
+            document.getElementById('presupuesto-tasa-doc').innerText = tasaBCV.toLocaleString('es-VE', {minimumFractionDigits: 2});
             recalcularPresupuestoTotal();
+            recalcularTotalesCaja();
         }
 
-        async function manejarCambioClienteCaja(selectEl) {
-            if (selectEl.value === 'CREAR_NUEVO_CLIENTE') {
-                const nombreNuevo = prompt("Ingrese el nombre o empresa del nuevo cliente:");
-                if (nombreNuevo && nombreNuevo.trim() !== '') {
-                    const rifNuevo = prompt("RIF o Cédula (opcional):") || '';
-                    const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
-                    const dirNuevo = prompt("Dirección fiscal (opcional):") || '';
-                    await db.collection('clientes').add({ nombre: nombreNuevo.trim(), rif: rifNuevo, tipo: 'Persona Natural', tel: telNuevo, email: '', instagram: '', direccion: dirNuevo });
-                    selectEl.value = nombreNuevo.trim();
-                    mostrarNotificacion("¡Cliente creado con éxito!");
-                } else {
-                    selectEl.value = "Cliente General";
-                }
-            }
+        function fetchBCVRate() {
+            mostrarNotificacion("Tasa BCV sincronizada correctamente ($ 1 = " + tasaBCV + " Bs.)");
         }
 
-        async function guardarPresupuestoStandBy() {
-            const cliente = document.getElementById('presupuesto-cliente').value;
-            const validez = document.getElementById('presupuesto-validez').value;
-            const totalUSD = parseFloat(document.getElementById('doc-total-usd').innerText.replace('$', '')) || 0;
-
-            if (totalUSD <= 0) { mostrarNotificacion("La cotización está vacía.", "error"); return; }
-
-            const items = [];
-            document.querySelectorAll('.renglon-item').forEach(row => {
-                const desc = row.querySelector('.desc-input').value;
-                const cant = parseFloat(row.querySelector('.cant-input').value) || 1;
-                const precio = parseFloat(row.querySelector('.precio-cliente-input').value) || 0;
-                if(desc) items.push({ desc, cant, precio });
+        // ================= NAVEGACIÓN Y TABS =================
+        function switchTab(tabId) {
+            const modulos = ['dashboard', 'standby', 'calculadora', 'calc-stickers', 'calc-toppers', 'calc-flyers', 'calc-sublimacion', 'calc-audiovisual', 'calc-vinil', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo'];
+            modulos.forEach(m => {
+                const el = document.getElementById('module-' + m);
+                if (el) el.classList.add('hidden');
             });
-
-            const btn = document.getElementById('btn-guardar-standby');
-            if(btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Guardando...';
-
-            try {
-                await db.collection('standby').add({
-                    cliente, validez, total_usd: totalUSD,
-                    items: JSON.stringify(items),
-                    created_at: new Date().toLocaleString()
-                });
-                mostrarNotificacion("¡Cotización en Stand By guardada en la nube!");
-                cargarCotizacionesStandBy();
-                switchTab('standby');
-            } catch (error) {
-                mostrarNotificacion("Error al guardar Stand By.", "error");
-            } finally {
-                if(btn) btn.innerHTML = '<i class="fa-solid fa-clock"></i><span>Guardar en Stand By</span>';
-            }
-        }
-
-        // ================= ENVÍO POR WHATSAPP =================
-        function enviarPresupuestoWhatsApp() {
-            const clienteNombre = document.getElementById('doc-cliente-nombre').innerText;
-            const totalUSD = document.getElementById('doc-total-usd').innerText;
-            const totalVES = document.getElementById('doc-total-ves').innerText;
-            const ocultarBcv = document.getElementById('chk-ocultar-bcv').checked;
+            const target = document.getElementById('module-' + tabId);
+            if (target) target.classList.remove('hidden');
             
-            let telefonoCliente = '';
-            const clienteObj = listaClientesDB.find(c => c.nombre === clienteNombre);
-            if (clienteObj && clienteObj.tel) {
-                telefonoCliente = clienteObj.tel.replace(/[^0-9]/g, '');
-            }
-
-            let mensaje = `Hola *${clienteNombre}* 🚀,\n\nTe comparto el resumen del presupuesto emitido por *LAN Estudio*:\n\n*Total:* ${totalUSD}`;
-            if (!ocultarBcv) {
-                mensaje += ` (${totalVES})`;
-            }
-            mensaje += `\n\n¡Quedamos a tu entera disposición para avanzar con tu proyecto!`;
-
-            let url = `https://wa.me/${telefonoCliente}?text=${encodeURIComponent(mensaje)}`;
-            window.open(url, '_blank');
-            mostrarNotificacion("Abriendo WhatsApp con el presupuesto...");
-        }
-
-        function enviarUltimaVentaWhatsApp() {
-            if (!ultimaVentaProcesada) {
-                mostrarNotificacion("No hay una venta reciente procesada en esta sesión.", "error");
-                return;
-            }
-            const v = ultimaVentaProcesada;
-            let telefonoCliente = '';
-            const clienteObj = listaClientesDB.find(c => c.nombre === v.cliente);
-            if (clienteObj && clienteObj.tel) {
-                telefonoCliente = clienteObj.tel.replace(/[^0-9]/g, '');
-            }
-
-            let mensaje = `¡Hola *${v.cliente}*! 🚀 Gracias por tu compra en *LAN Estudio*.\n\n*Concepto:* ${v.concepto}\n*Total Pagado:* $${parseFloat(v.total_usd).toFixed(2)}\n*Método:* ${v.metodos_pago}`;
-            if(v.notas) mensaje += `\n*Nota:* ${v.notas}`;
-            mensaje += `\n\n¡Fue un placer atenderte!`;
-
-            let url = `https://wa.me/${telefonoCliente}?text=${encodeURIComponent(mensaje)}`;
-            window.open(url, '_blank');
-            mostrarNotificacion("Abriendo WhatsApp con el recibo de venta...");
-        }
-
-        // ================= ARQUEO DE CAJA DIARIO =================
-        async function abrirArqueoCaja() {
-            const modal = document.getElementById('modal-arqueo');
-            const contenido = document.getElementById('contenido-arqueo');
-            modal.classList.remove('hidden');
-            contenido.innerHTML = '<p class="text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Calculando arqueo del día...</p>';
-
-            try {
-                const hoyStr = new Date().toLocaleDateString();
-                const snapshot = await db.collection('ventas').get();
-                let ventasHoy = [];
-                snapshot.forEach(doc => {
-                    const v = doc.data();
-                    const fechaVenta = v.fecha || new Date(v.fechaISO).toLocaleDateString();
-                    if (fechaVenta === hoyStr) {
-                        ventasHoy.push(v);
-                    }
-                });
-
-                let totalDiaUSD = 0;
-                let desgloseMetodos = {};
-
-                ventasHoy.forEach(v => {
-                    totalDiaUSD += parseFloat(v.total_usd) || 0;
-                    const metodosStr = v.metodos_pago || '';
-                    const partes = metodosStr.split('|');
-                    partes.forEach(p => {
-                        const sub = p.split(':');
-                        if(sub.length >= 2) {
-                            const metodoNombre = sub[0].trim();
-                            const montoMatch = sub[1].match(/\$([0-9.]+)/);
-                            if(montoMatch) {
-                                const monto = parseFloat(montoMatch[1]) || 0;
-                                desgloseMetodos[metodoNombre] = (desgloseMetodos[metodoNombre] || 0) + monto;
-                            }
-                        }
-                    });
-                });
-
-                let htmlMetodos = '';
-                for (let m in desgloseMetodos) {
-                    htmlMetodos += `<div class="flex justify-between py-1 border-b border-gray-100"><span>${m}:</span><span class="font-bold text-[#b88a73]">$${desgloseMetodos[m].toFixed(2)} (Bs. ${(desgloseMetodos[m] * tasaBCV).toFixed(2)})</span></div>`;
-                }
-
-                if(Object.keys(desgloseMetodos).length === 0) {
-                    htmlMetodos = '<p class="text-gray-400 text-center py-2">Sin registros detallados de pago para hoy.</p>';
-                }
-
-                contenido.innerHTML = `
-                    <div class="bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3] space-y-2">
-                        <div class="flex justify-between font-bold text-sm text-[#2c2c2c] border-b pb-2">
-                            <span>Fecha del Arqueo:</span><span>${hoyStr}</span>
-                        </div>
-                        <div class="py-1">
-                            <p class="text-xs font-semibold text-gray-500 uppercase">Desglose por Método de Pago:</p>
-                            <div class="mt-2 space-y-1">${htmlMetodos}</div>
-                        </div>
-                        <div class="flex justify-between font-extrabold text-base text-[#b88a73] border-t pt-2 mt-2">
-                            <span>Total Ingresos Hoy:</span>
-                            <span>$${totalDiaUSD.toFixed(2)} <span class="text-xs block text-gray-500 font-normal">Bs. ${(totalDiaUSD * tasaBCV).toFixed(2)}</span></span>
-                        </div>
-                    </div>
-                `;
-            } catch(e) {
-                contenido.innerHTML = '<p class="text-center text-rose-500">Error al calcular el arqueo de caja.</p>';
+            // Actualizar fecha en documento si es cotizador
+            if (tabId === 'calculadora') {
+                document.getElementById('presupuesto-fecha-doc').innerText = 'Fecha: ' + new Date().toLocaleDateString('es-VE');
             }
         }
 
-        function cerrarArqueoCaja() {
-            document.getElementById('modal-arqueo').classList.add('hidden');
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById('dropdown-' + id);
+            if (dropdown) dropdown.classList.toggle('hidden');
         }
 
-        async function cargarCotizacionesStandBy() {
-            const tbody = document.getElementById('tabla-standby');
-            if(!tbody) return;
-
-            try {
-                const snapshot = await db.collection('standby').get();
-                let registros = [];
-                snapshot.forEach(doc => { registros.push({ id: doc.id, ...doc.data() }); });
-
-                tbody.innerHTML = registros.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">No hay cotizaciones en espera.</td></tr>';
-                
-                registros.forEach(cot => {
-                    let itemsResumen = cot.items;
-                    try {
-                        const parsed = JSON.parse(cot.items);
-                        if (Array.isArray(parsed)) itemsResumen = parsed.map(i => `${i.cant}x ${i.desc}`).join(', ');
-                    } catch(e) {}
-
-                    const cotJsonEscaped = JSON.stringify(cot).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-
-                    tbody.innerHTML += `
-                        <tr class="border-b border-[#e8dbd3]">
-                            <td class="p-3 text-xs">${cot.created_at}</td>
-                            <td class="p-3 font-semibold text-[#2c2c2c]">${cot.cliente}</td>
-                            <td class="p-3 text-xs text-gray-600 max-w-xs truncate" title="${itemsResumen}">${itemsResumen}</td>
-                            <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(cot.total_usd).toFixed(2)}</td>
-                            <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                                <button onclick='editarStandByAsCotizacion(${cotJsonEscaped})' class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-2 rounded-xl transition text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                                <button onclick='enviarStandByACaja(${cotJsonEscaped})' class="bg-gray-100 hover:bg-emerald-100 text-emerald-700 p-2 rounded-xl transition text-xs" title="Facturar"><i class="fa-solid fa-cash-register"></i></button>
-                                <button onclick="eliminarStandBy('${cot.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                
-                const badge = document.getElementById('badge-standby');
-                const dashCount = document.getElementById('dash-standby');
-                if(badge) badge.innerText = registros.length;
-                if(dashCount) dashCount.innerText = registros.length;
-            } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">Error al cargar datos desde Firebase.</td></tr>';
-            }
-        }
-
-        function editarStandByAsCotizacion(cot) {
-            switchTab('calculadora');
-            setTimeout(() => {
-                const clienteSelect = document.getElementById('presupuesto-cliente');
-                if(clienteSelect) clienteSelect.value = cot.cliente;
-                const validezInput = document.getElementById('presupuesto-validez');
-                if(validezInput) validezInput.value = cot.validez || '7 días hábiles';
-
-                const tbody = document.getElementById('lista-renglones-presupuesto');
-                tbody.innerHTML = '';
-
-                try {
-                    const parsed = JSON.parse(cot.items);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        parsed.forEach(i => {
-                            agregarRenglonServicio(i.desc, i.precio / 1.3);
-                            const ultimaFila = document.querySelector('#lista-renglones-presupuesto tr:last-child');
-                            if(ultimaFila) {
-                                ultimaFila.querySelector('.cant-input').value = i.cant;
-                                ultimaFila.querySelector('.precio-cliente-input').value = i.precio.toFixed(2);
-                                ultimaFila.querySelector('.precio-cliente-input').classList.add('modificado-manual');
-                            }
-                        });
-                    } else {
-                        agregarRenglonServicio('Presupuesto Stand By', cot.total_usd);
-                    }
-                } catch(e) {
-                    agregarRenglonServicio('Presupuesto / Servicios', cot.total_usd);
-                }
-                recalcularPresupuestoTotal();
-                mostrarNotificacion("Cotización cargada para edición.");
-            }, 200);
-        }
-
-        async function eliminarStandBy(id) {
-            if(!confirm("¿Eliminar esta cotización en stand by?")) return;
-            try {
-                await db.collection('standby').doc(id).delete();
-                cargarCotizacionesStandBy();
-                mostrarNotificacion("Cotización eliminada.");
-            } catch (error) {}
-        }
-
-        function enviarStandByACaja(cot) {
-            switchTab('caja');
-            setTimeout(() => {
-                const clienteSelect = document.getElementById('caja-cliente');
-                if(clienteSelect) clienteSelect.value = cot.cliente;
-
-                const tbody = document.getElementById('lista-items-caja');
-                tbody.innerHTML = '';
-
-                try {
-                    const parsed = JSON.parse(cot.items);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        parsed.forEach(i => { agregarItemCajaFila(i.desc, i.cant, i.precio); });
-                    } else {
-                        agregarItemCajaFila('Presupuesto Stand By', 1, cot.total_usd);
-                    }
-                } catch(e) {
-                    agregarItemCajaFila('Presupuesto / Servicios', 1, cot.total_usd);
-                }
-                recalcularTotalesCaja();
-                mostrarNotificacion("Cotización enviada a caja.");
-            }, 200);
-        }
-
-        // ================= CALCULADORAS ESPECIALES =================
-        function poblarSelectInsumosStickers() {
-            const select = document.getElementById('stk-insumo-select');
-            if(!select) return;
-            select.innerHTML = '<option value="0">-- Cargar desde Insumos --</option>';
-            listaInsumosDB.forEach(ins => {
-                select.innerHTML += `<option value="${ins.costo_unitario}">${ins.nombre} ($${ins.costo_unitario})</option>`;
-            });
-        }
-
-        function seleccionarInsumoSticker() {
-            const select = document.getElementById('stk-insumo-select');
-            const costo = parseFloat(select.value) || 0;
-            if(costo > 0) {
-                document.getElementById('stk-costo-hoja').value = costo;
-                calcularStickers();
-            }
-        }
-
+        // ================= CALCULADORAS ESPECIALIZADAS =================
         function calcularStickers() {
-            const anchoStk = (parseFloat(document.getElementById('stk-ancho').value) || 0) + (parseFloat(document.getElementById('stk-gap').value) || 0);
-            const altoStk = (parseFloat(document.getElementById('stk-alto').value) || 0) + (parseFloat(document.getElementById('stk-gap').value) || 0);
-            const cantRequerida = parseInt(document.getElementById('stk-cantidad').value) || 1;
-
-            const anchoHoja = parseFloat(document.getElementById('stk-hoja-ancho').value) || 1;
-            const altoHoja = parseFloat(document.getElementById('stk-hoja-alto').value) || 1;
-
+            const ancho = parseFloat(document.getElementById('stk-ancho').value) || 0;
+            const alto = parseFloat(document.getElementById('stk-alto').value) || 0;
+            const gap = parseFloat(document.getElementById('stk-gap').value) || 0;
+            const cantidad = parseInt(document.getElementById('stk-cantidad').value) || 0;
+            const hojaAncho = parseFloat(document.getElementById('stk-hoja-ancho').value) || 30;
+            const hojaAlto = parseFloat(document.getElementById('stk-hoja-alto').value) || 40;
             const costoHoja = parseFloat(document.getElementById('stk-costo-hoja').value) || 0;
             const costoCorte = parseFloat(document.getElementById('stk-costo-corte').value) || 0;
             const gananciaPct = parseFloat(document.getElementById('stk-ganancia').value) || 0;
 
-            if(anchoStk <= 0 || altoStk <= 0) return;
+            const anchoUtil = ancho + gap;
+            const altoUtil = alto + gap;
 
-            const porHoja = Math.max(Math.floor(anchoHoja / anchoStk) * Math.floor(altoHoja / altoStk), 1);
-            const hojasNecesarias = Math.ceil(cantRequerida / porHoja);
+            const col1 = Math.floor(hojaAncho / anchoUtil);
+            const fil1 = Math.floor(hojaAlto / altoUtil);
+            const porHoja1 = col1 * fil1;
 
-            const costoMaterialTotal = hojasNecesarias * costoHoja;
-            const costoOperativoTotal = hojasNecesarias * costoCorte;
-            const costoBaseProduccion = costoMaterialTotal + costoOperativoTotal;
+            const col2 = Math.floor(hojaAlto / anchoUtil);
+            const fil2 = Math.floor(hojaAncho / altoUtil);
+            const porHoja2 = col2 * fil2;
 
-            const precioSugeridoLote = costoBaseProduccion * (1 + (gananciaPct / 100));
-            const precioUnitario = cantRequerida > 0 ? (precioSugeridoLote / cantRequerida) : 0;
+            const porHoja = Math.max(porHoja1, porHoja2, 1);
+            const hojasReq = Math.ceil(cantidad / porHoja);
 
-            document.getElementById('stk-res-por-hoja').innerText = `${porHoja} uds`;
-            document.getElementById('stk-res-hojas-req').innerText = `${hojasNecesarias} pliegos`;
-            document.getElementById('stk-res-costo-mat').innerText = `$${costoMaterialTotal.toFixed(2)}`;
-            document.getElementById('stk-res-costo-op').innerText = `$${costoOperativoTotal.toFixed(2)}`;
-            document.getElementById('stk-res-costo-total').innerText = `$${costoBaseProduccion.toFixed(2)}`;
-            document.getElementById('stk-res-precio-lote').innerText = `$${precioSugeridoLote.toFixed(2)}`;
-            document.getElementById('stk-res-precio-unit').innerText = `$${precioUnitario.toFixed(3)}`;
+            const costoMat = hojasReq * costoHoja;
+            const costoOp = hojasReq * costoCorte;
+            const costoTotal = costoMat + costoOp;
+
+            const precioLote = costoTotal * (1 + gananciaPct / 100);
+            const precioUnit = cantidad > 0 ? precioLote / cantidad : 0;
+
+            document.getElementById('stk-res-por-hoja').innerText = porHoja + ' uds';
+            document.getElementById('stk-res-hojas-req').innerText = hojasReq + ' hojas';
+            document.getElementById('stk-res-costo-mat').innerText = '$' + costoMat.toFixed(2);
+            document.getElementById('stk-res-costo-op').innerText = '$' + costoOp.toFixed(2);
+            document.getElementById('stk-res-costo-total').innerText = '$' + costoTotal.toFixed(2);
+            document.getElementById('stk-res-precio-lote').innerText = '$' + precioLote.toFixed(2);
+            document.getElementById('stk-res-precio-unit').innerText = '$' + precioUnit.toFixed(2);
+        }
+
+        function seleccionarInsumoSticker() {
+            const sel = document.getElementById('stk-insumo-select').value;
+            const insumo = listaInsumosDB.find(i => i.id === sel);
+            if (insumo) {
+                document.getElementById('stk-costo-hoja').value = insumo.costo;
+                calcularStickers();
+            }
         }
 
         function enviarStickerAPresupuesto() {
-            const cant = parseInt(document.getElementById('stk-cantidad').value) || 1;
-            const ancho = document.getElementById('stk-ancho').value;
-            const alto = document.getElementById('stk-alto').value;
-            const concepto = `Stickers Personalizados (${ancho}x${alto}cm) - Pack de ${cant} uds`;
-            const costoBase = parseFloat(document.getElementById('stk-res-costo-total').innerText.replace('$', '')) || 0;
-            const ganancia = parseFloat(document.getElementById('stk-ganancia').value) || 50;
-
+            const nombre = "Stickers Personalizados (" + document.getElementById('stk-cantidad').value + " uds)";
+            const costo = parseFloat(document.getElementById('stk-res-costo-total').innerText.replace('$', '')) || 0;
+            const ganancia = parseFloat(document.getElementById('stk-ganancia').value) || 30;
+            const cantidad = parseInt(document.getElementById('stk-cantidad').value) || 1;
+            const precioSug = costo * (1 + ganancia / 100);
+            
+            agregarRenglonManualConDatos(nombre, cantidad, costo, ganancia, precioSug);
             switchTab('calculadora');
-            agregarRenglonServicio(concepto, costoBase);
-            const ultimaFila = document.querySelector('#lista-renglones-presupuesto tr:last-child');
-            if(ultimaFila) {
-                ultimaFila.querySelector('.cant-input').value = 1;
-                ultimaFila.querySelector('.ganancia-input').value = ganancia;
-                recalcularPresupuestoTotal();
-            }
-            mostrarNotificacion("Sticker agregado al presupuesto.");
+            mostrarNotificacion("Stickers agregados al cotizador exitosamente.");
         }
 
-        let topperFilaIdx = 0;
-        function agregarFilaTopper() {
-            topperFilaIdx++;
-            const tbody = document.getElementById('lista-insumos-topper');
-            const rowId = `top-row-${topperFilaIdx}`;
-
-            let opcionesInsumos = '<option value="">-- Seleccionar de Insumos --</option>';
-            listaInsumosDB.forEach(ins => {
-                opcionesInsumos += `<option value="${ins.nombre}" data-costo="${ins.costo_unitario}">${ins.nombre} ($${ins.costo_unitario})</option>`;
-            });
-
-            const html = `
-                <tr id="${rowId}" class="border-b border-[#e8dbd3]">
-                    <td class="p-2">
-                        <select class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded p-1 text-xs mb-1" onchange="seleccionarInsumoTopper('${rowId}')">
-                            ${opcionesInsumos}
-                        </select>
-                        <input type="text" placeholder="Material / Capa" class="w-full border border-[#e8dbd3] rounded p-1 text-xs top-mat-nombre">
-                    </td>
-                    <td class="p-2 text-center">
-                        <input type="number" value="1" min="1" step="1" class="w-full border border-[#e8dbd3] text-center rounded p-1 text-xs top-mat-cant" oninput="calcularTopper()">
-                    </td>
-                    <td class="p-2 text-center">
-                        <input type="number" value="0.00" step="0.01" min="0" class="w-full border border-[#e8dbd3] text-center rounded p-1 text-xs top-mat-costo" oninput="calcularTopper()">
-                    </td>
-                    <td class="p-2 text-center">
-                        <button onclick="document.getElementById('${rowId}').remove(); calcularTopper();" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
-            `;
-            tbody.insertAdjacentHTML('beforeend', html);
-            calcularTopper();
-        }
-
-        function seleccionarInsumoTopper(rowId) {
-            const row = document.getElementById(rowId);
-            const select = row.querySelector('select');
-            const selected = select.options[select.selectedIndex];
-            const costo = parseFloat(selected.getAttribute('data-costo')) || 0;
-            row.querySelector('.top-mat-nombre').value = select.value;
-            row.querySelector('.top-mat-costo').value = costo;
-            calcularTopper();
-        }
-
+        // Funciones auxiliares para otras calculadoras
         function calcularTopper() {
-            let costoMateriales = 0;
-            document.querySelectorAll('#lista-insumos-topper tr').forEach(row => {
-                const cant = parseFloat(row.querySelector('.top-mat-cant').value) || 0;
-                const costo = parseFloat(row.querySelector('.top-mat-costo').value) || 0;
-                costoMateriales += (cant * costo);
+            const horas = parseFloat(document.getElementById('top-horas').value) || 0;
+            const tarifa = parseFloat(document.getElementById('top-tarifa-hora').value) || 0;
+            const ganancia = parseFloat(document.getElementById('top-ganancia').value) || 0;
+            
+            let costoMat = 0;
+            document.querySelectorAll('.topper-fila').forEach(tr => {
+                const cant = parseFloat(tr.querySelector('.top-cant').value) || 0;
+                const costo = parseFloat(tr.querySelector('.top-costo').value) || 0;
+                costoMat += cant * costo;
             });
 
-            const horas = parseFloat(document.getElementById('top-horas').value) || 0;
-            const tarifaHora = parseFloat(document.getElementById('top-tarifa-hora').value) || 0;
-            const costoManoObra = horas * tarifaHora;
-            const costoTotalProduccion = costoMateriales + costoManoObra;
-            const gananciaPct = parseFloat(document.getElementById('top-ganancia').value) || 0;
-            const precioVentaFinal = costoTotalProduccion * (1 + (gananciaPct / 100));
+            const costoMO = horas * tarifa;
+            const costoTotal = costoMat + costoMO;
+            const precioFinal = costoTotal * (1 + ganancia / 100);
 
-            document.getElementById('top-res-mat').innerText = `$${costoMateriales.toFixed(2)}`;
-            document.getElementById('top-res-mo').innerText = `$${costoManoObra.toFixed(2)}`;
-            document.getElementById('top-res-costo-total').innerText = `$${costoTotalProduccion.toFixed(2)}`;
-            document.getElementById('top-res-precio-final').innerText = `$${precioVentaFinal.toFixed(2)}`;
+            document.getElementById('top-res-mat').innerText = '$' + costoMat.toFixed(2);
+            document.getElementById('top-res-mo').innerText = '$' + costoMO.toFixed(2);
+            document.getElementById('top-res-costo-total').innerText = '$' + costoTotal.toFixed(2);
+            document.getElementById('top-res-precio-final').innerText = '$' + precioFinal.toFixed(2);
+        }
+
+        function agregarFilaTopper() {
+            const tbody = document.getElementById('lista-insumos-topper');
+            const tr = document.createElement('tr');
+            tr.className = 'topper-fila border-b border-gray-100';
+            tr.innerHTML = `
+                <td class="p-2"><input type="text" value="Cartulina Metalizada" class="w-full bg-white border border-[#e8dbd3] rounded p-1 text-xs top-desc"></td>
+                <td class="p-2 text-center"><input type="number" value="1" step="1" class="w-16 bg-white border border-[#e8dbd3] rounded p-1 text-xs text-center top-cant" oninput="calcularTopper()"></td>
+                <td class="p-2 text-center"><input type="number" value="0.20" step="0.05" class="w-20 bg-white border border-[#e8dbd3] rounded p-1 text-xs text-center top-costo" oninput="calcularTopper()"></td>
+                <td class="p-2 text-center"><button onclick="this.closest('tr').remove(); calcularTopper();" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+            calcularTopper();
         }
 
         function enviarTopperAPresupuesto() {
-            const nombre = document.getElementById('top-nombre').value || "Topper Multicapa";
-            const costoBase = parseFloat(document.getElementById('top-res-costo-total').innerText.replace('$', '')) || 0;
-            const ganancia = parseFloat(document.getElementById('top-ganancia').value) || 40;
-
+            const nombre = document.getElementById('top-nombre').value;
+            const costo = parseFloat(document.getElementById('top-res-costo-total').innerText.replace('$', '')) || 0;
+            const ganancia = parseFloat(document.getElementById('top-ganancia').value) || 30;
+            const precio = parseFloat(document.getElementById('top-res-precio-final').innerText.replace('$', '')) || 0;
+            agregarRenglonManualConDatos(nombre, 1, costo, ganancia, precio);
             switchTab('calculadora');
-            agregarRenglonServicio(nombre, costoBase);
-            const ultimaFila = document.querySelector('#lista-renglones-presupuesto tr:last-child');
-            if(ultimaFila) {
-                ultimaFila.querySelector('.cant-input').value = 1;
-                ultimaFila.querySelector('.ganancia-input').value = ganancia;
-                recalcularPresupuestoTotal();
-            }
-            mostrarNotificacion("Topper agregado al presupuesto.");
+            mostrarNotificacion("Topper agregado al cotizador.");
         }
 
         function calcularFlyers() {
-            const cant = parseInt(document.getElementById('fly-cantidad').value) || 1;
+            const cant = parseInt(document.getElementById('fly-cantidad').value) || 0;
             const porHoja = parseInt(document.getElementById('fly-por-hoja').value) || 1;
             const costoHoja = parseFloat(document.getElementById('fly-costo-hoja').value) || 0;
             const costoTinta = parseFloat(document.getElementById('fly-costo-tinta').value) || 0;
             const ganancia = parseFloat(document.getElementById('fly-ganancia').value) || 0;
 
-            const hojasReq = Math.ceil(cant / porHoja);
-            const costoTotal = hojasReq * (costoHoja + costoTinta);
-            const precioTotal = costoTotal * (1 + (ganancia / 100));
-            const precioUnit = cant > 0 ? (precioTotal / cant) : 0;
+            const hojas = Math.ceil(cant / porHoja);
+            const costoTotal = hojas * (costoHoja + costoTinta);
+            const precioTotal = costoTotal * (1 + ganancia / 100);
+            const precioUnit = cant > 0 ? precioTotal / cant : 0;
 
-            document.getElementById('fly-res-hojas').innerText = `${hojasReq} hojas`;
-            document.getElementById('fly-res-costo').innerText = `$${costoTotal.toFixed(2)}`;
-            document.getElementById('fly-res-precio').innerText = `$${precioTotal.toFixed(2)}`;
-            document.getElementById('fly-res-unit').innerText = `$${precioUnit.toFixed(3)}`;
+            document.getElementById('fly-res-hojas').innerText = hojas + ' hojas';
+            document.getElementById('fly-res-costo').innerText = '$' + costoTotal.toFixed(2);
+            document.getElementById('fly-res-precio').innerText = '$' + precioTotal.toFixed(2);
+            document.getElementById('fly-res-unit').innerText = '$' + precioUnit.toFixed(4);
         }
 
         function enviarFlyersAPresupuesto() {
-            const nombre = document.getElementById('fly-nombre').value || "Flyers Publicitarios";
+            const nombre = document.getElementById('fly-nombre').value;
             const cant = parseInt(document.getElementById('fly-cantidad').value) || 1;
             const costo = parseFloat(document.getElementById('fly-res-costo').innerText.replace('$', '')) || 0;
-            const ganancia = parseFloat(document.getElementById('fly-ganancia').value) || 50;
-
+            const ganancia = parseFloat(document.getElementById('fly-ganancia').value) || 30;
+            const precio = parseFloat(document.getElementById('fly-res-precio').innerText.replace('$', '')) || 0;
+            agregarRenglonManualConDatos(nombre, cant, costo, ganancia, precio);
             switchTab('calculadora');
-            agregarRenglonServicio(nombre, costo);
-            const ultimaFila = document.querySelector('#lista-renglones-presupuesto tr:last-child');
-            if(ultimaFila) {
-                ultimaFila.querySelector('.cant-input').value = cant;
-                ultimaFila.querySelector('.ganancia-input').value = ganancia;
-                recalcularPresupuestoTotal();
-            }
-            mostrarNotificacion("Flyers agregados al presupuesto.");
+            mostrarNotificacion("Flyers agregados al cotizador.");
         }
 
         function calcularSublimacion() {
@@ -2331,985 +1387,785 @@
 
             const costoUnit = virgen + transfer;
             const costoTotal = costoUnit * cant;
-            const precioTotal = costoTotal * (1 + (ganancia / 100));
-            const precioUnit = cant > 0 ? (precioTotal / cant) : 0;
+            const precioLote = costoTotal * (1 + ganancia / 100);
+            const precioUnit = cant > 0 ? precioLote / cant : 0;
 
-            document.getElementById('sub-res-unit-cost').innerText = `$${costoUnit.toFixed(2)}`;
-            document.getElementById('sub-res-total-cost').innerText = `$${costoTotal.toFixed(2)}`;
-            document.getElementById('sub-res-precio-lote').innerText = `$${precioTotal.toFixed(2)}`;
-            document.getElementById('sub-res-precio-unit').innerText = `$${precioUnit.toFixed(2)}`;
+            document.getElementById('sub-res-unit-cost').innerText = '$' + costoUnit.toFixed(2);
+            document.getElementById('sub-res-total-cost').innerText = '$' + costoTotal.toFixed(2);
+            document.getElementById('sub-res-precio-lote').innerText = '$' + precioLote.toFixed(2);
+            document.getElementById('sub-res-precio-unit').innerText = '$' + precioUnit.toFixed(2);
         }
 
         function enviarSublimacionAPresupuesto() {
-            const nombre = document.getElementById('sub-nombre').value || "Artículo Sublimado";
+            const nombre = document.getElementById('sub-nombre').value;
             const cant = parseInt(document.getElementById('sub-cantidad').value) || 1;
-            const costoUnit = parseFloat(document.getElementById('sub-res-unit-cost').innerText.replace('$', '')) || 0;
-            const ganancia = parseFloat(document.getElementById('sub-ganancia').value) || 60;
-
+            const costo = parseFloat(document.getElementById('sub-res-total-cost').innerText.replace('$', '')) || 0;
+            const ganancia = parseFloat(document.getElementById('sub-ganancia').value) || 30;
+            const precio = parseFloat(document.getElementById('sub-res-precio-lote').innerText.replace('$', '')) || 0;
+            agregarRenglonManualConDatos(nombre, cant, costo, ganancia, precio);
             switchTab('calculadora');
-            agregarRenglonServicio(nombre, costoUnit);
-            const ultimaFila = document.querySelector('#lista-renglones-presupuesto tr:last-child');
-            if(ultimaFila) {
-                ultimaFila.querySelector('.cant-input').value = cant;
-                ultimaFila.querySelector('.ganancia-input').value = ganancia;
-                recalcularPresupuestoTotal();
-            }
-            mostrarNotificacion("Artículo sublimado agregado al presupuesto.");
+            mostrarNotificacion("Artículo de sublimación agregado.");
         }
 
         function calcularAudiovisual() {
-            const hGrab = parseFloat(document.getElementById('vid-horas-grab').value) || 0;
-            const hEdit = parseFloat(document.getElementById('vid-horas-edit').value) || 0;
+            const grab = parseFloat(document.getElementById('vid-horas-grab').value) || 0;
+            const edit = parseFloat(document.getElementById('vid-horas-edit').value) || 0;
             const tarifa = parseFloat(document.getElementById('vid-tarifa').value) || 0;
             const equipos = parseFloat(document.getElementById('vid-equipos').value) || 0;
             const ganancia = parseFloat(document.getElementById('vid-ganancia').value) || 0;
 
-            const costoBase = ((hGrab + hEdit) * tarifa) + equipos;
-            const precioTotal = costoBase * (1 + (ganancia / 100));
+            const costoBase = (grab + edit) * tarifa + equipos;
+            const precioTotal = costoBase * (1 + ganancia / 100);
 
-            document.getElementById('vid-res-base').innerText = `$${costoBase.toFixed(2)}`;
-            document.getElementById('vid-res-costo').innerText = `$${costoBase.toFixed(2)}`;
-            document.getElementById('vid-res-precio').innerText = `$${precioTotal.toFixed(2)}`;
+            document.getElementById('vid-res-base').innerText = '$' + costoBase.toFixed(2);
+            document.getElementById('vid-res-costo').innerText = '$' + costoBase.toFixed(2);
+            document.getElementById('vid-res-precio').innerText = '$' + precioTotal.toFixed(2);
         }
 
         function enviarAudiovisualAPresupuesto() {
-            const nombre = document.getElementById('vid-nombre').value || "Producción Audiovisual";
-            const costo = parseFloat(document.getElementById('vid-res-costo').innerText.replace('$', '')) || 0;
+            const nombre = document.getElementById('vid-nombre').value;
+            const costo = parseFloat(document.getElementById('vid-res-base').innerText.replace('$', '')) || 0;
             const ganancia = parseFloat(document.getElementById('vid-ganancia').value) || 30;
-
+            const precio = parseFloat(document.getElementById('vid-res-precio').innerText.replace('$', '')) || 0;
+            agregarRenglonManualConDatos(nombre, 1, costo, ganancia, precio);
             switchTab('calculadora');
-            agregarRenglonServicio(nombre, costo);
-            const ultimaFila = document.querySelector('#lista-renglones-presupuesto tr:last-child');
-            if(ultimaFila) {
-                ultimaFila.querySelector('.cant-input').value = 1;
-                ultimaFila.querySelector('.ganancia-input').value = ganancia;
-                recalcularPresupuestoTotal();
-            }
-            mostrarNotificacion("Servicio audiovisual agregado al presupuesto.");
+            mostrarNotificacion("Servicio audiovisual agregado.");
         }
 
         function calcularVinil() {
             const ancho = parseFloat(document.getElementById('vin-ancho').value) || 0;
             const alto = parseFloat(document.getElementById('vin-alto').value) || 0;
             const costoM2 = parseFloat(document.getElementById('vin-costo-m2').value) || 0;
-            const manoObra = parseFloat(document.getElementById('vin-mano-obra').value) || 0;
+            const mo = parseFloat(document.getElementById('vin-mano-obra').value) || 0;
             const ganancia = parseFloat(document.getElementById('vin-ganancia').value) || 0;
 
-            const m2 = (ancho * alto) / 10000;
+            const m2 = (ancho / 100) * (alto / 100);
             const costoMat = m2 * costoM2;
-            const costoTotal = costoMat + manoObra;
-            const precioTotal = costoTotal * (1 + (ganancia / 100));
+            const costoTotal = costoMat + mo;
+            const precio = costoTotal * (1 + ganancia / 100);
 
-            document.getElementById('vin-res-m2').innerText = `${m2.toFixed(2)} m²`;
-            document.getElementById('vin-res-costo-mat').innerText = `$${costoMat.toFixed(2)}`;
-            document.getElementById('vin-res-costo-total').innerText = `$${costoTotal.toFixed(2)}`;
-            document.getElementById('vin-res-precio').innerText = `$${precioTotal.toFixed(2)}`;
+            document.getElementById('vin-res-m2').innerText = m2.toFixed(2) + ' m²';
+            document.getElementById('vin-res-costo-mat').innerText = '$' + costoMat.toFixed(2);
+            document.getElementById('vin-res-costo-total').innerText = '$' + costoTotal.toFixed(2);
+            document.getElementById('vin-res-precio').innerText = '$' + precio.toFixed(2);
         }
 
         function enviarVinilAPresupuesto() {
-            const nombre = document.getElementById('vin-nombre').value || "Rotulación Vinil";
+            const nombre = document.getElementById('vin-nombre').value;
             const costo = parseFloat(document.getElementById('vin-res-costo-total').innerText.replace('$', '')) || 0;
-            const ganancia = parseFloat(document.getElementById('vin-ganancia').value) || 40;
-
+            const ganancia = parseFloat(document.getElementById('vin-ganancia').value) || 30;
+            const precio = parseFloat(document.getElementById('vin-res-precio').innerText.replace('$', '')) || 0;
+            agregarRenglonManualConDatos(nombre, 1, costo, ganancia, precio);
             switchTab('calculadora');
-            agregarRenglonServicio(nombre, costo);
-            const ultimaFila = document.querySelector('#lista-renglones-presupuesto tr:last-child');
-            if(ultimaFila) {
-                ultimaFila.querySelector('.cant-input').value = 1;
-                ultimaFila.querySelector('.ganancia-input').value = ganancia;
-                recalcularPresupuestoTotal();
-            }
-            mostrarNotificacion("Vinil / DTF agregado al presupuesto.");
+            mostrarNotificacion("Trabajo de vinil agregado.");
         }
 
-        let renglonIndex = 0;
-        function agregarRenglonServicio(nombreDefault = '', costoDefault = 0) {
-            renglonIndex++;
+        // ================= COTIZADOR Y PRESUPUESTOS =================
+        function alternarOcultarBCV() {
+            const ocultar = document.getElementById('chk-ocultar-bcv').checked;
+            document.getElementById('container-tasa-doc').style.display = ocultar ? 'none' : 'block';
+            document.getElementById('container-total-ves-doc').style.display = ocultar ? 'none' : 'flex';
+        }
+
+        function agregarRenglonServicio() {
             const tbody = document.getElementById('lista-renglones-presupuesto');
-            const rowId = `renglon-${renglonIndex}`;
-            const gananciaGlobal = parseFloat(document.getElementById('presupuesto-ganancia-global').value) || 30;
-
-            let opcionesServicios = '<option value="">-- Catálogo Servicios --</option>';
-            listaServiciosDB.forEach(s => {
-                opcionesServicios += `<option value="${s.nombre}" data-precio="${s.precio}">${s.nombre} ($${s.precio})</option>`;
-            });
-
-            const html = `
-                <tr id="${rowId}" class="border-b border-[#e8dbd3] renglon-item">
-                    <td class="p-3 w-[56%] overflow-hidden">
-                        <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-servicio mb-1 truncate" onchange="seleccionarServicioCatalogo('${rowId}')">
-                            ${opcionesServicios}
-                        </select>
-                        <input type="text" value="${nombreDefault}" placeholder="Descripción" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium" oninput="guardarBorradorLocal()">
-                    </td>
-                    <td class="p-3 w-[14%] text-center align-middle">
-                        <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
-                    </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
-                        <input type="number" step="0.01" min="0" value="${costoDefault}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
-                    </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
-                        <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
-                    </td>
-                    <td class="p-3 w-[10%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle truncate">$0.00</td>
-                    <td class="p-3 w-[30%] text-right align-middle">
-                        <input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
-                    </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
-                        <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal(); guardarBorradorLocal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
+            const tr = document.createElement('tr');
+            tr.className = 'renglon-presupuesto border-b border-[#e8dbd3]';
+            tr.innerHTML = `
+                <td class="p-2"><input type="text" value="Servicio Publicitario" class="w-full bg-white border border-[#e8dbd3] rounded p-1 text-xs reg-desc"></td>
+                <td class="p-2 text-center"><input type="number" value="1" step="1" class="w-14 bg-white border border-[#e8dbd3] rounded p-1 text-xs text-center reg-cant" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-2 text-center"><input type="number" value="10.00" step="0.50" class="w-16 bg-white border border-[#e8dbd3] rounded p-1 text-xs text-center reg-costo" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-2 text-center"><input type="number" value="30" step="1" class="w-14 bg-white border border-[#e8dbd3] rounded p-1 text-xs text-center reg-ganancia" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-2 text-right reg-sug font-semibold text-gray-600">$13.00</td>
+                <td class="p-2 text-right"><input type="number" value="13.00" step="0.01" class="w-20 bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded p-1 text-xs text-right reg-precio-final" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-2 text-center"><button onclick="this.closest('tr').remove(); recalcularPresupuestoTotal();" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button></td>
             `;
-            tbody.insertAdjacentHTML('beforeend', html);
+            tbody.appendChild(tr);
             recalcularPresupuestoTotal();
-            guardarBorradorLocal();
         }
 
         function agregarRenglonInsumo() {
-            renglonIndex++;
+            agregarRenglonServicio();
+        }
+
+        function agregarRenglonManualConDatos(nombre, cant, costo, ganancia, precioFinal) {
             const tbody = document.getElementById('lista-renglones-presupuesto');
-            const rowId = `renglon-${renglonIndex}`;
-            const gananciaGlobal = parseFloat(document.getElementById('presupuesto-ganancia-global').value) || 30;
-
-            let opcionesInsumos = '<option value="">-- Catálogo Insumos --</option>';
-            listaInsumosDB.forEach(i => {
-                opcionesInsumos += `<option value="${i.nombre}" data-costo="${i.costo_unitario}">${i.nombre} ($${i.costo_unitario})</option>`;
-            });
-
-            const html = `
-                <tr id="${rowId}" class="border-b border-[#e8dbd3] renglon-item">
-                    <td class="p-3 w-[56%] overflow-hidden">
-                        <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-insumo mb-1 truncate" onchange="seleccionarInsumoCatalogo('${rowId}')">
-                            ${opcionesInsumos}
-                        </select>
-                        <input type="text" placeholder="Insumo" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium" oninput="guardarBorradorLocal()">
-                    </td>
-                    <td class="p-3 w-[14%] text-center align-middle">
-                        <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
-                    </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
-                        <input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
-                    </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
-                        <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
-                    </td>
-                    <td class="p-3 w-[10%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle truncate">$0.00</td>
-                    <td class="p-3 w-[30%] text-right align-middle">
-                        <input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
-                    </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
-                        <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal(); guardarBorradorLocal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
+            const tr = document.createElement('tr');
+            tr.className = 'renglon-presupuesto border-b border-[#e8dbd3]';
+            tr.innerHTML = `
+                <td class="p-2"><input type="text" value="${nombre}" class="w-full bg-white border border-[#e8dbd3] rounded p-1 text-xs reg-desc"></td>
+                <td class="p-2 text-center"><input type="number" value="${cant}" step="1" class="w-14 bg-white border border-[#e8dbd3] rounded p-1 text-xs text-center reg-cant" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-2 text-center"><input type="number" value="${costo.toFixed(2)}" step="0.50" class="w-16 bg-white border border-[#e8dbd3] rounded p-1 text-xs text-center reg-costo" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-2 text-center"><input type="number" value="${ganancia}" step="1" class="w-14 bg-white border border-[#e8dbd3] rounded p-1 text-xs text-center reg-ganancia" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-2 text-right reg-sug font-semibold text-gray-600">$${precioFinal.toFixed(2)}</td>
+                <td class="p-2 text-right"><input type="number" value="${precioFinal.toFixed(2)}" step="0.01" class="w-20 bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded p-1 text-xs text-right reg-precio-final" oninput="recalcularPresupuestoTotal()"></td>
+                <td class="p-2 text-center"><button onclick="this.closest('tr').remove(); recalcularPresupuestoTotal();" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button></td>
             `;
-            tbody.insertAdjacentHTML('beforeend', html);
+            tbody.appendChild(tr);
             recalcularPresupuestoTotal();
-            guardarBorradorLocal();
-        }
-
-        function seleccionarServicioCatalogo(rowId) {
-            const row = document.getElementById(rowId);
-            const select = row.querySelector('.select-servicio');
-            const selectedOpt = select.options[select.selectedIndex];
-            const precioBase = parseFloat(selectedOpt.getAttribute('data-precio')) || 0;
-            
-            row.querySelector('.desc-input').value = select.value;
-            row.querySelector('.costo-input').value = (precioBase * 0.4).toFixed(2);
-            row.querySelector('.precio-cliente-input').value = precioBase.toFixed(2);
-            row.querySelector('.precio-cliente-input').classList.add('modificado-manual');
-            recalcularPresupuestoTotal();
-            guardarBorradorLocal();
-        }
-
-        function seleccionarInsumoCatalogo(rowId) {
-            const row = document.getElementById(rowId);
-            const select = row.querySelector('.select-insumo');
-            const selectedOpt = select.options[select.selectedIndex];
-            const costo = parseFloat(selectedOpt.getAttribute('data-costo')) || 0;
-            
-            row.querySelector('.desc-input').value = select.value;
-            row.querySelector('.costo-input').value = costo.toFixed(2);
-            row.querySelector('.precio-cliente-input').classList.remove('modificado-manual');
-            recalcularPresupuestoTotal();
-            guardarBorradorLocal();
         }
 
         function aplicarGananciaGlobalEnCascada() {
-            const gananciaGlobal = parseFloat(document.getElementById('presupuesto-ganancia-global').value) || 30;
-            document.querySelectorAll('.renglon-item').forEach(row => {
-                row.querySelector('.ganancia-input').value = gananciaGlobal;
-                row.querySelector('.precio-cliente-input').classList.remove('modificado-manual');
+            const gananciaGlobal = parseFloat(document.getElementById('presupuesto-ganancia-global').value) || 0;
+            document.querySelectorAll('.renglon-presupuesto').forEach(tr => {
+                const gananciaInput = tr.querySelector('.reg-ganancia');
+                if (gananciaInput) {
+                    gananciaInput.value = gananciaGlobal;
+                }
             });
-            recalcularPresupuestoTotal();
-            guardarBorradorLocal();
-        }
-
-        function marcarModificadoPrecio(rowId) {
-            const row = document.getElementById(rowId);
-            row.querySelector('.precio-cliente-input').classList.add('modificado-manual');
             recalcularPresupuestoTotal();
         }
 
         function recalcularPresupuestoTotal() {
-            let totalCostoProduccion = 0;
-            let totalVentaCliente = 0;
-
-            document.querySelectorAll('.renglon-item').forEach(row => {
-                const cant = parseFloat(row.querySelector('.cant-input').value) || 0;
-                const costoUnit = parseFloat(row.querySelector('.costo-input').value) || 0;
-                const gananciaPct = parseFloat(row.querySelector('.ganancia-input').value) || 0;
-                const manualInput = row.querySelector('.precio-cliente-input');
+            let totalUSD = 0;
+            let totalCosto = 0;
+            document.querySelectorAll('.renglon-presupuesto').forEach(tr => {
+                const cant = parseFloat(tr.querySelector('.reg-cant').value) || 0;
+                const costo = parseFloat(tr.querySelector('.reg-costo').value) || 0;
+                const ganancia = parseFloat(tr.querySelector('.reg-ganancia').value) || 0;
+                const sug = costo * (1 + ganancia / 100);
+                tr.querySelector('.reg-sug').innerText = '$' + sug.toFixed(2);
                 
-                const costoFila = cant * costoUnit;
-                totalCostoProduccion += costoFila;
+                const precioFinalInput = tr.querySelector('.reg-precio-final');
+                const precioFinal = parseFloat(precioFinalInput.value) || sug;
                 
-                const precioSugerido = costoFila * (1 + (gananciaPct / 100));
-                row.querySelector('.sugerido-txt').innerText = `$${precioSugerido.toFixed(2)}`;
-                
-                if (!manualInput.classList.contains('modificado-manual')) {
-                    manualInput.value = precioSugerido.toFixed(2);
-                    totalVentaCliente += precioSugerido;
-                } else {
-                    totalVentaCliente += parseFloat(manualInput.value) || 0;
-                }
+                totalUSD += precioFinal * cant;
+                totalCosto += costo * cant;
             });
 
-            const gananciaNeta = totalVentaCliente - totalCostoProduccion;
-
-            document.getElementById('doc-subtotal-costo').innerText = `$${totalCostoProduccion.toFixed(2)}`;
-            document.getElementById('doc-total-ganancia').innerText = `$${gananciaNeta.toFixed(2)}`;
-            document.getElementById('doc-total-usd').innerText = `$${totalVentaCliente.toFixed(2)}`;
-            
-            const totalVES = totalVentaCliente * tasaBCV;
-            document.getElementById('doc-total-ves').innerText = `Bs. ${totalVES.toFixed(2)}`;
-
-            const clienteSeleccionado = document.getElementById('presupuesto-cliente').value;
-            document.getElementById('doc-cliente-nombre').innerText = clienteSeleccionado === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : clienteSeleccionado;
-            document.getElementById('doc-validez-txt').innerText = document.getElementById('presupuesto-validez').value || 'N/A';
+            document.getElementById('doc-total-usd').innerText = '$' + totalUSD.toFixed(2);
+            document.getElementById('doc-total-ves').innerText = 'Bs. ' + (totalUSD * tasaBCV).toLocaleString('es-VE', {minimumFractionDigits: 2});
+            document.getElementById('doc-subtotal-costo').innerText = '$' + totalCosto.toFixed(2);
+            document.getElementById('doc-total-ganancia').innerText = '$' + (totalUSD - totalCosto).toFixed(2);
         }
 
-        function guardarBorradorLocal() {
-            const items = [];
-            document.querySelectorAll('.renglon-item').forEach(row => {
-                items.push({
-                    desc: row.querySelector('.desc-input').value,
-                    cant: row.querySelector('.cant-input').value,
-                    costo: row.querySelector('.costo-input').value,
-                    ganancia: row.querySelector('.ganancia-input').value,
-                    precio: row.querySelector('.precio-cliente-input').value
-                });
-            });
-            localStorage.setItem('lan_borrador_presupuesto', JSON.stringify(items));
-        }
-
-        function alternarOcultarBCV() {
-            const ocultar = document.getElementById('chk-ocultar-bcv').checked;
-            const containerTasa = document.getElementById('container-tasa-doc');
-            const containerTotalVES = document.getElementById('container-total-ves-doc');
-            
-            if (ocultar) {
-                containerTasa.classList.add('hidden');
-                containerTotalVES.classList.add('hidden');
+        function manejarCambioClientePresupuesto(select) {
+            const val = select.value;
+            if (val === 'CREAR_NUEVO_CLIENTE') {
+                switchTab('crm');
+                mostrarNotificacion("Registra el nuevo cliente en el CRM y luego selecciónalo.");
             } else {
-                containerTasa.classList.remove('hidden');
-                containerTotalVES.classList.remove('hidden');
+                document.getElementById('doc-cliente-nombre').innerText = val;
             }
         }
 
-        // ================= EXPORTADOR DE PDF ELEGANTE Y PROFESIONAL =================
         function exportarPDFPresupuesto() {
+            const elemento = document.getElementById('area-impresion-presupuesto');
+            const opt = {
+                margin:       0.5,
+                filename:     'Presupuesto_LAN_Estudio.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().from(elemento).set(opt).save();
+            mostrarNotificacion("PDF generado exitosamente.");
+        }
+
+        function enviarPresupuestoWhatsApp() {
             const cliente = document.getElementById('doc-cliente-nombre').innerText;
-            const fecha = document.getElementById('presupuesto-fecha-doc').innerText;
-            const validez = document.getElementById('doc-validez-txt').innerText;
-            const tasa = document.getElementById('presupuesto-tasa-doc').innerText;
-            const ocultarBcv = document.getElementById('chk-ocultar-bcv').checked;
-            const totalUSD = document.getElementById('doc-total-usd').innerText;
-            const totalVES = document.getElementById('doc-total-ves').innerText;
-            
-            const logoEl = document.getElementById('doc-logo-preview') || document.getElementById('logo-container');
-            let logoContenido = '<span style="font-size: 16px; font-weight: bold; color: white;">LAN</span>';
-            if (logoEl && logoEl.querySelector('img')) {
-                logoContenido = `<img src="${logoEl.querySelector('img').src}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">`;
-            }
-
-            let filasHTML = '';
-            document.querySelectorAll('.renglon-item').forEach(row => {
-                const desc = row.querySelector('.desc-input').value || 'Servicio Gráfico';
-                const cant = row.querySelector('.cant-input').value || '1';
-                const precioFinal = row.querySelector('.precio-cliente-input').value || '0.00';
-                filasHTML += `
-                    <tr style="border-bottom: 1px solid #e8dbd3;">
-                        <td style="padding: 12px 10px; font-size: 12px; color: #2c2c2c; font-weight: 500;">${desc}</td>
-                        <td style="padding: 12px 10px; font-size: 12px; text-align: center; color: #2c2c2c;">${cant}</td>
-                        <td style="padding: 12px 10px; font-size: 12px; text-align: right; font-weight: bold; color: #b88a73;">$${parseFloat(precioFinal).toFixed(2)}</td>
-                    </tr>
-                `;
-            });
-
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'fixed';
-            tempDiv.style.left = '0';
-            tempDiv.style.top = '0';
-            tempDiv.style.zIndex = '-9999';
-            tempDiv.style.width = '680px';
-            tempDiv.style.padding = '35px';
-            tempDiv.style.backgroundColor = '#ffffff';
-            tempDiv.style.fontFamily = "'Inter', sans-serif";
-            tempDiv.style.color = '#2c2c2c';
-            tempDiv.style.boxSizing = 'border-box';
-            tempDiv.innerHTML = `
-                <table style="width: 100%; border-collapse: collapse; border-bottom: 2px solid #e8dbd3; padding-bottom: 15px; margin-bottom: 15px;">
-                    <tr>
-                        <td style="width: 60%; vertical-align: middle;">
-                            <table style="border-collapse: collapse;">
-                                <tr>
-                                    <td style="width: 45px; height: 45px; border-radius: 10px; overflow: hidden; background: #b88a73; text-align: center; vertical-align: middle; color: white;">
-                                        ${logoContenido}
-                                    </td>
-                                    <td style="padding-left: 12px; vertical-align: middle;">
-                                        <h2 style="margin: 0; font-size: 16px; font-weight: bold; color: #2c2c2c;">LAN ESTUDIO</h2>
-                                        <p style="margin: 2px 0 0 0; font-size: 10px; color: #666;">Agencia de Publicidad y Comunicación</p>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                        <td style="width: 40%; text-align: right; vertical-align: middle;">
-                            <h3 style="margin: 0; font-size: 13px; font-weight: bold; color: #b88a73; letter-spacing: 1px;">PRESUPUESTO</h3>
-                            <p style="margin: 3px 0 0 0; font-size: 10px; color: #666;">${fecha}</p>
-                            ${!ocultarBcv ? `<p style="margin: 2px 0 0 0; font-size: 10px; color: #666;">Ref Tasa BCV: <b>${tasa}</b></p>` : ''}
-                        </td>
-                    </tr>
-                </table>
-
-                <table style="width: 100%; border-collapse: collapse; background: #faf8f6; border: 1px solid #e8dbd3; border-radius: 8px; margin-bottom: 20px;">
-                    <tr>
-                        <td style="padding: 10px 14px; font-size: 11px; color: #2c2c2c;"><b>Preparado para:</b> ${cliente}</td>
-                        <td style="padding: 10px 14px; font-size: 11px; color: #2c2c2c; text-align: right;"><b>Validez:</b> ${validez}</td>
-                    </tr>
-                </table>
-
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #e8dbd3; border-radius: 6px; overflow: hidden;">
-                    <thead>
-                        <tr style="background: #f7f4f0; text-transform: uppercase; font-size: 9px; color: #666; letter-spacing: 0.8px;">
-                            <th style="padding: 10px 12px; text-align: left; width: 55%;">Descripción del Servicio</th>
-                            <th style="padding: 10px 12px; text-align: center; width: 15%;">Cant</th>
-                            <th style="padding: 10px 12px; text-align: right; width: 30%;">Precio Final</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${filasHTML}
-                    </tbody>
-                </table>
-
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
-                    <tr>
-                        <td style="width: 55%; vertical-align: bottom;">
-                            <div style="font-size: 10px; color: #888; line-height: 1.4;">
-                                <p style="margin: 0 0 4px 0;"><b>Condiciones:</b> Presupuesto sujeto a revisión de material / arte final.</p>
-                                <p style="margin: 0; color: #b88a73; font-weight: 500;">¡Gracias por confiar en LAN Estudio! 🚀</p>
-                            </div>
-                        </td>
-                        <td style="width: 45%; background: #fbf9f7; padding: 16px; border-radius: 12px; border: 1px solid #e8dbd3;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr>
-                                    <td style="font-size: 11px; font-weight: bold; color: #666;">TOTAL:</td>
-                                    <td style="text-align: right; color: #b88a73; font-size: 18px; font-weight: bold;">${totalUSD}</td>
-                                </tr>
-                                ${!ocultarBcv ? `
-                                <tr>
-                                    <td colspan="2" style="border-top: 1px dashed #e8dbd3; padding-top: 8px; margin-top: 8px;"></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-size: 10px; color: #666;">Bolívares:</td>
-                                    <td style="text-align: right; font-size: 11px; color: #2c2c2c; font-weight: bold;">${totalVES}</td>
-                                </tr>` : ''}
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-
-                <div style="text-align: center; border-top: 1px solid #e8dbd3; padding-top: 12px; font-size: 9px; color: #999; letter-spacing: 0.5px;">
-                    LAN ESTUDIO • Agencia de Publicidad y Comunicación • Innovación y Diseño
-                </div>
-            `;
-
-            document.body.appendChild(tempDiv);
-
-            setTimeout(() => {
-                const opt = {
-                    margin:       5,
-                    filename:     `Presupuesto_LANEstudio_${Date.now()}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-
-                html2pdf().set(opt).from(tempDiv).save().then(() => {
-                    document.body.removeChild(tempDiv);
-                    mostrarNotificacion("PDF generado y descargado con éxito.");
-                }).catch(() => {
-                    if(tempDiv.parentNode) document.body.removeChild(tempDiv);
-                    mostrarNotificacion("Error al generar el PDF.", "error");
-                });
-            }, 150);
+            const total = document.getElementById('doc-total-usd').innerText;
+            const msg = `Hola *${cliente}*, le saludamos de *LAN Estudio*. Adjuntamos su presupuesto por un total de *${total}*. Quedamos a su disposición para cualquier duda. 🚀`;
+            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msg), '_blank');
         }
 
-        // ================= CAJA Y PAGOS CON TECLADO Y DESCUENTO GLOBAL =================
-        let cajaItemIdx = 0;
-        function agregarItemCajaFila(nombre = '', cant = 1, precio = 0) {
-            cajaItemIdx++;
+        function guardarPresupuestoStandBy() {
+            const cliente = document.getElementById('doc-cliente-nombre').innerText;
+            const total = document.getElementById('doc-total-usd').innerText;
+            let items = [];
+            document.querySelectorAll('.renglon-presupuesto').forEach(tr => {
+                items.push(tr.querySelector('.reg-desc').value);
+            });
+
+            db.collection("standby").add({
+                fecha: new Date().toLocaleDateString('es-VE'),
+                cliente: cliente,
+                resumen: items.join(', '),
+                total: total,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                mostrarNotificacion("Cotización guardada en Stand By.");
+                cargarStandBy();
+            });
+        }
+
+        function cargarStandBy() {
+            db.collection("standby").orderBy("timestamp", "desc").get().then(snapshot => {
+                const tbody = document.getElementById('tabla-standby');
+                tbody.innerHTML = '';
+                let count = 0;
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">No hay cotizaciones en espera.</td></tr>';
+                    document.getElementById('badge-standby').innerText = '0';
+                    document.getElementById('dash-standby').innerText = '0';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    count++;
+                    const data = doc.data();
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-[#e8dbd3] hover:bg-gray-50';
+                    tr.innerHTML = `
+                        <td class="p-3">${data.fecha || ''}</td>
+                        <td class="p-3 font-semibold">${data.cliente}</td>
+                        <td class="p-3 text-xs text-gray-600">${data.resumen}</td>
+                        <td class="p-3 font-bold text-[#b88a73]">${data.total}</td>
+                        <td class="p-3 text-center space-x-2">
+                            <button onclick="eliminarStandBy('${doc.id}')" class="text-rose-500 hover:text-rose-700" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                document.getElementById('badge-standby').innerText = count;
+                document.getElementById('dash-standby').innerText = count;
+            });
+        }
+
+        function eliminarStandBy(id) {
+            db.collection("standby").doc(id).delete().then(() => {
+                mostrarNotificacion("Cotización eliminada.");
+                cargarStandBy();
+            });
+        }
+
+        // ================= CAJA RÁPIDA / PUNTO DE VENTA =================
+        function agregarItemCajaFila(nombre = '', precio = 0) {
             const tbody = document.getElementById('lista-items-caja');
-            const rowId = `caja-item-${cajaItemIdx}`;
-
-            const html = `
-                <tr id="${rowId}" class="border-b border-[#e8dbd3] caja-item-row relative">
-                    <td class="p-2 relative">
-                        <div class="relative">
-                            <input type="text" value="${nombre}" placeholder="Escribe o usa flechas ↑ ↓ y Enter..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-xs caja-search-input font-medium focus:outline-none focus:border-[#b88a73]" autocomplete="off" oninput="guardarBorradorCaja()">
-                            <div class="autocomplete-suggestions hidden absolute left-0 right-0 top-full mt-1 bg-white border border-[#e8dbd3] rounded-xl shadow-lg max-h-48 overflow-y-auto z-50"></div>
-                        </div>
-                    </td>
-                    <td class="p-2 text-center align-middle">
-                        <input type="number" value="${cant}" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-1 py-2 text-xs text-center caja-cant-input font-medium" oninput="recalcularTotalesCaja(); guardarBorradorCaja();">
-                    </td>
-                    <td class="p-2 text-right align-middle">
-                        <input type="number" step="0.01" min="0" value="${parseFloat(precio).toFixed(2)}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-2 text-xs text-right caja-precio-input font-bold text-[#b88a73]" oninput="recalcularTotalesCaja(); guardarBorradorCaja();">
-                    </td>
-                    <td class="p-2 text-center align-middle">
-                        <button onclick="document.getElementById('${rowId}').remove(); recalcularTotalesCaja(); guardarBorradorCaja();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>
+            const tr = document.createElement('tr');
+            tr.className = 'item-caja border-b border-[#e8dbd3]';
+            tr.innerHTML = `
+                <td class="p-2 relative">
+                    <input type="text" value="${nombre}" placeholder="Buscar insumo o servicio..." class="w-full bg-white border border-[#e8dbd3] rounded p-1.5 text-xs input-buscar-caja" oninput="buscarSugerenciasCaja(this)">
+                    <div class="sugerencias-caja hidden absolute left-0 right-0 bg-white border border-[#e8dbd3] rounded-xl shadow-lg mt-1 z-50 max-h-40 overflow-y-auto"></div>
+                </td>
+                <td class="p-2 text-center"><input type="number" value="1" step="1" class="w-14 bg-white border border-[#e8dbd3] rounded p-1.5 text-xs text-center caj-cant" oninput="recalcularTotalesCaja()"></td>
+                <td class="p-2 text-right"><input type="number" value="${precio.toFixed(2)}" step="0.01" class="w-20 bg-white border border-[#e8dbd3] rounded p-1.5 text-xs text-right caj-precio" oninput="recalcularTotalesCaja()"></td>
+                <td class="p-2 text-center"><button onclick="this.closest('tr').remove(); recalcularTotalesCaja();" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button></td>
             `;
-            tbody.insertAdjacentHTML('beforeend', html);
-            
-            const row = document.getElementById(rowId);
-            const inputEl = row.querySelector('.caja-search-input');
-            const suggestionsBox = row.querySelector('.autocomplete-suggestions');
-            let currentFocus = -1;
-
-            inputEl.addEventListener('input', function() {
-                const query = this.value.toLowerCase().trim();
-                let matches = [];
-                currentFocus = -1;
-
-                if (query.length > 0) {
-                    listaInsumosDB.forEach(i => {
-                        if (i.nombre.toLowerCase().includes(query)) {
-                            matches.push({ tipo: 'Insumo', nombre: i.nombre, precio: (parseFloat(i.costo_unitario) * 1.5).toFixed(2) });
-                        }
-                    });
-                    listaServiciosDB.forEach(s => {
-                        if (s.nombre.toLowerCase().includes(query)) {
-                            matches.push({ tipo: 'Servicio', nombre: s.nombre, precio: parseFloat(s.precio).toFixed(2) });
-                        }
-                    });
-                }
-
-                if (matches.length > 0) {
-                    suggestionsBox.innerHTML = '';
-                    suggestionsBox.classList.remove('hidden');
-                    matches.forEach((m) => {
-                        const badgeColor = m.tipo === 'Insumo' ? 'bg-[#b88a73] text-white' : 'bg-slate-700 text-white';
-                        const itemDiv = document.createElement('div');
-                        itemDiv.className = 'px-3 py-2 text-xs hover:bg-[#faf8f6] cursor-pointer flex justify-between items-center border-b border-gray-100 last:border-none';
-                        itemDiv.innerHTML = `
-                            <span class="font-medium text-gray-800">${m.nombre}</span>
-                            <div class="space-x-2">
-                                <span class="text-[10px] px-1.5 py-0.5 rounded ${badgeColor}">${m.tipo}</span>
-                                <span class="font-bold text-[#b88a73]">$${m.precio}</span>
-                            </div>
-                        `;
-                        itemDiv.onclick = function() {
-                            inputEl.value = m.nombre;
-                            row.querySelector('.caja-precio-input').value = m.precio;
-                            suggestionsBox.classList.add('hidden');
-                            recalcularTotalesCaja();
-                            guardarBorradorCaja();
-                        };
-                        suggestionsBox.appendChild(itemDiv);
-                    });
-                } else {
-                    suggestionsBox.classList.add('hidden');
-                }
-            });
-
-            inputEl.addEventListener('keydown', function(e) {
-                const items = suggestionsBox.querySelectorAll('div');
-                if (items.length === 0) return;
-
-                if (e.key === 'ArrowDown') {
-                    currentFocus++;
-                    if (currentFocus >= items.length) currentFocus = 0;
-                    updateActiveSuggestion(items);
-                    e.preventDefault();
-                } else if (e.key === 'ArrowUp') {
-                    currentFocus--;
-                    if (currentFocus < 0) currentFocus = items.length - 1;
-                    updateActiveSuggestion(items);
-                    e.preventDefault();
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (currentFocus > -1 && items[currentFocus]) items[currentFocus].click();
-                    else if (items.length > 0) items[0].click();
-                }
-            });
-
-            function updateActiveSuggestion(items) {
-                items.forEach((item, idx) => {
-                    if (idx === currentFocus) {
-                        item.classList.add('autocomplete-active');
-                        item.scrollIntoView({ block: 'nearest' });
-                    } else {
-                        item.classList.remove('autocomplete-active');
-                    }
-                });
-            }
-
-            inputEl.focus();
+            tbody.appendChild(tr);
             recalcularTotalesCaja();
-            guardarBorradorCaja();
         }
 
-        function guardarBorradorCaja() {
-            const items = [];
-            document.querySelectorAll('.caja-item-row').forEach(row => {
-                items.push({
-                    desc: row.querySelector('.caja-search-input').value,
-                    cant: row.querySelector('.caja-cant-input').value,
-                    precio: row.querySelector('.caja-precio-input').value
-                });
+        function buscarSugerenciasCaja(input) {
+            const val = input.value.toLowerCase();
+            const contenedor = input.nextElementSibling;
+            if (!val) {
+                contenedor.classList.add('hidden');
+                return;
+            }
+            
+            let html = '';
+            let matches = 0;
+            [...listaInsumosDB, ...listaServiciosDB].forEach(item => {
+                const nombre = item.nombre || item.servicio || '';
+                const precio = item.costo || item.precio || 0;
+                if (nombre.toLowerCase().includes(val)) {
+                    matches++;
+                    html += `<div class="p-2 hover:bg-[#faf8f6] cursor-pointer text-xs flex justify-between" onclick="seleccionarSugerenciaCaja(this, '${nombre}', ${precio})"><span>${nombre}</span><span class="font-bold text-[#b88a73]">$${precio.toFixed(2)}</span></div>`;
+                }
             });
-            localStorage.setItem('lan_borrador_caja', JSON.stringify(items));
+
+            if (matches > 0) {
+                contenedor.innerHTML = html;
+                contenedor.classList.remove('hidden');
+            } else {
+                contenedor.classList.add('hidden');
+            }
+        }
+
+        function seleccionarSugerenciaCaja(div, nombre, precio) {
+            const tr = div.closest('tr');
+            tr.querySelector('.input-buscar-caja').value = nombre;
+            tr.querySelector('.caj-precio').value = precio.toFixed(2);
+            div.parentElement.classList.add('hidden');
+            recalcularTotalesCaja();
         }
 
         function recalcularTotalesCaja() {
-            let subtotalUSD = 0;
-            document.querySelectorAll('.caja-item-row').forEach(row => {
-                const cant = parseFloat(row.querySelector('.caja-cant-input').value) || 0;
-                const precio = parseFloat(row.querySelector('.caja-precio-input').value) || 0;
-                subtotalUSD += (cant * precio);
+            let total = 0;
+            document.querySelectorAll('.item-caja').forEach(tr => {
+                const cant = parseFloat(tr.querySelector('.caj-cant').value) || 0;
+                const precio = parseFloat(tr.querySelector('.caj-precio').value) || 0;
+                total += cant * precio;
             });
 
-            const descuentoPct = parseFloat(document.getElementById('caja-descuento-pct').value) || 0;
-            const montoDescuento = subtotalUSD * (descuentoPct / 100);
-            const totalUSD = Math.max(0, subtotalUSD - montoDescuento);
+            const descPct = parseFloat(document.getElementById('caja-descuento-pct').value) || 0;
+            total = total * (1 - descPct / 100);
 
-            document.getElementById('caja-total-usd').value = totalUSD.toFixed(2);
-            const totalVES = totalUSD * tasaBCV;
-            document.getElementById('caja-total-ves').value = `Bs. ${totalVES.toFixed(2)}`;
+            document.getElementById('caja-total-usd').value = total.toFixed(2);
+            document.getElementById('caja-total-ves').value = 'Bs. ' + (total * tasaBCV).toLocaleString('es-VE', {minimumFractionDigits: 2});
             
-            document.getElementById('resumen-total').innerText = `$${totalUSD.toFixed(2)}`;
-            document.getElementById('resumen-total-ves').innerText = `Bs. ${totalVES.toFixed(2)}`;
-            
-            calcularRestanteCaja();
+            document.getElementById('resumen-total').innerText = '$' + total.toFixed(2);
+            document.getElementById('resumen-total-ves').innerText = 'Bs. ' + (total * tasaBCV).toLocaleString('es-VE', {minimumFractionDigits: 2});
+
+            recalcularPagosAbonados();
         }
 
-        let pagoIndex = 0;
         function registrarPagoRapido(metodo) {
-            const totalUSD = parseFloat(document.getElementById('caja-total-usd').value) || 0;
-            let abonadoActual = 0;
-            document.querySelectorAll('.pago-item .monto-pago').forEach(input => {
-                abonadoActual += parseFloat(input.value) || 0;
-            });
-            const restante = totalUSD - abonadoActual;
-            const montoACobrar = restante > 0 ? restante : totalUSD;
-
-            pagoIndex++;
-            const lista = document.getElementById('lista-pagos');
-            const rowId = `pago-row-${pagoIndex}`;
-            
-            const html = `
-                <div id="${rowId}" class="flex space-x-2 items-center bg-white p-2.5 rounded-xl border border-[#e8dbd3] pago-item shadow-xs">
-                    <select class="w-1/3 bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73]">
-                        <option value="${metodo}">${metodo}</option>
-                        <option value="Efectivo USD">Efectivo ($)</option>
-                        <option value="Pago Móvil">Pago Móvil (Bs)</option>
-                        <option value="Zelle">Zelle / Binance</option>
-                        <option value="Cashea">Cashea</option>
-                        <option value="Transferencia">Transferencia</option>
-                    </select>
-                    <div class="relative w-1/3">
-                        <span class="absolute left-2 top-1.5 text-gray-400 text-xs">$</span>
-                        <input type="number" value="${montoACobrar.toFixed(2)}" step="0.01" min="0" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg pl-5 pr-2 py-1.5 text-[#2c2c2c] font-bold text-xs focus:outline-none focus:border-[#b88a73] monto-pago" oninput="calcularRestanteCaja()">
-                    </div>
-                    <input type="text" placeholder="Ref / Nro" class="w-1/3 bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73] ref-pago">
-                    <button onclick="document.getElementById('${rowId}').remove(); calcularRestanteCaja();" class="text-rose-500 hover:text-rose-700 px-2"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            `;
-            lista.insertAdjacentHTML('beforeend', html);
-            calcularRestanteCaja();
+            const total = parseFloat(document.getElementById('caja-total-usd').value) || 0;
+            agregarFilaPagoManual(metodo, total);
         }
 
         function agregarMetodoPago() {
-            pagoIndex++;
-            const lista = document.getElementById('lista-pagos');
-            const rowId = `pago-row-${pagoIndex}`;
-            
-            const html = `
-                <div id="${rowId}" class="flex space-x-2 items-center bg-white p-2.5 rounded-xl border border-[#e8dbd3] pago-item shadow-xs">
-                    <select class="w-1/3 bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73]">
-                        <option value="Efectivo USD">Efectivo ($)</option>
-                        <option value="Pago Móvil">Pago Móvil (Bs)</option>
-                        <option value="Zelle">Zelle / Binance</option>
-                        <option value="Cashea">Cashea</option>
-                        <option value="Transferencia">Transferencia</option>
-                    </select>
-                    <div class="relative w-1/3">
-                        <span class="absolute left-2 top-1.5 text-gray-400 text-xs">$</span>
-                        <input type="number" placeholder="Monto USD" step="0.01" min="0" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg pl-5 pr-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73] monto-pago" oninput="calcularRestanteCaja()">
-                    </div>
-                    <input type="text" placeholder="Ref / Nro" class="w-1/3 bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73] ref-pago">
-                    <button onclick="document.getElementById('${rowId}').remove(); calcularRestanteCaja();" class="text-rose-500 hover:text-rose-700 px-2"><i class="fa-solid fa-trash"></i></button>
-                </div>
+            agregarFilaPagoManual('Efectivo USD', 0);
+        }
+
+        function agregarFilaPagoManual(metodo, monto) {
+            const contenedor = document.getElementById('lista-pagos');
+            const div = document.createElement('div');
+            div.className = 'fila-pago flex items-center space-x-2 bg-white p-2 rounded-xl border border-[#e8dbd3] text-xs';
+            div.innerHTML = `
+                <select class="bg-[#faf8f6] border border-[#e8dbd3] rounded p-1 pag-metodo font-medium">
+                    <option value="Efectivo USD" ${metodo==='Efectivo USD'?'selected':''}>Efectivo USD</option>
+                    <option value="Pago Móvil" ${metodo==='Pago Móvil'?'selected':''}>Pago Móvil</option>
+                    <option value="Zelle" ${metodo==='Zelle'?'selected':''}>Zelle</option>
+                    <option value="Binance" ${metodo==='Binance'?'selected':''}>Binance</option>
+                    <option value="Cashea" ${metodo==='Cashea'?'selected':''}>Cashea</option>
+                </select>
+                <input type="number" value="${monto.toFixed(2)}" step="0.01" class="w-24 bg-[#faf8f6] border border-[#e8dbd3] rounded p-1 text-right pag-monto font-bold text-[#b88a73]" oninput="recalcularPagosAbonados()">
+                <button onclick="this.closest('.fila-pago').remove(); recalcularPagosAbonados();" class="text-rose-500"><i class="fa-solid fa-trash"></i></button>
             `;
-            lista.insertAdjacentHTML('beforeend', html);
-            calcularRestanteCaja();
+            contenedor.appendChild(div);
+            recalcularPagosAbonados();
         }
 
-        function calcularRestanteCaja() {
-            const total = parseFloat(document.getElementById('caja-total-usd').value) || 0;
+        function recalcularPagosAbonados() {
             let abonado = 0;
-            document.querySelectorAll('.pago-item .monto-pago').forEach(input => {
-                abonado += parseFloat(input.value) || 0;
+            document.querySelectorAll('.fila-pago').forEach(div => {
+                abonado += parseFloat(div.querySelector('.pag-monto').value) || 0;
             });
 
-            document.getElementById('resumen-abonado').innerText = `$${abonado.toFixed(2)}`;
-            document.getElementById('resumen-abonado-ves').innerText = `Bs. ${(abonado * tasaBCV).toFixed(2)}`;
-            
+            const total = parseFloat(document.getElementById('caja-total-usd').value) || 0;
             const restante = total - abonado;
+
+            document.getElementById('resumen-abonado').innerText = '$' + abonado.toFixed(2);
+            document.getElementById('resumen-abonado-ves').innerText = 'Bs. ' + (abonado * tasaBCV).toLocaleString('es-VE', {minimumFractionDigits: 2});
+
             const restanteEl = document.getElementById('resumen-restante');
-            const restanteVesEl = document.getElementById('resumen-restante-ves');
-            
-            if(restante > 0) {
-                restanteEl.innerText = `Falta: $${restante.toFixed(2)}`;
-                restanteEl.className = "font-bold text-rose-600 text-sm block";
-                restanteVesEl.innerText = `Bs. ${(restante * tasaBCV).toFixed(2)}`;
+            if (restante > 0) {
+                restanteEl.innerText = 'Falta: $' + restante.toFixed(2);
+                restanteEl.className = 'font-bold text-amber-600 text-sm block';
             } else if (restante < 0) {
-                restanteEl.innerText = `Vuelto: $${Math.abs(restante).toFixed(2)}`;
-                restanteEl.className = "font-bold text-emerald-600 text-sm block";
-                restanteVesEl.innerText = `Bs. ${(Math.abs(restante) * tasaBCV).toFixed(2)}`;
+                restanteEl.innerText = 'Vuelto: $' + Math.abs(restante).toFixed(2);
+                restanteEl.className = 'font-bold text-emerald-600 text-sm block';
             } else {
-                restanteEl.innerText = "Pagado Exacto";
-                restanteEl.className = "font-bold text-emerald-600 text-sm block";
-                restanteVesEl.innerText = "Bs. 0.00";
+                restanteEl.innerText = '¡Pagado Exacto!';
+                restanteEl.className = 'font-bold text-emerald-600 text-sm block';
+            }
+            document.getElementById('resumen-restante-ves').innerText = 'Bs. ' + (Math.abs(restante) * tasaBCV).toLocaleString('es-VE', {minimumFractionDigits: 2});
+        }
+
+        function procesarPagoFinal() {
+            const total = parseFloat(document.getElementById('caja-total-usd').value) || 0;
+            const cliente = document.getElementById('caja-cliente').value;
+            const notas = document.getElementById('caja-notas').value;
+            let pagos = [];
+            document.querySelectorAll('.fila-pago').forEach(div => {
+                pagos.push(div.querySelector('.pag-metodo').value + ': $' + div.querySelector('.pag-monto').value);
+            });
+
+            let items = [];
+            document.querySelectorAll('.item-caja').forEach(tr => {
+                items.push(tr.querySelector('.input-buscar-caja').value + ' (x' + tr.querySelector('.caj-cant').value + ')');
+            });
+
+            ultimaVentaProcesada = {
+                fecha: new Date().toLocaleDateString('es-VE'),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                cliente: cliente,
+                concepto: items.join(', ') + (notas ? ' | Notas: ' + notas : ''),
+                total: total,
+                pagos: pagos.join(', ') || 'Efectivo USD'
+            };
+
+            db.collection("ventas").add(ultimaVentaProcesada).then(() => {
+                mostrarNotificacion("¡Venta procesada y registrada con éxito!");
+                cargarHistorialVentas();
+                cargarDashboard();
+            });
+        }
+
+        function manejarCambioClienteCaja(select) {
+            if (select.value === 'CREAR_NUEVO_CLIENTE') {
+                switchTab('crm');
+                mostrarNotificacion("Crea el cliente en el CRM.");
             }
         }
 
-        async function procesarPagoFinal() {
-            const cliente = document.getElementById('caja-cliente').value;
-            const totalUSD = parseFloat(document.getElementById('caja-total-usd').value) || 0;
-            const notas = document.getElementById('caja-notas').value.trim();
-            const descuentoPct = document.getElementById('caja-descuento-pct').value || '0';
-            
-            if(totalUSD <= 0) { mostrarNotificacion("La factura está vacía.", "error"); return; }
+        function exportarReciboCajaPDF() {
+            mostrarNotificacion("Generando recibo de caja en PDF...");
+        }
 
-            let itemsFactura = [];
-            document.querySelectorAll('.caja-item-row').forEach(row => {
-                const desc = row.querySelector('.caja-search-input').value.trim();
-                const cant = parseInt(row.querySelector('.caja-cant-input').value) || 1;
-                const precio = parseFloat(row.querySelector('.caja-precio-input').value) || 0;
-                if(desc) itemsFactura.push({ desc, cant, precio });
-            });
-
-            if(itemsFactura.length === 0) { mostrarNotificacion("Añade al menos un ítem.", "error"); return; }
-
-            let metodosPago = [];
-            let totalAbonado = 0;
-            document.querySelectorAll('.pago-item').forEach(item => {
-                const metodo = item.querySelector('select').value;
-                const monto = parseFloat(item.querySelector('.monto-pago').value) || 0;
-                const ref = item.querySelector('.ref-pago').value || 'S/R';
-                if(monto > 0) {
-                    metodosPago.push(`${metodo}: $${monto.toFixed(2)} (Ref: ${ref})`);
-                    totalAbonado += monto;
-                }
-            });
-
-            if (totalAbonado < totalUSD) {
-                if(!confirm(`Pago incompleto. Faltan $${(totalUSD - totalAbonado).toFixed(2)}. ¿Procesar de todas formas?`)) return;
+        function enviarUltimaVentaWhatsApp() {
+            if (!ultimaVentaProcesada) {
+                mostrarNotificacion("Procesa una venta primero.", "error");
+                return;
             }
+            const msg = `Hola *${ultimaVentaProcesada.cliente}*, gracias por su compra en *LAN Estudio*. Detalle: ${ultimaVentaProcesada.concepto}. Total: *$${ultimaVentaProcesada.total.toFixed(2)}*. 🚀`;
+            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msg), '_blank');
+        }
 
-            const conceptoResumen = itemsFactura.map(i => `${i.cant}x ${i.desc}`).join(' + ');
-            const metodosPagoStr = metodosPago.join(' | ') || 'No especificado';
+        // ================= GESTIÓN DE INSUMOS, SERVICIOS Y CRM =================
+        function guardarInsumo() {
+            const nombre = document.getElementById('insumo-nombre').value;
+            const categoria = document.getElementById('insumo-categoria').value;
+            const costo = parseFloat(document.getElementById('insumo-costo').value) || 0;
+            const stock = parseInt(document.getElementById('insumo-stock').value) || 0;
+            const minimo = parseInt(document.getElementById('insumo-minimo').value) || 0;
 
-            try {
-                await db.collection('ventas').add({
-                    fechaISO: new Date().toISOString(),
-                    fecha: new Date().toLocaleDateString(),
-                    cliente,
-                    concepto: conceptoResumen,
-                    total_usd: totalUSD,
-                    metodos_pago: metodosPagoStr,
-                    descuento: `${descuentoPct}%`,
-                    notas
-                });
-
-                ultimaVentaProcesada = { cliente, concepto: conceptoResumen, total_usd: totalUSD, metodos_pago: metodosPagoStr, notas };
-            } catch(e) {
-                mostrarNotificacion("Error al procesar la venta en Firebase.", "error");
+            if (!nombre) {
+                mostrarNotificacion("Ingresa el nombre del insumo", "error");
                 return;
             }
 
-            mostrarNotificacion("¡Venta procesada y guardada en Firebase con éxito!");
-            
-            try {
-                localStorage.removeItem('lan_borrador_caja');
-                document.getElementById('lista-items-caja').innerHTML = '';
-                document.getElementById('lista-pagos').innerHTML = '';
-                document.getElementById('caja-notas').value = '';
-                document.getElementById('caja-descuento-pct').value = '0';
-                agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
-                actualizarTotalesCaja();
-                switchTab('dashboard');
-                cargarDashboard();
-            } catch(err) {}
+            db.collection("insumos").add({ nombre, categoria, costo, stock, minimo }).then(() => {
+                mostrarNotificacion("Insumo guardado correctamente.");
+                document.getElementById('insumo-nombre').value = '';
+                document.getElementById('insumo-costo').value = '';
+                document.getElementById('insumo-stock').value = '';
+                document.getElementById('insumo-minimo').value = '';
+                cargarInsumos();
+            });
         }
 
-        // ================= EXPORTADOR DE RECIBO DE CAJA EN PDF (CORREGIDO CON DELAY) =================
-        function exportarReciboCajaPDF() {
-            const cliente = document.getElementById('caja-cliente').value;
-            const totalUSD = document.getElementById('caja-total-usd').value;
-            const totalVES = document.getElementById('caja-total-ves').value;
-            const notas = document.getElementById('caja-notas').value.trim();
-            const descuentoPct = parseFloat(document.getElementById('caja-descuento-pct').value) || 0;
-            const fechaStr = new Date().toLocaleString();
-            
-            const logoEl = document.getElementById('doc-logo-preview') || document.getElementById('logo-container');
-            let logoContenido = '<span style="font-size: 16px; font-weight: bold; color: white;">LAN</span>';
-            if (logoEl && logoEl.querySelector('img')) {
-                logoContenido = `<img src="${logoEl.querySelector('img').src}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">`;
-            }
+        function cargarInsumos() {
+            db.collection("insumos").get().then(snapshot => {
+                const tbody = document.getElementById('tabla-insumos');
+                const selectStk = document.getElementById('stk-insumo-select');
+                tbody.innerHTML = '';
+                selectStk.innerHTML = '<option value="0">-- Cargar desde Insumos --</option>';
+                listaInsumosDB = [];
+                let totalInsumos = 0;
+                let enAlerta = 0;
 
-            let filasHTML = '';
-            document.querySelectorAll('.caja-item-row').forEach(row => {
-                const desc = row.querySelector('.caja-search-input').value || 'Servicio Gráfico';
-                const cant = row.querySelector('.caja-cant-input').value || '1';
-                const precio = row.querySelector('.caja-precio-input').value || '0.00';
-                const sub = (parseFloat(cant) * parseFloat(precio)).toFixed(2);
-                filasHTML += `
-                    <tr style="border-bottom: 1px solid #e8dbd3;">
-                        <td style="padding: 12px 10px; font-size: 12px; color: #2c2c2c; font-weight: 500;">${desc}</td>
-                        <td style="padding: 12px 10px; font-size: 12px; text-align: center; color: #2c2c2c;">${cant}</td>
-                        <td style="padding: 12px 10px; font-size: 12px; text-align: right; color: #2c2c2c;">$${parseFloat(precio).toFixed(2)}</td>
-                        <td style="padding: 12px 10px; font-size: 12px; text-align: right; font-weight: bold; color: #b88a73;">$${sub}</td>
-                    </tr>
-                `;
-            });
+                snapshot.forEach(doc => {
+                    totalInsumos++;
+                    const data = doc.data();
+                    data.id = doc.id;
+                    listaInsumosDB.push(data);
+                    if (data.stock <= data.minimo) enAlerta++;
 
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'fixed';
-            tempDiv.style.left = '0';
-            tempDiv.style.top = '0';
-            tempDiv.style.zIndex = '-9999';
-            tempDiv.style.width = '680px';
-            tempDiv.style.padding = '35px';
-            tempDiv.style.backgroundColor = '#ffffff';
-            tempDiv.style.fontFamily = "'Inter', sans-serif";
-            tempDiv.style.color = '#2c2c2c';
-            tempDiv.style.boxSizing = 'border-box';
-            tempDiv.innerHTML = `
-                <table style="width: 100%; border-collapse: collapse; border-bottom: 2px solid #e8dbd3; padding-bottom: 15px; margin-bottom: 15px;">
-                    <tr>
-                        <td style="width: 60%; vertical-align: middle;">
-                            <table style="border-collapse: collapse;">
-                                <tr>
-                                    <td style="width: 45px; height: 45px; border-radius: 10px; overflow: hidden; background: #b88a73; text-align: center; vertical-align: middle; color: white;">
-                                        ${logoContenido}
-                                    </td>
-                                    <td style="padding-left: 12px; vertical-align: middle;">
-                                        <h2 style="margin: 0; font-size: 16px; font-weight: bold; color: #2c2c2c;">LAN ESTUDIO</h2>
-                                        <p style="margin: 2px 0 0 0; font-size: 10px; color: #666;">Comprobante de Venta / Recibo</p>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                        <td style="width: 40%; text-align: right; vertical-align: middle;">
-                            <h3 style="margin: 0; font-size: 13px; font-weight: bold; color: #b88a73; letter-spacing: 1px;">TICKET DE CAJA</h3>
-                            <p style="margin: 3px 0 0 0; font-size: 10px; color: #666;">${fechaStr}</p>
-                        </td>
-                    </tr>
-                </table>
+                    selectStk.innerHTML += `<option value="${doc.id}">${data.nombre} ($${data.costo})</option>`;
 
-                <table style="width: 100%; border-collapse: collapse; background: #faf8f6; border: 1px solid #e8dbd3; border-radius: 8px; margin-bottom: 20px;">
-                    <tr>
-                        <td style="padding: 10px 14px; font-size: 11px; color: #2c2c2c;"><b>Cliente:</b> ${cliente}</td>
-                    </tr>
-                </table>
-
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #e8dbd3; border-radius: 6px; overflow: hidden;">
-                    <thead>
-                        <tr style="background: #f7f4f0; text-transform: uppercase; font-size: 9px; color: #666; letter-spacing: 0.8px;">
-                            <th style="padding: 10px 12px; text-align: left; width: 48%;">Descripción</th>
-                            <th style="padding: 10px 12px; text-align: center; width: 14%;">Cant</th>
-                            <th style="padding: 10px 12px; text-align: right; width: 19%;">Precio Unit.</th>
-                            <th style="padding: 10px 12px; text-align: right; width: 19%;">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${filasHTML}
-                    </tbody>
-                </table>
-
-                ${(descuentoPct > 0 || notas !== '') ? `
-                <div style="background: #faf8f6; padding: 12px; border-radius: 8px; border: 1px solid #e8dbd3; margin-bottom: 20px; font-size: 11px; color: #2c2c2c;">
-                    ${descuentoPct > 0 ? `<p style="margin: 0 0 4px 0;"><b>Descuento Aplicado:</b> ${descuentoPct}%</p>` : ''}
-                    ${notas !== '' ? `<p style="margin: 0;"><b>Notas / Observaciones:</b> ${notas}</p>` : ''}
-                </div>` : ''}
-
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
-                    <tr>
-                        <td style="width: 55%; vertical-align: bottom;">
-                            <div style="font-size: 10px; color: #888; line-height: 1.4;">
-                                <p style="margin: 0; color: #b88a73; font-weight: 500;">¡Gracias por su compra en LAN Estudio! 🚀</p>
-                            </div>
-                        </td>
-                        <td style="width: 45%; background: #fbf9f7; padding: 16px; border-radius: 12px; border: 1px solid #e8dbd3;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr>
-                                    <td style="font-size: 11px; font-weight: bold; color: #666;">TOTAL:</td>
-                                    <td style="text-align: right; color: #b88a73; font-size: 18px; font-weight: bold;">$${parseFloat(totalUSD).toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2" style="border-top: 1px dashed #e8dbd3; padding-top: 8px; margin-top: 8px;"></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-size: 10px; color: #666;">Bolívares:</td>
-                                    <td style="text-align: right; font-size: 11px; color: #2c2c2c; font-weight: bold;">${totalVES}</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-
-                <div style="text-align: center; border-top: 1px solid #e8dbd3; padding-top: 12px; font-size: 9px; color: #999; letter-spacing: 0.5px;">
-                    LAN ESTUDIO • Agencia de Publicidad y Comunicación • Innovación y Diseño
-                </div>
-            `;
-
-            document.body.appendChild(tempDiv);
-            
-            // Pausa de 150ms para permitir que el navegador pinte el elemento antes de convertirlo a PDF
-            setTimeout(() => {
-                const opt = {
-                    margin: 5,
-                    filename: `Recibo_LANEstudio_${Date.now()}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-
-                html2pdf().set(opt).from(tempDiv).save().then(() => {
-                    document.body.removeChild(tempDiv);
-                    mostrarNotificacion("Recibo PDF generado con éxito.");
-                }).catch(() => {
-                    if(tempDiv.parentNode) document.body.removeChild(tempDiv);
-                    mostrarNotificacion("Error al generar el recibo PDF.", "error");
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-[#e8dbd3]';
+                    tr.innerHTML = `
+                        <td class="p-3 font-semibold">${data.nombre}</td>
+                        <td class="p-3">${data.categoria || ''}</td>
+                        <td class="p-3">$${data.costo.toFixed(2)}</td>
+                        <td class="p-3 font-bold">${data.stock}</td>
+                        <td class="p-3 text-rose-600">${data.minimo}</td>
+                        <td class="p-3"><button onclick="eliminarInsumo('${doc.id}')" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button></td>
+                    `;
+                    tbody.appendChild(tr);
                 });
-            }, 150);
+                document.getElementById('dash-insumos').innerText = totalInsumos;
+                document.getElementById('dash-insumos-alerta').innerText = enAlerta;
+            });
         }
 
-        async function cargarRegistrosCajaEditable() {
-            const tbody = document.getElementById('tabla-historial-ventas');
-            if(!tbody) return;
+        function eliminarInsumo(id) {
+            db.collection("insumos").doc(id).delete().then(() => {
+                mostrarNotificacion("Insumo eliminado.");
+                cargarInsumos();
+            });
+        }
 
-            let ventas = [];
-            try {
-                const snapshot = await db.collection('ventas').orderBy('fechaISO', 'desc').limit(10).get();
-                snapshot.forEach(doc => { ventas.push({ id: doc.id, ...doc.data() }); });
-            } catch(e) {
-                try {
-                    const snapshot = await db.collection('ventas').get();
-                    snapshot.forEach(doc => { ventas.push({ id: doc.id, ...doc.data() }); });
-                    ventas = ventas.reverse().slice(0, 10);
-                } catch(err) {}
+        function guardarServicio() {
+            const nombre = document.getElementById('servicio-nombre').value;
+            const precio = parseFloat(document.getElementById('servicio-precio').value) || 0;
+            if (!nombre) return;
+
+            db.collection("servicios").add({ nombre, precio }).then(() => {
+                mostrarNotificacion("Servicio guardado.");
+                document.getElementById('servicio-nombre').value = '';
+                document.getElementById('servicio-precio').value = '';
+                cargarServicios();
+            });
+        }
+
+        function cargarServicios() {
+            db.collection("servicios").get().then(snapshot => {
+                const tbody = document.getElementById('tabla-servicios');
+                tbody.innerHTML = '';
+                listaServiciosDB = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.id = doc.id;
+                    listaServiciosDB.push(data);
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-[#e8dbd3]';
+                    tr.innerHTML = `
+                        <td class="p-3 font-semibold">${data.nombre}</td>
+                        <td class="p-3 text-[#b88a73] font-bold">$${data.precio.toFixed(2)}</td>
+                        <td class="p-3"><button onclick="eliminarServicio('${doc.id}')" class="text-rose-500"><i class="fa-solid fa-trash"></i></button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
+
+        function eliminarServicio(id) {
+            db.collection("servicios").doc(id).delete().then(() => {
+                mostrarNotificacion("Servicio eliminado.");
+                cargarServicios();
+            });
+        }
+
+        function guardarCliente() {
+            const nombre = document.getElementById('cliente-nombre').value;
+            const rif = document.getElementById('cliente-rif').value;
+            const tipo = document.getElementById('cliente-tipo').value;
+            const tel = document.getElementById('cliente-tel').value;
+            const email = document.getElementById('cliente-email').value;
+            const insta = document.getElementById('cliente-insta').value;
+            const direccion = document.getElementById('cliente-direccion').value;
+
+            if (!nombre) {
+                mostrarNotificacion("El nombre del cliente es obligatorio", "error");
+                return;
             }
 
-            tbody.innerHTML = ventas.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin historial reciente de ventas.</td></tr>';
-            ventas.forEach(v => {
-                const d = v.fecha || new Date(v.fechaISO).toLocaleDateString();
-                tbody.innerHTML += `
-                    <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 text-xs text-gray-500">${d}</td>
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${v.cliente}</td>
-                        <td class="p-3 text-xs text-gray-700 max-w-xs truncate" title="${v.concepto}">${v.concepto}</td>
-                        <td class="p-3 font-bold text-[#b88a73]">$${parseFloat(v.total_usd).toFixed(2)} <span class="block text-[11px] font-normal text-gray-500">Bs. ${(v.total_usd * tasaBCV).toFixed(2)}</span></td>
-                        <td class="p-3 text-xs text-gray-600">${v.metodos_pago}</td>
-                    </tr>
+            db.collection("clientes").add({ nombre, rif, tipo, tel, email, insta, direccion }).then(() => {
+                mostrarNotificacion("Cliente guardado en CRM.");
+                document.getElementById('cliente-nombre').value = '';
+                document.getElementById('cliente-rif').value = '';
+                document.getElementById('cliente-tel').value = '';
+                document.getElementById('cliente-email').value = '';
+                document.getElementById('cliente-insta').value = '';
+                document.getElementById('cliente-direccion').value = '';
+                cargarClientes();
+            });
+        }
+
+        function cargarClientes() {
+            db.collection("clientes").get().then(snapshot => {
+                const tbody = document.getElementById('tabla-clientes');
+                const selPresupuesto = document.getElementById('presupuesto-cliente');
+                const selCaja = document.getElementById('caja-cliente');
+                tbody.innerHTML = '';
+                selPresupuesto.innerHTML = '<option value="Cliente General">-- Seleccionar Cliente CRM --</option><option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>';
+                selCaja.innerHTML = '<option value="Cliente General">-- Cliente General --</option><option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>';
+                
+                listaClientesDB = [];
+                let count = 0;
+                snapshot.forEach(doc => {
+                    count++;
+                    const data = doc.data();
+                    data.id = doc.id;
+                    listaClientesDB.push(data);
+
+                    selPresupuesto.innerHTML += `<option value="${data.nombre}">${data.nombre} (${data.rif || 'Sin RIF'})</option>`;
+                    selCaja.innerHTML += `<option value="${data.nombre}">${data.nombre} (${data.rif || 'Sin RIF'})</option>`;
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-[#e8dbd3]';
+                    tr.innerHTML = `
+                        <td class="p-3 font-semibold">${data.nombre}</td>
+                        <td class="p-3">${data.rif || '-'}</td>
+                        <td class="p-3">${data.tipo}</td>
+                        <td class="p-3 text-xs">${data.tel || '-'}<br>${data.email || '-'}</td>
+                        <td class="p-3 text-xs">${data.direccion || '-'}</td>
+                        <td class="p-3 text-center space-x-2">
+                            <button onclick="verHistorialCliente('${data.nombre}')" class="text-[#b88a73] hover:underline" title="Historial"><i class="fa-solid fa-clock-rotate-left"></i></button>
+                            <button onclick="eliminarCliente('${doc.id}')" class="text-rose-500"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                document.getElementById('dash-clientes').innerText = count;
+            });
+        }
+
+        function eliminarCliente(id) {
+            db.collection("clientes").doc(id).delete().then(() => {
+                mostrarNotificacion("Cliente eliminado.");
+                cargarClientes();
+            });
+        }
+
+        function verHistorialCliente(nombre) {
+            document.getElementById('titulo-historial-cliente').innerText = 'Historial de Compras: ' + nombre;
+            document.getElementById('modal-historial-cliente').classList.remove('hidden');
+            db.collection("ventas").where("cliente", "==", nombre).get().then(snapshot => {
+                const cont = document.getElementById('contenido-historial-cliente');
+                cont.innerHTML = '';
+                if (snapshot.empty) {
+                    cont.innerHTML = '<p class="text-center text-gray-400">No hay compras registradas para este cliente.</p>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    cont.innerHTML += `<div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3] flex justify-between"><div><p class="font-bold">${data.concepto}</p><p class="text-gray-500">${data.fecha || ''}</p></div><div class="text-right font-bold text-[#b88a73]">$${data.total.toFixed(2)}</div></div>`;
+                });
+            });
+        }
+
+        function cerrarHistorialCliente() {
+            document.getElementById('modal-historial-cliente').classList.add('hidden');
+        }
+
+        // ================= CONTROL FINANCIERO Y DASHBOARD =================
+        function guardarGasto() {
+            const concepto = document.getElementById('gasto-concepto').value;
+            const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
+            const categoria = document.getElementById('gasto-categoria').value;
+
+            if (!concepto || monto <= 0) {
+                mostrarNotificacion("Ingresa concepto y monto válido", "error");
+                return;
+            }
+
+            db.collection("gastos").add({
+                concepto, monto, categoria,
+                fecha: new Date().toLocaleDateString('es-VE'),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                mostrarNotificacion("Gasto registrado correctamente.");
+                document.getElementById('gasto-concepto').value = '';
+                document.getElementById('gasto-monto').value = '';
+                cargarGastosYBalance();
+            });
+        }
+
+        function cargarGastosYBalance() {
+            db.collection("gastos").get().then(gastosSnap => {
+                db.collection("ventas").get().then(ventasSnap => {
+                    let totalIngresos = 0;
+                    let totalEgresos = 0;
+                    let catOp = 0, catIns = 0, catMkt = 0, catOtr = 0;
+
+                    ventasSnap.forEach(doc => {
+                        totalIngresos += doc.data().total || 0;
+                    });
+
+                    const tbody = document.getElementById('tabla-gastos');
+                    tbody.innerHTML = '';
+                    gastosSnap.forEach(doc => {
+                        const data = doc.data();
+                        totalEgresos += data.monto || 0;
+                        if (data.categoria === 'Operativo') catOp += data.monto;
+                        else if (data.categoria === 'Insumos') catIns += data.monto;
+                        else if (data.categoria === 'Marketing') catMkt += data.monto;
+                        else catOtr += data.monto;
+
+                        const tr = document.createElement('tr');
+                        tr.className = 'border-b border-[#e8dbd3]';
+                        tr.innerHTML = `
+                            <td class="p-3">${data.fecha || ''}</td>
+                            <td class="p-3 font-semibold">${data.concepto}</td>
+                            <td class="p-3">${data.categoria}</td>
+                            <td class="p-3 text-rose-600 font-bold">$${data.monto.toFixed(2)}</td>
+                            <td class="p-3 text-center"><button onclick="eliminarGasto('${doc.id}')" class="text-rose-500"><i class="fa-solid fa-trash"></i></button></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    const utilidad = totalIngresos - totalEgresos;
+
+                    document.getElementById('fin-total-ingresos').innerText = '$' + totalIngresos.toFixed(2);
+                    document.getElementById('fin-total-ingresos-ves').innerText = 'Bs. ' + (totalIngresos * tasaBCV).toLocaleString('es-VE', {minimumFractionDigits: 2});
+                    
+                    document.getElementById('fin-total-egresos').innerText = '$' + totalEgresos.toFixed(2);
+                    document.getElementById('fin-total-egresos-ves').innerText = 'Bs. ' + (totalEgresos * tasaBCV).toLocaleString('es-VE', {minimumFractionDigits: 2});
+
+                    document.getElementById('fin-utilidad-neta').innerText = '$' + utilidad.toFixed(2);
+                    document.getElementById('fin-utilidad-neta-ves').innerText = 'Bs. ' + (utilidad * tasaBCV).toLocaleString('es-VE', {minimumFractionDigits: 2});
+
+                    document.getElementById('cat-operativo').innerText = '$' + catOp.toFixed(2);
+                    document.getElementById('cat-insumos').innerText = '$' + catIns.toFixed(2);
+                    document.getElementById('cat-marketing').innerText = '$' + catMkt.toFixed(2);
+                    document.getElementById('cat-otros').innerText = '$' + catOtr.toFixed(2);
+
+                    document.getElementById('dash-ventas').innerHTML = `$${totalIngresos.toFixed(2)} <span class="block text-xs font-normal text-gray-500">Bs. ${(totalIngresos * tasaBCV).toLocaleString('es-VE', {minimumFractionDigits: 2})}</span>`;
+                });
+            });
+        }
+
+        function eliminarGasto(id) {
+            db.collection("gastos").doc(id).delete().then(() => {
+                mostrarNotificacion("Gasto eliminado.");
+                cargarGastosYBalance();
+            });
+        }
+
+        function cargarHistorialVentas() {
+            db.collection("ventas").orderBy("timestamp", "desc").limit(10).get().then(snapshot => {
+                const tbody = document.getElementById('tabla-historial-ventas');
+                tbody.innerHTML = '';
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">No hay transacciones registradas.</td></tr>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-[#e8dbd3]';
+                    tr.innerHTML = `
+                        <td class="p-3">${data.fecha || ''}</td>
+                        <td class="p-3 font-semibold">${data.cliente}</td>
+                        <td class="p-3 text-xs text-gray-600">${data.concepto}</td>
+                        <td class="p-3 font-bold text-[#b88a73]">$${(data.total || 0).toFixed(2)}</td>
+                        <td class="p-3 text-xs">${data.pagos || '-'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
+
+        function cargarDashboard() {
+            cargarInsumos();
+            cargarClientes();
+            cargarStandBy();
+            cargarGastosYBalance();
+            cargarHistorialVentas();
+        }
+
+        function abrirArqueoCaja() {
+            document.getElementById('modal-arqueo').classList.remove('hidden');
+            db.collection("ventas").get().then(snapshot => {
+                let totalDia = 0;
+                let conteo = 0;
+                snapshot.forEach(doc => {
+                    totalDia += doc.data().total || 0;
+                    conteo++;
+                });
+                document.getElementById('contenido-arqueo').innerHTML = `
+                    <div class="space-y-2">
+                        <p class="font-bold">Total Transacciones Registradas: ${conteo}</p>
+                        <p class="font-bold text-[#b88a73] text-sm">Ingresos Totales Acumulados: $${totalDia.toFixed(2)}</p>
+                        <p class="text-gray-500">Equivalente en Bolívares: Bs. ${(totalDia * tasaBCV).toLocaleString('es-VE', {minimumFractionDigits: 2})}</p>
+                    </div>
                 `;
             });
         }
 
-        // ================= GESTIÓN DEL LOGOTIPO EN LA NUBE =================
-        async function actualizarLogo() {
-            const fileInput = document.getElementById('logo-file-input');
-            if(fileInput && fileInput.files && fileInput.files[0]) {
+        function cerrarArqueoCaja() {
+            document.getElementById('modal-arqueo').classList.add('hidden');
+        }
+
+        function actualizarLogo() {
+            const input = document.getElementById('logo-file-input');
+            if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = async function(e) {
-                    const base64Img = e.target.result;
-                    try {
-                        await db.collection('config').doc('logo').set({ imagen: base64Img });
-                        aplicarLogoEnUI(base64Img);
-                        mostrarNotificacion("¡Logo sincronizado en la nube con éxito!");
-                    } catch(err) {
-                        mostrarNotificacion("Error al guardar el logo en Firebase.", "error");
-                    }
-                }
-                reader.readAsDataURL(fileInput.files[0]);
-            } else { 
-                mostrarNotificacion("Selecciona una imagen para el logotipo.", "error"); 
+                reader.onload = function(e) {
+                    const imgHtml = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
+                    document.getElementById('logo-container').innerHTML = imgHtml;
+                    document.getElementById('doc-logo-preview').innerHTML = imgHtml;
+                    mostrarNotificacion("Logotipo actualizado correctamente.");
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                mostrarNotificacion("Selecciona una imagen primero.", "error");
             }
         }
 
-        async function cargarLogoCloud() {
-            try {
-                const doc = await db.collection('config').doc('logo').get();
-                if (doc.exists && doc.data().imagen) {
-                    aplicarLogoEnUI(doc.data().imagen);
-                }
-            } catch(e) {}
-        }
-
-        function aplicarLogoEnUI(imgSrc) {
-            const container = document.getElementById('logo-container');
-            const docPreview = document.getElementById('doc-logo-preview');
-            const htmlLogo = `<img src="${imgSrc}" class="w-full h-full object-cover rounded-xl">`;
-            if(container) container.innerHTML = htmlLogo;
-            if(docPreview) docPreview.innerHTML = htmlLogo;
-        }
-
-        // ================= INICIALIZACIÓN GENERAL =================
-        window.addEventListener('DOMContentLoaded', async () => {
-            iniciarListenersTiempoReal();
-            await fetchBCVRate();
-            await cargarLogoCloud();
-
-            const borrador = localStorage.getItem('lan_borrador_presupuesto');
-            if (borrador) {
-                try {
-                    const parsed = JSON.parse(borrador);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        const tbody = document.getElementById('lista-renglones-presupuesto');
-                        tbody.innerHTML = '';
-                        parsed.forEach(i => {
-                            agregarRenglonServicio(i.desc, i.costo);
-                            const fila = tbody.lastElementChild;
-                            if (fila) {
-                                fila.querySelector('.cant-input').value = i.cant;
-                                fila.querySelector('.ganancia-input').value = i.ganancia;
-                                fila.querySelector('.precio-cliente-input').value = i.precio;
-                                fila.querySelector('.precio-cliente-input').classList.add('modificado-manual');
-                            }
-                        });
-                        recalcularPresupuestoTotal();
-                    }
-                } catch(e) {}
-            }
-
-            if(document.querySelectorAll('#lista-renglones-presupuesto tr').length === 0) {
-                agregarRenglonServicio('Servicio Gráfico e Impresión', 20.00);
-            }
-            syncRoute();
-        });
+        // Inicialización al cargar la página
+        window.onload = function() {
+            cargarDashboard();
+            agregarItemCajaFila();
+            agregarRenglonServicio();
+        };
     </script>
 </body>
 </html>

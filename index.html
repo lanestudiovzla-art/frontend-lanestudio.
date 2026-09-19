@@ -28,6 +28,9 @@
 </head>
 <body class="bg-[#faf8f6] text-[#2c2c2c] antialiased min-h-screen flex flex-col">
 
+    <!-- Contenedor de Notificaciones Toast -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
     <!-- Topbar con Tasa BCV, Fecha/Hora y Logo -->
     <header class="bg-[#2c2c2c] border-b border-[#e8dbd3] px-6 py-4 flex flex-wrap justify-between items-center shadow-sm text-white">
         <div class="flex items-center space-x-3">
@@ -1071,7 +1074,7 @@
 
     </main>
 
-    <!-- Script Lógico Integrado con Firebase -->
+    <!-- Script Lógico Integrado con Firebase y Mejoras -->
     <script>
         // ================= CONFIGURACIÓN DE FIREBASE =================
         const firebaseConfig = {
@@ -1091,6 +1094,29 @@
         let listaInsumosDB = [];
         let listaServiciosDB = [];
         let listaClientesDB = [];
+
+        // ================= SISTEMA DE NOTIFICACIONES TOAST =================
+        function mostrarNotificacion(mensaje, tipo = 'success') {
+            let contenedor = document.getElementById('toast-container');
+            if (!contenedor) {
+                contenedor = document.createElement('div');
+                contenedor.id = 'toast-container';
+                contenedor.className = 'fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none';
+                document.body.appendChild(contenedor);
+            }
+            
+            const toast = document.createElement('div');
+            const bgColor = tipo === 'success' ? 'bg-[#2c2c2c] text-white border-[#b88a73]' : 'bg-rose-600 text-white border-rose-700';
+            toast.className = `${bgColor} px-4 py-3 rounded-xl shadow-lg border text-xs font-medium flex items-center space-x-2 transition-all transform translate-y-2 opacity-0 pointer-events-auto`;
+            toast.innerHTML = `<i class="fa-solid ${tipo === 'success' ? 'fa-circle-check text-[#b88a73]' : 'fa-triangle-exclamation'}"></i><span>${mensaje}</span>`;
+            
+            contenedor.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 50);
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
 
         function toggleDropdown(type) {
             const calcDropdown = document.getElementById('dropdown-calculadoras');
@@ -1258,24 +1284,36 @@
             }
         }
 
-        async function sincronizarDatosGlobales() {
-            try {
-                const snapInsumos = await db.collection('insumos').get();
+        // ================= SINCRONIZACIÓN EN TIEMPO REAL (ONSNAPSHOT) =================
+        function iniciarListenersTiempoReal() {
+            db.collection('insumos').onSnapshot((snapshot) => {
                 listaInsumosDB = [];
-                snapInsumos.forEach(doc => listaInsumosDB.push({ id: doc.id, ...doc.data() }));
+                snapshot.forEach(doc => listaInsumosDB.push({ id: doc.id, ...doc.data() }));
+                if(document.getElementById('module-insumos') && !document.getElementById('module-insumos').classList.contains('hidden')) {
+                    cargarInsumos();
+                }
+                poblarSelectInsumosStickers();
+            }, (error) => {});
 
-                const snapServicios = await db.collection('servicios').get();
+            db.collection('servicios').onSnapshot((snapshot) => {
                 listaServiciosDB = [];
-                snapServicios.forEach(doc => listaServiciosDB.push({ id: doc.id, ...doc.data() }));
+                snapshot.forEach(doc => listaServiciosDB.push({ id: doc.id, ...doc.data() }));
+                if(document.getElementById('module-servicios') && !document.getElementById('module-servicios').classList.contains('hidden')) {
+                    cargarServicios();
+                }
+            }, (error) => {});
 
-                const snapClientes = await db.collection('clientes').get();
+            db.collection('clientes').onSnapshot((snapshot) => {
                 listaClientesDB = [];
-                snapClientes.forEach(doc => listaClientesDB.push({ id: doc.id, ...doc.data() }));
-            } catch(e) {}
+                snapshot.forEach(doc => listaClientesDB.push({ id: doc.id, ...doc.data() }));
+                if(document.getElementById('module-crm') && !document.getElementById('module-crm').classList.contains('hidden')) {
+                    cargarClientes();
+                }
+                cargarClientesEnSelects();
+            }, (error) => {});
         }
 
         async function cargarClientesEnSelects() {
-            await sincronizarDatosGlobales();
             const selects = ['presupuesto-cliente', 'caja-cliente'];
             selects.forEach(selectId => {
                 const select = document.getElementById(selectId);
@@ -1300,7 +1338,7 @@
             const stock = parseInt(document.getElementById('insumo-stock').value) || 0;
             const stock_minimo = parseInt(document.getElementById('insumo-minimo').value) || 0;
 
-            if(!nombre) { alert("Introduce el nombre del insumo."); return; }
+            if(!nombre) { mostrarNotificacion("Introduce el nombre del insumo.", "error"); return; }
 
             try {
                 await db.collection('insumos').add({ nombre, categoria, costo_unitario, stock, stock_minimo });
@@ -1309,17 +1347,13 @@
                 document.getElementById('insumo-costo').value = '';
                 document.getElementById('insumo-stock').value = '';
                 document.getElementById('insumo-minimo').value = '';
-                await cargarInsumos();
-                alert("¡Insumo registrado en la nube con éxito!");
-            } catch(e) { alert("Error al guardar insumo."); }
+                mostrarNotificacion("¡Insumo registrado en la nube con éxito!");
+            } catch(e) { mostrarNotificacion("Error al guardar insumo.", "error"); }
         }
 
         async function cargarInsumos() {
             const tbody = document.getElementById('tabla-insumos');
             if(!tbody) return;
-            tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando insumos...</td></tr>';
-
-            await sincronizarDatosGlobales();
             tbody.innerHTML = listaInsumosDB.length ? '' : '<tr><td colspan="6" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr>';
             
             listaInsumosDB.forEach((ins) => {
@@ -1343,31 +1377,27 @@
             if(!confirm("¿Eliminar este insumo?")) return;
             try {
                 await db.collection('insumos').doc(id).delete();
-                cargarInsumos();
-            } catch(e) { alert("Error al eliminar."); }
+                mostrarNotificacion("Insumo eliminado con éxito.");
+            } catch(e) { mostrarNotificacion("Error al eliminar.", "error"); }
         }
 
         // ================= GESTIÓN DE SERVICIOS (FIREBASE) =================
         async function guardarServicio() {
             const nombre = document.getElementById('servicio-nombre').value.trim();
             const precio = parseFloat(document.getElementById('servicio-precio').value) || 0;
-            if(!nombre) { alert("Introduce el nombre del servicio."); return; }
+            if(!nombre) { mostrarNotificacion("Introduce el nombre del servicio.", "error"); return; }
 
             try {
                 await db.collection('servicios').add({ nombre, precio });
                 document.getElementById('servicio-nombre').value = '';
                 document.getElementById('servicio-precio').value = '';
-                await cargarServicios();
-                alert("¡Servicio guardado en la nube con éxito!");
-            } catch(e) { alert("Error al guardar servicio."); }
+                mostrarNotificacion("¡Servicio guardado en la nube con éxito!");
+            } catch(e) { mostrarNotificacion("Error al guardar servicio.", "error"); }
         }
 
         async function cargarServicios() {
             const tbody = document.getElementById('tabla-servicios');
             if(!tbody) return;
-            tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando servicios...</td></tr>';
-
-            await sincronizarDatosGlobales();
             tbody.innerHTML = listaServiciosDB.length ? '' : '<tr><td colspan="3" class="p-4 text-center text-gray-400">Sin servicios registrados.</td></tr>';
             
             listaServiciosDB.forEach((s) => {
@@ -1387,8 +1417,8 @@
             if(!confirm("¿Eliminar este servicio?")) return;
             try {
                 await db.collection('servicios').doc(id).delete();
-                cargarServicios();
-            } catch(e) { alert("Error al eliminar."); }
+                mostrarNotificacion("Servicio eliminado con éxito.");
+            } catch(e) { mostrarNotificacion("Error al eliminar.", "error"); }
         }
 
         // ================= GESTIÓN DE CRM CLIENTES (FIREBASE) =================
@@ -1397,25 +1427,20 @@
             const tel = document.getElementById('cliente-tel').value.trim();
             const instagram = document.getElementById('cliente-insta').value.trim();
 
-            if(!nombre) { alert("Introduce el nombre del cliente."); return; }
+            if(!nombre) { mostrarNotificacion("Introduce el nombre del cliente.", "error"); return; }
 
             try {
                 await db.collection('clientes').add({ nombre, tel, instagram });
                 document.getElementById('cliente-nombre').value = '';
                 document.getElementById('cliente-tel').value = '';
                 document.getElementById('cliente-insta').value = '';
-                cargarClientes();
-                cargarClientesEnSelects();
-                alert("¡Cliente guardado en la nube con éxito!");
-            } catch(e) { alert("Error al guardar cliente."); }
+                mostrarNotificacion("¡Cliente guardado en la nube con éxito!");
+            } catch(e) { mostrarNotificacion("Error al guardar cliente.", "error"); }
         }
 
         async function cargarClientes() {
             const tbody = document.getElementById('tabla-clientes');
             if(!tbody) return;
-            tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando clientes...</td></tr>';
-
-            await sincronizarDatosGlobales();
             tbody.innerHTML = listaClientesDB.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>';
             
             listaClientesDB.forEach((c) => {
@@ -1436,9 +1461,8 @@
             if(!confirm("¿Eliminar este cliente?")) return;
             try {
                 await db.collection('clientes').doc(id).delete();
-                cargarClientes();
-                cargarClientesEnSelects();
-            } catch(e) { alert("Error al eliminar."); }
+                mostrarNotificacion("Cliente eliminado con éxito.");
+            } catch(e) { mostrarNotificacion("Error al eliminar.", "error"); }
         }
 
         // ================= CONTROL FINANCIERO / GASTOS EN FIREBASE =================
@@ -1447,7 +1471,7 @@
             const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
             const categoria = document.getElementById('gasto-categoria').value;
 
-            if(!concepto || monto <= 0) { alert("Introduce un concepto y monto válido."); return; }
+            if(!concepto || monto <= 0) { mostrarNotificacion("Introduce un concepto y monto válido.", "error"); return; }
 
             try {
                 await db.collection('gastos').add({
@@ -1458,8 +1482,8 @@
                 document.getElementById('gasto-concepto').value = '';
                 document.getElementById('gasto-monto').value = '';
                 cargarGastosYBalance();
-                alert("¡Gasto registrado en la nube con éxito!");
-            } catch(e) { alert("Error al registrar gasto."); }
+                mostrarNotificacion("¡Gasto registrado en la nube con éxito!");
+            } catch(e) { mostrarNotificacion("Error al registrar gasto.", "error"); }
         }
 
         async function eliminarGasto(id) {
@@ -1467,7 +1491,8 @@
             try {
                 await db.collection('gastos').doc(id).delete();
                 cargarGastosYBalance();
-            } catch(e) { alert("Error al eliminar gasto."); }
+                mostrarNotificacion("Gasto eliminado con éxito.");
+            } catch(e) { mostrarNotificacion("Error al eliminar gasto.", "error"); }
         }
 
         function poblarSelectorPeriodos(gastos, ventas) {
@@ -1513,7 +1538,6 @@
         async function cargarGastosYBalance() {
             const tbody = document.getElementById('tabla-gastos');
             if(!tbody) return;
-            tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando balance...</td></tr>';
 
             let gastos = [];
             let ventas = [];
@@ -1635,8 +1659,8 @@
                     const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
                     const instaNuevo = prompt("Instagram (opcional):") || '';
                     await db.collection('clientes').add({ nombre: nombreNuevo.trim(), tel: telNuevo, instagram: instaNuevo });
-                    await cargarClientesEnSelects();
                     selectEl.value = nombreNuevo.trim();
+                    mostrarNotificacion("¡Cliente creado con éxito!");
                 } else {
                     selectEl.value = "Cliente General";
                 }
@@ -1651,8 +1675,8 @@
                     const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
                     const instaNuevo = prompt("Instagram (opcional):") || '';
                     await db.collection('clientes').add({ nombre: nombreNuevo.trim(), tel: telNuevo, instagram: instaNuevo });
-                    await cargarClientesEnSelects();
                     selectEl.value = nombreNuevo.trim();
+                    mostrarNotificacion("¡Cliente creado con éxito!");
                 } else {
                     selectEl.value = "Cliente General";
                 }
@@ -1664,7 +1688,7 @@
             const validez = document.getElementById('presupuesto-validez').value;
             const totalUSD = parseFloat(document.getElementById('doc-total-usd').innerText.replace('$', '')) || 0;
 
-            if (totalUSD <= 0) { alert("La cotización está vacía."); return; }
+            if (totalUSD <= 0) { mostrarNotificacion("La cotización está vacía.", "error"); return; }
 
             const items = [];
             document.querySelectorAll('.renglon-item').forEach(row => {
@@ -1683,20 +1707,19 @@
                     items: JSON.stringify(items),
                     created_at: new Date().toLocaleString()
                 });
-                alert("¡Cotización en Stand By guardada en la nube!");
+                mostrarNotificacion("¡Cotización en Stand By guardada en la nube!");
                 cargarCotizacionesStandBy();
                 switchTab('standby');
             } catch (error) {
-                alert("Error al guardar Stand By.");
+                mostrarNotificacion("Error al guardar Stand By.", "error");
             } finally {
-                if(btn) btn.innerHTML = '<i class="fa-solid fa-clock mr-2"></i> Guardar en Stand By';
+                if(btn) btn.innerHTML = '<i class="fa-solid fa-clock"></i><span>Guardar en Stand By</span>';
             }
         }
 
         async function cargarCotizacionesStandBy() {
             const tbody = document.getElementById('tabla-standby');
             if(!tbody) return;
-            tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando cotizaciones...</td></tr>';
 
             try {
                 const snapshot = await db.collection('standby').get();
@@ -1768,7 +1791,7 @@
                     agregarRenglonServicio('Presupuesto / Servicios', cot.total_usd);
                 }
                 recalcularPresupuestoTotal();
-                alert("Cotización cargada en el cotizador para edición.");
+                mostrarNotificacion("Cotización cargada para edición.");
             }, 200);
         }
 
@@ -1777,6 +1800,7 @@
             try {
                 await db.collection('standby').doc(id).delete();
                 cargarCotizacionesStandBy();
+                mostrarNotificacion("Cotización eliminada.");
             } catch (error) {}
         }
 
@@ -1794,12 +1818,13 @@
                     if (Array.isArray(parsed) && parsed.length > 0) {
                         parsed.forEach(i => { agregarItemCajaFila(i.desc, i.cant, i.precio); });
                     } else {
-                        agregarItemCajaFila('Presupuesto Stand By #' + cot.id, 1, cot.total_usd);
+                        agregarItemCajaFila('Presupuesto Stand By', 1, cot.total_usd);
                     }
                 } catch(e) {
                     agregarItemCajaFila('Presupuesto / Servicios', 1, cot.total_usd);
                 }
                 recalcularTotalesCaja();
+                mostrarNotificacion("Cotización enviada a caja.");
             }, 200);
         }
 
@@ -1871,6 +1896,7 @@
                 ultimaFila.querySelector('.ganancia-input').value = ganancia;
                 recalcularPresupuestoTotal();
             }
+            mostrarNotificacion("Sticker agregado al presupuesto.");
         }
 
         let topperFilaIdx = 0;
@@ -1951,6 +1977,7 @@
                 ultimaFila.querySelector('.ganancia-input').value = ganancia;
                 recalcularPresupuestoTotal();
             }
+            mostrarNotificacion("Topper agregado al presupuesto.");
         }
 
         function calcularFlyers() {
@@ -1985,6 +2012,7 @@
                 ultimaFila.querySelector('.ganancia-input').value = ganancia;
                 recalcularPresupuestoTotal();
             }
+            mostrarNotificacion("Flyers agregados al presupuesto.");
         }
 
         function calcularSublimacion() {
@@ -2018,6 +2046,7 @@
                 ultimaFila.querySelector('.ganancia-input').value = ganancia;
                 recalcularPresupuestoTotal();
             }
+            mostrarNotificacion("Artículo sublimado agregado al presupuesto.");
         }
 
         function calcularAudiovisual() {
@@ -2048,6 +2077,7 @@
                 ultimaFila.querySelector('.ganancia-input').value = ganancia;
                 recalcularPresupuestoTotal();
             }
+            mostrarNotificacion("Servicio audiovisual agregado al presupuesto.");
         }
 
         function calcularVinil() {
@@ -2081,6 +2111,7 @@
                 ultimaFila.querySelector('.ganancia-input').value = ganancia;
                 recalcularPresupuestoTotal();
             }
+            mostrarNotificacion("Vinil / DTF agregado al presupuesto.");
         }
 
         let renglonIndex = 0;
@@ -2101,28 +2132,29 @@
                         <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-servicio mb-1 truncate" onchange="seleccionarServicioCatalogo('${rowId}')">
                             ${opcionesServicios}
                         </select>
-                        <input type="text" value="${nombreDefault}" placeholder="Descripción" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium">
+                        <input type="text" value="${nombreDefault}" placeholder="Descripción" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium" oninput="guardarBorradorLocal()">
                     </td>
                     <td class="p-3 w-[14%] text-center align-middle">
-                        <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal()">
+                        <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle">
-                        <input type="number" step="0.01" value="${costoDefault}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal()">
+                        <input type="number" step="0.01" value="${costoDefault}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle">
-                        <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal()">
+                        <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle truncate">$0.00</td>
                     <td class="p-3 w-[30%] text-right align-middle">
-                        <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}')">
+                        <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle">
-                        <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal(); guardarBorradorLocal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
             `;
             tbody.insertAdjacentHTML('beforeend', html);
             recalcularPresupuestoTotal();
+            guardarBorradorLocal();
         }
 
         function agregarRenglonInsumo() {
@@ -2142,28 +2174,29 @@
                         <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-insumo mb-1 truncate" onchange="seleccionarInsumoCatalogo('${rowId}')">
                             ${opcionesInsumos}
                         </select>
-                        <input type="text" placeholder="Insumo" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium">
+                        <input type="text" placeholder="Insumo" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium" oninput="guardarBorradorLocal()">
                     </td>
                     <td class="p-3 w-[14%] text-center align-middle">
-                        <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal()">
+                        <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle">
-                        <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal()">
+                        <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle">
-                        <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal()">
+                        <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle truncate">$0.00</td>
                     <td class="p-3 w-[30%] text-right align-middle">
-                        <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}')">
+                        <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle">
-                        <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal(); guardarBorradorLocal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
             `;
             tbody.insertAdjacentHTML('beforeend', html);
             recalcularPresupuestoTotal();
+            guardarBorradorLocal();
         }
 
         function seleccionarServicioCatalogo(rowId) {
@@ -2177,6 +2210,7 @@
             row.querySelector('.precio-cliente-input').value = precioBase.toFixed(2);
             row.querySelector('.precio-cliente-input').classList.add('modificado-manual');
             recalcularPresupuestoTotal();
+            guardarBorradorLocal();
         }
 
         function seleccionarInsumoCatalogo(rowId) {
@@ -2189,6 +2223,7 @@
             row.querySelector('.costo-input').value = costo.toFixed(2);
             row.querySelector('.precio-cliente-input').classList.remove('modificado-manual');
             recalcularPresupuestoTotal();
+            guardarBorradorLocal();
         }
 
         function aplicarGananciaGlobalEnCascada() {
@@ -2198,6 +2233,7 @@
                 row.querySelector('.precio-cliente-input').classList.remove('modificado-manual');
             });
             recalcularPresupuestoTotal();
+            guardarBorradorLocal();
         }
 
         function marcarModificadoPrecio(rowId) {
@@ -2242,6 +2278,20 @@
             const clienteSeleccionado = document.getElementById('presupuesto-cliente').value;
             document.getElementById('doc-cliente-nombre').innerText = clienteSeleccionado === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : clienteSeleccionado;
             document.getElementById('doc-validez-txt').innerText = document.getElementById('presupuesto-validez').value || 'N/A';
+        }
+
+        function guardarBorradorLocal() {
+            const items = [];
+            document.querySelectorAll('.renglon-item').forEach(row => {
+                items.push({
+                    desc: row.querySelector('.desc-input').value,
+                    cant: row.querySelector('.cant-input').value,
+                    costo: row.querySelector('.costo-input').value,
+                    ganancia: row.querySelector('.ganancia-input').value,
+                    precio: row.querySelector('.precio-cliente-input').value
+                });
+            });
+            localStorage.setItem('lan_borrador_presupuesto', JSON.stringify(items));
         }
 
         function alternarOcultarBCV() {
@@ -2378,8 +2428,10 @@
 
             html2pdf().set(opt).from(tempDiv).save().then(() => {
                 document.body.removeChild(tempDiv);
+                mostrarNotificacion("PDF generado y descargado con éxito.");
             }).catch(() => {
                 if(tempDiv.parentNode) document.body.removeChild(tempDiv);
+                mostrarNotificacion("Error al generar el PDF.", "error");
             });
         }
 
@@ -2610,7 +2662,7 @@
             const cliente = document.getElementById('caja-cliente').value;
             const totalUSD = parseFloat(document.getElementById('caja-total-usd').value) || 0;
             
-            if(totalUSD <= 0) { alert("La factura está vacía."); return; }
+            if(totalUSD <= 0) { mostrarNotificacion("La factura está vacía.", "error"); return; }
 
             let itemsFactura = [];
             document.querySelectorAll('.caja-item-row').forEach(row => {
@@ -2620,7 +2672,7 @@
                 if(desc) itemsFactura.push({ desc, cant, precio });
             });
 
-            if(itemsFactura.length === 0) { alert("Añade al menos un ítem."); return; }
+            if(itemsFactura.length === 0) { mostrarNotificacion("Añade al menos un ítem.", "error"); return; }
 
             let metodosPago = [];
             let totalAbonado = 0;
@@ -2650,11 +2702,11 @@
                     metodos_pago: metodosPago.join(' | ') || 'No especificado'
                 });
             } catch(e) {
-                alert("Error al procesar la venta en Firebase.");
+                mostrarNotificacion("Error al procesar la venta en Firebase.", "error");
                 return;
             }
 
-            alert("¡Venta procesada y guardada en Firebase con éxito!");
+            mostrarNotificacion("¡Venta procesada y guardada en Firebase con éxito!");
             
             try {
                 document.getElementById('lista-items-caja').innerHTML = '';
@@ -2702,14 +2754,14 @@
                     try {
                         await db.collection('config').doc('logo').set({ imagen: base64Img });
                         aplicarLogoEnUI(base64Img);
-                        alert("¡Logo sincronizado en la nube con éxito!");
+                        mostrarNotificacion("¡Logo sincronizado en la nube con éxito!");
                     } catch(err) {
-                        alert("Error al guardar el logo en Firebase.");
+                        mostrarNotificacion("Error al guardar el logo en Firebase.", "error");
                     }
                 }
                 reader.readAsDataURL(fileInput.files[0]);
             } else { 
-                alert("Selecciona una imagen para el logotipo."); 
+                mostrarNotificacion("Selecciona una imagen para el logotipo.", "error"); 
             }
         }
 
@@ -2732,9 +2784,32 @@
 
         // ================= INICIALIZACIÓN GENERAL =================
         window.addEventListener('DOMContentLoaded', async () => {
-            await sincronizarDatosGlobales();
+            iniciarListenersTiempoReal();
             await fetchBCVRate();
             await cargarLogoCloud();
+
+            // Cargar borrador local si existe
+            const borrador = localStorage.getItem('lan_borrador_presupuesto');
+            if (borrador) {
+                try {
+                    const parsed = JSON.parse(borrador);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        const tbody = document.getElementById('lista-renglones-presupuesto');
+                        tbody.innerHTML = '';
+                        parsed.forEach(i => {
+                            agregarRenglonServicio(i.desc, i.costo);
+                            const fila = tbody.lastElementChild;
+                            if (fila) {
+                                fila.querySelector('.cant-input').value = i.cant;
+                                fila.querySelector('.ganancia-input').value = i.ganancia;
+                                fila.querySelector('.precio-cliente-input').value = i.precio;
+                                fila.querySelector('.precio-cliente-input').classList.add('modificado-manual');
+                            }
+                        });
+                        recalcularPresupuestoTotal();
+                    }
+                } catch(e) {}
+            }
 
             if(document.querySelectorAll('#lista-renglones-presupuesto tr').length === 0) {
                 agregarRenglonServicio('Servicio Gráfico e Impresión', 20.00);

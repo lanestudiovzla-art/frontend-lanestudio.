@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome para Iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- html2pdf para exportar presupuestos en PDF -->
+    <!-- html2pdf para exportar presupuestos y recibos en PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <!-- Firebase SDK Compat -->
@@ -804,6 +804,18 @@
                         </div>
                     </div>
 
+                    <!-- NUEVAS OPCIONES DE CAJA: DESCUENTO Y NOTAS -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3]">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Descuento Global (%)</label>
+                            <input type="number" id="caja-descuento-pct" value="0" min="0" max="100" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-xl px-4 py-2 text-sm font-bold text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]" oninput="recalcularTotalesCaja()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Notas / Observaciones Ticket</label>
+                            <input type="text" id="caja-notas" placeholder="Ej. Entregar el martes, pendiente arte..." class="w-full bg-white border border-[#e8dbd3] rounded-xl px-4 py-2 text-sm text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]">
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3]">
                         <div>
                             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Total a Pagar ($)</label>
@@ -885,10 +897,16 @@
                             <i class="fa-solid fa-check-circle text-lg"></i>
                             <span>Guardar y Procesar Venta</span>
                         </button>
-                        <button onclick="enviarUltimaVentaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
-                            <i class="fa-brands fa-whatsapp text-sm"></i>
-                            <span>Enviar Último Ticket por WhatsApp</span>
-                        </button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="exportarReciboCajaPDF()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1.5">
+                                <i class="fa-solid fa-file-pdf"></i>
+                                <span>Recibo PDF</span>
+                            </button>
+                            <button onclick="enviarUltimaVentaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1.5">
+                                <i class="fa-brands fa-whatsapp text-sm"></i>
+                                <span>WhatsApp</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -954,28 +972,39 @@
             </div>
         </section>
 
-        <!-- CRM CLIENTES -->
+        <!-- CRM CLIENTES MEJORADO (CON RIF, DIRECCIÓN Y TIPO) -->
         <section id="module-crm" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Directorio de Clientes (CRM)</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                    <input type="text" id="cliente-nombre" placeholder="Nombre o Empresa" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
+                <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Directorio de Clientes y Datos Fiscales (CRM)</h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
+                    <input type="text" id="cliente-nombre" placeholder="Nombre o Empresa *" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
+                    <input type="text" id="cliente-rif" placeholder="RIF / Cédula (Ej. J-12345678-0)" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
+                    <select id="cliente-tipo" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
+                        <option value="Persona Natural">Persona Natural</option>
+                        <option value="Empresa (B2B)">Empresa (B2B)</option>
+                    </select>
                     <input type="text" id="cliente-tel" placeholder="Teléfono / WhatsApp" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
+                    <input type="email" id="cliente-email" placeholder="Correo Electrónico" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="text" id="cliente-insta" placeholder="Instagram" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarCliente()" class="sm:col-span-3 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Guardar Cliente en Firebase</button>
+                    <input type="text" id="cliente-direccion" placeholder="Dirección Fiscal / Envíos" class="sm:col-span-2 bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
+                    <button onclick="guardarCliente()" class="sm:col-span-4 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-lg font-medium transition text-sm">Guardar Cliente en Firebase</button>
                 </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-gray-700">
                         <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
                             <tr>
-                                <th class="p-3">Nombre / Empresa</th>
-                                <th class="p-3">Teléfono</th>
-                                <th class="p-3">Instagram</th>
+                                <th class="p-3">Cliente / Empresa</th>
+                                <th class="p-3">RIF / Cédula</th>
+                                <th class="p-3">Tipo</th>
+                                <th class="p-3">Contacto</th>
+                                <th class="p-3">Dirección</th>
                                 <th class="p-3 text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-clientes">
-                            <tr><td colspan="4" class="p-4 text-center text-gray-400">Cargando clientes...</td></tr>
+                            <tr><td colspan="6" class="p-4 text-center text-gray-400">Cargando clientes...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1491,19 +1520,26 @@
             } catch(e) { mostrarNotificacion("Error al eliminar.", "error"); }
         }
 
-        // ================= GESTIÓN DE CRM CLIENTES (FIREBASE) =================
+        // ================= GESTIÓN DE CRM CLIENTES (ACTUALIZADO CON RIF, DIRECCIÓN Y TIPO) =================
         async function guardarCliente() {
             const nombre = document.getElementById('cliente-nombre').value.trim();
+            const rif = document.getElementById('cliente-rif').value.trim();
+            const tipo = document.getElementById('cliente-tipo').value;
             const tel = document.getElementById('cliente-tel').value.trim();
+            const email = document.getElementById('cliente-email').value.trim();
             const instagram = document.getElementById('cliente-insta').value.trim();
+            const direccion = document.getElementById('cliente-direccion').value.trim();
 
-            if(!nombre) { mostrarNotificacion("Introduce el nombre del cliente.", "error"); return; }
+            if(!nombre) { mostrarNotificacion("Introduce el nombre o empresa del cliente.", "error"); return; }
 
             try {
-                await db.collection('clientes').add({ nombre, tel, instagram });
+                await db.collection('clientes').add({ nombre, rif, tipo, tel, email, instagram, direccion });
                 document.getElementById('cliente-nombre').value = '';
+                document.getElementById('cliente-rif').value = '';
                 document.getElementById('cliente-tel').value = '';
+                document.getElementById('cliente-email').value = '';
                 document.getElementById('cliente-insta').value = '';
+                document.getElementById('cliente-direccion').value = '';
                 mostrarNotificacion("¡Cliente guardado en la nube con éxito!");
             } catch(e) { mostrarNotificacion("Error al guardar cliente.", "error"); }
         }
@@ -1511,14 +1547,20 @@
         async function cargarClientes() {
             const tbody = document.getElementById('tabla-clientes');
             if(!tbody) return;
-            tbody.innerHTML = listaClientesDB.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>';
+            tbody.innerHTML = listaClientesDB.length ? '' : '<tr><td colspan="6" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>';
             
             listaClientesDB.forEach((c) => {
+                const tipoBadge = c.tipo === 'Empresa (B2B)' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
                         <td class="p-3 font-semibold text-[#2c2c2c]">${c.nombre}</td>
-                        <td class="p-3 text-xs">${c.tel || 'N/A'}</td>
-                        <td class="p-3 text-xs text-[#b88a73]">${c.instagram || 'N/A'}</td>
+                        <td class="p-3 text-xs font-mono">${c.rif || 'S/R'}</td>
+                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded-full border text-[10px] font-semibold ${tipoBadge}">${c.tipo || 'Persona Natural'}</span></td>
+                        <td class="p-3 text-xs">
+                            <div>${c.tel || 'Sin telf'}</div>
+                            <div class="text-[10px] text-gray-500">${c.email || 'Sin correo'}</div>
+                        </td>
+                        <td class="p-3 text-xs text-gray-600 truncate max-w-xs" title="${c.direccion || 'Sin dirección'}">${c.direccion || 'N/A'}</td>
                         <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
                             <button onclick="verHistorialCliente('${c.nombre}')" class="bg-gray-100 hover:bg-indigo-100 text-indigo-700 p-2 rounded-xl transition text-xs" title="Ver Historial de Compras"><i class="fa-solid fa-clock-rotate-left"></i></button>
                             <button onclick="eliminarCliente('${c.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
@@ -1694,7 +1736,6 @@
                 const resV = await queryVentas.get();
                 resV.forEach(doc => ventas.push({ id: doc.id, ...doc.data() }));
 
-                // También obtenemos todos para poblar el selector de periodos completo si es necesario
                 const allG = await db.collection('gastos').get();
                 let fullGastos = [];
                 allG.forEach(doc => fullGastos.push(doc.data()));
@@ -1705,7 +1746,6 @@
                 poblarSelectorPeriodos(fullGastos, fullVentas);
 
             } catch(e) {
-                // Fallback en caso de índices de firestore pendientes
                 const resG = await db.collection('gastos').get();
                 resG.forEach(doc => gastos.push({ id: doc.id, ...doc.data() }));
                 const resV = await db.collection('ventas').get();
@@ -1805,9 +1845,10 @@
             if (selectEl.value === 'CREAR_NUEVO_CLIENTE') {
                 const nombreNuevo = prompt("Ingrese el nombre o empresa del nuevo cliente:");
                 if (nombreNuevo && nombreNuevo.trim() !== '') {
+                    const rifNuevo = prompt("RIF o Cédula (opcional):") || '';
                     const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
-                    const instaNuevo = prompt("Instagram (opcional):") || '';
-                    await db.collection('clientes').add({ nombre: nombreNuevo.trim(), tel: telNuevo, instagram: instaNuevo });
+                    const dirNuevo = prompt("Dirección fiscal (opcional):") || '';
+                    await db.collection('clientes').add({ nombre: nombreNuevo.trim(), rif: rifNuevo, tipo: 'Persona Natural', tel: telNuevo, email: '', instagram: '', direccion: dirNuevo });
                     selectEl.value = nombreNuevo.trim();
                     mostrarNotificacion("¡Cliente creado con éxito!");
                 } else {
@@ -1821,9 +1862,10 @@
             if (selectEl.value === 'CREAR_NUEVO_CLIENTE') {
                 const nombreNuevo = prompt("Ingrese el nombre o empresa del nuevo cliente:");
                 if (nombreNuevo && nombreNuevo.trim() !== '') {
+                    const rifNuevo = prompt("RIF o Cédula (opcional):") || '';
                     const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
-                    const instaNuevo = prompt("Instagram (opcional):") || '';
-                    await db.collection('clientes').add({ nombre: nombreNuevo.trim(), tel: telNuevo, instagram: instaNuevo });
+                    const dirNuevo = prompt("Dirección fiscal (opcional):") || '';
+                    await db.collection('clientes').add({ nombre: nombreNuevo.trim(), rif: rifNuevo, tipo: 'Persona Natural', tel: telNuevo, email: '', instagram: '', direccion: dirNuevo });
                     selectEl.value = nombreNuevo.trim();
                     mostrarNotificacion("¡Cliente creado con éxito!");
                 } else {
@@ -1866,7 +1908,7 @@
             }
         }
 
-        // ================= ENVÍO POR WHATSAPP (ACTUALIZADO CON OCULTAR BCV) =================
+        // ================= ENVÍO POR WHATSAPP =================
         function enviarPresupuestoWhatsApp() {
             const clienteNombre = document.getElementById('doc-cliente-nombre').innerText;
             const totalUSD = document.getElementById('doc-total-usd').innerText;
@@ -1902,13 +1944,16 @@
                 telefonoCliente = clienteObj.tel.replace(/[^0-9]/g, '');
             }
 
-            let mensaje = `¡Hola *${v.cliente}*! 🚀 Gracias por tu compra en *LAN Estudio*.\n\n*Concepto:* ${v.concepto}\n*Total Pagado:* $${parseFloat(v.total_usd).toFixed(2)}\n*Método:* ${v.metodos_pago}\n\n¡Fue un placer atenderte!`;
+            let mensaje = `¡Hola *${v.cliente}*! 🚀 Gracias por tu compra en *LAN Estudio*.\n\n*Concepto:* ${v.concepto}\n*Total Pagado:* $${parseFloat(v.total_usd).toFixed(2)}\n*Método:* ${v.metodos_pago}`;
+            if(v.notas) mensaje += `\n*Nota:* ${v.notas}`;
+            mensaje += `\n\n¡Fue un placer atenderte!`;
+
             let url = `https://wa.me/${telefonoCliente}?text=${encodeURIComponent(mensaje)}`;
             window.open(url, '_blank');
             mostrarNotificacion("Abriendo WhatsApp con el recibo de venta...");
         }
 
-        // ================= ARQUEO DE CAJA DIARIO (MEJORA) =================
+        // ================= ARQUEO DE CAJA DIARIO =================
         async function abrirArqueoCaja() {
             const modal = document.getElementById('modal-arqueo');
             const contenido = document.getElementById('contenido-arqueo');
@@ -2698,7 +2743,7 @@
             });
         }
 
-        // ================= CAJA Y PAGOS CON TECLADO =================
+        // ================= CAJA Y PAGOS CON TECLADO Y DESCUENTO GLOBAL =================
         let cajaItemIdx = 0;
         function agregarItemCajaFila(nombre = '', cant = 1, precio = 0) {
             cajaItemIdx++;
@@ -2827,12 +2872,16 @@
         }
 
         function recalcularTotalesCaja() {
-            let totalUSD = 0;
+            let subtotalUSD = 0;
             document.querySelectorAll('.caja-item-row').forEach(row => {
                 const cant = parseFloat(row.querySelector('.caja-cant-input').value) || 0;
                 const precio = parseFloat(row.querySelector('.caja-precio-input').value) || 0;
-                totalUSD += (cant * precio);
+                subtotalUSD += (cant * precio);
             });
+
+            const descuentoPct = parseFloat(document.getElementById('caja-descuento-pct').value) || 0;
+            const montoDescuento = subtotalUSD * (descuentoPct / 100);
+            const totalUSD = Math.max(0, subtotalUSD - montoDescuento);
 
             document.getElementById('caja-total-usd').value = totalUSD.toFixed(2);
             const totalVES = totalUSD * tasaBCV;
@@ -2938,6 +2987,8 @@
         async function procesarPagoFinal() {
             const cliente = document.getElementById('caja-cliente').value;
             const totalUSD = parseFloat(document.getElementById('caja-total-usd').value) || 0;
+            const notas = document.getElementById('caja-notas').value.trim();
+            const descuentoPct = document.getElementById('caja-descuento-pct').value || '0';
             
             if(totalUSD <= 0) { mostrarNotificacion("La factura está vacía.", "error"); return; }
 
@@ -2977,10 +3028,12 @@
                     cliente,
                     concepto: conceptoResumen,
                     total_usd: totalUSD,
-                    metodos_pago: metodosPagoStr
+                    metodos_pago: metodosPagoStr,
+                    descuento: `${descuentoPct}%`,
+                    notas
                 });
 
-                ultimaVentaProcesada = { cliente, concepto: conceptoResumen, total_usd: totalUSD, metodos_pago: metodosPagoStr };
+                ultimaVentaProcesada = { cliente, concepto: conceptoResumen, total_usd: totalUSD, metodos_pago: metodosPagoStr, notas };
             } catch(e) {
                 mostrarNotificacion("Error al procesar la venta en Firebase.", "error");
                 return;
@@ -2992,11 +3045,115 @@
                 localStorage.removeItem('lan_borrador_caja');
                 document.getElementById('lista-items-caja').innerHTML = '';
                 document.getElementById('lista-pagos').innerHTML = '';
+                document.getElementById('caja-notas').value = '';
+                document.getElementById('caja-descuento-pct').value = '0';
                 agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
                 actualizarTotalesCaja();
                 switchTab('dashboard');
                 cargarDashboard();
             } catch(err) {}
+        }
+
+        // ================= EXPORTAR RECIBO DE CAJA EN PDF =================
+        function exportarReciboCajaPDF() {
+            const cliente = document.getElementById('caja-cliente').value;
+            const totalUSD = document.getElementById('caja-total-usd').value;
+            const totalVES = document.getElementById('caja-total-ves').value;
+            const notas = document.getElementById('caja-notas').value;
+            const descuentoPct = document.getElementById('caja-descuento-pct').value;
+            const fechaStr = new Date().toLocaleString();
+            const logoHtml = document.getElementById('doc-logo-preview').innerHTML;
+
+            let filasHTML = '';
+            document.querySelectorAll('.caja-item-row').forEach(row => {
+                const desc = row.querySelector('.caja-search-input').value || 'Servicio';
+                const cant = row.querySelector('.caja-cant-input').value || '1';
+                const precio = row.querySelector('.caja-precio-input').value || '0.00';
+                const sub = (parseFloat(cant) * parseFloat(precio)).toFixed(2);
+                filasHTML += `
+                    <tr style="border-bottom: 1px solid #e8dbd3;">
+                        <td style="padding: 10px; font-size: 11px; color: #2c2c2c;">${desc}</td>
+                        <td style="padding: 10px; font-size: 11px; text-align: center;">${cant}</td>
+                        <td style="padding: 10px; font-size: 11px; text-align: right;">$${parseFloat(precio).toFixed(2)}</td>
+                        <td style="padding: 10px; font-size: 11px; text-align: right; font-weight: bold; color: #b88a73;">$${sub}</td>
+                    </tr>
+                `;
+            });
+
+            const tempDiv = document.createElement('div');
+            tempDiv.style.width = '680px';
+            tempDiv.style.padding = '35px';
+            tempDiv.style.backgroundColor = '#ffffff';
+            tempDiv.style.fontFamily = "'Inter', sans-serif";
+            tempDiv.style.color = '#2c2c2c';
+            tempDiv.innerHTML = `
+                <table style="width: 100%; border-collapse: collapse; border-bottom: 2px solid #e8dbd3; padding-bottom: 15px; margin-bottom: 15px;">
+                    <tr>
+                        <td style="width: 60%; vertical-align: middle;">
+                            <table>
+                                <tr>
+                                    <td style="width: 40px; height: 40px; border-radius: 8px; background: #b88a73; text-align: center; vertical-align: middle; color: white; font-weight: bold;">${logoHtml}</td>
+                                    <td style="padding-left: 10px;">
+                                        <h2 style="margin: 0; font-size: 15px; font-weight: bold;">LAN ESTUDIO</h2>
+                                        <p style="margin: 2px 0 0 0; font-size: 9px; color: #666;">Comprobante de Venta / Recibo</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td style="width: 40%; text-align: right;">
+                            <h3 style="margin: 0; font-size: 12px; font-weight: bold; color: #b88a73;">TICKET DE CAJA</h3>
+                            <p style="margin: 3px 0 0 0; font-size: 9px; color: #666;">${fechaStr}</p>
+                        </td>
+                    </tr>
+                </table>
+
+                <p style="font-size: 11px; margin-bottom: 15px;"><b>Cliente:</b> ${cliente}</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #e8dbd3; border-radius: 6px; overflow: hidden;">
+                    <thead>
+                        <tr style="background: #f7f4f0; text-transform: uppercase; font-size: 9px; color: #666;">
+                            <th style="padding: 8px; text-align: left;">Descripción</th>
+                            <th style="padding: 8px; text-align: center;">Cant</th>
+                            <th style="padding: 8px; text-align: right;">Precio Unit.</th>
+                            <th style="padding: 8px; text-align: right;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filasHTML}
+                    </tbody>
+                </table>
+
+                <div style="background: #faf8f6; padding: 12px; border-radius: 8px; border: 1px solid #e8dbd3; margin-bottom: 15px; font-size: 11px;">
+                    ${descuentoPct > 0 ? `<p style="margin: 0 0 5px 0;"><b>Descuento Aplicado:</b> ${descuentoPct}%</p>` : ''}
+                    ${notas ? `<p style="margin: 0;"><b>Notas:</b> ${notas}</p>` : ''}
+                </div>
+
+                <div style="text-align: right; background: #fbf9f7; padding: 12px; border-radius: 8px; border: 1px solid #e8dbd3;">
+                    <p style="margin: 0; font-size: 12px; color: #666;">Total USD: <b style="color: #b88a73; font-size: 16px;">$${parseFloat(totalUSD).toFixed(2)}</b></p>
+                    <p style="margin: 3px 0 0 0; font-size: 11px; color: #666;">Equivalente: <b>${totalVES}</b></p>
+                </div>
+
+                <div style="text-align: center; border-top: 1px solid #e8dbd3; margin-top: 25px; padding-top: 10px; font-size: 9px; color: #999;">
+                    ¡Gracias por su compra en LAN Estudio! 🚀
+                </div>
+            `;
+
+            document.body.appendChild(tempDiv);
+            const opt = {
+                margin: 5,
+                filename: `Recibo_LANEstudio_${Date.now()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(tempDiv).save().then(() => {
+                document.body.removeChild(tempDiv);
+                mostrarNotificacion("Recibo PDF generado con éxito.");
+            }).catch(() => {
+                if(tempDiv.parentNode) document.body.removeChild(tempDiv);
+                mostrarNotificacion("Error al generar el recibo PDF.", "error");
+            });
         }
 
         async function cargarRegistrosCajaEditable() {
@@ -3074,7 +3231,6 @@
             await fetchBCVRate();
             await cargarLogoCloud();
 
-            // Cargar borrador local de presupuesto si existe
             const borrador = localStorage.getItem('lan_borrador_presupuesto');
             if (borrador) {
                 try {

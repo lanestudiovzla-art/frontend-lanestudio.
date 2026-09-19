@@ -927,7 +927,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
                     <input type="text" id="servicio-nombre" placeholder="Nombre del Servicio" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="number" id="servicio-precio" placeholder="Precio Base ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarServicio()" class="sm:col-span-2 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Guardar Servicio</button>
+                    <button onclick="guardarServicio()" class="sm:col-span-2 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Guardar Servicio en Firebase</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-gray-700">
@@ -939,7 +939,7 @@
                             </tr>
                         </thead>
                         <tbody id="tabla-servicios">
-                            <tr><td colspan="3" class="p-4 text-center text-gray-400">Sin servicios registrados.</td></tr>
+                            <tr><td colspan="3" class="p-4 text-center text-gray-400">Cargando servicios...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1076,10 +1076,10 @@
         <section id="module-logo" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-image text-[#b88a73] mr-2"></i> Configuración del Logotipo</h2>
-                <p class="text-sm text-gray-500">Sube una imagen o introduce la URL de tu logo para personalizar la barra superior y los presupuestos en PDF.</p>
+                <p class="text-sm text-gray-500">Sube una imagen para personalizar la barra superior y los presupuestos en PDF de forma sincronizada en la nube.</p>
                 <div class="flex items-center space-x-4">
                     <input type="file" id="logo-file-input" accept="image/*" class="bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2 text-sm text-gray-700">
-                    <button onclick="actualizarLogo()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-4 py-2 rounded-xl text-sm font-medium transition">Aplicar Logo</button>
+                    <button onclick="actualizarLogo()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-4 py-2 rounded-xl text-sm font-medium transition">Aplicar y Sincronizar Logo</button>
                 </div>
             </div>
         </section>
@@ -1106,8 +1106,6 @@
         let listaInsumosDB = [];
         let listaServiciosDB = [];
         let listaClientesDB = [];
-        let listaVentasDB = [];
-        let listaGastosDB = [];
 
         function toggleDropdown(type) {
             const calcDropdown = document.getElementById('dropdown-calculadoras');
@@ -1275,31 +1273,24 @@
             }
         }
 
-        async function cargarInsumosBase() {
+        async function sincronizarDatosGlobales() {
             try {
-                const snapshot = await db.collection('insumos').get();
+                const snapInsumos = await db.collection('insumos').get();
                 listaInsumosDB = [];
-                snapshot.forEach(doc => {
-                    listaInsumosDB.push({ id: doc.id, ...doc.data() });
-                });
-            } catch(e) {
-                listaInsumosDB = [];
-            }
-        }
+                snapInsumos.forEach(doc => listaInsumosDB.push({ id: doc.id, ...doc.data() }));
 
-        async function cargarServiciosBase() {
-            listaServiciosDB = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
+                const snapServicios = await db.collection('servicios').get();
+                listaServiciosDB = [];
+                snapServicios.forEach(doc => listaServiciosDB.push({ id: doc.id, ...doc.data() }));
+
+                const snapClientes = await db.collection('clientes').get();
+                listaClientesDB = [];
+                snapClientes.forEach(doc => listaClientesDB.push({ id: doc.id, ...doc.data() }));
+            } catch(e) {}
         }
 
         async function cargarClientesEnSelects() {
-            try {
-                const snapshot = await db.collection('clientes').get();
-                listaClientesDB = [];
-                snapshot.forEach(doc => {
-                    listaClientesDB.push({ id: doc.id, ...doc.data() });
-                });
-            } catch(e) { listaClientesDB = []; }
-
+            await sincronizarDatosGlobales();
             const selects = ['presupuesto-cliente', 'caja-cliente'];
             selects.forEach(selectId => {
                 const select = document.getElementById(selectId);
@@ -1316,7 +1307,7 @@
             });
         }
 
-        // ================= GESTIÓN DE INSUMOS =================
+        // ================= GESTIÓN DE INSUMOS (FIREBASE) =================
         async function guardarInsumo() {
             const nombre = document.getElementById('insumo-nombre').value.trim();
             const categoria = document.getElementById('insumo-categoria').value.trim();
@@ -1334,7 +1325,7 @@
                 document.getElementById('insumo-stock').value = '';
                 document.getElementById('insumo-minimo').value = '';
                 await cargarInsumos();
-                alert("¡Insumo registrado en Firebase con éxito!");
+                alert("¡Insumo registrado en la nube con éxito!");
             } catch(e) { alert("Error al guardar insumo."); }
         }
 
@@ -1343,7 +1334,7 @@
             if(!tbody) return;
             tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando insumos...</td></tr>';
 
-            await cargarInsumosBase();
+            await sincronizarDatosGlobales();
             tbody.innerHTML = listaInsumosDB.length ? '' : '<tr><td colspan="6" class="p-4 text-center text-gray-400">Sin insumos registrados.</td></tr>';
             
             listaInsumosDB.forEach((ins) => {
@@ -1371,48 +1362,51 @@
             } catch(e) { alert("Error al eliminar."); }
         }
 
-        // ================= GESTIÓN DE SERVICIOS =================
-        function guardarServicio() {
+        // ================= GESTIÓN DE SERVICIOS (FIREBASE) =================
+        async function guardarServicio() {
             const nombre = document.getElementById('servicio-nombre').value.trim();
             const precio = parseFloat(document.getElementById('servicio-precio').value) || 0;
             if(!nombre) { alert("Introduce el nombre del servicio."); return; }
-            let servicios = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
-            servicios.push({ nombre, precio });
-            localStorage.setItem('lan_servicios', JSON.stringify(servicios));
-            document.getElementById('servicio-nombre').value = '';
-            document.getElementById('servicio-precio').value = '';
-            cargarServicios();
-            alert("¡Servicio guardado con éxito!");
+
+            try {
+                await db.collection('servicios').add({ nombre, precio });
+                document.getElementById('servicio-nombre').value = '';
+                document.getElementById('servicio-precio').value = '';
+                await cargarServicios();
+                alert("¡Servicio guardado en la nube con éxito!");
+            } catch(e) { alert("Error al guardar servicio."); }
         }
 
-        function cargarServicios() {
+        async function cargarServicios() {
             const tbody = document.getElementById('tabla-servicios');
             if(!tbody) return;
-            let servicios = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
-            listaServiciosDB = servicios;
-            tbody.innerHTML = servicios.length ? '' : '<tr><td colspan="3" class="p-4 text-center text-gray-400">Sin servicios registrados.</td></tr>';
-            servicios.forEach((s, idx) => {
+            tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando servicios...</td></tr>';
+
+            await sincronizarDatosGlobales();
+            tbody.innerHTML = listaServiciosDB.length ? '' : '<tr><td colspan="3" class="p-4 text-center text-gray-400">Sin servicios registrados.</td></tr>';
+            
+            listaServiciosDB.forEach((s) => {
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
                         <td class="p-3 font-semibold text-[#2c2c2c]">${s.nombre}</td>
                         <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(s.precio).toFixed(2)}</td>
                         <td class="p-3 space-x-1.5 whitespace-nowrap">
-                            <button onclick="eliminarServicio(${idx})" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="eliminarServicio('${s.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        function eliminarServicio(idx) {
+        async function eliminarServicio(id) {
             if(!confirm("¿Eliminar este servicio?")) return;
-            let servicios = JSON.parse(localStorage.getItem('lan_servicios') || '[]');
-            servicios.splice(idx, 1);
-            localStorage.setItem('lan_servicios', JSON.stringify(servicios));
-            cargarServicios();
+            try {
+                await db.collection('servicios').doc(id).delete();
+                cargarServicios();
+            } catch(e) { alert("Error al eliminar."); }
         }
 
-        // ================= GESTIÓN DE CRM CLIENTES =================
+        // ================= GESTIÓN DE CRM CLIENTES (FIREBASE) =================
         async function guardarCliente() {
             const nombre = document.getElementById('cliente-nombre').value.trim();
             const tel = document.getElementById('cliente-tel').value.trim();
@@ -1427,7 +1421,7 @@
                 document.getElementById('cliente-insta').value = '';
                 cargarClientes();
                 cargarClientesEnSelects();
-                alert("¡Cliente guardado en Firebase!");
+                alert("¡Cliente guardado en la nube con éxito!");
             } catch(e) { alert("Error al guardar cliente."); }
         }
 
@@ -1436,13 +1430,9 @@
             if(!tbody) return;
             tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando clientes...</td></tr>';
 
-            try {
-                const snapshot = await db.collection('clientes').get();
-                listaClientesDB = [];
-                snapshot.forEach(doc => { listaClientesDB.push({ id: doc.id, ...doc.data() }); });
-            } catch(e) { listaClientesDB = []; }
-
+            await sincronizarDatosGlobales();
             tbody.innerHTML = listaClientesDB.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin clientes registrados.</td></tr>';
+            
             listaClientesDB.forEach((c) => {
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
@@ -1483,7 +1473,7 @@
                 document.getElementById('gasto-concepto').value = '';
                 document.getElementById('gasto-monto').value = '';
                 cargarGastosYBalance();
-                alert("¡Gasto registrado en Firebase con éxito!");
+                alert("¡Gasto registrado en la nube con éxito!");
             } catch(e) { alert("Error al registrar gasto."); }
         }
 
@@ -1708,7 +1698,7 @@
                     items: JSON.stringify(items),
                     created_at: new Date().toLocaleString()
                 });
-                alert("¡Cotización en Stand By guardada en Firebase!");
+                alert("¡Cotización en Stand By guardada en la nube!");
                 cargarCotizacionesStandBy();
                 switchTab('standby');
             } catch (error) {
@@ -2651,9 +2641,7 @@
                 actualizarTotalesCaja();
                 switchTab('dashboard');
                 cargarDashboard();
-            } catch(err) {
-                // Limpieza de interfaz completada
-            }
+            } catch(err) {}
         }
 
         async function cargarRegistrosCajaEditable() {
@@ -2682,25 +2670,36 @@
             });
         }
 
-      async function actualizarLogo() {
-    const fileInput = document.getElementById('logo-file-input');
-    if(fileInput && fileInput.files && fileInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const base64Img = e.target.result;
-            try {
-                await db.collection('config').doc('logo').set({ imagen: base64Img });
-                aplicarLogoEnUi(base64Img);
-                alert("¡Logo sincronizado en la nube con éxito!");
-            } catch(err) {
-                alert("Error al guardar el logo en Firebase.");
+        // ================= GESTIÓN DEL LOGOTIPO EN LA NUBE =================
+        async function actualizarLogo() {
+            const fileInput = document.getElementById('logo-file-input');
+            if(fileInput && fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const base64Img = e.target.result;
+                    try {
+                        await db.collection('config').doc('logo').set({ imagen: base64Img });
+                        aplicarLogoEnUI(base64Img);
+                        alert("¡Logo sincronizado en la nube con éxito!");
+                    } catch(err) {
+                        alert("Error al guardar el logo en Firebase.");
+                    }
+                }
+                reader.readAsDataURL(fileInput.files[0]);
+            } else { 
+                alert("Selecciona una imagen para el logotipo."); 
             }
         }
-        reader.readAsDataURL(fileInput.files[0]);
-    } else { 
-        alert("Selecciona una imagen para el logotipo."); 
-    }
-}
+
+        async function cargarLogoCloud() {
+            try {
+                const doc = await db.collection('config').doc('logo').get();
+                if (doc.exists && doc.data().imagen) {
+                    aplicarLogoEnUI(doc.data().imagen);
+                }
+            } catch(e) {}
+        }
+
         function aplicarLogoEnUI(imgSrc) {
             const container = document.getElementById('logo-container');
             const docPreview = document.getElementById('doc-logo-preview');
@@ -2709,13 +2708,11 @@
             if(docPreview) docPreview.innerHTML = htmlLogo;
         }
 
+        // ================= INICIALIZACIÓN GENERAL =================
         window.addEventListener('DOMContentLoaded', async () => {
-            await cargarInsumosBase();
-            await cargarServiciosBase();
+            await sincronizarDatosGlobales();
             await fetchBCVRate();
-
-            const savedLogo = localStorage.getItem('lan_logo_img');
-            if(savedLogo) aplicarLogoEnUI(savedLogo);
+            await cargarLogoCloud();
 
             if(document.querySelectorAll('#lista-renglones-presupuesto tr').length === 0) {
                 agregarRenglonServicio('Servicio Gráfico e Impresión', 20.00);

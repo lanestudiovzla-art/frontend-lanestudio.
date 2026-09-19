@@ -120,14 +120,18 @@
         
         <!-- DASHBOARD -->
         <section id="module-dashboard" class="space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
                     <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Ventas Totales</p>
-                    <h3 id="dash-ventas" class="text-xl font-bold text-[#b88a73] mt-3">$0.00 <span class="block text-xs font-normal text-gray-500">Bs. 0.00</span></h3>
+                    <h3 id="dash-ventas" class="text-lg font-bold text-[#b88a73] mt-3">$0.00 <span class="block text-xs font-normal text-gray-500">Bs. 0.00</span></h3>
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
                     <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Insumos Registrados</p>
                     <h3 id="dash-insumos" class="text-2xl font-bold text-[#2c2c2c] mt-3">0</h3>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
+                    <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Insumos en Alerta</p>
+                    <h3 id="dash-insumos-alerta" class="text-2xl font-bold text-rose-600 mt-3">0</h3>
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
                     <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Clientes en CRM</p>
@@ -636,6 +640,10 @@
                             <i class="fa-solid fa-clock"></i>
                             <span>Guardar en Stand By</span>
                         </button>
+                        <button onclick="enviarPresupuestoWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
+                            <i class="fa-brands fa-whatsapp text-base"></i>
+                            <span>Enviar por WhatsApp</span>
+                        </button>
                         <button onclick="exportarPDFPresupuesto()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
                             <i class="fa-solid fa-file-pdf"></i>
                             <span>Exportar PDF / Imprimir</span>
@@ -759,7 +767,13 @@
                 <div class="lg:col-span-2 space-y-5">
                     <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
                         <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cash-register text-[#b88a73] mr-2"></i> Caja Rápida / Punto de Venta</h2>
-                        <span class="text-xs bg-[#faf8f6] border border-[#e8dbd3] px-3 py-1 rounded-full text-gray-600 font-medium"><i class="fa-solid fa-keyboard text-[#b88a73] mr-1"></i> Teclado activado (↑ ↓ Enter)</span>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="abrirArqueoCaja()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
+                                <i class="fa-solid fa-scale-balanced text-[#b88a73]"></i>
+                                <span>Arqueo Diario</span>
+                            </button>
+                            <span class="text-xs bg-[#faf8f6] border border-[#e8dbd3] px-3 py-1 rounded-full text-gray-600 font-medium hidden sm:inline"><i class="fa-solid fa-keyboard text-[#b88a73] mr-1"></i> Teclado (↑ ↓ Enter)</span>
+                        </div>
                     </div>
                     
                     <div>
@@ -866,10 +880,16 @@
                         </div>
                     </div>
 
-                    <button onclick="procesarPagoFinal()" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-3.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-check-circle text-lg"></i>
-                        <span>Guardar y Procesar Venta</span>
-                    </button>
+                    <div class="space-y-2">
+                        <button onclick="procesarPagoFinal()" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-3.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-check-circle text-lg"></i>
+                            <span>Guardar y Procesar Venta</span>
+                        </button>
+                        <button onclick="enviarUltimaVentaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
+                            <i class="fa-brands fa-whatsapp text-sm"></i>
+                            <span>Enviar Último Ticket por WhatsApp</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -951,7 +971,7 @@
                                 <th class="p-3">Nombre / Empresa</th>
                                 <th class="p-3">Teléfono</th>
                                 <th class="p-3">Instagram</th>
-                                <th class="p-3">Acciones</th>
+                                <th class="p-3 text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-clientes">
@@ -1074,6 +1094,38 @@
 
     </main>
 
+    <!-- MODAL ARQUEO DE CAJA DIARIO -->
+    <div id="modal-arqueo" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 border border-[#e8dbd3] shadow-xl">
+            <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
+                <h3 class="text-lg font-bold text-[#2c2c2c]"><i class="fa-solid fa-scale-balanced mr-2 text-[#b88a73]"></i> Arqueo de Caja Diario</h3>
+                <button onclick="cerrarArqueoCaja()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="contenido-arqueo" class="space-y-3 text-xs text-gray-700 max-h-80 overflow-y-auto pr-1">
+                <p class="text-center text-gray-400">Calculando transacciones del día...</p>
+            </div>
+            <div class="border-t border-[#e8dbd3] pt-3 flex justify-end">
+                <button onclick="cerrarArqueoCaja()" class="bg-[#2c2c2c] text-white px-4 py-2 rounded-xl font-bold text-xs">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL HISTORIAL DE CLIENTE CRM -->
+    <div id="modal-historial-cliente" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-4 border border-[#e8dbd3] shadow-xl">
+            <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
+                <h3 id="titulo-historial-cliente" class="text-lg font-bold text-[#2c2c2c]"><i class="fa-solid fa-clock-rotate-left mr-2 text-[#b88a73]"></i> Historial del Cliente</h3>
+                <button onclick="cerrarHistorialCliente()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="contenido-historial-cliente" class="space-y-3 text-xs text-gray-700 max-h-96 overflow-y-auto pr-1">
+                <p class="text-center text-gray-400">Cargando historial...</p>
+            </div>
+            <div class="border-t border-[#e8dbd3] pt-3 flex justify-end">
+                <button onclick="cerrarHistorialCliente()" class="bg-[#2c2c2c] text-white px-4 py-2 rounded-xl font-bold text-xs">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Script Lógico Integrado con Firebase y Mejoras -->
     <script>
         // ================= CONFIGURACIÓN DE FIREBASE =================
@@ -1094,6 +1146,7 @@
         let listaInsumosDB = [];
         let listaServiciosDB = [];
         let listaClientesDB = [];
+        let ultimaVentaProcesada = null;
 
         // ================= SISTEMA DE NOTIFICACIONES TOAST =================
         function mostrarNotificacion(mensaje, tipo = 'success') {
@@ -1449,7 +1502,8 @@
                         <td class="p-3 font-semibold text-[#2c2c2c]">${c.nombre}</td>
                         <td class="p-3 text-xs">${c.tel || 'N/A'}</td>
                         <td class="p-3 text-xs text-[#b88a73]">${c.instagram || 'N/A'}</td>
-                        <td class="p-3 space-x-1.5 whitespace-nowrap">
+                        <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
+                            <button onclick="verHistorialCliente('${c.nombre}')" class="bg-gray-100 hover:bg-indigo-100 text-indigo-700 p-2 rounded-xl transition text-xs" title="Ver Historial de Compras"><i class="fa-solid fa-clock-rotate-left"></i></button>
                             <button onclick="eliminarCliente('${c.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
@@ -1463,6 +1517,59 @@
                 await db.collection('clientes').doc(id).delete();
                 mostrarNotificacion("Cliente eliminado con éxito.");
             } catch(e) { mostrarNotificacion("Error al eliminar.", "error"); }
+        }
+
+        // ================= HISTORIAL DE CLIENTES (CRM MEJORA) =================
+        async function verHistorialCliente(nombreCliente) {
+            document.getElementById('titulo-historial-cliente').innerHTML = `<i class="fa-solid fa-clock-rotate-left mr-2 text-[#b88a73]"></i> Historial de: ${nombreCliente}`;
+            const contenedor = document.getElementById('contenido-historial-cliente');
+            contenedor.innerHTML = '<p class="text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Buscando transacciones...</p>';
+            document.getElementById('modal-historial-cliente').classList.remove('hidden');
+
+            try {
+                const ventasSnap = await db.collection('ventas').where('cliente', '==', nombreCliente).get();
+                let ventasCliente = [];
+                ventasSnap.forEach(doc => ventasCliente.push(doc.data()));
+
+                const standbySnap = await db.collection('standby').where('cliente', '==', nombreCliente).get();
+                let standbyCliente = [];
+                standbySnap.forEach(doc => standbyCliente.push(doc.data()));
+
+                let html = '';
+                if(ventasCliente.length > 0) {
+                    html += '<h4 class="font-bold text-[#2c2c2c] border-b pb-1 mb-2">Ventas Concretadas</h4><div class="space-y-2 mb-4">';
+                    ventasCliente.forEach(v => {
+                        html += `<div class="bg-[#faf8f6] p-2.5 rounded-xl border border-[#e8dbd3] flex justify-between items-center">
+                            <div><p class="font-bold text-gray-800">${v.concepto}</p><p class="text-[10px] text-gray-500">${v.fecha || 'Fecha reciente'} • ${v.metodos_pago}</p></div>
+                            <span class="font-extrabold text-[#b88a73]">$${parseFloat(v.total_usd).toFixed(2)}</span>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+
+                if(standbyCliente.length > 0) {
+                    html += '<h4 class="font-bold text-[#2c2c2c] border-b pb-1 mb-2">Cotizaciones en Stand By</h4><div class="space-y-2">';
+                    standbyCliente.forEach(s => {
+                        html += `<div class="bg-[#faf8f6] p-2.5 rounded-xl border border-[#e8dbd3] flex justify-between items-center">
+                            <div><p class="font-bold text-gray-800">Cotización en espera</p><p class="text-[10px] text-gray-500">${s.created_at}</p></div>
+                            <span class="font-extrabold text-amber-600">$${parseFloat(s.total_usd).toFixed(2)}</span>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+
+                if(ventasCliente.length === 0 && standbyCliente.length === 0) {
+                    html = '<p class="text-center text-gray-400 py-6">Este cliente aún no registra compras ni cotizaciones.</p>';
+                }
+
+                contenedor.innerHTML = html;
+            } catch(e) {
+                contenedor.innerHTML = '<p class="text-center text-rose-500">Error al cargar el historial.</p>';
+            }
+        }
+
+        function cerrarHistorialCliente() {
+            document.getElementById('modal-historial-cliente').classList.add('hidden');
         }
 
         // ================= CONTROL FINANCIERO / GASTOS EN FIREBASE =================
@@ -1644,9 +1751,11 @@
 
             let totalVentasUSD = ventas.reduce((acc, v) => acc + (parseFloat(v.total_usd) || 0), 0);
             let totalVentasVES = totalVentasUSD * tasaBCV;
+            let insumosAlerta = insumos.filter(i => parseInt(i.stock || 0) <= parseInt(i.stock_minimo || 0)).length;
             
             document.getElementById('dash-ventas').innerHTML = `$${totalVentasUSD.toFixed(2)} <span class="block text-xs font-normal text-gray-500">Bs. ${totalVentasVES.toFixed(2)}</span>`;
             document.getElementById('dash-insumos').innerText = insumos.length;
+            document.getElementById('dash-insumos-alerta').innerText = insumosAlerta;
             document.getElementById('dash-clientes').innerText = clientes.length;
 
             cargarRegistrosCajaEditable();
@@ -1715,6 +1824,117 @@
             } finally {
                 if(btn) btn.innerHTML = '<i class="fa-solid fa-clock"></i><span>Guardar en Stand By</span>';
             }
+        }
+
+        // ================= ENVÍO POR WHATSAPP (MEJORA) =================
+        function enviarPresupuestoWhatsApp() {
+            const clienteNombre = document.getElementById('doc-cliente-nombre').innerText;
+            const totalUSD = document.getElementById('doc-total-usd').innerText;
+            const totalVES = document.getElementById('doc-total-ves').innerText;
+            
+            let telefonoCliente = '';
+            const clienteObj = listaClientesDB.find(c => c.nombre === clienteNombre);
+            if (clienteObj && clienteObj.tel) {
+                telefonoCliente = clienteObj.tel.replace(/[^0-9]/g, '');
+            }
+
+            let mensaje = `Hola *${clienteNombre}* 🚀,\n\nTe comparto el resumen del presupuesto emitido por *LAN Estudio*:\n\n*Total:* ${totalUSD} (${totalVES})\n\n¡Quedamos a tu entera disposición para avanzar con tu proyecto!`;
+
+            let url = `https://wa.me/${telefonoCliente}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+            mostrarNotificacion("Abriendo WhatsApp con el presupuesto...");
+        }
+
+        function enviarUltimaVentaWhatsApp() {
+            if (!ultimaVentaProcesada) {
+                mostrarNotificacion("No hay una venta reciente procesada en esta sesión.", "error");
+                return;
+            }
+            const v = ultimaVentaProcesada;
+            let telefonoCliente = '';
+            const clienteObj = listaClientesDB.find(c => c.nombre === v.cliente);
+            if (clienteObj && clienteObj.tel) {
+                telefonoCliente = clienteObj.tel.replace(/[^0-9]/g, '');
+            }
+
+            let mensaje = `¡Hola *${v.cliente}*! 🚀 Gracias por tu compra en *LAN Estudio*.\n\n*Concepto:* ${v.concepto}\n*Total Pagado:* $${parseFloat(v.total_usd).toFixed(2)}\n*Método:* ${v.metodos_pago}\n\n¡Fue un placer atenderte!`;
+            let url = `https://wa.me/${telefonoCliente}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+            mostrarNotificacion("Abriendo WhatsApp con el recibo de venta...");
+        }
+
+        // ================= ARQUEO DE CAJA DIARIO (MEJORA) =================
+        async function abrirArqueoCaja() {
+            const modal = document.getElementById('modal-arqueo');
+            const contenido = document.getElementById('contenido-arqueo');
+            modal.classList.remove('hidden');
+            contenido.innerHTML = '<p class="text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Calculando arqueo del día...</p>';
+
+            try {
+                const hoyStr = new Date().toLocaleDateString();
+                const snapshot = await db.collection('ventas').get();
+                let ventasHoy = [];
+                snapshot.forEach(doc => {
+                    const v = doc.data();
+                    const fechaVenta = v.fecha || new Date(v.fechaISO).toLocaleDateString();
+                    if (fechaVenta === hoyStr) {
+                        ventasHoy.push(v);
+                    }
+                });
+
+                let totalDiaUSD = 0;
+                let desgloseMetodos = {};
+
+                ventasHoy.forEach(v => {
+                    totalDiaUSD += parseFloat(v.total_usd) || 0;
+                    // Analizar métodos de pago string
+                    const metodosStr = v.metodos_pago || '';
+                    // Ej: Efectivo USD: $10.00 (Ref: S/R) | Pago Móvil: $5.00
+                    const partes = metodosStr.split('|');
+                    partes.forEach(p => {
+                        const sub = p.split(':');
+                        if(sub.length >= 2) {
+                            const metodoNombre = sub[0].trim();
+                            const montoMatch = sub[1].match(/\$([0-9.]+)/);
+                            if(montoMatch) {
+                                const monto = parseFloat(montoMatch[1]) || 0;
+                                desgloseMetodos[metodoNombre] = (desgloseMetodos[metodoNombre] || 0) + monto;
+                            }
+                        }
+                    });
+                });
+
+                let htmlMetodos = '';
+                for (let m in desgloseMetodos) {
+                    htmlMetodos += `<div class="flex justify-between py-1 border-b border-gray-100"><span>${m}:</span><span class="font-bold text-[#b88a73]">$${desgloseMetodos[m].toFixed(2)} (Bs. ${(desgloseMetodos[m] * tasaBCV).toFixed(2)})</span></div>`;
+                }
+
+                if(Object.keys(desgloseMetodos).length === 0) {
+                    htmlMetodos = '<p class="text-gray-400 text-center py-2">Sin registros detallados de pago para hoy.</p>';
+                }
+
+                contenido.innerHTML = `
+                    <div class="bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3] space-y-2">
+                        <div class="flex justify-between font-bold text-sm text-[#2c2c2c] border-b pb-2">
+                            <span>Fecha del Arqueo:</span><span>${hoyStr}</span>
+                        </div>
+                        <div class="py-1">
+                            <p class="text-xs font-semibold text-gray-500 uppercase">Desglose por Método de Pago:</p>
+                            <div class="mt-2 space-y-1">${htmlMetodos}</div>
+                        </div>
+                        <div class="flex justify-between font-extrabold text-base text-[#b88a73] border-t pt-2 mt-2">
+                            <span>Total Ingresos Hoy:</span>
+                            <span>$${totalDiaUSD.toFixed(2)} <span class="text-xs block text-gray-500 font-normal">Bs. ${(totalDiaUSD * tasaBCV).toFixed(2)}</span></span>
+                        </div>
+                    </div>
+                `;
+            } catch(e) {
+                contenido.innerHTML = '<p class="text-center text-rose-500">Error al calcular el arqueo de caja.</p>';
+            }
+        }
+
+        function cerrarArqueoCaja() {
+            document.getElementById('modal-arqueo').classList.add('hidden');
         }
 
         async function cargarCotizacionesStandBy() {
@@ -2691,6 +2911,7 @@
             }
 
             const conceptoResumen = itemsFactura.map(i => `${i.cant}x ${i.desc}`).join(' + ');
+            const metodosPagoStr = metodosPago.join(' | ') || 'No especificado';
 
             try {
                 await db.collection('ventas').add({
@@ -2699,8 +2920,11 @@
                     cliente,
                     concepto: conceptoResumen,
                     total_usd: totalUSD,
-                    metodos_pago: metodosPago.join(' | ') || 'No especificado'
+                    metodos_pago: metodosPagoStr
                 });
+
+                // Guardar referencia para WhatsApp rápido
+                ultimaVentaProcesada = { cliente, concepto: conceptoResumen, total_usd: totalUSD, metodos_pago: metodosPagoStr };
             } catch(e) {
                 mostrarNotificacion("Error al procesar la venta en Firebase.", "error");
                 return;

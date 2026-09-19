@@ -2627,7 +2627,10 @@
             const totalVES = document.getElementById('doc-total-ves').innerText;
             
             const logoEl = document.getElementById('doc-logo-preview') || document.getElementById('logo-container');
-            const logoHtml = logoEl ? logoEl.innerHTML : '<i class="fa-solid fa-layer-group"></i>';
+            let logoContenido = '<span style="font-size: 16px; font-weight: bold; color: white;">LAN</span>';
+            if (logoEl && logoEl.querySelector('img')) {
+                logoContenido = `<img src="${logoEl.querySelector('img').src}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">`;
+            }
 
             let filasHTML = '';
             document.querySelectorAll('.renglon-item').forEach(row => {
@@ -2644,9 +2647,10 @@
             });
 
             const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
+            tempDiv.style.position = 'fixed';
+            tempDiv.style.left = '0';
             tempDiv.style.top = '0';
+            tempDiv.style.zIndex = '-9999';
             tempDiv.style.width = '680px';
             tempDiv.style.padding = '35px';
             tempDiv.style.backgroundColor = '#ffffff';
@@ -2659,8 +2663,8 @@
                         <td style="width: 60%; vertical-align: middle;">
                             <table style="border-collapse: collapse;">
                                 <tr>
-                                    <td style="width: 45px; height: 45px; border-radius: 10px; overflow: hidden; background: #b88a73; text-align: center; vertical-align: middle; color: white; font-weight: bold; font-size: 18px;">
-                                        ${logoHtml}
+                                    <td style="width: 45px; height: 45px; border-radius: 10px; overflow: hidden; background: #b88a73; text-align: center; vertical-align: middle; color: white;">
+                                        ${logoContenido}
                                     </td>
                                     <td style="padding-left: 12px; vertical-align: middle;">
                                         <h2 style="margin: 0; font-size: 16px; font-weight: bold; color: #2c2c2c;">LAN ESTUDIO</h2>
@@ -3059,7 +3063,7 @@
             } catch(err) {}
         }
 
-        // ================= EXPORTAR RECIBO DE CAJA EN PDF (100% CORREGIDO Y ALINEADO) =================
+        // ================= EXPORTADOR DE RECIBO DE CAJA EN PDF (CORREGIDO) =================
         function exportarReciboCajaPDF() {
             const cliente = document.getElementById('caja-cliente').value;
             const totalUSD = document.getElementById('caja-total-usd').value;
@@ -3069,7 +3073,10 @@
             const fechaStr = new Date().toLocaleString();
             
             const logoEl = document.getElementById('doc-logo-preview') || document.getElementById('logo-container');
-            const logoHtml = logoEl ? logoEl.innerHTML : '<i class="fa-solid fa-layer-group"></i>';
+            let logoContenido = '<span style="font-size: 16px; font-weight: bold; color: white;">LAN</span>';
+            if (logoEl && logoEl.querySelector('img')) {
+                logoContenido = `<img src="${logoEl.querySelector('img').src}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">`;
+            }
 
             let filasHTML = '';
             document.querySelectorAll('.caja-item-row').forEach(row => {
@@ -3088,9 +3095,10 @@
             });
 
             const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
+            tempDiv.style.position = 'fixed';
+            tempDiv.style.left = '0';
             tempDiv.style.top = '0';
+            tempDiv.style.zIndex = '-9999';
             tempDiv.style.width = '680px';
             tempDiv.style.padding = '35px';
             tempDiv.style.backgroundColor = '#ffffff';
@@ -3103,8 +3111,8 @@
                         <td style="width: 60%; vertical-align: middle;">
                             <table style="border-collapse: collapse;">
                                 <tr>
-                                    <td style="width: 45px; height: 45px; border-radius: 10px; overflow: hidden; background: #b88a73; text-align: center; vertical-align: middle; color: white; font-weight: bold; font-size: 18px;">
-                                        ${logoHtml}
+                                    <td style="width: 45px; height: 45px; border-radius: 10px; overflow: hidden; background: #b88a73; text-align: center; vertical-align: middle; color: white;">
+                                        ${logoContenido}
                                     </td>
                                     <td style="padding-left: 12px; vertical-align: middle;">
                                         <h2 style="margin: 0; font-size: 16px; font-weight: bold; color: #2c2c2c;">LAN ESTUDIO</h2>
@@ -3283,7 +3291,7 @@
                                 fila.querySelector('.cant-input').value = i.cant;
                                 fila.querySelector('.ganancia-input').value = i.ganancia;
                                 fila.querySelector('.precio-cliente-input').value = i.precio;
-                                fila.querySelector('.precio-cliente-input').classList.add('modificado-manual'); // <-- CORREGIDO AQUÍ
+                                fila.querySelector('.precio-cliente-input').classList.add('modificado-manual');
                             }
                         });
                         recalcularPresupuestoTotal();

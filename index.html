@@ -2735,21 +2735,23 @@
 
             document.body.appendChild(tempDiv);
 
-            const opt = {
-                margin:       5,
-                filename:     `Presupuesto_LANEstudio_${Date.now()}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            setTimeout(() => {
+                const opt = {
+                    margin:       5,
+                    filename:     `Presupuesto_LANEstudio_${Date.now()}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
 
-            html2pdf().set(opt).from(tempDiv).save().then(() => {
-                document.body.removeChild(tempDiv);
-                mostrarNotificacion("PDF generado y descargado con éxito.");
-            }).catch(() => {
-                if(tempDiv.parentNode) document.body.removeChild(tempDiv);
-                mostrarNotificacion("Error al generar el PDF.", "error");
-            });
+                html2pdf().set(opt).from(tempDiv).save().then(() => {
+                    document.body.removeChild(tempDiv);
+                    mostrarNotificacion("PDF generado y descargado con éxito.");
+                }).catch(() => {
+                    if(tempDiv.parentNode) document.body.removeChild(tempDiv);
+                    mostrarNotificacion("Error al generar el PDF.", "error");
+                });
+            }, 150);
         }
 
         // ================= CAJA Y PAGOS CON TECLADO Y DESCUENTO GLOBAL =================
@@ -3063,7 +3065,7 @@
             } catch(err) {}
         }
 
-        // ================= EXPORTADOR DE RECIBO DE CAJA EN PDF (CORREGIDO) =================
+        // ================= EXPORTADOR DE RECIBO DE CAJA EN PDF (CORREGIDO CON DELAY) =================
         function exportarReciboCajaPDF() {
             const cliente = document.getElementById('caja-cliente').value;
             const totalUSD = document.getElementById('caja-total-usd').value;
@@ -3185,21 +3187,25 @@
             `;
 
             document.body.appendChild(tempDiv);
-            const opt = {
-                margin: 5,
-                filename: `Recibo_LANEstudio_${Date.now()}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            
+            // Pausa de 150ms para permitir que el navegador pinte el elemento antes de convertirlo a PDF
+            setTimeout(() => {
+                const opt = {
+                    margin: 5,
+                    filename: `Recibo_LANEstudio_${Date.now()}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
 
-            html2pdf().set(opt).from(tempDiv).save().then(() => {
-                document.body.removeChild(tempDiv);
-                mostrarNotificacion("Recibo PDF generado con éxito.");
-            }).catch(() => {
-                if(tempDiv.parentNode) document.body.removeChild(tempDiv);
-                mostrarNotificacion("Error al generar el recibo PDF.", "error");
-            });
+                html2pdf().set(opt).from(tempDiv).save().then(() => {
+                    document.body.removeChild(tempDiv);
+                    mostrarNotificacion("Recibo PDF generado con éxito.");
+                }).catch(() => {
+                    if(tempDiv.parentNode) document.body.removeChild(tempDiv);
+                    mostrarNotificacion("Error al generar el recibo PDF.", "error");
+                });
+            }, 150);
         }
 
         async function cargarRegistrosCajaEditable() {

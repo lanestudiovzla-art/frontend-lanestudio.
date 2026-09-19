@@ -1081,9 +1081,9 @@
 
     </main>
 
-    <!-- Script Lógico Integral con Conexión a la Nube (Google Sheets) -->
+    <!-- Script Lógico Integral Optimizado -->
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyiEQMzCw9iZYMz73LKX_pv-opYdEv9U4WTMkD1fsQNJdTnqoS_E5mnLz7MIz9kkBGgEA/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymhGD4yejqu6y9s1UquUhXzQSs_My3qtgCC2MTUiuGwExAWcFz6zSB80tsHkr9Jeg/exec';
 
         let tasaBCV = 807.39;
         let listaInsumosDB = [];
@@ -1259,7 +1259,6 @@
             }
         }
 
-        // ================= CARGAS DESDE LA NUBE (GOOGLE SHEETS) =================
         async function cargarInsumosBase() {
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=insumos`);
@@ -1267,7 +1266,6 @@
                     listaInsumosDB = await response.json();
                 }
             } catch(e) {
-                console.error("Error cargando insumos", e);
                 listaInsumosDB = [];
             }
         }
@@ -1310,16 +1308,10 @@
 
             if(!nombre) { alert("Introduce el nombre del insumo."); return; }
 
-            const formData = new URLSearchParams();
-            formData.append('action', 'save_insumo');
-            formData.append('nombre', nombre);
-            formData.append('categoria', categoria);
-            formData.append('costo_unitario', costo_unitario);
-            formData.append('stock', stock);
-            formData.append('stock_minimo', stock_minimo);
+            const url = `${SCRIPT_URL}?action=save_insumo&nombre=${encodeURIComponent(nombre)}&categoria=${encodeURIComponent(categoria)}&costo_unitario=${costo_unitario}&stock=${stock}&stock_minimo=${stock_minimo}`;
 
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                await fetch(url);
                 document.getElementById('insumo-nombre').value = '';
                 document.getElementById('insumo-categoria').value = '';
                 document.getElementById('insumo-costo').value = '';
@@ -1357,11 +1349,8 @@
 
         async function eliminarInsumo(id) {
             if(!confirm("¿Eliminar este insumo?")) return;
-            const formData = new URLSearchParams();
-            formData.append('action', 'delete_insumo');
-            formData.append('id', id);
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                await fetch(`${SCRIPT_URL}?action=delete_insumo&id=${encodeURIComponent(id)}`);
                 cargarInsumos();
             } catch(e) { alert("Error al eliminar."); }
         }
@@ -1415,14 +1404,10 @@
 
             if(!nombre) { alert("Introduce el nombre del cliente."); return; }
 
-            const formData = new URLSearchParams();
-            formData.append('action', 'save_cliente');
-            formData.append('nombre', nombre);
-            formData.append('tel', tel);
-            formData.append('instagram', instagram);
+            const url = `${SCRIPT_URL}?action=save_cliente&nombre=${encodeURIComponent(nombre)}&tel=${encodeURIComponent(tel)}&instagram=${encodeURIComponent(instagram)}`;
 
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                await fetch(url);
                 document.getElementById('cliente-nombre').value = '';
                 document.getElementById('cliente-tel').value = '';
                 document.getElementById('cliente-insta').value = '';
@@ -1459,11 +1444,8 @@
 
         async function eliminarCliente(id) {
             if(!confirm("¿Eliminar este cliente?")) return;
-            const formData = new URLSearchParams();
-            formData.append('action', 'delete_cliente');
-            formData.append('id', id);
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                await fetch(`${SCRIPT_URL}?action=delete_cliente&id=${encodeURIComponent(id)}`);
                 cargarClientes();
                 cargarClientesEnSelects();
             } catch(e) { alert("Error al eliminar."); }
@@ -1477,16 +1459,10 @@
 
             if(!concepto || monto <= 0) { alert("Introduce un concepto y monto válido."); return; }
 
-            const formData = new URLSearchParams();
-            formData.append('action', 'save_gasto');
-            formData.append('concepto', concepto);
-            formData.append('monto', monto);
-            formData.append('categoria', categoria);
-            formData.append('fechaISO', new Date().toISOString());
-            formData.append('fecha', new Date().toLocaleDateString());
+            const url = `${SCRIPT_URL}?action=save_gasto&concepto=${encodeURIComponent(concepto)}&monto=${monto}&categoria=${encodeURIComponent(categoria)}&fechaISO=${encodeURIComponent(new Date().toISOString())}&fecha=${encodeURIComponent(new Date().toLocaleDateString())}`;
 
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                await fetch(url);
                 document.getElementById('gasto-concepto').value = '';
                 document.getElementById('gasto-monto').value = '';
                 cargarGastosYBalance();
@@ -1496,11 +1472,8 @@
 
         async function eliminarGasto(id) {
             if(!confirm("¿Eliminar este registro de gasto?")) return;
-            const formData = new URLSearchParams();
-            formData.append('action', 'delete_gasto');
-            formData.append('id', id);
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                await fetch(`${SCRIPT_URL}?action=delete_gasto&id=${encodeURIComponent(id)}`);
                 cargarGastosYBalance();
             } catch(e) { alert("Error al eliminar gasto."); }
         }
@@ -1669,12 +1642,8 @@
                 if (nombreNuevo && nombreNuevo.trim() !== '') {
                     const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
                     const instaNuevo = prompt("Instagram (opcional):") || '';
-                    const formData = new URLSearchParams();
-                    formData.append('action', 'save_cliente');
-                    formData.append('nombre', nombreNuevo.trim());
-                    formData.append('tel', telNuevo);
-                    formData.append('instagram', instaNuevo);
-                    await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                    const url = `${SCRIPT_URL}?action=save_cliente&nombre=${encodeURIComponent(nombreNuevo.trim())}&tel=${encodeURIComponent(telNuevo)}&instagram=${encodeURIComponent(instaNuevo)}`;
+                    await fetch(url);
                     await cargarClientesEnSelects();
                     selectEl.value = nombreNuevo.trim();
                 } else {
@@ -1690,12 +1659,8 @@
                 if (nombreNuevo && nombreNuevo.trim() !== '') {
                     const telNuevo = prompt("Teléfono / WhatsApp (opcional):") || '';
                     const instaNuevo = prompt("Instagram (opcional):") || '';
-                    const formData = new URLSearchParams();
-                    formData.append('action', 'save_cliente');
-                    formData.append('nombre', nombreNuevo.trim());
-                    formData.append('tel', telNuevo);
-                    formData.append('instagram', instaNuevo);
-                    await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                    const url = `${SCRIPT_URL}?action=save_cliente&nombre=${encodeURIComponent(nombreNuevo.trim())}&tel=${encodeURIComponent(telNuevo)}&instagram=${encodeURIComponent(instaNuevo)}`;
+                    await fetch(url);
                     await cargarClientesEnSelects();
                     selectEl.value = nombreNuevo.trim();
                 } else {
@@ -1722,15 +1687,10 @@
             const btn = document.getElementById('btn-guardar-standby');
             if(btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Guardando...';
 
-            const formData = new URLSearchParams();
-            formData.append('action', 'save_standby');
-            formData.append('cliente', cliente);
-            formData.append('validez', validez);
-            formData.append('total', totalUSD);
-            formData.append('items', JSON.stringify(items));
+            const url = `${SCRIPT_URL}?action=save_standby&cliente=${encodeURIComponent(cliente)}&validez=${encodeURIComponent(validez)}&total=${totalUSD}&items=${encodeURIComponent(JSON.stringify(items))}`;
 
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                await fetch(url);
                 alert("¡Cotización en Stand By guardada en la nube!");
                 cargarCotizacionesStandBy();
                 switchTab('standby');
@@ -1821,12 +1781,8 @@
 
         async function eliminarStandBy(id) {
             if(!confirm("¿Eliminar esta cotización en stand by?")) return;
-            const formData = new URLSearchParams();
-            formData.append('action', 'delete_standby');
-            formData.append('id', id);
-
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                await fetch(`${SCRIPT_URL}?action=delete_standby&id=${encodeURIComponent(id)}`);
                 cargarCotizacionesStandBy();
             } catch (error) {}
         }
@@ -2653,17 +2609,10 @@
             }
 
             const conceptoResumen = itemsFactura.map(i => `${i.cant}x ${i.desc}`).join(' + ');
-            const formData = new URLSearchParams();
-            formData.append('action', 'save_venta');
-            formData.append('fechaISO', new Date().toISOString());
-            formData.append('fecha', new Date().toLocaleDateString());
-            formData.append('cliente', cliente);
-            formData.append('concepto', conceptoResumen);
-            formData.append('total_usd', totalUSD);
-            formData.append('metodos_pago', metodosPago.join(' | ') || 'No especificado');
+            const url = `${SCRIPT_URL}?action=save_venta&fechaISO=${encodeURIComponent(new Date().toISOString())}&fecha=${encodeURIComponent(new Date().toLocaleDateString())}&cliente=${encodeURIComponent(cliente)}&concepto=${encodeURIComponent(conceptoResumen)}&total_usd=${totalUSD}&metodos_pago=${encodeURIComponent(metodosPago.join(' | ') || 'No especificado')}`;
 
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', body: formData, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+                await fetch(url);
                 alert("¡Venta procesada y guardada en la nube con éxito!");
                 document.getElementById('lista-items-caja').innerHTML = '';
                 document.getElementById('lista-pagos').innerHTML = '';

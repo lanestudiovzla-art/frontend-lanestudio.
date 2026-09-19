@@ -3054,28 +3054,28 @@
             } catch(err) {}
         }
 
-        // ================= EXPORTAR RECIBO DE CAJA EN PDF =================
+        // ================= EXPORTAR RECIBO DE CAJA EN PDF (CORREGIDO Y ALINEADO) =================
         function exportarReciboCajaPDF() {
             const cliente = document.getElementById('caja-cliente').value;
             const totalUSD = document.getElementById('caja-total-usd').value;
             const totalVES = document.getElementById('caja-total-ves').value;
-            const notas = document.getElementById('caja-notas').value;
+            const notas = document.getElementById('caja-notas').value.trim();
             const descuentoPct = document.getElementById('caja-descuento-pct').value;
             const fechaStr = new Date().toLocaleString();
             const logoHtml = document.getElementById('doc-logo-preview').innerHTML;
 
             let filasHTML = '';
             document.querySelectorAll('.caja-item-row').forEach(row => {
-                const desc = row.querySelector('.caja-search-input').value || 'Servicio';
+                const desc = row.querySelector('.caja-search-input').value || 'Servicio Gráfico';
                 const cant = row.querySelector('.caja-cant-input').value || '1';
                 const precio = row.querySelector('.caja-precio-input').value || '0.00';
                 const sub = (parseFloat(cant) * parseFloat(precio)).toFixed(2);
                 filasHTML += `
                     <tr style="border-bottom: 1px solid #e8dbd3;">
-                        <td style="padding: 10px; font-size: 11px; color: #2c2c2c;">${desc}</td>
-                        <td style="padding: 10px; font-size: 11px; text-align: center;">${cant}</td>
-                        <td style="padding: 10px; font-size: 11px; text-align: right;">$${parseFloat(precio).toFixed(2)}</td>
-                        <td style="padding: 10px; font-size: 11px; text-align: right; font-weight: bold; color: #b88a73;">$${sub}</td>
+                        <td style="padding: 12px 10px; font-size: 12px; color: #2c2c2c; font-weight: 500;">${desc}</td>
+                        <td style="padding: 12px 10px; font-size: 12px; text-align: center; color: #2c2c2c;">${cant}</td>
+                        <td style="padding: 12px 10px; font-size: 12px; text-align: right; color: #2c2c2c;">$${parseFloat(precio).toFixed(2)}</td>
+                        <td style="padding: 12px 10px; font-size: 12px; text-align: right; font-weight: bold; color: #b88a73;">$${sub}</td>
                     </tr>
                 `;
             });
@@ -3086,36 +3086,43 @@
             tempDiv.style.backgroundColor = '#ffffff';
             tempDiv.style.fontFamily = "'Inter', sans-serif";
             tempDiv.style.color = '#2c2c2c';
+            tempDiv.style.boxSizing = 'border-box';
             tempDiv.innerHTML = `
                 <table style="width: 100%; border-collapse: collapse; border-bottom: 2px solid #e8dbd3; padding-bottom: 15px; margin-bottom: 15px;">
                     <tr>
                         <td style="width: 60%; vertical-align: middle;">
-                            <table>
+                            <table style="border-collapse: collapse;">
                                 <tr>
-                                    <td style="width: 40px; height: 40px; border-radius: 8px; background: #b88a73; text-align: center; vertical-align: middle; color: white; font-weight: bold;">${logoHtml}</td>
-                                    <td style="padding-left: 10px;">
-                                        <h2 style="margin: 0; font-size: 15px; font-weight: bold;">LAN ESTUDIO</h2>
-                                        <p style="margin: 2px 0 0 0; font-size: 9px; color: #666;">Comprobante de Venta / Recibo</p>
+                                    <td style="width: 45px; height: 45px; border-radius: 10px; overflow: hidden; background: #b88a73; text-align: center; vertical-align: middle; color: white; font-weight: bold; font-size: 18px;">
+                                        ${logoHtml}
+                                    </td>
+                                    <td style="padding-left: 12px; vertical-align: middle;">
+                                        <h2 style="margin: 0; font-size: 16px; font-weight: bold; color: #2c2c2c;">LAN ESTUDIO</h2>
+                                        <p style="margin: 2px 0 0 0; font-size: 10px; color: #666;">Comprobante de Venta / Recibo</p>
                                     </td>
                                 </tr>
                             </table>
                         </td>
-                        <td style="width: 40%; text-align: right;">
-                            <h3 style="margin: 0; font-size: 12px; font-weight: bold; color: #b88a73;">TICKET DE CAJA</h3>
-                            <p style="margin: 3px 0 0 0; font-size: 9px; color: #666;">${fechaStr}</p>
+                        <td style="width: 40%; text-align: right; vertical-align: middle;">
+                            <h3 style="margin: 0; font-size: 13px; font-weight: bold; color: #b88a73; letter-spacing: 1px;">TICKET DE CAJA</h3>
+                            <p style="margin: 3px 0 0 0; font-size: 10px; color: #666;">${fechaStr}</p>
                         </td>
                     </tr>
                 </table>
 
-                <p style="font-size: 11px; margin-bottom: 15px;"><b>Cliente:</b> ${cliente}</p>
+                <table style="width: 100%; border-collapse: collapse; background: #faf8f6; border: 1px solid #e8dbd3; border-radius: 8px; margin-bottom: 20px;">
+                    <tr>
+                        <td style="padding: 10px 14px; font-size: 11px; color: #2c2c2c;"><b>Cliente:</b> ${cliente}</td>
+                    </tr>
+                </table>
 
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #e8dbd3; border-radius: 6px; overflow: hidden;">
                     <thead>
-                        <tr style="background: #f7f4f0; text-transform: uppercase; font-size: 9px; color: #666;">
-                            <th style="padding: 8px; text-align: left;">Descripción</th>
-                            <th style="padding: 8px; text-align: center;">Cant</th>
-                            <th style="padding: 8px; text-align: right;">Precio Unit.</th>
-                            <th style="padding: 8px; text-align: right;">Subtotal</th>
+                        <tr style="background: #f7f4f0; text-transform: uppercase; font-size: 9px; color: #666; letter-spacing: 0.8px;">
+                            <th style="padding: 10px 12px; text-align: left; width: 48%;">Descripción</th>
+                            <th style="padding: 10px 12px; text-align: center; width: 14%;">Cant</th>
+                            <th style="padding: 10px 12px; text-align: right; width: 19%;">Precio Unit.</th>
+                            <th style="padding: 10px 12px; text-align: right; width: 19%;">Subtotal</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -3123,18 +3130,39 @@
                     </tbody>
                 </table>
 
-                <div style="background: #faf8f6; padding: 12px; border-radius: 8px; border: 1px solid #e8dbd3; margin-bottom: 15px; font-size: 11px;">
-                    ${descuentoPct > 0 ? `<p style="margin: 0 0 5px 0;"><b>Descuento Aplicado:</b> ${descuentoPct}%</p>` : ''}
-                    ${notas ? `<p style="margin: 0;"><b>Notas:</b> ${notas}</p>` : ''}
-                </div>
+                ${(descuentoPct > 0 || notas) ? `
+                <div style="background: #faf8f6; padding: 12px; border-radius: 8px; border: 1px solid #e8dbd3; margin-bottom: 20px; font-size: 11px; color: #2c2c2c;">
+                    ${descuentoPct > 0 ? `<p style="margin: 0 0 4px 0;"><b>Descuento Aplicado:</b> ${descuentoPct}%</p>` : ''}
+                    ${notas ? `<p style="margin: 0;"><b>Notas / Observaciones:</b> ${notas}</p>` : ''}
+                </div>` : ''}
 
-                <div style="text-align: right; background: #fbf9f7; padding: 12px; border-radius: 8px; border: 1px solid #e8dbd3;">
-                    <p style="margin: 0; font-size: 12px; color: #666;">Total USD: <b style="color: #b88a73; font-size: 16px;">$${parseFloat(totalUSD).toFixed(2)}</b></p>
-                    <p style="margin: 3px 0 0 0; font-size: 11px; color: #666;">Equivalente: <b>${totalVES}</b></p>
-                </div>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                    <tr>
+                        <td style="width: 55%; vertical-align: bottom;">
+                            <div style="font-size: 10px; color: #888; line-height: 1.4;">
+                                <p style="margin: 0; color: #b88a73; font-weight: 500;">¡Gracias por su compra en LAN Estudio! 🚀</p>
+                            </div>
+                        </td>
+                        <td style="width: 45%; background: #fbf9f7; padding: 16px; border-radius: 12px; border: 1px solid #e8dbd3;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="font-size: 11px; font-weight: bold; color: #666;">TOTAL:</td>
+                                    <td style="text-align: right; color: #b88a73; font-size: 18px; font-weight: bold;">$${parseFloat(totalUSD).toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="border-top: 1px dashed #e8dbd3; padding-top: 8px; margin-top: 8px;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size: 10px; color: #666;">Bolívares:</td>
+                                    <td style="text-align: right; font-size: 11px; color: #2c2c2c; font-weight: bold;">${totalVES}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
 
-                <div style="text-align: center; border-top: 1px solid #e8dbd3; margin-top: 25px; padding-top: 10px; font-size: 9px; color: #999;">
-                    ¡Gracias por su compra en LAN Estudio! 🚀
+                <div style="text-align: center; border-top: 1px solid #e8dbd3; padding-top: 12px; font-size: 9px; color: #999; letter-spacing: 0.5px;">
+                    LAN ESTUDIO • Agencia de Publicidad y Comunicación • Innovación y Diseño
                 </div>
             `;
 
@@ -3143,7 +3171,7 @@
                 margin: 5,
                 filename: `Recibo_LANEstudio_${Date.now()}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
+                html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 

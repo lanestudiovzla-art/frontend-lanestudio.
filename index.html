@@ -35,7 +35,7 @@
         .print-clean-cell {
             border: none !important;
             background: transparent !important;
-            padding: 8px 4px !important;
+            padding: 6px 4px !important;
             font-weight: normal !important;
             color: #2c2c2c !important;
             word-break: break-word !important;
@@ -2314,18 +2314,20 @@
                 precioInput.parentNode.appendChild(precioText);
             });
 
+            // Ajustes optimizados para que no se corte el total final
             area.style.border = 'none';
-            area.style.padding = '30px';
+            area.style.padding = '15px';
             area.style.boxShadow = 'none';
             area.style.width = '100%';
-            area.style.maxWidth = '750px';
-            area.style.margin = '0 auto';
+            area.style.maxWidth = '100%';
+            area.style.margin = '0';
+            area.style.height = 'auto';
 
             const opt = {
-                margin:       10,
+                margin:       [5, 5, 5, 5],
                 filename:     `Presupuesto_LANEstudio_${Date.now()}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
+                html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true, windowWidth: 800 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
@@ -2362,6 +2364,7 @@
             area.style.width = '';
             area.style.maxWidth = '';
             area.style.margin = '';
+            area.style.height = '';
         }
 
         // ================= CAJA Y PAGOS CON TECLADO =================

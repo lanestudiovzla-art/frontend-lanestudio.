@@ -32,16 +32,6 @@
             box-sizing: border-box !important;
         }
 
-        .print-clean-cell {
-            border: none !important;
-            background: transparent !important;
-            padding: 6px 4px !important;
-            font-weight: normal !important;
-            color: #2c2c2c !important;
-            word-break: break-word !important;
-            white-space: normal !important;
-        }
-
         .autocomplete-active {
             background-color: #faf8f6 !important;
             font-weight: bold;
@@ -723,12 +713,12 @@
                                 <table class="w-full text-left text-xs text-gray-700">
                                     <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
                                         <tr>
-                                            <th class="p-3 w-[52%] col-desc">Descripción</th>
-                                            <th class="p-3 w-[12%] text-center col-cant">Cant</th>
+                                            <th class="p-3 w-[56%]">Descripción</th>
+                                            <th class="p-3 w-[14%] text-center">Cant</th>
                                             <th class="p-3 w-[10%] text-center internal-col">Costo Unit. ($)</th>
                                             <th class="p-3 w-[10%] text-center internal-col">% Ganancia</th>
-                                            <th class="p-3 w-[12%] text-right internal-col">Precio Sug. ($)</th>
-                                            <th class="p-3 w-[24%] text-right font-bold text-[#b88a73] col-precio">Precio Final ($)</th>
+                                            <th class="p-3 w-[10%] text-right internal-col">Precio Sug. ($)</th>
+                                            <th class="p-3 w-[30%] text-right font-bold text-[#b88a73]">Precio Final ($)</th>
                                             <th class="p-3 w-[10%] text-center no-print-controls">Acción</th>
                                         </tr>
                                     </thead>
@@ -2112,13 +2102,13 @@
 
             const html = `
                 <tr id="${rowId}" class="border-b border-[#e8dbd3] renglon-item">
-                    <td class="p-3 w-[52%] col-desc overflow-hidden">
+                    <td class="p-3 w-[56%] overflow-hidden">
                         <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-servicio no-print-controls mb-1 truncate" onchange="seleccionarServicioCatalogo('${rowId}')">
                             ${opcionesServicios}
                         </select>
                         <input type="text" value="${nombreDefault}" placeholder="Descripción" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium">
                     </td>
-                    <td class="p-3 w-[12%] col-cant text-center align-middle">
+                    <td class="p-3 w-[14%] text-center align-middle">
                         <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle internal-col">
@@ -2127,8 +2117,8 @@
                     <td class="p-3 w-[10%] text-center align-middle internal-col">
                         <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
-                    <td class="p-3 w-[12%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle internal-col truncate">$0.00</td>
-                    <td class="p-3 w-[24%] col-precio text-right align-middle">
+                    <td class="p-3 w-[10%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle internal-col truncate">$0.00</td>
+                    <td class="p-3 w-[30%] text-right align-middle">
                         <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}')">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle no-print-controls">
@@ -2153,13 +2143,13 @@
 
             const html = `
                 <tr id="${rowId}" class="border-b border-[#e8dbd3] renglon-item">
-                    <td class="p-3 w-[52%] col-desc overflow-hidden">
+                    <td class="p-3 w-[56%] overflow-hidden">
                         <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-insumo no-print-controls mb-1 truncate" onchange="seleccionarInsumoCatalogo('${rowId}')">
                             ${opcionesInsumos}
                         </select>
                         <input type="text" placeholder="Insumo" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium">
                     </td>
-                    <td class="p-3 w-[12%] col-cant text-center align-middle">
+                    <td class="p-3 w-[14%] text-center align-middle">
                         <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle internal-col">
@@ -2168,8 +2158,8 @@
                     <td class="p-3 w-[10%] text-center align-middle internal-col">
                         <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal()">
                     </td>
-                    <td class="p-3 w-[12%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle internal-col truncate">$0.00</td>
-                    <td class="p-3 w-[24%] col-precio text-right align-middle">
+                    <td class="p-3 w-[10%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle internal-col truncate">$0.00</td>
+                    <td class="p-3 w-[30%] text-right align-middle">
                         <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}')">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle no-print-controls">
@@ -2284,47 +2274,14 @@
 
             document.querySelectorAll('.no-print-controls').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.internal-col').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.select-servicio, .select-insumo').forEach(el => el.style.display = 'none');
 
-            // Asignar anchos limpios y proporcionados para el PDF
-            document.querySelectorAll('.col-desc').forEach(el => el.style.width = '60%');
-            document.querySelectorAll('.col-cant').forEach(el => el.style.width = '15%');
-            document.querySelectorAll('.col-precio').forEach(el => el.style.width = '25%');
-
-            document.querySelectorAll('.renglon-item').forEach(row => {
-                const descInput = row.querySelector('.desc-input');
-                const cantInput = row.querySelector('.cant-input');
-                const precioInput = row.querySelector('.precio-cliente-input');
-
-                const descText = document.createElement('span');
-                descText.className = 'print-text print-clean-cell font-medium text-[#2c2c2c] block';
-                descText.innerText = descInput.value;
-                descInput.style.display = 'none';
-                descInput.parentNode.appendChild(descText);
-
-                const cantText = document.createElement('span');
-                cantText.className = 'print-text print-clean-cell text-center block';
-                cantText.innerText = cantInput.value;
-                cantInput.style.display = 'none';
-                cantInput.parentNode.appendChild(cantText);
-
-                const precioText = document.createElement('span');
-                precioText.className = 'print-text print-clean-cell font-bold text-[#b88a73] text-right block';
-                precioText.innerText = `$${parseFloat(precioInput.value || 0).toFixed(2)}`;
-                precioInput.style.display = 'none';
-                precioInput.parentNode.appendChild(precioText);
-            });
-
-            // Ajustes optimizados para que no se corte el total final
-            area.style.border = 'none';
-            area.style.padding = '15px';
-            area.style.boxShadow = 'none';
-            area.style.width = '100%';
-            area.style.maxWidth = '100%';
-            area.style.margin = '0';
-            area.style.height = 'auto';
+            area.style.width = '750px';
+            area.style.maxWidth = '750px';
+            area.style.margin = '0 auto';
 
             const opt = {
-                margin:       [5, 5, 5, 5],
+                margin:       [10, 10, 10, 10],
                 filename:     `Presupuesto_LANEstudio_${Date.now()}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true, windowWidth: 800 },
@@ -2346,25 +2303,10 @@
             area.classList.remove('pdf-mode');
             document.querySelectorAll('.no-print-controls').forEach(el => el.style.display = '');
             document.querySelectorAll('.internal-col').forEach(el => el.style.display = '');
-            document.querySelectorAll('.col-desc').forEach(el => el.style.width = '52%');
-            document.querySelectorAll('.col-cant').forEach(el => el.style.width = '12%');
-            document.querySelectorAll('.col-precio').forEach(el => el.style.width = '24%');
-            document.querySelectorAll('.print-text').forEach(el => el.remove());
-            document.querySelectorAll('.renglon-item').forEach(row => {
-                const descInput = row.querySelector('.desc-input');
-                const cantInput = row.querySelector('.cant-input');
-                const precioInput = row.querySelector('.precio-cliente-input');
-                if(descInput) descInput.style.display = '';
-                if(cantInput) cantInput.style.display = '';
-                if(precioInput) precioInput.style.display = '';
-            });
-            area.style.border = '';
-            area.style.padding = '';
-            area.style.boxShadow = '';
+            document.querySelectorAll('.select-servicio, .select-insumo').forEach(el => el.style.display = '');
             area.style.width = '';
             area.style.maxWidth = '';
             area.style.margin = '';
-            area.style.height = '';
         }
 
         // ================= CAJA Y PAGOS CON TECLADO =================

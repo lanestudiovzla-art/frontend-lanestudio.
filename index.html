@@ -2625,7 +2625,9 @@
             const ocultarBcv = document.getElementById('chk-ocultar-bcv').checked;
             const totalUSD = document.getElementById('doc-total-usd').innerText;
             const totalVES = document.getElementById('doc-total-ves').innerText;
-            const logoHtml = document.getElementById('doc-logo-preview').innerHTML;
+            
+            const logoEl = document.getElementById('doc-logo-preview') || document.getElementById('logo-container');
+            const logoHtml = logoEl ? logoEl.innerHTML : '<i class="fa-solid fa-layer-group"></i>';
 
             let filasHTML = '';
             document.querySelectorAll('.renglon-item').forEach(row => {
@@ -2642,6 +2644,9 @@
             });
 
             const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.top = '0';
             tempDiv.style.width = '680px';
             tempDiv.style.padding = '35px';
             tempDiv.style.backgroundColor = '#ffffff';
@@ -3054,15 +3059,17 @@
             } catch(err) {}
         }
 
-        // ================= EXPORTAR RECIBO DE CAJA EN PDF (CORREGIDO Y ALINEADO) =================
+        // ================= EXPORTAR RECIBO DE CAJA EN PDF (100% CORREGIDO Y ALINEADO) =================
         function exportarReciboCajaPDF() {
             const cliente = document.getElementById('caja-cliente').value;
             const totalUSD = document.getElementById('caja-total-usd').value;
             const totalVES = document.getElementById('caja-total-ves').value;
             const notas = document.getElementById('caja-notas').value.trim();
-            const descuentoPct = document.getElementById('caja-descuento-pct').value;
+            const descuentoPct = parseFloat(document.getElementById('caja-descuento-pct').value) || 0;
             const fechaStr = new Date().toLocaleString();
-            const logoHtml = document.getElementById('doc-logo-preview').innerHTML;
+            
+            const logoEl = document.getElementById('doc-logo-preview') || document.getElementById('logo-container');
+            const logoHtml = logoEl ? logoEl.innerHTML : '<i class="fa-solid fa-layer-group"></i>';
 
             let filasHTML = '';
             document.querySelectorAll('.caja-item-row').forEach(row => {
@@ -3081,6 +3088,9 @@
             });
 
             const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.top = '0';
             tempDiv.style.width = '680px';
             tempDiv.style.padding = '35px';
             tempDiv.style.backgroundColor = '#ffffff';
@@ -3130,10 +3140,10 @@
                     </tbody>
                 </table>
 
-                ${(descuentoPct > 0 || notas) ? `
+                ${(descuentoPct > 0 || notas !== '') ? `
                 <div style="background: #faf8f6; padding: 12px; border-radius: 8px; border: 1px solid #e8dbd3; margin-bottom: 20px; font-size: 11px; color: #2c2c2c;">
                     ${descuentoPct > 0 ? `<p style="margin: 0 0 4px 0;"><b>Descuento Aplicado:</b> ${descuentoPct}%</p>` : ''}
-                    ${notas ? `<p style="margin: 0;"><b>Notas / Observaciones:</b> ${notas}</p>` : ''}
+                    ${notas !== '' ? `<p style="margin: 0;"><b>Notas / Observaciones:</b> ${notas}</p>` : ''}
                 </div>` : ''}
 
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
@@ -3273,7 +3283,7 @@
                                 fila.querySelector('.cant-input').value = i.cant;
                                 fila.querySelector('.ganancia-input').value = i.ganancia;
                                 fila.querySelector('.precio-cliente-input').value = i.precio;
-                                fila.querySelector('.precio-cliente-input').classList.add('modificado-manual');
+                                fila.querySelector('.precio-cliente-input'].classList.add('modificado-manual');
                             }
                         });
                         recalcularPresupuestoTotal();

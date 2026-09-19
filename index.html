@@ -2682,20 +2682,25 @@
             });
         }
 
-        function actualizarLogo() {
-            const fileInput = document.getElementById('logo-file-input');
-            if(fileInput && fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const base64Img = e.target.result;
-                    localStorage.setItem('lan_logo_img', base64Img);
-                    aplicarLogoEnUI(base64Img);
-                    alert("¡Logo actualizado con éxito!");
-                }
-                reader.readAsDataURL(fileInput.files[0]);
-            } else { alert("Selecciona una imagen para el logotipo."); }
+      async function actualizarLogo() {
+    const fileInput = document.getElementById('logo-file-input');
+    if(fileInput && fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const base64Img = e.target.result;
+            try {
+                await db.collection('config').doc('logo').set({ imagen: base64Img });
+                aplicarLogoEnUi(base64Img);
+                alert("¡Logo sincronizado en la nube con éxito!");
+            } catch(err) {
+                alert("Error al guardar el logo en Firebase.");
+            }
         }
-
+        reader.readAsDataURL(fileInput.files[0]);
+    } else { 
+        alert("Selecciona una imagen para el logotipo."); 
+    }
+}
         function aplicarLogoEnUI(imgSrc) {
             const container = document.getElementById('logo-container');
             const docPreview = document.getElementById('doc-logo-preview');

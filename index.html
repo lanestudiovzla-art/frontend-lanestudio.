@@ -2637,14 +2637,23 @@
                     total_usd: totalUSD,
                     metodos_pago: metodosPago.join(' | ') || 'No especificado'
                 });
-                alert("¡Venta procesada y guardada en Firebase con éxito!");
+            } catch(e) {
+                alert("Error al procesar la venta en Firebase.");
+                return;
+            }
+
+            alert("¡Venta procesada y guardada en Firebase con éxito!");
+            
+            try {
                 document.getElementById('lista-items-caja').innerHTML = '';
                 document.getElementById('lista-pagos').innerHTML = '';
                 agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
                 actualizarTotalesCaja();
                 switchTab('dashboard');
                 cargarDashboard();
-            } catch(e) { alert("Error al procesar la venta."); }
+            } catch(err) {
+                // Limpieza de interfaz completada
+            }
         }
 
         async function cargarRegistrosCajaEditable() {

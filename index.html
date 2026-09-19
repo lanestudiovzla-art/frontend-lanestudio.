@@ -903,9 +903,9 @@
                 <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
                     <input type="text" id="insumo-nombre" placeholder="Nombre del Material" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <input type="text" id="insumo-categoria" placeholder="Categoría" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="insumo-costo" placeholder="Costo Unit. ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="insumo-stock" placeholder="Stock Actual" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="insumo-minimo" placeholder="Stock Mínimo Alerta" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
+                    <input type="number" id="insumo-costo" placeholder="Costo Unit. ($)" step="0.01" min="0" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
+                    <input type="number" id="insumo-stock" placeholder="Stock Actual" min="0" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
+                    <input type="number" id="insumo-minimo" placeholder="Stock Mínimo Alerta" min="0" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <button onclick="guardarInsumo()" class="sm:col-span-5 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Insumo en Firebase</button>
                 </div>
                 <div class="overflow-x-auto">
@@ -934,7 +934,7 @@
                 <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-bullhorn text-[#b88a73] mr-2"></i> Catálogo de Servicios Publicitarios</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
                     <input type="text" id="servicio-nombre" placeholder="Nombre del Servicio" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="servicio-precio" placeholder="Precio Base ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
+                    <input type="number" id="servicio-precio" placeholder="Precio Base ($)" step="0.01" min="0" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
                     <button onclick="guardarServicio()" class="sm:col-span-2 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Guardar Servicio en Firebase</button>
                 </div>
                 <div class="overflow-x-auto">
@@ -1044,7 +1044,7 @@
                     <h3 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-plus-circle mr-1 text-[#b88a73]"></i> Registrar Nuevo Egreso / Gasto</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                         <input type="text" id="gasto-concepto" placeholder="Concepto (Ej. Alquiler, Tinta...)" class="bg-white border border-[#e8dbd3] rounded-xl px-3 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]">
-                        <input type="number" id="gasto-monto" placeholder="Monto ($)" step="0.01" class="bg-white border border-[#e8dbd3] rounded-xl px-3 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]">
+                        <input type="number" id="gasto-monto" placeholder="Monto ($)" step="0.01" min="0" class="bg-white border border-[#e8dbd3] rounded-xl px-3 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]">
                         <select id="gasto-categoria" class="bg-white border border-[#e8dbd3] rounded-xl px-3 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]">
                             <option value="Operativo">Operativo (Alquiler, Servicios)</option>
                             <option value="Insumos">Compra de Insumos / Materiales</option>
@@ -1245,7 +1245,24 @@
             if(tabId === 'caja') {
                 cargarClientesEnSelects();
                 cargarRegistrosCajaEditable();
-                if(document.querySelectorAll('#lista-items-caja tr').length === 0) {
+                const borradorCaja = localStorage.getItem('lan_borrador_caja');
+                if (borradorCaja) {
+                    try {
+                        const parsed = JSON.parse(borradorCaja);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            const tbody = document.getElementById('lista-items-caja');
+                            tbody.innerHTML = '';
+                            parsed.forEach(i => agregarItemCajaFila(i.desc, i.cant, i.precio));
+                            recalcularTotalesCaja();
+                        } else if(document.querySelectorAll('#lista-items-caja tr').length === 0) {
+                            agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
+                        }
+                    } catch(e) {
+                        if(document.querySelectorAll('#lista-items-caja tr').length === 0) {
+                            agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
+                        }
+                    }
+                } else if(document.querySelectorAll('#lista-items-caja tr').length === 0) {
                     agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
                 } else {
                     recalcularTotalesCaja();
@@ -1387,9 +1404,9 @@
         async function guardarInsumo() {
             const nombre = document.getElementById('insumo-nombre').value.trim();
             const categoria = document.getElementById('insumo-categoria').value.trim();
-            const costo_unitario = parseFloat(document.getElementById('insumo-costo').value) || 0;
-            const stock = parseInt(document.getElementById('insumo-stock').value) || 0;
-            const stock_minimo = parseInt(document.getElementById('insumo-minimo').value) || 0;
+            const costo_unitario = Math.max(0, parseFloat(document.getElementById('insumo-costo').value) || 0);
+            const stock = Math.max(0, parseInt(document.getElementById('insumo-stock').value) || 0);
+            const stock_minimo = Math.max(0, parseInt(document.getElementById('insumo-minimo').value) || 0);
 
             if(!nombre) { mostrarNotificacion("Introduce el nombre del insumo.", "error"); return; }
 
@@ -1437,7 +1454,7 @@
         // ================= GESTIÓN DE SERVICIOS (FIREBASE) =================
         async function guardarServicio() {
             const nombre = document.getElementById('servicio-nombre').value.trim();
-            const precio = parseFloat(document.getElementById('servicio-precio').value) || 0;
+            const precio = Math.max(0, parseFloat(document.getElementById('servicio-precio').value) || 0);
             if(!nombre) { mostrarNotificacion("Introduce el nombre del servicio.", "error"); return; }
 
             try {
@@ -1572,10 +1589,10 @@
             document.getElementById('modal-historial-cliente').classList.add('hidden');
         }
 
-        // ================= CONTROL FINANCIERO / GASTOS EN FIREBASE =================
+        // ================= CONTROL FINANCIERO / GASTOS EN FIREBASE (OPTIMIZADO) =================
         async function guardarGasto() {
             const concepto = document.getElementById('gasto-concepto').value.trim();
-            const monto = parseFloat(document.getElementById('gasto-monto').value) || 0;
+            const monto = Math.max(0, parseFloat(document.getElementById('gasto-monto').value) || 0);
             const categoria = document.getElementById('gasto-categoria').value;
 
             if(!concepto || monto <= 0) { mostrarNotificacion("Introduce un concepto y monto válido.", "error"); return; }
@@ -1646,21 +1663,55 @@
             const tbody = document.getElementById('tabla-gastos');
             if(!tbody) return;
 
+            let filtro = document.getElementById('filtro-periodo')?.value || 'este_mes';
+            const ahora = new Date();
+            const mesActual = ahora.getMonth();
+            const anioActual = ahora.getFullYear();
+
             let gastos = [];
             let ventas = [];
+
             try {
+                let queryGastos = db.collection('gastos');
+                let queryVentas = db.collection('ventas');
+
+                if (filtro === 'este_mes') {
+                    const inicioMes = new Date(anioActual, mesActual, 1).toISOString();
+                    const finMes = new Date(anioActual, mesActual + 1, 0, 23, 59, 59).toISOString();
+                    queryGastos = queryGastos.where('fechaISO', '>=', inicioMes).where('fechaISO', '<=', finMes);
+                    queryVentas = queryVentas.where('fechaISO', '>=', inicioMes).where('fechaISO', '<=', finMes);
+                } else if (filtro !== 'todos') {
+                    const [anioSel, mesSel] = filtro.split('-');
+                    const inicioMes = new Date(parseInt(anioSel), parseInt(mesSel) - 1, 1).toISOString();
+                    const finMes = new Date(parseInt(anioSel), parseInt(mesSel), 0, 23, 59, 59).toISOString();
+                    queryGastos = queryGastos.where('fechaISO', '>=', inicioMes).where('fechaISO', '<=', finMes);
+                    queryVentas = queryVentas.where('fechaISO', '>=', inicioMes).where('fechaISO', '<=', finMes);
+                }
+
+                const resG = await queryGastos.get();
+                resG.forEach(doc => gastos.push({ id: doc.id, ...doc.data() }));
+
+                const resV = await queryVentas.get();
+                resV.forEach(doc => ventas.push({ id: doc.id, ...doc.data() }));
+
+                // También obtenemos todos para poblar el selector de periodos completo si es necesario
+                const allG = await db.collection('gastos').get();
+                let fullGastos = [];
+                allG.forEach(doc => fullGastos.push(doc.data()));
+                const allV = await db.collection('ventas').get();
+                let fullVentas = [];
+                allV.forEach(doc => fullVentas.push(doc.data()));
+
+                poblarSelectorPeriodos(fullGastos, fullVentas);
+
+            } catch(e) {
+                // Fallback en caso de índices de firestore pendientes
                 const resG = await db.collection('gastos').get();
                 resG.forEach(doc => gastos.push({ id: doc.id, ...doc.data() }));
                 const resV = await db.collection('ventas').get();
                 resV.forEach(doc => ventas.push({ id: doc.id, ...doc.data() }));
-            } catch(e) {}
-
-            poblarSelectorPeriodos(gastos, ventas);
-            let filtro = document.getElementById('filtro-periodo').value;
-
-            const ahora = new Date();
-            const mesActual = ahora.getMonth();
-            const anioActual = ahora.getFullYear();
+                poblarSelectorPeriodos(gastos, ventas);
+            }
 
             let gastosFiltrados = gastos.filter(g => {
                 const fechaObj = g.fechaISO ? new Date(g.fechaISO) : new Date();
@@ -1710,29 +1761,18 @@
 
             tbody.innerHTML = gastosFiltrados.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin egresos registrados para este periodo.</td></tr>';
             
-            gastos.slice().reverse().forEach((g) => {
-                const fechaObj = g.fechaISO ? new Date(g.fechaISO) : new Date();
-                let cumpleFiltro = false;
-                if (filtro === 'este_mes') cumpleFiltro = (fechaObj.getMonth() === mesActual && fechaObj.getFullYear() === anioActual);
-                else if (filtro === 'todos') cumpleFiltro = true;
-                else {
-                    const [anioSel, mesSel] = filtro.split('-');
-                    cumpleFiltro = (fechaObj.getFullYear() == anioSel && (fechaObj.getMonth() + 1) == mesSel);
-                }
-                
-                if (cumpleFiltro) {
-                    tbody.innerHTML += `
-                        <tr class="border-b border-[#e8dbd3]">
-                            <td class="p-3 text-xs text-gray-500">${g.fecha}</td>
-                            <td class="p-3 font-semibold text-[#2c2c2c]">${g.concepto}</td>
-                            <td class="p-3 text-xs"><span class="bg-[#faf8f6] px-2 py-1 rounded border border-[#e8dbd3]">${g.categoria}</span></td>
-                            <td class="p-3 text-rose-600 font-bold">$${parseFloat(g.monto).toFixed(2)}</td>
-                            <td class="p-3 text-center">
-                                <button onclick="eliminarGasto('${g.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                }
+            gastosFiltrados.slice().reverse().forEach((g) => {
+                tbody.innerHTML += `
+                    <tr class="border-b border-[#e8dbd3]">
+                        <td class="p-3 text-xs text-gray-500">${g.fecha}</td>
+                        <td class="p-3 font-semibold text-[#2c2c2c]">${g.concepto}</td>
+                        <td class="p-3 text-xs"><span class="bg-[#faf8f6] px-2 py-1 rounded border border-[#e8dbd3]">${g.categoria}</span></td>
+                        <td class="p-3 text-rose-600 font-bold">$${parseFloat(g.monto).toFixed(2)}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="eliminarGasto('${g.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
             });
         }
 
@@ -1892,7 +1932,6 @@
 
                 ventasHoy.forEach(v => {
                     totalDiaUSD += parseFloat(v.total_usd) || 0;
-                    // Analizar métodos de pago string
                     const metodosStr = v.metodos_pago || '';
                     const partes = metodosStr.split('|');
                     partes.forEach(p => {
@@ -2146,7 +2185,7 @@
                         <input type="number" value="1" min="1" step="1" class="w-full border border-[#e8dbd3] text-center rounded p-1 text-xs top-mat-cant" oninput="calcularTopper()">
                     </td>
                     <td class="p-2 text-center">
-                        <input type="number" value="0.00" step="0.01" class="w-full border border-[#e8dbd3] text-center rounded p-1 text-xs top-mat-costo" oninput="calcularTopper()">
+                        <input type="number" value="0.00" step="0.01" min="0" class="w-full border border-[#e8dbd3] text-center rounded p-1 text-xs top-mat-costo" oninput="calcularTopper()">
                     </td>
                     <td class="p-2 text-center">
                         <button onclick="document.getElementById('${rowId}').remove(); calcularTopper();" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button>
@@ -2362,14 +2401,14 @@
                         <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle">
-                        <input type="number" step="0.01" value="${costoDefault}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
+                        <input type="number" step="0.01" min="0" value="${costoDefault}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle">
                         <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle truncate">$0.00</td>
                     <td class="p-3 w-[30%] text-right align-middle">
-                        <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
+                        <input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle">
                         <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal(); guardarBorradorLocal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
@@ -2404,14 +2443,14 @@
                         <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle">
-                        <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
+                        <input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle">
                         <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle truncate">$0.00</td>
                     <td class="p-3 w-[30%] text-right align-middle">
-                        <input type="number" step="0.01" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
+                        <input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
                     </td>
                     <td class="p-3 w-[10%] text-center align-middle">
                         <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal(); guardarBorradorLocal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
@@ -2670,18 +2709,18 @@
                 <tr id="${rowId}" class="border-b border-[#e8dbd3] caja-item-row relative">
                     <td class="p-2 relative">
                         <div class="relative">
-                            <input type="text" value="${nombre}" placeholder="Escribe o usa flechas ↑ ↓ y Enter..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-xs caja-search-input font-medium focus:outline-none focus:border-[#b88a73]" autocomplete="off">
+                            <input type="text" value="${nombre}" placeholder="Escribe o usa flechas ↑ ↓ y Enter..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-xs caja-search-input font-medium focus:outline-none focus:border-[#b88a73]" autocomplete="off" oninput="guardarBorradorCaja()">
                             <div class="autocomplete-suggestions hidden absolute left-0 right-0 top-full mt-1 bg-white border border-[#e8dbd3] rounded-xl shadow-lg max-h-48 overflow-y-auto z-50"></div>
                         </div>
                     </td>
                     <td class="p-2 text-center align-middle">
-                        <input type="number" value="${cant}" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-1 py-2 text-xs text-center caja-cant-input font-medium" oninput="recalcularTotalesCaja()">
+                        <input type="number" value="${cant}" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-1 py-2 text-xs text-center caja-cant-input font-medium" oninput="recalcularTotalesCaja(); guardarBorradorCaja();">
                     </td>
                     <td class="p-2 text-right align-middle">
-                        <input type="number" step="0.01" value="${parseFloat(precio).toFixed(2)}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-2 text-xs text-right caja-precio-input font-bold text-[#b88a73]" oninput="recalcularTotalesCaja()">
+                        <input type="number" step="0.01" min="0" value="${parseFloat(precio).toFixed(2)}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-2 text-xs text-right caja-precio-input font-bold text-[#b88a73]" oninput="recalcularTotalesCaja(); guardarBorradorCaja();">
                     </td>
                     <td class="p-2 text-center align-middle">
-                        <button onclick="document.getElementById('${rowId}').remove(); recalcularTotalesCaja();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="document.getElementById('${rowId}').remove(); recalcularTotalesCaja(); guardarBorradorCaja();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
             `;
@@ -2729,6 +2768,7 @@
                             row.querySelector('.caja-precio-input').value = m.precio;
                             suggestionsBox.classList.add('hidden');
                             recalcularTotalesCaja();
+                            guardarBorradorCaja();
                         };
                         suggestionsBox.appendChild(itemDiv);
                     });
@@ -2771,6 +2811,19 @@
 
             inputEl.focus();
             recalcularTotalesCaja();
+            guardarBorradorCaja();
+        }
+
+        function guardarBorradorCaja() {
+            const items = [];
+            document.querySelectorAll('.caja-item-row').forEach(row => {
+                items.push({
+                    desc: row.querySelector('.caja-search-input').value,
+                    cant: row.querySelector('.caja-cant-input').value,
+                    precio: row.querySelector('.caja-precio-input').value
+                });
+            });
+            localStorage.setItem('lan_borrador_caja', JSON.stringify(items));
         }
 
         function recalcularTotalesCaja() {
@@ -2817,7 +2870,7 @@
                     </select>
                     <div class="relative w-1/3">
                         <span class="absolute left-2 top-1.5 text-gray-400 text-xs">$</span>
-                        <input type="number" value="${montoACobrar.toFixed(2)}" step="0.01" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg pl-5 pr-2 py-1.5 text-[#2c2c2c] font-bold text-xs focus:outline-none focus:border-[#b88a73] monto-pago" oninput="calcularRestanteCaja()">
+                        <input type="number" value="${montoACobrar.toFixed(2)}" step="0.01" min="0" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg pl-5 pr-2 py-1.5 text-[#2c2c2c] font-bold text-xs focus:outline-none focus:border-[#b88a73] monto-pago" oninput="calcularRestanteCaja()">
                     </div>
                     <input type="text" placeholder="Ref / Nro" class="w-1/3 bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73] ref-pago">
                     <button onclick="document.getElementById('${rowId}').remove(); calcularRestanteCaja();" class="text-rose-500 hover:text-rose-700 px-2"><i class="fa-solid fa-trash"></i></button>
@@ -2843,7 +2896,7 @@
                     </select>
                     <div class="relative w-1/3">
                         <span class="absolute left-2 top-1.5 text-gray-400 text-xs">$</span>
-                        <input type="number" placeholder="Monto USD" step="0.01" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg pl-5 pr-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73] monto-pago" oninput="calcularRestanteCaja()">
+                        <input type="number" placeholder="Monto USD" step="0.01" min="0" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg pl-5 pr-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73] monto-pago" oninput="calcularRestanteCaja()">
                     </div>
                     <input type="text" placeholder="Ref / Nro" class="w-1/3 bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73] ref-pago">
                     <button onclick="document.getElementById('${rowId}').remove(); calcularRestanteCaja();" class="text-rose-500 hover:text-rose-700 px-2"><i class="fa-solid fa-trash"></i></button>
@@ -2936,6 +2989,7 @@
             mostrarNotificacion("¡Venta procesada y guardada en Firebase con éxito!");
             
             try {
+                localStorage.removeItem('lan_borrador_caja');
                 document.getElementById('lista-items-caja').innerHTML = '';
                 document.getElementById('lista-pagos').innerHTML = '';
                 agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0.00);
@@ -2951,13 +3005,18 @@
 
             let ventas = [];
             try {
-                const snapshot = await db.collection('ventas').get();
+                const snapshot = await db.collection('ventas').orderBy('fechaISO', 'desc').limit(10).get();
                 snapshot.forEach(doc => { ventas.push({ id: doc.id, ...doc.data() }); });
-            } catch(e) {}
+            } catch(e) {
+                try {
+                    const snapshot = await db.collection('ventas').get();
+                    snapshot.forEach(doc => { ventas.push({ id: doc.id, ...doc.data() }); });
+                    ventas = ventas.reverse().slice(0, 10);
+                } catch(err) {}
+            }
 
-            let registros = ventas.reverse().slice(0, 10);
-            tbody.innerHTML = registros.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin historial reciente de ventas.</td></tr>';
-            registros.forEach(v => {
+            tbody.innerHTML = ventas.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin historial reciente de ventas.</td></tr>';
+            ventas.forEach(v => {
                 const d = v.fecha || new Date(v.fechaISO).toLocaleDateString();
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
@@ -3015,7 +3074,7 @@
             await fetchBCVRate();
             await cargarLogoCloud();
 
-            // Cargar borrador local si existe
+            // Cargar borrador local de presupuesto si existe
             const borrador = localStorage.getItem('lan_borrador_presupuesto');
             if (borrador) {
                 try {

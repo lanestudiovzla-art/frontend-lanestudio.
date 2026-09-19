@@ -2268,59 +2268,57 @@
                 const precioFinal = row.querySelector('.precio-cliente-input').value || '0.00';
                 filasHTML += `
                     <tr style="border-bottom: 1px solid #e8dbd3;">
-                        <td style="padding: 12px; font-size: 12px; color: #2c2c2c; font-weight: 500;">${desc}</td>
-                        <td style="padding: 12px; font-size: 12px; text-align: center; color: #2c2c2c;">${cant}</td>
-                        <td style="padding: 12px; font-size: 12px; text-align: right; font-weight: bold; color: #b88a73;">$${parseFloat(precioFinal).toFixed(2)}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #2c2c2c; font-weight: 500;">${desc}</td>
+                        <td style="padding: 10px; font-size: 12px; text-align: center; color: #2c2c2c;">${cant}</td>
+                        <td style="padding: 10px; font-size: 12px; text-align: right; font-weight: bold; color: #b88a73;">$${parseFloat(precioFinal).toFixed(2)}</td>
                     </tr>
                 `;
             });
 
             const tempDiv = document.createElement('div');
-            tempDiv.style.width = '720px';
-            tempDiv.style.padding = '40px';
+            tempDiv.style.width = '680px';
+            tempDiv.style.padding = '30px';
             tempDiv.style.backgroundColor = '#ffffff';
             tempDiv.style.fontFamily = "'Inter', sans-serif";
             tempDiv.style.color = '#2c2c2c';
             tempDiv.style.boxSizing = 'border-box';
             tempDiv.innerHTML = `
-                <table style="width: 100%; border-collapse: collapse; border-bottom: 2px solid #e8dbd3; padding-bottom: 20px; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse; border-bottom: 2px solid #e8dbd3; padding-bottom: 15px; margin-bottom: 15px;">
                     <tr>
                         <td style="width: 60%; vertical-align: middle;">
                             <table style="border-collapse: collapse;">
                                 <tr>
-                                    <td style="width: 50px; height: 50px; border-radius: 12px; overflow: hidden; background: #b88a73; text-align: center; vertical-align: middle; color: white; font-weight: bold; font-size: 20px;">
+                                    <td style="width: 45px; height: 45px; border-radius: 10px; overflow: hidden; background: #b88a73; text-align: center; vertical-align: middle; color: white; font-weight: bold; font-size: 18px;">
                                         ${logoHtml}
                                     </td>
-                                    <td style="padding-left: 15px; vertical-align: middle;">
-                                        <h2 style="margin: 0; font-size: 18px; font-weight: bold; color: #2c2c2c; letter-spacing: 0.5px;">LAN ESTUDIO</h2>
-                                        <p style="margin: 2px 0 0 0; font-size: 11px; color: #666;">Agencia de Publicidad y Comunicación</p>
+                                    <td style="padding-left: 12px; vertical-align: middle;">
+                                        <h2 style="margin: 0; font-size: 16px; font-weight: bold; color: #2c2c2c;">LAN ESTUDIO</h2>
+                                        <p style="margin: 2px 0 0 0; font-size: 10px; color: #666;">Agencia de Publicidad y Comunicación</p>
                                     </td>
                                 </tr>
                             </table>
                         </td>
                         <td style="width: 40%; text-align: right; vertical-align: middle;">
-                            <h3 style="margin: 0; font-size: 14px; font-weight: bold; color: #b88a73; letter-spacing: 1px;">PRESUPUESTO</h3>
-                            <p style="margin: 4px 0 0 0; font-size: 11px; color: #666;">${fecha}</p>
-                            ${!ocultarBcv ? `<p style="margin: 2px 0 0 0; font-size: 11px; color: #666;">Ref Tasa BCV: <b>${tasa}</b></p>` : ''}
+                            <h3 style="margin: 0; font-size: 13px; font-weight: bold; color: #b88a73; letter-spacing: 1px;">PRESUPUESTO</h3>
+                            <p style="margin: 3px 0 0 0; font-size: 10px; color: #666;">${fecha}</p>
+                            ${!ocultarBcv ? `<p style="margin: 2px 0 0 0; font-size: 10px; color: #666;">Ref Tasa BCV: <b>${tasa}</b></p>` : ''}
                         </td>
                     </tr>
                 </table>
 
-                <div style="background: #faf8f6; padding: 12px 16px; border-radius: 10px; border: 1px solid #e8dbd3; font-size: 12px; margin-bottom: 25px;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="text-align: left;"><b>Preparado para:</b> ${cliente}</td>
-                            <td style="text-align: right;"><b>Validez:</b> ${validez}</td>
-                        </tr>
-                    </table>
-                </div>
+                <table style="width: 100%; border-collapse: collapse; background: #faf8f6; border: 1px solid #e8dbd3; border-radius: 8px; margin-bottom: 20px;">
+                    <tr>
+                        <td style="padding: 10px 14px; font-size: 11px; color: #2c2c2c;"><b>Preparado para:</b> ${cliente}</td>
+                        <td style="padding: 10px 14px; font-size: 11px; color: #2c2c2c; text-align: right;"><b>Validez:</b> ${validez}</td>
+                    </tr>
+                </table>
 
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                     <thead>
-                        <tr style="background: #faf8f6; border-bottom: 2px solid #e8dbd3; text-transform: uppercase; font-size: 10px; color: #666; letter-spacing: 0.5px;">
-                            <th style="padding: 10px 12px; text-align: left; width: 60%;">Descripción</th>
-                            <th style="padding: 10px 12px; text-align: center; width: 15%;">Cant</th>
-                            <th style="padding: 10px 12px; text-align: right; width: 25%;">Precio Final</th>
+                        <tr style="background: #faf8f6; border-bottom: 2px solid #e8dbd3; text-transform: uppercase; font-size: 9px; color: #666; letter-spacing: 0.5px;">
+                            <th style="padding: 8px 10px; text-align: left; width: 60%;">Descripción</th>
+                            <th style="padding: 8px 10px; text-align: center; width: 15%;">Cant</th>
+                            <th style="padding: 8px 10px; text-align: right; width: 25%;">Precio Final</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2328,28 +2326,33 @@
                     </tbody>
                 </table>
 
-                <div style="margin-left: auto; width: 280px; background: #faf8f6; padding: 16px; border-radius: 12px; border: 1px solid #e8dbd3; font-size: 12px; box-sizing: border-box;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="font-size: 12px; font-weight: bold; color: #666;">TOTAL PRESUPUESTO:</td>
-                            <td style="text-align: right; color: #b88a73; font-size: 16px; font-weight: bold;">${totalUSD}</td>
-                        </tr>
-                        ${!ocultarBcv ? `
-                        <tr>
-                            <td colspan="2" style="border-top: 1px dashed #e8dbd3; padding-top: 8px; margin-top: 8px;"></td>
-                        </tr>
-                        <tr>
-                            <td style="font-size: 11px; color: #666;">Equivalente Bolívares:</td>
-                            <td style="text-align: right; font-size: 11px; color: #2c2c2c; font-weight: bold;">${totalVES}</td>
-                        </tr>` : ''}
-                    </table>
-                </div>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="width: 60%;"></td>
+                        <td style="width: 40%; background: #faf8f6; padding: 14px; border-radius: 10px; border: 1px solid #e8dbd3;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="font-size: 11px; font-weight: bold; color: #666;">TOTAL:</td>
+                                    <td style="text-align: right; color: #b88a73; font-size: 16px; font-weight: bold;">${totalUSD}</td>
+                                </tr>
+                                ${!ocultarBcv ? `
+                                <tr>
+                                    <td colspan="2" style="border-top: 1px dashed #e8dbd3; padding-top: 6px; margin-top: 6px;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size: 10px; color: #666;">Bolívares:</td>
+                                    <td style="text-align: right; font-size: 10px; color: #2c2c2c; font-weight: bold;">${totalVES}</td>
+                                </tr>` : ''}
+                            </table>
+                        </td>
+                    </tr>
+                </table>
             `;
 
             document.body.appendChild(tempDiv);
 
             const opt = {
-                margin:       10,
+                margin:       5,
                 filename:     `Presupuesto_LANEstudio_${Date.now()}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },

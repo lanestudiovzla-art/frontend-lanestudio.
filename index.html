@@ -2650,20 +2650,63 @@ function generarPDFDinamico(htmlContent, filename) {
         });
     }, 500);
 }
-        function exportarPDFPresupuesto() {
-            const elemento = document.getElementById('area-impresion-presupuesto');
-            if(!elemento) {
-                mostrarNotificacion("No se encontró el área de presupuesto.", "error");
-                return;
+       function exportarPDFPresupuesto() {
+    const elemento = document.getElementById('area-impresion-presupuesto');
+    if (!elemento) {
+        mostrarNotificacion("No se encontró el área de presupuesto.", "error");
+        return;
+    }
+
+    // 1. Clonamos el elemento real con todo y su estructura
+    const clon = elemento.cloneNode(true);
+
+    // 2. Copiamos los valores actuales de los inputs, selects y textareas al clon
+    const inputsOriginales = elemento.querySelectorAll('input, select, textarea');
+    const inputsClon = clon.querySelectorAll('input, select, textarea');
+    
+    inputsOriginales.forEach((orig, index) => {
+        if (inputsClon[index]) {
+            if (orig.tagName === 'SELECT') {
+                inputsClon[index].value = orig.value;
+            } else if (orig.type === 'checkbox' || orig.type === 'radio') {
+                inputsClon[index].checked = orig.checked;
+            } else {
+                inputsClon[index].setAttribute('value', orig.value);
             }
-            // Sincronizar logo actual si existe
-            const logoEl = document.getElementById('logo-container');
-            const logoImgHTML = logoEl && logoEl.querySelector('img') ? `<img src="${logoEl.querySelector('img').src}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">` : `<i class="fa-solid fa-layer-group"></i>`;
-
-            // Clonar o extraer el HTML interno para garantizar renderizado limpio
-            generarPDFDinamico(elemento.outerHTML, `Presupuesto_LANEstudio_${Date.now()}.pdf`);
         }
+    });
 
+    // 3. Estilos temporales para el renderizado perfecto fuera de la vista
+    clon.style.position = 'fixed';
+    clon.style.top = '0';
+    clon.style.left = '-9999px';
+    clon.style.width = '750px';
+    clon.style.background = '#ffffff';
+    clon.style.zIndex = '999999';
+    clon.style.padding = '30px';
+    clon.style.boxSizing = 'border-box';
+    document.body.appendChild(clon);
+
+    // 4. Damos medio segundo para que pinte y disparamos el PDF
+    setTimeout(() => {
+        const opt = {
+            margin:       5,
+            filename:     `Presupuesto_LANEstudio_${Date.now()}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(clon).save().then(() => {
+            document.body.removeChild(clon);
+            mostrarNotificacion("PDF generado con éxito.");
+        }).catch(err => {
+            console.error(err);
+            document.body.removeChild(clon);
+            mostrarNotificacion("Error al generar el PDF.", "error");
+        });
+    }, 500);
+}
         // ================= CAJA Y PAGOS CON TECLADO Y DESCUENTO GLOBAL =================
         let cajaItemIdx = 0;
         function agregarItemCajaFila(nombre = '', cant = 1, precio = 0) {

@@ -698,7 +698,7 @@
 
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left text-xs text-gray-700">
-                                    <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
+                                    <thead class="bg-[#f7f4f0] text-xs uppercase text-gray-600 border-b border-[#e8dbd3]">
                                         <tr>
                                             <th class="p-3 w-[56%]">Descripción</th>
                                             <th class="p-3 w-[14%] text-center">Cant</th>
@@ -714,18 +714,22 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-end pt-4 border-t border-[#e8dbd3]">
+                        <div class="flex justify-between items-end pt-4 border-t border-[#e8dbd3]">
+                            <div class="text-[11px] text-gray-500 space-y-1">
+                                <p><b>Condiciones:</b> Presupuesto sujeto a revisión de material o arte final.</p>
+                                <p class="text-[#b88a73] font-medium">¡Gracias por confiar en LAN Estudio! 🚀</p>
+                            </div>
                             <div class="w-full sm:w-80 space-y-2.5 text-sm bg-[#faf8f6] p-5 rounded-xl border border-[#e8dbd3]">
-                                <div class="flex justify-between text-gray-500 text-xs">
+                                <div class="flex justify-between text-gray-500 text-xs hidden">
                                     <span>Costo Producción:</span>
                                     <span id="doc-subtotal-costo" class="font-bold text-[#2c2c2c]">$0.00</span>
                                 </div>
-                                <div class="flex justify-between text-gray-500 text-xs">
+                                <div class="flex justify-between text-gray-500 text-xs hidden">
                                     <span>Ganancia Estimada:</span>
                                     <span id="doc-total-ganancia" class="font-bold text-[#b88a73]">$0.00</span>
                                 </div>
                                 
-                                <div class="flex justify-between items-center pt-1 text-base font-bold text-[#2c2c2c]">
+                                <div class="flex justify-between items-center text-base font-bold text-[#2c2c2c]">
                                     <span class="uppercase tracking-wide text-xs text-gray-600 font-bold">Total Presupuesto:</span>
                                     <span id="doc-total-usd" class="text-lg font-extrabold text-[#b88a73]">$0.00</span>
                                 </div>
@@ -735,6 +739,10 @@
                                     <span id="doc-total-ves" class="font-bold text-[#2c2c2c]">Bs. 0.00</span>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="text-center border-t border-[#e8dbd3] pt-4 text-[10px] text-gray-400 tracking-wider">
+                            LAN ESTUDIO • Agencia de Publicidad y Comunicación • Innovación y Diseño
                         </div>
                     </div>
                 </div>
@@ -2250,7 +2258,7 @@
             }
         }
 
-        // ================= EXPORTADOR DE PDF PERFECTO CON TABLAS HTML =================
+        // ================= EXPORTADOR DE PDF ELEGANTE Y PROFESIONAL =================
         function exportarPDFPresupuesto() {
             const cliente = document.getElementById('doc-cliente-nombre').innerText;
             const fecha = document.getElementById('presupuesto-fecha-doc').innerText;
@@ -2268,16 +2276,16 @@
                 const precioFinal = row.querySelector('.precio-cliente-input').value || '0.00';
                 filasHTML += `
                     <tr style="border-bottom: 1px solid #e8dbd3;">
-                        <td style="padding: 10px; font-size: 12px; color: #2c2c2c; font-weight: 500;">${desc}</td>
-                        <td style="padding: 10px; font-size: 12px; text-align: center; color: #2c2c2c;">${cant}</td>
-                        <td style="padding: 10px; font-size: 12px; text-align: right; font-weight: bold; color: #b88a73;">$${parseFloat(precioFinal).toFixed(2)}</td>
+                        <td style="padding: 12px 10px; font-size: 12px; color: #2c2c2c; font-weight: 500;">${desc}</td>
+                        <td style="padding: 12px 10px; font-size: 12px; text-align: center; color: #2c2c2c;">${cant}</td>
+                        <td style="padding: 12px 10px; font-size: 12px; text-align: right; font-weight: bold; color: #b88a73;">$${parseFloat(precioFinal).toFixed(2)}</td>
                     </tr>
                 `;
             });
 
             const tempDiv = document.createElement('div');
             tempDiv.style.width = '680px';
-            tempDiv.style.padding = '30px';
+            tempDiv.style.padding = '35px';
             tempDiv.style.backgroundColor = '#ffffff';
             tempDiv.style.fontFamily = "'Inter', sans-serif";
             tempDiv.style.color = '#2c2c2c';
@@ -2313,12 +2321,12 @@
                     </tr>
                 </table>
 
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #e8dbd3; border-radius: 6px; overflow: hidden;">
                     <thead>
-                        <tr style="background: #faf8f6; border-bottom: 2px solid #e8dbd3; text-transform: uppercase; font-size: 9px; color: #666; letter-spacing: 0.5px;">
-                            <th style="padding: 8px 10px; text-align: left; width: 60%;">Descripción</th>
-                            <th style="padding: 8px 10px; text-align: center; width: 15%;">Cant</th>
-                            <th style="padding: 8px 10px; text-align: right; width: 25%;">Precio Final</th>
+                        <tr style="background: #f7f4f0; text-transform: uppercase; font-size: 9px; color: #666; letter-spacing: 0.8px;">
+                            <th style="padding: 10px 12px; text-align: left; width: 55%;">Descripción del Servicio</th>
+                            <th style="padding: 10px 12px; text-align: center; width: 15%;">Cant</th>
+                            <th style="padding: 10px 12px; text-align: right; width: 30%;">Precio Final</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2326,27 +2334,36 @@
                     </tbody>
                 </table>
 
-                <table style="width: 100%; border-collapse: collapse;">
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
                     <tr>
-                        <td style="width: 60%;"></td>
-                        <td style="width: 40%; background: #faf8f6; padding: 14px; border-radius: 10px; border: 1px solid #e8dbd3;">
+                        <td style="width: 55%; vertical-align: bottom;">
+                            <div style="font-size: 10px; color: #888; line-height: 1.4;">
+                                <p style="margin: 0 0 4px 0;"><b>Condiciones:</b> Presupuesto sujeto a revisión de material / arte final.</p>
+                                <p style="margin: 0; color: #b88a73; font-weight: 500;">¡Gracias por confiar en LAN Estudio! 🚀</p>
+                            </div>
+                        </td>
+                        <td style="width: 45%; background: #fbf9f7; padding: 16px; border-radius: 12px; border: 1px solid #e8dbd3;">
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <td style="font-size: 11px; font-weight: bold; color: #666;">TOTAL:</td>
-                                    <td style="text-align: right; color: #b88a73; font-size: 16px; font-weight: bold;">${totalUSD}</td>
+                                    <td style="text-align: right; color: #b88a73; font-size: 18px; font-weight: bold;">${totalUSD}</td>
                                 </tr>
                                 ${!ocultarBcv ? `
                                 <tr>
-                                    <td colspan="2" style="border-top: 1px dashed #e8dbd3; padding-top: 6px; margin-top: 6px;"></td>
+                                    <td colspan="2" style="border-top: 1px dashed #e8dbd3; padding-top: 8px; margin-top: 8px;"></td>
                                 </tr>
                                 <tr>
                                     <td style="font-size: 10px; color: #666;">Bolívares:</td>
-                                    <td style="text-align: right; font-size: 10px; color: #2c2c2c; font-weight: bold;">${totalVES}</td>
+                                    <td style="text-align: right; font-size: 11px; color: #2c2c2c; font-weight: bold;">${totalVES}</td>
                                 </tr>` : ''}
                             </table>
                         </td>
                     </tr>
                 </table>
+
+                <div style="text-align: center; border-top: 1px solid #e8dbd3; padding-top: 12px; font-size: 9px; color: #999; letter-spacing: 0.5px;">
+                    LAN ESTUDIO • Agencia de Publicidad y Comunicación • Innovación y Diseño
+                </div>
             `;
 
             document.body.appendChild(tempDiv);

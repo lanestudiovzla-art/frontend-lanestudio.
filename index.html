@@ -28,11 +28,11 @@
 </head>
 <body class="bg-[#faf8f6] text-[#2c2c2c] antialiased min-h-screen flex flex-col">
 
-    <!-- Contenedor Oculto para Renderizar Presupuestos Profesionales en PDF -->
-    <div id="container-presupuesto-pdf-oculto" style="display:none; width:794px; background:white; padding:40px; font-family:'Inter', sans-serif;"></div>
+    <!-- Contenedor Oculto Off-screen para Renderizar Presupuestos Profesionales en PDF -->
+    <div id="container-presupuesto-pdf-oculto" style="position: absolute; left: -9999px; top: 0; width: 794px; background: white; padding: 40px; font-family: 'Inter', sans-serif;"></div>
 
-    <!-- Contenedor Oculto para Renderizar Recibos de Caja en PDF -->
-    <div id="container-recibo-pdf-oculto" style="display:none; width:794px; background:white; padding:40px; font-family:'Inter', sans-serif;"></div>
+    <!-- Contenedor Oculto Off-screen para Renderizar Recibos de Caja en PDF -->
+    <div id="container-recibo-pdf-oculto" style="position: absolute; left: -9999px; top: 0; width: 794px; background: white; padding: 40px; font-family: 'Inter', sans-serif;"></div>
 
     <!-- Contenedor de Notificaciones Toast -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
@@ -1195,7 +1195,7 @@
             
             const toast = document.createElement('div');
             const bgColor = tipo === 'success' ? 'bg-[#2c2c2c] text-white border-[#b88a73]' : 'bg-rose-600 text-white border-rose-700';
-            toast.className = `${bgColor} px-4 py-3 rounded-xl shadow-lg border text-xs font-medium flex items-center space-x-2 transition-all transform translate-y-2 opacity-0 pointer-events-auto`;
+            toast.className = `${bgColor} px-4 py-3 rounded-lg shadow-lg border text-xs font-medium flex items-center space-x-2 transition-all transform translate-y-2 opacity-0 pointer-events-auto`;
             toast.innerHTML = `<i class="fa-solid ${tipo === 'success' ? 'fa-circle-check text-[#b88a73]' : 'fa-triangle-exclamation'}"></i><span>${mensaje}</span>`;
             
             contenedor.appendChild(toast);

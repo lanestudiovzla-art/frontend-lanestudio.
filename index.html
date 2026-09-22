@@ -2616,97 +2616,138 @@
             }
         }
 
-        // =================== MOTOR UNIVERSAL DE EXPORTACIÓN PDF (A PRUEBA DE FALLOS) ===================
-function generarPDFDinamico(htmlContent, filename) {
-    const tempDiv = document.createElement('div');
-    tempDiv.style.position = 'fixed';
-    tempDiv.style.top = '0';
-    tempDiv.style.left = '0';
-    tempDiv.style.width = '750px';
-    tempDiv.style.background = '#ffffff';
-    tempDiv.style.zIndex = '999999';
-    tempDiv.style.padding = '30px';
-    tempDiv.style.boxSizing = 'border-box';
-    tempDiv.innerHTML = htmlContent;
-    document.body.appendChild(tempDiv);
+        // ================= MOTOR UNIVERSAL DE EXPORTACIÓN PDF (A PRUEBA DE FALLOS) =================
+        function generarPDFDinamico(htmlContent, filename) {
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'fixed';
+            tempDiv.style.top = '0';
+            tempDiv.style.left = '0';
+            tempDiv.style.width = '750px';
+            tempDiv.style.background = '#ffffff';
+            tempDiv.style.zIndex = '999999';
+            tempDiv.style.padding = '30px';
+            tempDiv.style.boxSizing = 'border-box';
+            tempDiv.innerHTML = htmlContent;
+            document.body.appendChild(tempDiv);
 
-    // Damos un respiro de 500ms para que el navegador pinte todo antes de exportar
-    setTimeout(() => {
-        const opt = {
-            margin:       5,
-            filename:     filename,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
+            setTimeout(() => {
+                const opt = {
+                    margin:       5,
+                    filename:     filename,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
 
-        html2pdf().set(opt).from(tempDiv).save().then(() => {
-            document.body.removeChild(tempDiv);
-            mostrarNotificacion("PDF generado con éxito.");
-        }).catch(err => {
-            console.error(err);
-            document.body.removeChild(tempDiv);
-            mostrarNotificacion("Error al generar el PDF.", "error");
-        });
-    }, 500);
-}
-       function exportarPDFPresupuesto() {
-    const elemento = document.getElementById('area-impresion-presupuesto');
-    if (!elemento) {
-        mostrarNotificacion("No se encontró el área de presupuesto.", "error");
-        return;
-    }
-
-    // 1. Clonamos el elemento real con todo y su estructura
-    const clon = elemento.cloneNode(true);
-
-    // 2. Copiamos los valores actuales de los inputs, selects y textareas al clon
-    const inputsOriginales = elemento.querySelectorAll('input, select, textarea');
-    const inputsClon = clon.querySelectorAll('input, select, textarea');
-    
-    inputsOriginales.forEach((orig, index) => {
-        if (inputsClon[index]) {
-            if (orig.tagName === 'SELECT') {
-                inputsClon[index].value = orig.value;
-            } else if (orig.type === 'checkbox' || orig.type === 'radio') {
-                inputsClon[index].checked = orig.checked;
-            } else {
-                inputsClon[index].setAttribute('value', orig.value);
-            }
+                html2pdf().set(opt).from(tempDiv).save().then(() => {
+                    document.body.removeChild(tempDiv);
+                    mostrarNotificacion("PDF generado con éxito.");
+                }).catch(() => {
+                    document.body.removeChild(tempDiv);
+                    mostrarNotificacion("Error al generar el PDF.", "error");
+                });
+            }, 400);
         }
-    });
 
-    // 3. Estilos temporales para el renderizado perfecto fuera de la vista
-    clon.style.position = 'fixed';
-    clon.style.top = '0';
-    clon.style.left = '-9999px';
-    clon.style.width = '750px';
-    clon.style.background = '#ffffff';
-    clon.style.zIndex = '999999';
-    clon.style.padding = '30px';
-    clon.style.boxSizing = 'border-box';
-    document.body.appendChild(clon);
+        function exportarPDFPresupuesto() {
+            const cliente = document.getElementById('doc-cliente-nombre').innerText;
+            const validez = document.getElementById('doc-validez-txt').innerText;
+            const fechaStr = new Date().toLocaleDateString();
+            const totalUSD = document.getElementById('doc-total-usd').innerText;
+            const totalVES = document.getElementById('doc-total-ves').innerText;
+            const ocultarBcv = document.getElementById('chk-ocultar-bcv').checked;
 
-    // 4. Damos medio segundo para que pinte y disparamos el PDF
-    setTimeout(() => {
-        const opt = {
-            margin:       5,
-            filename:     `Presupuesto_LANEstudio_${Date.now()}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
+            const logoEl = document.getElementById('logo-container');
+            const logoHTML = logoEl && logoEl.querySelector('img') ? `<img src="${logoEl.querySelector('img').src}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">` : `<i class="fa-solid fa-layer-group"></i>`;
 
-        html2pdf().set(opt).from(clon).save().then(() => {
-            document.body.removeChild(clon);
-            mostrarNotificacion("PDF generado con éxito.");
-        }).catch(err => {
-            console.error(err);
-            document.body.removeChild(clon);
-            mostrarNotificacion("Error al generar el PDF.", "error");
-        });
-    }, 500);
-}
+            let renglonesHTML = '';
+            document.querySelectorAll('.renglon-item').forEach(row => {
+                const desc = row.querySelector('.desc-input').value || 'Servicio / Insumo';
+                const cant = row.querySelector('.cant-input').value || '1';
+                const precioFinal = row.querySelector('.precio-cliente-input').value || '0.00';
+                const subtotal = (parseFloat(cant) * parseFloat(precioFinal)).toFixed(2);
+
+                renglonesHTML += `
+                    <tr style="border-bottom: 1px solid #e8dbd3;">
+                        <td style="padding: 10px 12px; font-size: 12px; color: #2c2c2c; font-weight: 500;">${desc}</td>
+                        <td style="padding: 10px 12px; font-size: 12px; text-align: center; color: #2c2c2c;">${cant}</td>
+                        <td style="padding: 10px 12px; font-size: 12px; text-align: right; color: #2c2c2c;">$${parseFloat(precioFinal).toFixed(2)}</td>
+                        <td style="padding: 10px 12px; font-size: 12px; text-align: right; font-weight: bold; color: #b88a73;">$${subtotal}</td>
+                    </tr>
+                `;
+            });
+
+            let bcvHTML = '';
+            if (!ocultarBcv) {
+                bcvHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #71717a; font-weight: 600; border-top: 1px dashed #e8dbd3; padding-top: 8px; margin-top: 8px;">
+                        <span>Equivalente Bolívares (VES):</span>
+                        <span style="color: #2c2c2c; font-weight: bold;">${totalVES}</span>
+                    </div>
+                `;
+            }
+
+            const htmlPresupuestoCompleto = `
+                <div style="background: white; padding: 30px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e8dbd3; padding-bottom: 20px; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; border-radius: 12px; background: #b88a73; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;">
+                                ${logoHTML}
+                            </div>
+                            <div>
+                                <h3 style="font-size: 18px; font-weight: bold; color: #2c2c2c; margin: 0;">LAN ESTUDIO</h3>
+                                <p style="font-size: 11px; color: #71717a; margin: 0;">Agencia de Publicidad y Comunicación</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <h4 style="font-size: 13px; font-weight: bold; color: #b88a73; text-transform: uppercase; margin: 0;">PRESUPUESTO</h4>
+                            <p style="font-size: 11px; color: #71717a; margin: 4px 0 0 0;">Fecha: ${fechaStr}</p>
+                            <p style="font-size: 11px; color: #71717a; margin: 2px 0 0 0;">Ref Tasa BCV: <span style="color: #2c2c2c; font-weight: 600;">Bs. ${tasaBCV.toFixed(2)}</span></p>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 12px; color: #2c2c2c; background: #faf8f6; padding: 12px; border-radius: 12px; border: 1px solid #e8dbd3; margin-bottom: 20px; display: flex; justify-content: space-between;">
+                        <div><b>Preparado para:</b> <span style="font-weight: bold;">${cliente}</span></div>
+                        <div><b>Validez:</b> <span>${validez}</span></div>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <thead>
+                            <tr style="background: #f7f4f0; font-size: 11px; text-transform: uppercase; color: #71717a; border-bottom: 1px solid #e8dbd3;">
+                                <th style="padding: 10px 12px; text-align: left; width: 56%;">Descripción</th>
+                                <th style="padding: 10px 12px; text-align: center; width: 14%;">Cant</th>
+                                <th style="padding: 10px 12px; text-align: right; width: 15%;">Precio Unit.</th>
+                                <th style="padding: 10px 12px; text-align: right; width: 15%;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${renglonesHTML}
+                        </tbody>
+                    </table>
+
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #e8dbd3; padding-top: 20px; margin-top: 20px;">
+                        <div style="font-size: 11px; color: #71717a; line-height: 1.4;">
+                            <p><b>Condiciones:</b> Presupuesto sujeto a revisión de material o arte final.</p>
+                            <p style="color: #b88a73; font-weight: 500; margin-top: 4px;">¡Gracias por confiar en LAN Estudio! 🚀</p>
+                        </div>
+                        <div style="width: 300px; background: #faf8f6; padding: 15px; border-radius: 12px; border: 1px solid #e8dbd3;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; color: #2c2c2c; margin-bottom: 8px;">
+                                <span style="font-size: 11px; text-transform: uppercase; color: #71717a;">Total Presupuesto:</span>
+                                <span style="font-size: 16px; font-weight: 800; color: #b88a73;">${totalUSD}</span>
+                            </div>
+                            ${bcvHTML}
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; border-top: 1px solid #e8dbd3; margin-top: 25px; padding-top: 15px; font-size: 9px; color: #a1a1aa; letter-spacing: 1px;">
+                        LAN ESTUDIO • Agencia de Publicidad y Comunicación • Innovación y Diseño
+                    </div>
+                </div>
+            `;
+
+            generarPDFDinamico(htmlPresupuestoCompleto, `Presupuesto_LANEstudio_${Date.now()}.pdf`);
+        }
+
         // ================= CAJA Y PAGOS CON TECLADO Y DESCUENTO GLOBAL =================
         let cajaItemIdx = 0;
         function agregarItemCajaFila(nombre = '', cant = 1, precio = 0) {

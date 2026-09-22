@@ -1155,7 +1155,7 @@
         </div>
     </div>
 
-    <!-- Script Lógico Integrado con Firebase y Motor PDF Universal Anti-Blanco -->
+    <!-- Script Lógico Integrado con Firebase y Motor PDF Corregido -->
     <script>
         // ================= CONFIGURACIÓN DE FIREBASE =================
         const firebaseConfig = {
@@ -2616,17 +2616,18 @@
             }
         }
 
-        // ================= MOTOR UNIVERSAL DE EXPORTACIÓN PDF (BLINDADO ANTI-BLANCO) =================
+        // ================= MOTOR UNIVERSAL DE EXPORTACIÓN PDF (BLINDADO Y VISIBLE) =================
         function generarPDFDinamico(htmlContent, filename) {
             const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
+            tempDiv.style.position = 'fixed';
             tempDiv.style.top = '0';
-            tempDiv.style.width = '794px'; // Ancho exacto A4 en píxeles (96 DPI)
+            tempDiv.style.left = '0';
+            tempDiv.style.width = '794px'; // Ancho A4 exacto
             tempDiv.style.background = '#ffffff';
             tempDiv.style.zIndex = '999999';
             tempDiv.style.padding = '40px';
             tempDiv.style.boxSizing = 'border-box';
+            tempDiv.style.opacity = '1';
             tempDiv.innerHTML = htmlContent;
             document.body.appendChild(tempDiv);
 
@@ -2647,7 +2648,7 @@
                     if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
                     mostrarNotificacion("Error al generar el PDF.", "error");
                 });
-            }, 700);
+            }, 800);
         }
 
         function exportarPDFPresupuesto() {
@@ -3060,7 +3061,7 @@
             } catch(err) {}
         }
 
-        // ================= EXPORTADOR DE RECIBO DE CAJA EN PDF (BLINDADO ANTI-BLANCO) =================
+        // ================= EXPORTADOR DE RECIBO DE CAJA EN PDF (BLINDADO Y VISIBLE) =================
         function exportarReciboCajaPDF() {
             const cliente = document.getElementById('caja-cliente').value;
             const totalUSD = document.getElementById('caja-total-usd').value;

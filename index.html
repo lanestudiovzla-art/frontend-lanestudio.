@@ -1155,7 +1155,7 @@
         </div>
     </div>
 
-    <!-- Script Lógico Integrado con Firebase y Motor PDF Universal -->
+    <!-- Script Lógico Integrado con Firebase y Motor PDF Universal Anti-Blanco -->
     <script>
         // ================= CONFIGURACIÓN DE FIREBASE =================
         const firebaseConfig = {
@@ -2616,37 +2616,38 @@
             }
         }
 
-        // ================= MOTOR UNIVERSAL DE EXPORTACIÓN PDF (A PRUEBA DE FALLOS) =================
+        // ================= MOTOR UNIVERSAL DE EXPORTACIÓN PDF (BLINDADO ANTI-BLANCO) =================
         function generarPDFDinamico(htmlContent, filename) {
             const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'fixed';
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
             tempDiv.style.top = '0';
-            tempDiv.style.left = '0';
-            tempDiv.style.width = '750px';
+            tempDiv.style.width = '794px'; // Ancho exacto A4 en píxeles (96 DPI)
             tempDiv.style.background = '#ffffff';
             tempDiv.style.zIndex = '999999';
-            tempDiv.style.padding = '30px';
+            tempDiv.style.padding = '40px';
             tempDiv.style.boxSizing = 'border-box';
             tempDiv.innerHTML = htmlContent;
             document.body.appendChild(tempDiv);
 
             setTimeout(() => {
                 const opt = {
-                    margin:       5,
+                    margin:       10,
                     filename:     filename,
                     image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true, windowWidth: 794 },
                     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
                 html2pdf().set(opt).from(tempDiv).save().then(() => {
-                    document.body.removeChild(tempDiv);
+                    if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
                     mostrarNotificacion("PDF generado con éxito.");
-                }).catch(() => {
-                    document.body.removeChild(tempDiv);
+                }).catch((err) => {
+                    console.error("Error html2pdf:", err);
+                    if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
                     mostrarNotificacion("Error al generar el PDF.", "error");
                 });
-            }, 400);
+            }, 700);
         }
 
         function exportarPDFPresupuesto() {
@@ -2658,7 +2659,7 @@
             const ocultarBcv = document.getElementById('chk-ocultar-bcv').checked;
 
             const logoEl = document.getElementById('logo-container');
-            const logoHTML = logoEl && logoEl.querySelector('img') ? `<img src="${logoEl.querySelector('img').src}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">` : `<i class="fa-solid fa-layer-group"></i>`;
+            const logoHTML = logoEl && logoEl.querySelector('img') ? `<img src="${logoEl.querySelector('img').src}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">` : `<span style="font-size: 16px; font-weight: bold; color: white;">LAN</span>`;
 
             let renglonesHTML = '';
             document.querySelectorAll('.renglon-item').forEach(row => {
@@ -3059,7 +3060,7 @@
             } catch(err) {}
         }
 
-        // ================= EXPORTADOR DE RECIBO DE CAJA EN PDF (MOTOR DINÁMICO) =================
+        // ================= EXPORTADOR DE RECIBO DE CAJA EN PDF (BLINDADO ANTI-BLANCO) =================
         function exportarReciboCajaPDF() {
             const cliente = document.getElementById('caja-cliente').value;
             const totalUSD = document.getElementById('caja-total-usd').value;
@@ -3069,7 +3070,7 @@
             const fechaStr = new Date().toLocaleString();
 
             const logoEl = document.getElementById('logo-container');
-            const logoHTML = logoEl && logoEl.querySelector('img') ? `<img src="${logoEl.querySelector('img').src}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">` : `<i class="fa-solid fa-layer-group"></i>`;
+            const logoHTML = logoEl && logoEl.querySelector('img') ? `<img src="${logoEl.querySelector('img').src}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">` : `<span style="font-size: 16px; font-weight: bold; color: white;">LAN</span>`;
 
             let renglonesHTML = '';
             document.querySelectorAll('.caja-item-row').forEach(row => {

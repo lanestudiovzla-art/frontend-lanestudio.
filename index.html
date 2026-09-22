@@ -1123,6 +1123,10 @@
 
     </main>
 
+    <!-- Contenedores Ocultos Fijos en el DOM para Exportar PDF Perfectos (Sin Páginas en Blanco) -->
+    <div id="pdf-container-presupuesto" style="display:none;"></div>
+    <div id="pdf-container-recibo" style="display:none;"></div>
+
     <!-- MODAL ARQUEO DE CAJA DIARIO -->
     <div id="modal-arqueo" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 border border-[#e8dbd3] shadow-xl">
@@ -2607,7 +2611,7 @@
             }
         }
 
-        // ================= MOTOR DE EXPORTACIÓN PDF PROFESIONAL CLIENTE =================
+        // ================= MOTOR DE EXPORTACIÓN PDF ESTABLE (DOM FIJO) =================
         function exportarPDFPresupuesto() {
             const cliente = document.getElementById('presupuesto-cliente').value;
             const clienteNombre = cliente === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : cliente;
@@ -2650,16 +2654,13 @@
                 `;
             }
 
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'fixed';
-            tempDiv.style.left = '0';
-            tempDiv.style.top = '0';
-            tempDiv.style.width = '794px';
-            tempDiv.style.background = 'white';
-            tempDiv.style.zIndex = '99999';
-            tempDiv.style.padding = '40px';
-            tempDiv.innerHTML = `
-                <div style="background: white; padding: 40px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif;">
+            const container = document.getElementById('pdf-container-presupuesto');
+            container.style.display = 'block';
+            container.style.width = '794px';
+            container.style.background = 'white';
+            container.style.padding = '40px';
+            container.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e8dbd3; padding-bottom: 20px; margin-bottom: 25px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div style="width: 52px; height: 52px; border-radius: 12px; background: #b88a73; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;">
@@ -2714,7 +2715,6 @@
                     </div>
                 </div>
             `;
-            document.body.appendChild(tempDiv);
 
             const opt = {
                 margin:       10,
@@ -2724,11 +2724,11 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(tempDiv).save().then(() => {
-                document.body.removeChild(tempDiv);
+            html2pdf().set(opt).from(container).save().then(() => {
+                container.style.display = 'none';
                 mostrarNotificacion("¡Presupuesto exportado en PDF con éxito!");
             }).catch((err) => {
-                if(document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
+                container.style.display = 'none';
                 console.error("Error html2pdf presupuesto:", err);
                 mostrarNotificacion("Error al generar el PDF del presupuesto.", "error");
             });
@@ -2769,15 +2769,12 @@
                 extraHTML += `</div>`;
             }
 
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'fixed';
-            tempDiv.style.left = '0';
-            tempDiv.style.top = '0';
-            tempDiv.style.width = '794px';
-            tempDiv.style.background = 'white';
-            tempDiv.style.zIndex = '99999';
-            tempDiv.style.padding = '40px';
-            tempDiv.innerHTML = `
+            const container = document.getElementById('pdf-container-recibo');
+            container.style.display = 'block';
+            container.style.width = '794px';
+            container.style.background = 'white';
+            container.style.padding = '40px';
+            container.innerHTML = `
                 <div style="background: white; padding: 30px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e8dbd3; padding-bottom: 20px; margin-bottom: 20px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
@@ -2836,7 +2833,6 @@
                     </div>
                 </div>
             `;
-            document.body.appendChild(tempDiv);
 
             const opt = {
                 margin:       10,
@@ -2846,11 +2842,11 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(tempDiv).save().then(() => {
-                document.body.removeChild(tempDiv);
+            html2pdf().set(opt).from(container).save().then(() => {
+                container.style.display = 'none';
                 mostrarNotificacion("¡Recibo exportado en PDF con éxito!");
             }).catch((err) => {
-                if(document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
+                container.style.display = 'none';
                 console.error("Error html2pdf recibo:", err);
                 mostrarNotificacion("Error al generar el PDF del recibo.", "error");
             });

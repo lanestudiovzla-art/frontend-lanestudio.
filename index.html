@@ -2607,13 +2607,114 @@
             }
         }
 
-        // ================= MOTOR DE EXPORTACIÓN PDF DIRECTO (ROBUSTO) =================
+        // ================= MOTOR DE EXPORTACIÓN PDF PROFESIONAL CLIENTE =================
         function exportarPDFPresupuesto() {
-            const elemento = document.getElementById('area-impresion-presupuesto');
-            if(!elemento) {
-                mostrarNotificacion("No se encontró el elemento de presupuesto.", "error");
-                return;
+            const cliente = document.getElementById('presupuesto-cliente').value;
+            const clienteNombre = cliente === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : cliente;
+            const validez = document.getElementById('presupuesto-validez').value || '7 días hábiles';
+            const totalUSD = document.getElementById('doc-total-usd').innerText;
+            const totalVES = document.getElementById('doc-total-ves').innerText;
+            const ocultarBcv = document.getElementById('chk-ocultar-bcv').checked;
+            const fechaStr = new Date().toLocaleDateString();
+
+            const logoEl = document.getElementById('logo-container');
+            const logoHTML = logoEl && logoEl.querySelector('img') ? `<img src="${logoEl.querySelector('img').src}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">` : `<span style="font-size: 16px; font-weight: bold; color: white;">LAN</span>`;
+
+            let renglonesHTML = '';
+            document.querySelectorAll('.renglon-item').forEach(row => {
+                const desc = row.querySelector('.desc-input').value || 'Servicio Gráfico';
+                const cant = row.querySelector('.cant-input').value || '1';
+                const precioTotal = row.querySelector('.precio-cliente-input').value || '0.00';
+                const unitario = (parseFloat(precioTotal) / (parseFloat(cant) || 1)).toFixed(2);
+
+                renglonesHTML += `
+                    <tr style="border-bottom: 1px solid #e8dbd3;">
+                        <td style="padding: 12px; font-size: 12px; color: #2c2c2c; font-weight: 500;">${desc}</td>
+                        <td style="padding: 12px; font-size: 12px; text-align: center; color: #2c2c2c;">${cant}</td>
+                        <td style="padding: 12px; font-size: 12px; text-align: right; color: #2c2c2c;">$${unitario}</td>
+                        <td style="padding: 12px; font-size: 12px; text-align: right; font-weight: bold; color: #b88a73;">$${parseFloat(precioTotal).toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            let bcvSectionHTML = '';
+            if (!ocultarBcv) {
+                bcvSectionHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #71717a; font-weight: 600; border-top: 1px dashed #e8dbd3; padding-top: 8px; margin-top: 8px;">
+                        <span>Equivalente Bolívares (VES):</span>
+                        <span style="color: #2c2c2c; font-weight: bold;">${totalVES}</span>
+                    </div>
+                    <div style="font-size: 10px; color: #71717a; margin-top: 4px; text-align: right;">
+                        Ref Tasa BCV: Bs. ${tasaBCV.toFixed(2)}
+                    </div>
+                `;
             }
+
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'fixed';
+            tempDiv.style.left = '0';
+            tempDiv.style.top = '0';
+            tempDiv.style.width = '794px';
+            tempDiv.style.background = 'white';
+            tempDiv.style.zIndex = '99999';
+            tempDiv.style.padding = '40px';
+            tempDiv.innerHTML = `
+                <div style="background: white; padding: 40px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e8dbd3; padding-bottom: 20px; margin-bottom: 25px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 52px; height: 52px; border-radius: 12px; background: #b88a73; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;">
+                                ${logoHTML}
+                            </div>
+                            <div>
+                                <h3 style="font-size: 20px; font-weight: bold; color: #2c2c2c; margin: 0;">LAN ESTUDIO</h3>
+                                <p style="font-size: 11px; color: #71717a; margin: 0;">Agencia de Publicidad y Comunicación</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <h4 style="font-size: 14px; font-weight: bold; color: #b88a73; text-transform: uppercase; margin: 0; letter-spacing: 1px;">PRESUPUESTO</h4>
+                            <p style="font-size: 11px; color: #71717a; margin: 4px 0 0 0;">Fecha: ${fechaStr}</p>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 12px; color: #2c2c2c; background: #faf8f6; padding: 14px; border-radius: 12px; border: 1px solid #e8dbd3; margin-bottom: 25px; display: flex; justify-content: space-between;">
+                        <div><b>Preparado para:</b> <span style="font-weight: bold;">${clienteNombre}</span></div>
+                        <div><b>Validez:</b> <span>${validez}</span></div>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                        <thead>
+                            <tr style="background: #f7f4f0; font-size: 11px; text-transform: uppercase; color: #71717a; border-bottom: 1px solid #e8dbd3;">
+                                <th style="padding: 12px; text-align: left; width: 50%;">Descripción</th>
+                                <th style="padding: 12px; text-align: center; width: 12%;">Cant</th>
+                                <th style="padding: 12px; text-align: right; width: 19%;">Precio Unit.</th>
+                                <th style="padding: 12px; text-align: right; width: 19%;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${renglonesHTML}
+                        </tbody>
+                    </table>
+
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #e8dbd3; padding-top: 20px; margin-top: 25px;">
+                        <div style="font-size: 11px; color: #71717a; line-height: 1.4;">
+                            <p style="margin: 0;"><b>Condiciones:</b> Presupuesto sujeto a revisión de material o arte final.</p>
+                            <p style="margin: 6px 0 0 0; color: #b88a73; font-weight: 500;">¡Gracias por confiar en LAN Estudio! 🚀</p>
+                        </div>
+                        <div style="width: 320px; background: #faf8f6; padding: 18px; border-radius: 12px; border: 1px solid #e8dbd3;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; color: #2c2c2c; margin-bottom: 8px;">
+                                <span style="font-size: 11px; text-transform: uppercase; color: #71717a;">Total Presupuesto:</span>
+                                <span style="font-size: 18px; font-weight: 800; color: #b88a73;">${totalUSD}</span>
+                            </div>
+                            ${bcvSectionHTML}
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; border-top: 1px solid #e8dbd3; margin-top: 30px; padding-top: 15px; font-size: 9px; color: #a1a1aa; letter-spacing: 1px;">
+                        LAN ESTUDIO • Agencia de Publicidad y Comunicación • Innovación y Diseño
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(tempDiv);
 
             const opt = {
                 margin:       10,
@@ -2623,9 +2724,11 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(elemento).save().then(() => {
+            html2pdf().set(opt).from(tempDiv).save().then(() => {
+                document.body.removeChild(tempDiv);
                 mostrarNotificacion("¡Presupuesto exportado en PDF con éxito!");
             }).catch((err) => {
+                if(document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
                 console.error("Error html2pdf presupuesto:", err);
                 mostrarNotificacion("Error al generar el PDF del presupuesto.", "error");
             });
@@ -2666,7 +2769,6 @@
                 extraHTML += `</div>`;
             }
 
-            // Crear elemento temporal visible momentáneamente para captura limpia de html2pdf
             const tempDiv = document.createElement('div');
             tempDiv.style.position = 'fixed';
             tempDiv.style.left = '0';

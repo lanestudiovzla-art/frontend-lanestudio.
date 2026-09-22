@@ -28,6 +28,9 @@
 </head>
 <body class="bg-[#faf8f6] text-[#2c2c2c] antialiased min-h-screen flex flex-col">
 
+    <!-- Contenedor Oculto para Renderizar Presupuestos Profesionales en PDF -->
+    <div id="container-presupuesto-pdf-oculto" style="display:none; width:794px; background:white; padding:40px; font-family:'Inter', sans-serif;"></div>
+
     <!-- Contenedor Oculto para Renderizar Recibos de Caja en PDF -->
     <div id="container-recibo-pdf-oculto" style="display:none; width:794px; background:white; padding:40px; font-family:'Inter', sans-serif;"></div>
 
@@ -1158,7 +1161,7 @@
         </div>
     </div>
 
-    <!-- Script Lógico Integrado con Firebase y Motor PDF Definitivo -->
+    <!-- Script Lógico Integrado con Firebase y Motor PDF Profesional Definitivo -->
     <script>
         // ================= CONFIGURACIÓN DE FIREBASE =================
         const firebaseConfig = {
@@ -1386,7 +1389,6 @@
             }
         }
 
-        // ================= SINCRONIZACIÓN EN TIEMPO REAL (ONSNAPSHOT) =================
         function iniciarListenersTiempoReal() {
             db.collection('insumos').onSnapshot((snapshot) => {
                 listaInsumosDB = [];
@@ -1432,7 +1434,6 @@
             });
         }
 
-        // ================= GESTIÓN DE INSUMOS (FIREBASE) =================
         async function guardarInsumo() {
             const nombre = document.getElementById('insumo-nombre').value.trim();
             const categoria = document.getElementById('insumo-categoria').value.trim();
@@ -1483,7 +1484,6 @@
             } catch(e) { mostrarNotificacion("Error al eliminar.", "error"); }
         }
 
-        // ================= GESTIÓN DE SERVICIOS (FIREBASE) =================
         async function guardarServicio() {
             const nombre = document.getElementById('servicio-nombre').value.trim();
             const precio = Math.max(0, parseFloat(document.getElementById('servicio-precio').value) || 0);
@@ -1523,7 +1523,6 @@
             } catch(e) { mostrarNotificacion("Error al eliminar.", "error"); }
         }
 
-        // ================= GESTIÓN DE CRM CLIENTES =================
         async function guardarCliente() {
             const nombre = document.getElementById('cliente-nombre').value.trim();
             const rif = document.getElementById('cliente-rif').value.trim();
@@ -1581,7 +1580,6 @@
             } catch(e) { mostrarNotificacion("Error al eliminar.", "error"); }
         }
 
-        // ================= HISTORIAL DE CLIENTES =================
         async function verHistorialCliente(nombreCliente) {
             document.getElementById('titulo-historial-cliente').innerHTML = `<i class="fa-solid fa-clock-rotate-left mr-2 text-[#b88a73]"></i> Historial de: ${nombreCliente}`;
             const contenedor = document.getElementById('contenido-historial-cliente');
@@ -1634,7 +1632,6 @@
             document.getElementById('modal-historial-cliente').classList.add('hidden');
         }
 
-        // ================= CONTROL FINANCIERO / GASTOS =================
         async function guardarGasto() {
             const concepto = document.getElementById('gasto-concepto').value.trim();
             const monto = Math.max(0, parseFloat(document.getElementById('gasto-monto').value) || 0);
@@ -1911,7 +1908,6 @@
             }
         }
 
-        // ================= ENVÍO POR WHATSAPP =================
         function enviarPresupuestoWhatsApp() {
             const clienteNombre = document.getElementById('doc-cliente-nombre').innerText;
             const totalUSD = document.getElementById('doc-total-usd').innerText;
@@ -1956,7 +1952,6 @@
             mostrarNotificacion("Abriendo WhatsApp con el recibo de venta...");
         }
 
-        // ================= ARQUEO DE CAJA DIARIO =================
         async function abrirArqueoCaja() {
             const modal = document.getElementById('modal-arqueo');
             const contenido = document.getElementById('contenido-arqueo');
@@ -2139,7 +2134,6 @@
             }, 200);
         }
 
-        // ================= CALCULADORAS ESPECIALES =================
         function poblarSelectInsumosStickers() {
             const select = document.getElementById('stk-insumo-select');
             if(!select) return;
@@ -2619,13 +2613,102 @@
             }
         }
 
-        // ================= MOTOR DE EXPORTACIÓN PDF DEFINITIVO (BASADO EN DOM REAL) =================
+        // ================= MOTOR DE EXPORTACIÓN PDF DE PRESUPUESTO PROFESIONAL =================
         function exportarPDFPresupuesto() {
-            const element = document.getElementById('area-impresion-presupuesto');
-            if(!element) {
-                mostrarNotificacion("No se encontró el área de presupuesto.", "error");
-                return;
+            const cliente = document.getElementById('doc-cliente-nombre').innerText;
+            const validez = document.getElementById('doc-validez-txt').innerText;
+            const fechaStr = new Date().toLocaleDateString();
+            const ocultarBcv = document.getElementById('chk-ocultar-bcv').checked;
+            const totalUSD = document.getElementById('doc-total-usd').innerText;
+            const totalVES = document.getElementById('doc-total-ves').innerText;
+
+            const logoEl = document.getElementById('logo-container');
+            const logoHTML = logoEl && logoEl.querySelector('img') ? `<img src="${logoEl.querySelector('img').src}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">` : `<span style="font-size: 16px; font-weight: bold; color: white;">LAN</span>`;
+
+            let renglonesHTML = '';
+            document.querySelectorAll('.renglon-item').forEach(row => {
+                const desc = row.querySelector('.desc-input').value || 'Servicio Publicitario';
+                const cant = row.querySelector('.cant-input').value || '1';
+                const precio = row.querySelector('.precio-cliente-input').value || '0.00';
+                const sub = (parseFloat(cant) * parseFloat(precio)).toFixed(2);
+                renglonesHTML += `
+                    <tr style="border-bottom: 1px solid #e8dbd3;">
+                        <td style="padding: 10px 12px; font-size: 12px; color: #2c2c2c; font-weight: 500;">${desc}</td>
+                        <td style="padding: 10px 12px; font-size: 12px; text-align: center; color: #2c2c2c;">${cant}</td>
+                        <td style="padding: 10px 12px; font-size: 12px; text-align: right; color: #2c2c2c;">$${parseFloat(precio).toFixed(2)}</td>
+                        <td style="padding: 10px 12px; font-size: 12px; text-align: right; font-weight: bold; color: #b88a73;">$${sub}</td>
+                    </tr>
+                `;
+            });
+
+            let vesHTML = '';
+            if (!ocultarBcv) {
+                vesHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #71717a; font-weight: 600; border-top: 1px dashed #e8dbd3; padding-top: 8px;">
+                        <span>Equivalente Bolívares (VES):</span>
+                        <span style="color: #2c2c2c; font-weight: bold;">${totalVES}</span>
+                    </div>
+                `;
             }
+
+            const containerOculto = document.getElementById('container-presupuesto-pdf-oculto');
+            containerOculto.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e8dbd3; padding-bottom: 20px; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; border-radius: 12px; background: #b88a73; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;">
+                                ${logoHTML}
+                            </div>
+                            <div>
+                                <h3 style="font-size: 18px; font-weight: bold; color: #2c2c2c; margin: 0;">LAN ESTUDIO</h3>
+                                <p style="font-size: 11px; color: #71717a; margin: 0;">Agencia de Publicidad y Comunicación</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <h4 style="font-size: 13px; font-weight: bold; color: #b88a73; text-transform: uppercase; margin: 0;">PRESUPUESTO</h4>
+                            <p style="font-size: 11px; color: #71717a; margin: 4px 0 0 0;">Fecha: ${fechaStr}</p>
+                            ${!ocultarBcv ? `<p style="font-size: 11px; color: #71717a; margin: 2px 0 0 0;">Ref Tasa BCV: Bs. ${tasaBCV.toFixed(2)}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #2c2c2c; background: #faf8f6; padding: 12px; border-radius: 12px; border: 1px solid #e8dbd3; margin-bottom: 20px;">
+                        <div><b>Preparado para:</b> <span style="font-weight: bold;">${cliente}</span></div>
+                        <div><b>Validez:</b> ${validez}</div>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <thead>
+                            <tr style="background: #f7f4f0; font-size: 11px; text-transform: uppercase; color: #71717a; border-bottom: 1px solid #e8dbd3;">
+                                <th style="padding: 10px 12px; text-align: left; width: 48%;">Descripción</th>
+                                <th style="padding: 10px 12px; text-align: center; width: 14%;">Cant</th>
+                                <th style="padding: 10px 12px; text-align: right; width: 19%;">Precio Unit.</th>
+                                <th style="padding: 10px 12px; text-align: right; width: 19%;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${renglonesHTML}
+                        </tbody>
+                    </table>
+
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #e8dbd3; padding-top: 20px; margin-top: 20px;">
+                        <div style="font-size: 11px; color: #71717a; line-height: 1.4;">
+                            <p><b>Condiciones:</b> Presupuesto sujeto a revisión de material o arte final.</p>
+                            <p style="color: #b88a73; font-weight: 600; margin-top: 4px;">¡Gracias por confiar en LAN Estudio! 🚀</p>
+                        </div>
+                        <div style="width: 300px; background: #faf8f6; padding: 15px; border-radius: 12px; border: 1px solid #e8dbd3;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; color: #2c2c2c; margin-bottom: 8px;">
+                                <span style="font-size: 11px; text-transform: uppercase; color: #71717a;">Total Presupuesto:</span>
+                                <span style="font-size: 16px; font-weight: 800; color: #b88a73;">${totalUSD}</span>
+                            </div>
+                            ${vesHTML}
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; border-top: 1px solid #e8dbd3; margin-top: 25px; padding-top: 15px; font-size: 9px; color: #a1a1aa; letter-spacing: 1px;">
+                        LAN ESTUDIO • Agencia de Publicidad y Comunicación • Innovación y Diseño
+                    </div>
+                </div>
+            `;
 
             const opt = {
                 margin:       10,
@@ -2635,15 +2718,14 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(element).save().then(() => {
+            html2pdf().set(opt).from(containerOculto).save().then(() => {
                 mostrarNotificacion("¡Presupuesto exportado en PDF con éxito!");
             }).catch((err) => {
-                console.error("Error html2pdf:", err);
-                mostrarNotificacion("Error al generar el PDF.", "error");
+                console.error("Error html2pdf presupuesto:", err);
+                mostrarNotificacion("Error al generar el PDF del presupuesto.", "error");
             });
         }
 
-        // ================= CAJA Y PAGOS CON TECLADO Y DESCUENTO GLOBAL =================
         let cajaItemIdx = 0;
         function agregarItemCajaFila(nombre = '', cant = 1, precio = 0) {
             cajaItemIdx++;
@@ -2954,7 +3036,6 @@
             } catch(err) {}
         }
 
-        // ================= EXPORTADOR DE RECIBO DE CAJA EN PDF DEFINITIVO =================
         function exportarReciboCajaPDF() {
             const cliente = document.getElementById('caja-cliente').value;
             const totalUSD = document.getElementById('caja-total-usd').value;
@@ -3098,7 +3179,6 @@
             });
         }
 
-        // ================= GESTIÓN DEL LOGOTIPO EN LA NUBE =================
         async function actualizarLogo() {
             const fileInput = document.getElementById('logo-file-input');
             if(fileInput && fileInput.files && fileInput.files[0]) {
@@ -3136,7 +3216,6 @@
             if(docPreview) docPreview.innerHTML = htmlLogo;
         }
 
-        // ================= INICIALIZACIÓN GENERAL =================
         window.addEventListener('DOMContentLoaded', async () => {
             iniciarListenersTiempoReal();
             await fetchBCVRate();

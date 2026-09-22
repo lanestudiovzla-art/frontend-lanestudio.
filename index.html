@@ -1123,7 +1123,7 @@
 
     </main>
 
-    <!-- Contenedores Ocultos Fijos en el DOM para Exportar PDF Perfectos (Sin Páginas en Blanco) -->
+    <!-- Contenedores Ocultos Fijos en el DOM para Exportar PDF Perfectos (Ancho Ajustado para Evitar Cortes) -->
     <div id="pdf-container-presupuesto" style="display:none;"></div>
     <div id="pdf-container-recibo" style="display:none;"></div>
 
@@ -1159,7 +1159,7 @@
         </div>
     </div>
 
-    <!-- Script Lógico Integrado con Firebase y Motor PDF Robusto Definitivo -->
+    <!-- Script Lógico Integrado con Firebase y Motor PDF Robusto con Márgenes Corregidos -->
     <script>
         // ================= CONFIGURACIÓN DE FIREBASE =================
         const firebaseConfig = {
@@ -2611,7 +2611,7 @@
             }
         }
 
-        // ================= MOTOR DE EXPORTACIÓN PDF ESTABLE (DOM FIJO) =================
+        // ================= MOTOR DE EXPORTACIÓN PDF ESTABLE (ANCHO 720px SEGURO) =================
         function exportarPDFPresupuesto() {
             const cliente = document.getElementById('presupuesto-cliente').value;
             const clienteNombre = cliente === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : cliente;
@@ -2656,11 +2656,12 @@
 
             const container = document.getElementById('pdf-container-presupuesto');
             container.style.display = 'block';
-            container.style.width = '794px';
+            container.style.width = '720px';
+            container.style.boxSizing = 'border-box';
             container.style.background = 'white';
-            container.style.padding = '40px';
+            container.style.padding = '0px';
             container.innerHTML = `
-                <div style="background: white; padding: 30px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif;">
+                <div style="background: white; padding: 25px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif; box-sizing: border-box; width: 720px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e8dbd3; padding-bottom: 20px; margin-bottom: 25px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div style="width: 52px; height: 52px; border-radius: 12px; background: #b88a73; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;">
@@ -2701,7 +2702,7 @@
                             <p style="margin: 0;"><b>Condiciones:</b> Presupuesto sujeto a revisión de material o arte final.</p>
                             <p style="margin: 6px 0 0 0; color: #b88a73; font-weight: 500;">¡Gracias por confiar en LAN Estudio! 🚀</p>
                         </div>
-                        <div style="width: 320px; background: #faf8f6; padding: 18px; border-radius: 12px; border: 1px solid #e8dbd3;">
+                        <div style="width: 280px; background: #faf8f6; padding: 18px; border-radius: 12px; border: 1px solid #e8dbd3; box-sizing: border-box;">
                             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; color: #2c2c2c; margin-bottom: 8px;">
                                 <span style="font-size: 11px; text-transform: uppercase; color: #71717a;">Total Presupuesto:</span>
                                 <span style="font-size: 18px; font-weight: 800; color: #b88a73;">${totalUSD}</span>
@@ -2771,11 +2772,12 @@
 
             const container = document.getElementById('pdf-container-recibo');
             container.style.display = 'block';
-            container.style.width = '794px';
+            container.style.width = '720px';
+            container.style.boxSizing = 'border-box';
             container.style.background = 'white';
-            container.style.padding = '40px';
+            container.style.padding = '0px';
             container.innerHTML = `
-                <div style="background: white; padding: 30px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif;">
+                <div style="background: white; padding: 25px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif; box-sizing: border-box; width: 720px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e8dbd3; padding-bottom: 20px; margin-bottom: 20px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div style="width: 48px; height: 48px; border-radius: 12px; background: #b88a73; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;">
@@ -2816,7 +2818,7 @@
                         <div style="font-size: 11px; color: #b88a73; font-weight: 500;">
                             ¡Gracias por su compra en LAN Estudio! 🚀
                         </div>
-                        <div style="width: 300px; background: #faf8f6; padding: 15px; border-radius: 12px; border: 1px solid #e8dbd3;">
+                        <div style="width: 280px; background: #faf8f6; padding: 15px; border-radius: 12px; border: 1px solid #e8dbd3; box-sizing: border-box;">
                             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; color: #2c2c2c; margin-bottom: 8px;">
                                 <span style="font-size: 11px; text-transform: uppercase; color: #71717a;">Total:</span>
                                 <span style="font-size: 16px; font-weight: 800; color: #b88a73;">$${parseFloat(totalUSD).toFixed(2)}</span>

@@ -1123,7 +1123,7 @@
 
     </main>
 
-    <!-- Contenedores Ocultos Fijos en el DOM para Exportar PDF (Con retardo de renderizado corregido) -->
+    <!-- Contenedores Ocultos Fijos en el DOM para Exportar PDF Perfectos (Ancho Ajustado y Centrado) -->
     <div id="pdf-container-presupuesto" style="display:none;"></div>
     <div id="pdf-container-recibo" style="display:none;"></div>
 
@@ -1159,7 +1159,7 @@
         </div>
     </div>
 
-    <!-- Script Lógico Integrado con Firebase y Motor PDF con Timeout de Renderizado -->
+    <!-- Script Lógico Integrado con Firebase y Motor PDF Robusto con Márgenes y Centrado Corregido -->
     <script>
         // ================= CONFIGURACIÓN DE FIREBASE =================
         const firebaseConfig = {
@@ -2611,7 +2611,7 @@
             }
         }
 
-        // ================= MOTOR DE EXPORTACIÓN PDF CON TIMEOUT DE RENDERIZADO =================
+        // ================= MOTOR DE EXPORTACIÓN PDF ESTABLE (CENTRADO Y SIN DESCUADRES) =================
         function exportarPDFPresupuesto() {
             const cliente = document.getElementById('presupuesto-cliente').value;
             const clienteNombre = cliente === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : cliente;
@@ -2656,15 +2656,13 @@
 
             const container = document.getElementById('pdf-container-presupuesto');
             container.style.display = 'block';
-            container.style.position = 'absolute';
-            container.style.top = '0px';
-            container.style.left = '0px';
-            container.style.zIndex = '999999';
-            container.style.width = '750px';
+            container.style.width = '720px';
+            container.style.margin = '0 auto';
+            container.style.boxSizing = 'border-box';
             container.style.background = 'white';
             container.style.padding = '0px';
             container.innerHTML = `
-                <div style="background: white; padding: 30px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif; box-sizing: border-box; width: 750px;">
+                <div style="background: white; padding: 30px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif; box-sizing: border-box; width: 720px; margin: 0 auto;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e8dbd3; padding-bottom: 20px; margin-bottom: 25px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div style="width: 52px; height: 52px; border-radius: 12px; background: #b88a73; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;">
@@ -2720,33 +2718,22 @@
                 </div>
             `;
 
-            // Retardo de 300ms para asegurar que el navegador pinte el DOM antes de capturar
-            setTimeout(() => {
-                const opt = {
-                    margin:       [5, 5, 5, 5],
-                    filename:     `Presupuesto_LANEstudio_${Date.now()}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true, windowWidth: 750 },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
+            const opt = {
+                margin:       [5, 5, 5, 5],
+                filename:     `Presupuesto_LANEstudio_${Date.now()}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true, windowWidth: 720 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
 
-                html2pdf().set(opt).from(container).save().then(() => {
-                    container.style.display = 'none';
-                    container.style.position = '';
-                    container.style.top = '';
-                    container.style.left = '';
-                    container.style.zIndex = '';
-                    mostrarNotificacion("¡Presupuesto exportado en PDF con éxito!");
-                }).catch((err) => {
-                    container.style.display = 'none';
-                    container.style.position = '';
-                    container.style.top = '';
-                    container.style.left = '';
-                    container.style.zIndex = '';
-                    console.error("Error html2pdf presupuesto:", err);
-                    mostrarNotificacion("Error al generar el PDF del presupuesto.", "error");
-                });
-            }, 300);
+            html2pdf().set(opt).from(container).save().then(() => {
+                container.style.display = 'none';
+                mostrarNotificacion("¡Presupuesto exportado en PDF con éxito!");
+            }).catch((err) => {
+                container.style.display = 'none';
+                console.error("Error html2pdf presupuesto:", err);
+                mostrarNotificacion("Error al generar el PDF del presupuesto.", "error");
+            });
         }
 
         function exportarReciboCajaPDF() {
@@ -2786,15 +2773,13 @@
 
             const container = document.getElementById('pdf-container-recibo');
             container.style.display = 'block';
-            container.style.position = 'absolute';
-            container.style.top = '0px';
-            container.style.left = '0px';
-            container.style.zIndex = '999999';
-            container.style.width = '750px';
+            container.style.width = '720px';
+            container.style.margin = '0 auto';
+            container.style.boxSizing = 'border-box';
             container.style.background = 'white';
             container.style.padding = '0px';
             container.innerHTML = `
-                <div style="background: white; padding: 30px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif; box-sizing: border-box; width: 750px;">
+                <div style="background: white; padding: 30px; border-radius: 16px; border: 2px solid #b88a73; font-family: 'Inter', sans-serif; box-sizing: border-box; width: 720px; margin: 0 auto;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e8dbd3; padding-bottom: 20px; margin-bottom: 20px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div style="width: 48px; height: 48px; border-radius: 12px; background: #b88a73; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden;">
@@ -2853,32 +2838,22 @@
                 </div>
             `;
 
-            setTimeout(() => {
-                const opt = {
-                    margin:       [5, 5, 5, 5],
-                    filename:     `Recibo_LANEstudio_${Date.now()}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true, windowWidth: 750 },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
+            const opt = {
+                margin:       [5, 5, 5, 5],
+                filename:     `Recibo_LANEstudio_${Date.now()}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true, windowWidth: 720 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
 
-                html2pdf().set(opt).from(container).save().then(() => {
-                    container.style.display = 'none';
-                    container.style.position = '';
-                    container.style.top = '';
-                    container.style.left = '';
-                    container.style.zIndex = '';
-                    mostrarNotificacion("¡Recibo exportado en PDF con éxito!");
-                }).catch((err) => {
-                    container.style.display = 'none';
-                    container.style.position = '';
-                    container.style.top = '';
-                    container.style.left = '';
-                    container.style.zIndex = '';
-                    console.error("Error html2pdf recibo:", err);
-                    mostrarNotificacion("Error al generar el PDF del recibo.", "error");
-                });
-            }, 300);
+            html2pdf().set(opt).from(container).save().then(() => {
+                container.style.display = 'none';
+                mostrarNotificacion("¡Recibo exportado en PDF con éxito!");
+            }).catch((err) => {
+                container.style.display = 'none';
+                console.error("Error html2pdf recibo:", err);
+                mostrarNotificacion("Error al generar el PDF del recibo.", "error");
+            });
         }
 
         let cajaItemIdx = 0;

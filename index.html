@@ -115,7 +115,7 @@
         </div>
     </nav>
 
-    <!-- Contenedor Principal (Compactado para ajuste perfecto de altura) -->
+    <!-- Contenedor Principal -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 space-y-3 box-border">
         
         <!-- DASHBOARD -->
@@ -636,7 +636,7 @@
         <section id="module-calculadora" class="hidden space-y-3">
             <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                 
-                <!-- COLUMNA IZQUIERDA (7 Columnas): Controles, Añadir Ítems y Tabla -->
+                <!-- COLUMNA IZQUIERDA (7 Columnas) -->
                 <div class="lg:col-span-7 space-y-3">
                     <div class="flex flex-wrap justify-between items-center gap-2 border-b border-[#e8dbd3] pb-2">
                         <div>
@@ -680,7 +680,7 @@
                                         <th class="p-1.5 w-[14%] text-center">Costo ($)</th>
                                         <th class="p-1.5 w-[10%] text-center">%G</th>
                                         <th class="p-1.5 w-[14%] text-right font-bold text-[#b88a73]">Total</th>
-                                        <th class="p-1.5 w-[8%] text-center">X</th>
+                                        <th class="p-1.5 w-[8%] text-center">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody id="lista-renglones-presupuesto"></tbody>
@@ -696,12 +696,11 @@
                     </div>
                 </div>
 
-                <!-- COLUMNA DERECHA (5 Columnas): Vista Previa / Resumen y Botones -->
+                <!-- COLUMNA DERECHA (5 Columnas) -->
                 <div class="lg:col-span-5 bg-[#faf8f6] p-3.5 sm:p-4 rounded-xl border border-[#e8dbd3] flex flex-col justify-between space-y-3">
                     <div class="space-y-2.5">
                         <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-[#e8dbd3] pb-1.5">Resumen y Totales</h3>
                         
-                        <!-- Mini Vista Previa Embebida -->
                         <div id="area-impresion-presupuesto" class="bg-white p-3 rounded-xl border border-[#e8dbd3] space-y-2 shadow-2xs">
                             <div class="flex justify-between items-start border-b border-[#e8dbd3] pb-1.5">
                                 <div class="flex items-center space-x-2">
@@ -766,7 +765,7 @@
         <section id="module-caja" class="hidden space-y-3">
             <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                 
-                <!-- COLUMNA IZQUIERDA (7 Columnas): Formulario y Tabla de Ítems -->
+                <!-- COLUMNA IZQUIERDA (7 Columnas) -->
                 <div class="lg:col-span-7 space-y-2.5">
                     <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
                         <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cash-register text-[#b88a73] mr-2"></i> Caja Rápida / POS</h2>
@@ -798,7 +797,7 @@
                                         <th class="p-1.5 w-[50%]">Insumo / Servicio (↑ ↓ Enter)</th>
                                         <th class="p-1.5 w-[15%] text-center">Cant</th>
                                         <th class="p-1.5 w-[25%] text-right">Precio ($)</th>
-                                        <th class="p-1.5 w-[10%] text-center">X</th>
+                                        <th class="p-1.5 w-[10%] text-center">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody id="lista-items-caja"></tbody>
@@ -806,7 +805,6 @@
                         </div>
                     </div>
 
-                    <!-- OPCIONES DE CAJA: DESCUENTO Y NOTAS -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
                         <div>
                             <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-0.5">Descuento Global (%)</label>
@@ -860,7 +858,7 @@
                     </div>
                 </div>
 
-                <!-- COLUMNA DERECHA (5 Columnas): Resumen de Cobro Fijo y Botones -->
+                <!-- COLUMNA DERECHA (5 Columnas) -->
                 <div class="lg:col-span-5 bg-[#faf8f6] p-3.5 sm:p-4 rounded-xl border border-[#e8dbd3] flex flex-col justify-between space-y-3">
                     <div class="space-y-2.5">
                         <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-[#e8dbd3] pb-1.5">Resumen de Cobro</h3>
@@ -920,7 +918,8 @@
         <section id="module-insumos" class="hidden space-y-3">
             <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                 <div class="lg:col-span-5 space-y-2.5 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
-                    <h2 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-boxes-stacked text-[#b88a73] mr-2"></i> Registrar Insumo</h2>
+                    <h2 id="insumo-form-titulo" class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-boxes-stacked text-[#b88a73] mr-2"></i> Registrar Insumo</h2>
+                    <input type="hidden" id="insumo-edit-id" value="">
                     <div class="space-y-2">
                         <div>
                             <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Nombre del Material</label>
@@ -944,7 +943,10 @@
                             <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Stock Mínimo (Alerta)</label>
                             <input type="number" id="insumo-minimo" placeholder="5" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">
                         </div>
-                        <button onclick="guardarInsumo()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-xl font-bold transition text-xs shadow-sm">Registrar Insumo en Firebase</button>
+                        <div class="flex space-x-2">
+                            <button onclick="guardarInsumo()" id="btn-guardar-insumo" class="flex-1 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-xl font-bold transition text-xs shadow-sm">Guardar Insumo</button>
+                            <button onclick="cancelarEdicionInsumo()" id="btn-cancelar-insumo" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-xl font-bold transition text-xs">Cancelar</button>
+                        </div>
                     </div>
                 </div>
 
@@ -974,7 +976,8 @@
         <section id="module-servicios" class="hidden space-y-3">
             <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                 <div class="lg:col-span-5 space-y-2.5 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
-                    <h2 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-bullhorn text-[#b88a73] mr-2"></i> Registrar Servicio</h2>
+                    <h2 id="servicio-form-titulo" class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-bullhorn text-[#b88a73] mr-2"></i> Registrar Servicio</h2>
+                    <input type="hidden" id="servicio-edit-id" value="">
                     <div class="space-y-2">
                         <div>
                             <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Nombre del Servicio</label>
@@ -984,7 +987,10 @@
                             <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Precio Base ($)</label>
                             <input type="number" id="servicio-precio" placeholder="0.00" step="0.01" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">
                         </div>
-                        <button onclick="guardarServicio()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-xl font-bold transition text-xs shadow-sm">Guardar Servicio en Firebase</button>
+                        <div class="flex space-x-2">
+                            <button onclick="guardarServicio()" id="btn-guardar-servicio" class="flex-1 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-xl font-bold transition text-xs shadow-sm">Guardar Servicio</button>
+                            <button onclick="cancelarEdicionServicio()" id="btn-cancelar-servicio" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-xl font-bold transition text-xs">Cancelar</button>
+                        </div>
                     </div>
                 </div>
 
@@ -1012,7 +1018,8 @@
         <section id="module-crm" class="hidden space-y-3">
             <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                 <div class="lg:col-span-5 space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
-                    <h2 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Registrar Cliente</h2>
+                    <h2 id="cliente-form-titulo" class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Registrar Cliente</h2>
+                    <input type="hidden" id="cliente-edit-id" value="">
                     <div class="space-y-1.5">
                         <div>
                             <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Nombre o Empresa *</label>
@@ -1047,7 +1054,10 @@
                             <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Dirección Fiscal</label>
                             <input type="text" id="cliente-direccion" placeholder="Dirección..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">
                         </div>
-                        <button onclick="guardarCliente()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-xl font-bold transition text-xs shadow-sm">Guardar Cliente en Firebase</button>
+                        <div class="flex space-x-2 pt-1">
+                            <button onclick="guardarCliente()" id="btn-guardar-cliente" class="flex-1 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-xl font-bold transition text-xs shadow-sm">Guardar Cliente</button>
+                            <button onclick="cancelarEdicionCliente()" id="btn-cancelar-cliente" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-xl font-bold transition text-xs">Cancelar</button>
+                        </div>
                     </div>
                 </div>
 
@@ -1202,7 +1212,7 @@
         </div>
     </div>
 
-    <!-- Script Lógico Integrado con Firebase y Motor PDF Robusto con Márgenes y Centrado Corregido -->
+    <!-- Script Lógico Integrado con Firebase y Edición Completa -->
     <script>
         // ================= CONFIGURACIÓN DE FIREBASE =================
         const firebaseConfig = {
@@ -1214,7 +1224,6 @@
             appId: "1:456021907085:web:c4ee69f500f06ce5a9b4c4"
         };
 
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
@@ -1475,7 +1484,9 @@
             });
         }
 
+        // ================= MÓDULO INSUMOS (CON EDICIÓN) =================
         async function guardarInsumo() {
+            const editId = document.getElementById('insumo-edit-id').value;
             const nombre = document.getElementById('insumo-nombre').value.trim();
             const categoria = document.getElementById('insumo-categoria').value.trim();
             const costo_unitario = Math.max(0, parseFloat(document.getElementById('insumo-costo').value) || 0);
@@ -1485,14 +1496,46 @@
             if(!nombre) { mostrarNotificacion("Introduce el nombre del insumo.", "error"); return; }
 
             try {
-                await db.collection('insumos').add({ nombre, categoria, costo_unitario, stock, stock_minimo });
-                document.getElementById('insumo-nombre').value = '';
-                document.getElementById('insumo-categoria').value = '';
-                document.getElementById('insumo-costo').value = '';
-                document.getElementById('insumo-stock').value = '';
-                document.getElementById('insumo-minimo').value = '';
-                mostrarNotificacion("¡Insumo registrado en la nube con éxito!");
+                if (editId) {
+                    await db.collection('insumos').doc(editId).update({ nombre, categoria, costo_unitario, stock, stock_minimo });
+                    mostrarNotificacion("¡Insumo actualizado con éxito!");
+                    cancelarEdicionInsumo();
+                } else {
+                    await db.collection('insumos').add({ nombre, categoria, costo_unitario, stock, stock_minimo });
+                    mostrarNotificacion("¡Insumo registrado en la nube con éxito!");
+                    document.getElementById('insumo-nombre').value = '';
+                    document.getElementById('insumo-categoria').value = '';
+                    document.getElementById('insumo-costo').value = '';
+                    document.getElementById('insumo-stock').value = '';
+                    document.getElementById('insumo-minimo').value = '';
+                }
             } catch(e) { mostrarNotificacion("Error al guardar insumo.", "error"); }
+        }
+
+        function editarInsumo(id, nombre, categoria, costo, stock, minimo) {
+            document.getElementById('insumo-edit-id').value = id;
+            document.getElementById('insumo-nombre').value = nombre;
+            document.getElementById('insumo-categoria').value = categoria;
+            document.getElementById('insumo-costo').value = costo;
+            document.getElementById('insumo-stock').value = stock;
+            document.getElementById('insumo-minimo').value = minimo;
+            
+            document.getElementById('insumo-form-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square text-[#b88a73] mr-2"></i> Editar Insumo`;
+            document.getElementById('btn-guardar-insumo').innerText = "Actualizar Insumo";
+            document.getElementById('btn-cancelar-insumo').classList.remove('hidden');
+        }
+
+        function cancelarEdicionInsumo() {
+            document.getElementById('insumo-edit-id').value = '';
+            document.getElementById('insumo-nombre').value = '';
+            document.getElementById('insumo-categoria').value = '';
+            document.getElementById('insumo-costo').value = '';
+            document.getElementById('insumo-stock').value = '';
+            document.getElementById('insumo-minimo').value = '';
+
+            document.getElementById('insumo-form-titulo').innerHTML = `<i class="fa-solid fa-boxes-stacked text-[#b88a73] mr-2"></i> Registrar Insumo`;
+            document.getElementById('btn-guardar-insumo').innerText = "Guardar Insumo";
+            document.getElementById('btn-cancelar-insumo').classList.add('hidden');
         }
 
         async function cargarInsumos() {
@@ -1508,7 +1551,8 @@
                         <td class="p-2 text-xs">${ins.categoria || 'General'}</td>
                         <td class="p-2 text-[#b88a73] font-bold">$${parseFloat(ins.costo_unitario).toFixed(2)}</td>
                         <td class="p-2 ${alertaStock}">${ins.stock} uds</td>
-                        <td class="p-2 text-center">
+                        <td class="p-2 text-center space-x-1 whitespace-nowrap">
+                            <button onclick="editarInsumo('${ins.id}', '${ins.nombre.replace(/'/g, "\\'")}', '${(ins.categoria || '').replace(/'/g, "\\'")}', ${ins.costo_unitario}, ${ins.stock}, ${ins.stock_minimo})" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-1.5 rounded-xl transition text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
                             <button onclick="eliminarInsumo('${ins.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1.5 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
@@ -1524,17 +1568,45 @@
             } catch(e) { mostrarNotificacion("Error al eliminar.", "error"); }
         }
 
+        // ================= MÓDULO SERVICIOS (CON EDICIÓN) =================
         async function guardarServicio() {
+            const editId = document.getElementById('servicio-edit-id').value;
             const nombre = document.getElementById('servicio-nombre').value.trim();
             const precio = Math.max(0, parseFloat(document.getElementById('servicio-precio').value) || 0);
             if(!nombre) { mostrarNotificacion("Introduce el nombre del servicio.", "error"); return; }
 
             try {
-                await db.collection('servicios').add({ nombre, precio });
-                document.getElementById('servicio-nombre').value = '';
-                document.getElementById('servicio-precio').value = '';
-                mostrarNotificacion("¡Servicio guardado en la nube con éxito!");
+                if (editId) {
+                    await db.collection('servicios').doc(editId).update({ nombre, precio });
+                    mostrarNotificacion("¡Servicio actualizado con éxito!");
+                    cancelarEdicionServicio();
+                } else {
+                    await db.collection('servicios').add({ nombre, precio });
+                    mostrarNotificacion("¡Servicio guardado en la nube con éxito!");
+                    document.getElementById('servicio-nombre').value = '';
+                    document.getElementById('servicio-precio').value = '';
+                }
             } catch(e) { mostrarNotificacion("Error al guardar servicio.", "error"); }
+        }
+
+        function editarServicio(id, nombre, precio) {
+            document.getElementById('servicio-edit-id').value = id;
+            document.getElementById('servicio-nombre').value = nombre;
+            document.getElementById('servicio-precio').value = precio;
+
+            document.getElementById('servicio-form-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square text-[#b88a73] mr-2"></i> Editar Servicio`;
+            document.getElementById('btn-guardar-servicio').innerText = "Actualizar Servicio";
+            document.getElementById('btn-cancelar-servicio').classList.remove('hidden');
+        }
+
+        function cancelarEdicionServicio() {
+            document.getElementById('servicio-edit-id').value = '';
+            document.getElementById('servicio-nombre').value = '';
+            document.getElementById('servicio-precio').value = '';
+
+            document.getElementById('servicio-form-titulo').innerHTML = `<i class="fa-solid fa-bullhorn text-[#b88a73] mr-2"></i> Registrar Servicio`;
+            document.getElementById('btn-guardar-servicio').innerText = "Guardar Servicio";
+            document.getElementById('btn-cancelar-servicio').classList.add('hidden');
         }
 
         async function cargarServicios() {
@@ -1547,7 +1619,8 @@
                     <tr class="border-b border-[#e8dbd3]">
                         <td class="p-2 font-semibold text-[#2c2c2c]">${s.nombre}</td>
                         <td class="p-2 text-[#b88a73] font-bold">$${parseFloat(s.precio).toFixed(2)}</td>
-                        <td class="p-2 text-center">
+                        <td class="p-2 text-center space-x-1 whitespace-nowrap">
+                            <button onclick="editarServicio('${s.id}', '${s.nombre.replace(/'/g, "\\'")}', ${s.precio})" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-1.5 rounded-xl transition text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
                             <button onclick="eliminarServicio('${s.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1.5 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
@@ -1563,7 +1636,9 @@
             } catch(e) { mostrarNotificacion("Error al eliminar.", "error"); }
         }
 
+        // ================= MÓDULO CRM CLIENTES (CON EDICIÓN) =================
         async function guardarCliente() {
+            const editId = document.getElementById('cliente-edit-id').value;
             const nombre = document.getElementById('cliente-nombre').value.trim();
             const rif = document.getElementById('cliente-rif').value.trim();
             const tipo = document.getElementById('cliente-tipo').value;
@@ -1575,15 +1650,50 @@
             if(!nombre) { mostrarNotificacion("Introduce el nombre o empresa del cliente.", "error"); return; }
 
             try {
-                await db.collection('clientes').add({ nombre, rif, tipo, tel, email, instagram, direccion });
-                document.getElementById('cliente-nombre').value = '';
-                document.getElementById('cliente-rif').value = '';
-                document.getElementById('cliente-tel').value = '';
-                document.getElementById('cliente-email').value = '';
-                document.getElementById('cliente-insta').value = '';
-                document.getElementById('cliente-direccion').value = '';
-                mostrarNotificacion("¡Cliente guardado en la nube con éxito!");
+                if (editId) {
+                    await db.collection('clientes').doc(editId).update({ nombre, rif, tipo, tel, email, instagram, direccion });
+                    mostrarNotificacion("¡Cliente actualizado con éxito!");
+                    cancelarEdicionCliente();
+                } else {
+                    await db.collection('clientes').add({ nombre, rif, tipo, tel, email, instagram, direccion });
+                    mostrarNotificacion("¡Cliente guardado en la nube con éxito!");
+                    document.getElementById('cliente-nombre').value = '';
+                    document.getElementById('cliente-rif').value = '';
+                    document.getElementById('cliente-tel').value = '';
+                    document.getElementById('cliente-email').value = '';
+                    document.getElementById('cliente-insta').value = '';
+                    document.getElementById('cliente-direccion').value = '';
+                }
             } catch(e) { mostrarNotificacion("Error al guardar cliente.", "error"); }
+        }
+
+        function editarCliente(id, nombre, rif, tipo, tel, email, instagram, direccion) {
+            document.getElementById('cliente-edit-id').value = id;
+            document.getElementById('cliente-nombre').value = nombre;
+            document.getElementById('cliente-rif').value = rif;
+            document.getElementById('cliente-tipo').value = tipo;
+            document.getElementById('cliente-tel').value = tel;
+            document.getElementById('cliente-email').value = email;
+            document.getElementById('cliente-insta').value = instagram;
+            document.getElementById('cliente-direccion').value = direccion;
+
+            document.getElementById('cliente-form-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square text-[#b88a73] mr-2"></i> Editar Cliente`;
+            document.getElementById('btn-guardar-cliente').innerText = "Actualizar Cliente";
+            document.getElementById('btn-cancelar-cliente').classList.remove('hidden');
+        }
+
+        function cancelarEdicionCliente() {
+            document.getElementById('cliente-edit-id').value = '';
+            document.getElementById('cliente-nombre').value = '';
+            document.getElementById('cliente-rif').value = '';
+            document.getElementById('cliente-tel').value = '';
+            document.getElementById('cliente-email').value = '';
+            document.getElementById('cliente-insta').value = '';
+            document.getElementById('cliente-direccion').value = '';
+
+            document.getElementById('cliente-form-titulo').innerHTML = `<i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Registrar Cliente`;
+            document.getElementById('btn-guardar-cliente').innerText = "Guardar Cliente";
+            document.getElementById('btn-cancelar-cliente').classList.add('hidden');
         }
 
         async function cargarClientes() {
@@ -1602,6 +1712,7 @@
                         </td>
                         <td class="p-2 text-xs"><span class="px-2 py-0.5 rounded-full border text-[10px] font-semibold ${tipoBadge}">${c.tipo || 'Persona Natural'}</span></td>
                         <td class="p-2 text-center space-x-1 whitespace-nowrap">
+                            <button onclick="editarCliente('${c.id}', '${c.nombre.replace(/'/g, "\\'")}', '${(c.rif || '').replace(/'/g, "\\'")}', '${c.tipo || 'Persona Natural'}', '${(c.tel || '').replace(/'/g, "\\'")}', '${(c.email || '').replace(/'/g, "\\'")}', '${(c.instagram || '').replace(/'/g, "\\'")}', '${(c.direccion || '').replace(/'/g, "\\'")}')" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-1.5 rounded-xl transition text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
                             <button onclick="verHistorialCliente('${c.nombre}')" class="bg-gray-100 hover:bg-indigo-100 text-indigo-700 p-1.5 rounded-xl transition text-xs" title="Ver Historial"><i class="fa-solid fa-clock-rotate-left"></i></button>
                             <button onclick="eliminarCliente('${c.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1.5 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
@@ -2443,6 +2554,7 @@
             mostrarNotificacion("Vinil / DTF agregado al presupuesto.");
         }
 
+        // ================= COTIZADOR (RENGLONES EDITABLES) =================
         let renglonIndex = 0;
         function agregarRenglonServicio(nombreDefault = '', costoDefault = 0) {
             renglonIndex++;
@@ -2475,8 +2587,9 @@
                     <td class="p-1.5 w-[14%] text-right align-middle">
                         <input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1 py-1 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
                     </td>
-                    <td class="p-1.5 w-[8%] text-center align-middle">
-                        <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal(); guardarBorradorLocal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                    <td class="p-1.5 w-[8%] text-center align-middle whitespace-nowrap">
+                        <button onclick="editarRenglonCotizador('${rowId}')" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-1 rounded transition text-xs mr-0.5" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal(); guardarBorradorLocal();" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1 rounded transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
             `;
@@ -2516,14 +2629,43 @@
                     <td class="p-1.5 w-[14%] text-right align-middle">
                         <input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1 py-1 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
                     </td>
-                    <td class="p-1.5 w-[8%] text-center align-middle">
-                        <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal(); guardarBorradorLocal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                    <td class="p-1.5 w-[8%] text-center align-middle whitespace-nowrap">
+                        <button onclick="editarRenglonCotizador('${rowId}')" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-1 rounded transition text-xs mr-0.5" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal(); guardarBorradorLocal();" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1 rounded transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
             `;
             tbody.insertAdjacentHTML('beforeend', html);
             recalcularPresupuestoTotal();
             guardarBorradorLocal();
+        }
+
+        function editarRenglonCotizador(rowId) {
+            const row = document.getElementById(rowId);
+            const descInput = row.querySelector('.desc-input');
+            const cantInput = row.querySelector('.cant-input');
+            const costoInput = row.querySelector('.costo-input');
+            const gananciaInput = row.querySelector('.ganancia-input');
+            const precioInput = row.querySelector('.precio-cliente-input');
+
+            const nuevaDesc = prompt("Editar descripción del renglón:", descInput.value);
+            if (nuevaDesc !== null) descInput.value = nuevaDesc.trim();
+
+            const nuevaCant = prompt("Editar cantidad:", cantInput.value);
+            if (nuevaCant !== null && !isNaN(nuevaCant)) cantInput.value = nuevaCant;
+
+            const nuevoCosto = prompt("Editar costo unitario ($):", costoInput.value);
+            if (nuevoCosto !== null && !isNaN(nuevoCosto)) costoInput.value = nuevoCosto;
+
+            const nuevaGanancia = prompt("Editar % de ganancia:", gananciaInput.value);
+            if (nuevaGanancia !== null && !isNaN(nuevaGanancia)) {
+                gananciaInput.value = nuevaGanancia;
+                precioInput.classList.remove('modificado-manual');
+            }
+
+            recalcularPresupuestoTotal();
+            guardarBorradorLocal();
+            mostrarNotificacion("Renglon actualizado.");
         }
 
         function seleccionarServicioCatalogo(rowId) {
@@ -2634,7 +2776,7 @@
             }
         }
 
-        // ================= MOTOR DE EXPORTACIÓN PDF ESTABLE =================
+        // ================= EXPORTACIÓN PDF ESTABLE =================
         function exportarPDFPresupuesto() {
             const cliente = document.getElementById('presupuesto-cliente').value;
             const clienteNombre = cliente === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : cliente;
@@ -2877,6 +3019,7 @@
             });
         }
 
+        // ================= MÓDULO CAJA RÁPIDA (POS CON EDICIÓN DE ÍTEMS) =================
         let cajaItemIdx = 0;
         function agregarItemCajaFila(nombre = '', cant = 1, precio = 0) {
             cajaItemIdx++;
@@ -2897,8 +3040,9 @@
                     <td class="p-1.5 text-right align-middle">
                         <input type="number" step="0.01" min="0" value="${parseFloat(precio).toFixed(2)}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs text-right caja-precio-input font-bold text-[#b88a73]" oninput="recalcularTotalesCaja(); guardarBorradorCaja();">
                     </td>
-                    <td class="p-1.5 text-center align-middle">
-                        <button onclick="document.getElementById('${rowId}').remove(); recalcularTotalesCaja(); guardarBorradorCaja();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                    <td class="p-1.5 text-center align-middle whitespace-nowrap">
+                        <button onclick="editarItemCajaFila('${rowId}')" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-1 rounded transition text-xs mr-0.5" title="Editar / Renombrar"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="document.getElementById('${rowId}').remove(); recalcularTotalesCaja(); guardarBorradorCaja();" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1 rounded transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
             `;
@@ -2990,6 +3134,18 @@
             inputEl.focus();
             recalcularTotalesCaja();
             guardarBorradorCaja();
+        }
+
+        function editarItemCajaFila(rowId) {
+            const row = document.getElementById(rowId);
+            const inputDesc = row.querySelector('.caja-search-input');
+            const nuevoNombre = prompt("Modificar concepto o descripción del ítem:", inputDesc.value);
+            if (nuevoNombre !== null && nuevoNombre.trim() !== '') {
+                inputDesc.value = nuevoNombre.trim();
+                recalcularTotalesCaja();
+                guardarBorradorCaja();
+                mostrarNotificacion("Ítem actualizado.");
+            }
         }
 
         function guardarBorradorCaja() {

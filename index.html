@@ -17,7 +17,7 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #faf8f6; color: #2c2c2c; }
+        body { font-family: 'Inter', sans-serif; background-color: #faf8f6; color: #2c2c2c; overflow-x: hidden; }
 
         .autocomplete-active {
             background-color: #faf8f6 !important;
@@ -26,36 +26,36 @@
         }
     </style>
 </head>
-<body class="bg-[#faf8f6] text-[#2c2c2c] antialiased min-h-screen flex flex-col">
+<body class="bg-[#faf8f6] text-[#2c2c2c] antialiased min-h-screen flex flex-col max-w-full overflow-x-hidden">
 
     <!-- Contenedor de Notificaciones Toast -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none max-w-[90vw]"></div>
 
     <!-- Topbar con Tasa BCV, Fecha/Hora y Logo -->
-    <header class="bg-[#2c2c2c] border-b border-[#e8dbd3] px-6 py-4 flex flex-wrap justify-between items-center shadow-sm text-white">
+    <header class="bg-[#2c2c2c] border-b border-[#e8dbd3] px-3 sm:px-6 py-3 flex flex-wrap justify-between items-center shadow-sm text-white gap-3">
         <div class="flex items-center space-x-3">
-            <div id="logo-container" class="bg-[#b88a73] p-2.5 rounded-xl text-white font-bold text-xl flex items-center justify-center shadow-sm overflow-hidden w-12 h-12">
+            <div id="logo-container" class="bg-[#b88a73] p-2.5 rounded-xl text-white font-bold text-xl flex items-center justify-center shadow-sm overflow-hidden w-10 h-10 sm:w-12 sm:h-12 shrink-0">
                 <i class="fa-solid fa-layer-group"></i>
             </div>
             <div>
-                <h1 class="text-lg font-bold tracking-wide">LAN Estudio</h1>
-                <p class="text-xs text-gray-300">Agencia de Publicidad y Comunicación</p>
+                <h1 class="text-base sm:text-lg font-bold tracking-wide">LAN Estudio</h1>
+                <p class="text-[10px] sm:text-xs text-gray-300">Agencia de Publicidad y Comunicación</p>
             </div>
         </div>
 
-        <div class="flex flex-wrap items-center space-x-4 mt-2 sm:mt-0">
-            <div class="bg-[#383838] px-3 py-2 rounded-xl border border-[#4d4d4d] text-xs text-gray-300 flex items-center space-x-2">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            <div class="bg-[#383838] px-2.5 py-1.5 rounded-xl border border-[#4d4d4d] text-[11px] sm:text-xs text-gray-300 flex items-center space-x-1.5">
                 <i class="fa-regular fa-clock text-[#b88a73]"></i>
-                <span id="live-clock-display">Cargando fecha y hora...</span>
+                <span id="live-clock-display">Cargando...</span>
             </div>
 
-            <div class="flex items-center space-x-2 bg-[#383838] px-4 py-2 rounded-xl border border-[#4d4d4d]">
-                <div class="flex items-center space-x-2">
-                    <span class="w-3 h-3 rounded-full bg-[#b88a73] animate-pulse"></span>
-                    <span class="text-xs text-gray-300 font-medium">Tasa BCV:</span>
-                    <input type="number" id="bcv-rate-input" step="0.01" value="807.39" class="w-24 bg-[#2c2c2c] border border-[#5e5e5e] rounded px-2 py-0.5 text-sm font-bold text-white text-center focus:outline-none focus:border-[#b88a73]" oninput="actualizarTasaManual(this.value)">
+            <div class="flex items-center space-x-2 bg-[#383838] px-3 py-1.5 rounded-xl border border-[#4d4d4d]">
+                <div class="flex items-center space-x-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#b88a73] animate-pulse shrink-0"></span>
+                    <span class="text-[11px] sm:text-xs text-gray-300 font-medium">Tasa BCV:</span>
+                    <input type="number" id="bcv-rate-input" step="0.01" value="807.39" class="w-20 sm:w-24 bg-[#2c2c2c] border border-[#5e5e5e] rounded px-1.5 py-0.5 text-xs sm:text-sm font-bold text-white text-center focus:outline-none focus:border-[#b88a73]" oninput="actualizarTasaManual(this.value)">
                 </div>
-                <button onclick="fetchBCVRate()" title="Sincronizar Tasa BCV" class="text-xs bg-[#4d4d4d] hover:bg-[#5e5e5e] text-white px-2.5 py-1 rounded transition">
+                <button onclick="fetchBCVRate()" title="Sincronizar Tasa BCV" class="text-xs bg-[#4d4d4d] hover:bg-[#5e5e5e] text-white px-2 py-1 rounded transition">
                     <i class="fa-solid fa-sync"></i>
                 </button>
             </div>
@@ -63,52 +63,52 @@
     </header>
 
     <!-- Navegación General -->
-    <nav class="bg-white border-b border-[#e8dbd3] px-6 py-3 flex flex-wrap items-center justify-between shadow-xs relative">
-        <div class="flex space-x-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
-            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap"><i class="fa-solid fa-chart-pie mr-2"></i>Dashboard</button>
-            <button onclick="switchTab('calculadora')" id="tab-calculadora" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-file-invoice-dollar mr-2"></i>Cotizador</button>
-            <button onclick="switchTab('standby')" id="tab-standby" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition relative whitespace-nowrap"><i class="fa-solid fa-clock mr-2"></i>Stand By <span id="badge-standby" class="ml-1 bg-[#b88a73] text-white text-[10px] px-1.5 py-0.5 rounded-full">0</span></button>
-            <button onclick="switchTab('caja')" id="tab-caja" class="px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-cash-register mr-2"></i>Caja y Pagos</button>
+    <nav class="bg-white border-b border-[#e8dbd3] px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between shadow-xs relative gap-2">
+        <div class="flex space-x-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
+            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-3 py-1.5 rounded-xl font-medium text-xs sm:text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap"><i class="fa-solid fa-chart-pie mr-1.5"></i>Dashboard</button>
+            <button onclick="switchTab('calculadora')" id="tab-calculadora" class="px-3 py-1.5 rounded-xl font-medium text-xs sm:text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-file-invoice-dollar mr-1.5"></i>Cotizador</button>
+            <button onclick="switchTab('standby')" id="tab-standby" class="px-3 py-1.5 rounded-xl font-medium text-xs sm:text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition relative whitespace-nowrap"><i class="fa-solid fa-clock mr-1.5"></i>Stand By <span id="badge-standby" class="ml-1 bg-[#b88a73] text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span></button>
+            <button onclick="switchTab('caja')" id="tab-caja" class="px-3 py-1.5 rounded-xl font-medium text-xs sm:text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-cash-register mr-1.5"></i>Caja y Pagos</button>
         </div>
 
-        <div class="flex items-center space-x-2 mt-2 sm:mt-0">
+        <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
             <!-- Menú Desplegable: Calculadoras -->
             <div class="relative">
-                <button onclick="toggleDropdown('calculadoras')" id="btn-calculadoras" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-2">
+                <button onclick="toggleDropdown('calculadoras')" id="btn-calculadoras" class="px-3 py-1.5 rounded-xl font-medium text-xs sm:text-sm bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-1.5">
                     <i class="fa-solid fa-calculator text-[#b88a73]"></i>
                     <span>Calculadoras</span>
-                    <i class="fa-solid fa-chevron-down text-xs ml-1"></i>
+                    <i class="fa-solid fa-chevron-down text-[10px] ml-0.5"></i>
                 </button>
 
-                <div id="dropdown-calculadoras" class="hidden absolute right-0 sm:left-auto sm:right-0 mt-2 w-[340px] bg-white border border-[#e8dbd3] rounded-2xl shadow-xl p-3 z-50">
+                <div id="dropdown-calculadoras" class="hidden absolute right-0 mt-2 w-[280px] sm:w-[320px] bg-white border border-[#e8dbd3] rounded-2xl shadow-xl p-2.5 z-50">
                     <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[#b88a73]">Calculadoras Especializadas</div>
                     <div class="grid grid-cols-2 gap-1 my-1">
-                        <button onclick="switchTab('calc-stickers'); toggleDropdown('calculadoras');" id="tab-calc-stickers" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-note-sticky mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Stickers</span></button>
-                        <button onclick="switchTab('calc-toppers'); toggleDropdown('calculadoras');" id="tab-calc-toppers" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-cake-candles mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Toppers</span></button>
-                        <button onclick="switchTab('calc-flyers'); toggleDropdown('calculadoras');" id="tab-calc-flyers" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-file-lines mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Flyers</span></button>
-                        <button onclick="switchTab('calc-sublimacion'); toggleDropdown('calculadoras');" id="tab-calc-sublimacion" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-mug-hot mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Sublimación</span></button>
-                        <button onclick="switchTab('calc-audiovisual'); toggleDropdown('calculadoras');" id="tab-calc-audiovisual" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-video mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Audiovisual</span></button>
-                        <button onclick="switchTab('calc-vinil'); toggleDropdown('calculadoras');" id="tab-calc-vinil" class="text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-scroll mr-2 text-[#b88a73] shrink-0"></i><span class="truncate">Vinil y DTF</span></button>
+                        <button onclick="switchTab('calc-stickers'); toggleDropdown('calculadoras');" id="tab-calc-stickers" class="text-left px-2 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-note-sticky mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Stickers</span></button>
+                        <button onclick="switchTab('calc-toppers'); toggleDropdown('calculadoras');" id="tab-calc-toppers" class="text-left px-2 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-cake-candles mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Toppers</span></button>
+                        <button onclick="switchTab('calc-flyers'); toggleDropdown('calculadoras');" id="tab-calc-flyers" class="text-left px-2 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-file-lines mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Flyers</span></button>
+                        <button onclick="switchTab('calc-sublimacion'); toggleDropdown('calculadoras');" id="tab-calc-sublimacion" class="text-left px-2 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-mug-hot mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Sublimación</span></button>
+                        <button onclick="switchTab('calc-audiovisual'); toggleDropdown('calculadoras');" id="tab-calc-audiovisual" class="text-left px-2 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-video mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Audiovisual</span></button>
+                        <button onclick="switchTab('calc-vinil'); toggleDropdown('calculadoras');" id="tab-calc-vinil" class="text-left px-2 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-scroll mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Vinil y DTF</span></button>
                     </div>
                 </div>
             </div>
 
             <!-- Menú Desplegable: Administración -->
             <div class="relative">
-                <button onclick="toggleDropdown('admin')" id="btn-admin" class="px-4 py-2 rounded-xl font-medium text-sm bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-2">
+                <button onclick="toggleDropdown('admin')" id="btn-admin" class="px-3 py-1.5 rounded-xl font-medium text-xs sm:text-sm bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-1.5">
                     <i class="fa-solid fa-gears text-[#b88a73]"></i>
-                    <span>Administración</span>
-                    <i class="fa-solid fa-chevron-down text-xs ml-1"></i>
+                    <span>Admin</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] ml-0.5"></i>
                 </button>
 
-                <div id="dropdown-admin" class="hidden absolute right-0 mt-2 w-[240px] bg-white border border-[#e8dbd3] rounded-2xl shadow-xl p-3 z-50">
+                <div id="dropdown-admin" class="hidden absolute right-0 mt-2 w-[220px] bg-white border border-[#e8dbd3] rounded-2xl shadow-xl p-2.5 z-50">
                     <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Gestión y Operaciones</div>
                     <div class="space-y-0.5 mt-1">
-                        <button onclick="switchTab('insumos'); toggleDropdown('admin');" id="tab-insumos" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-boxes-stacked mr-2.5 text-[#b88a73]"></i>Insumos y Stock</button>
-                        <button onclick="switchTab('servicios'); toggleDropdown('admin');" id="tab-servicios" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-bullhorn mr-2.5 text-[#b88a73]"></i>Servicios</button>
-                        <button onclick="switchTab('crm'); toggleDropdown('admin');" id="tab-crm" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-users mr-2.5 text-[#b88a73]"></i>CRM Clientes</button>
-                        <button onclick="switchTab('finanzas'); toggleDropdown('admin');" id="tab-finanzas" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-wallet mr-2.5 text-[#b88a73]"></i>Control Financiero</button>
-                        <button onclick="switchTab('logo'); toggleDropdown('admin');" id="tab-logo" class="w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-image mr-2.5 text-[#b88a73]"></i>Configurar Logo</button>
+                        <button onclick="switchTab('insumos'); toggleDropdown('admin');" id="tab-insumos" class="w-full text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-boxes-stacked mr-2 text-[#b88a73]"></i>Insumos y Stock</button>
+                        <button onclick="switchTab('servicios'); toggleDropdown('admin');" id="tab-servicios" class="w-full text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-bullhorn mr-2 text-[#b88a73]"></i>Servicios</button>
+                        <button onclick="switchTab('crm'); toggleDropdown('admin');" id="tab-crm" class="w-full text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-users mr-2 text-[#b88a73]"></i>CRM Clientes</button>
+                        <button onclick="switchTab('finanzas'); toggleDropdown('admin');" id="tab-finanzas" class="w-full text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-wallet mr-2 text-[#b88a73]"></i>Control Financiero</button>
+                        <button onclick="switchTab('logo'); toggleDropdown('admin');" id="tab-logo" class="w-full text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-image mr-2 text-[#b88a73]"></i>Configurar Logo</button>
                     </div>
                 </div>
             </div>
@@ -116,44 +116,44 @@
     </nav>
 
     <!-- Contenedor Principal -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 box-border">
         
         <!-- DASHBOARD -->
-        <section id="module-dashboard" class="space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
-                    <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Ventas Totales</p>
-                    <h3 id="dash-ventas" class="text-lg font-bold text-[#b88a73] mt-3">$0.00 <span class="block text-xs font-normal text-gray-500">Bs. 0.00</span></h3>
+        <section id="module-dashboard" class="space-y-4 sm:space-y-6">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                <div class="bg-white p-4 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
+                    <p class="text-[10px] sm:text-xs uppercase tracking-wider text-gray-500 font-semibold">Ventas Totales</p>
+                    <h3 id="dash-ventas" class="text-sm sm:text-lg font-bold text-[#b88a73] mt-2">$0.00 <span class="block text-[10px] font-normal text-gray-500">Bs. 0.00</span></h3>
                 </div>
-                <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
-                    <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Insumos Registrados</p>
-                    <h3 id="dash-insumos" class="text-2xl font-bold text-[#2c2c2c] mt-3">0</h3>
+                <div class="bg-white p-4 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
+                    <p class="text-[10px] sm:text-xs uppercase tracking-wider text-gray-500 font-semibold">Insumos Registrados</p>
+                    <h3 id="dash-insumos" class="text-xl sm:text-2xl font-bold text-[#2c2c2c] mt-2">0</h3>
                 </div>
-                <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
-                    <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Insumos en Alerta</p>
-                    <h3 id="dash-insumos-alerta" class="text-2xl font-bold text-rose-600 mt-3">0</h3>
+                <div class="bg-white p-4 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
+                    <p class="text-[10px] sm:text-xs uppercase tracking-wider text-gray-500 font-semibold">Insumos en Alerta</p>
+                    <h3 id="dash-insumos-alerta" class="text-xl sm:text-2xl font-bold text-rose-600 mt-2">0</h3>
                 </div>
-                <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
-                    <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Clientes en CRM</p>
-                    <h3 id="dash-clientes" class="text-2xl font-bold text-[#2c2c2c] mt-3">0</h3>
+                <div class="bg-white p-4 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
+                    <p class="text-[10px] sm:text-xs uppercase tracking-wider text-gray-500 font-semibold">Clientes en CRM</p>
+                    <h3 id="dash-clientes" class="text-xl sm:text-2xl font-bold text-[#2c2c2c] mt-2">0</h3>
                 </div>
-                <div class="bg-white p-5 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
-                    <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Cotizaciones Stand By</p>
-                    <h3 id="dash-standby" class="text-2xl font-bold text-[#b88a73] mt-3">0</h3>
+                <div class="bg-white p-4 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between col-span-2 sm:col-span-1">
+                    <p class="text-[10px] sm:text-xs uppercase tracking-wider text-gray-500 font-semibold">Cotizaciones Stand By</p>
+                    <h3 id="dash-standby" class="text-xl sm:text-2xl font-bold text-[#b88a73] mt-2">0</h3>
                 </div>
             </div>
             
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm">
-                <h3 class="text-lg font-bold text-[#2c2c2c] mb-4"><i class="fa-solid fa-clock-rotate-left mr-2 text-[#b88a73]"></i> Historial Reciente de Transacciones</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-700">
-                        <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm overflow-hidden">
+                <h3 class="text-base sm:text-lg font-bold text-[#2c2c2c] mb-3"><i class="fa-solid fa-clock-rotate-left mr-2 text-[#b88a73]"></i> Historial Reciente de Transacciones</h3>
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full text-left text-xs sm:text-sm text-gray-700 min-w-[500px]">
+                        <thead class="bg-[#faf8f6] text-[10px] sm:text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
                             <tr>
-                                <th class="p-3">Fecha</th>
-                                <th class="p-3">Cliente</th>
-                                <th class="p-3">Concepto / Ítems</th>
-                                <th class="p-3">Total</th>
-                                <th class="p-3">Métodos de Pago</th>
+                                <th class="p-2.5">Fecha</th>
+                                <th class="p-2.5">Cliente</th>
+                                <th class="p-2.5">Concepto / Ítems</th>
+                                <th class="p-2.5">Total</th>
+                                <th class="p-2.5">Métodos de Pago</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-historial-ventas">
@@ -165,24 +165,24 @@
         </section>
 
         <!-- STAND BY -->
-        <section id="module-standby" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
+        <section id="module-standby" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
                     <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-clock text-[#b88a73] mr-2"></i> Cotizaciones en Stand By (En Espera)</h2>
-                        <p class="text-xs text-gray-500">Administra presupuestos guardados en cola. Puedes editarlos, facturarlos o eliminarlos.</p>
+                        <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-clock text-[#b88a73] mr-2"></i> Cotizaciones en Stand By</h2>
+                        <p class="text-[11px] sm:text-xs text-gray-500">Administra presupuestos guardados en cola.</p>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-700">
-                        <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full text-left text-xs sm:text-sm text-gray-700 min-w-[500px]">
+                        <thead class="bg-[#faf8f6] text-[10px] sm:text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
                             <tr>
-                                <th class="p-3">Fecha</th>
-                                <th class="p-3">Cliente</th>
-                                <th class="p-3">Resumen / Ítems</th>
-                                <th class="p-3">Total ($)</th>
-                                <th class="p-3 text-center">Acciones</th>
+                                <th class="p-2.5">Fecha</th>
+                                <th class="p-2.5">Cliente</th>
+                                <th class="p-2.5">Resumen</th>
+                                <th class="p-2.5">Total ($)</th>
+                                <th class="p-2.5 text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-standby">
@@ -194,71 +194,71 @@
         </section>
 
         <!-- CALCULADORA STICKERS -->
-        <section id="module-calc-stickers" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
+        <section id="module-calc-stickers" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
                     <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-note-sticky text-[#b88a73] mr-2"></i> Calculadora Especializada de Stickers y Etiquetas</h2>
-                        <p class="text-xs text-gray-500">Calcula pliegos, cantidad por hoja, costos de impresión/corte y margen de ganancia.</p>
+                        <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-note-sticky text-[#b88a73] mr-2"></i> Calculadora de Stickers y Etiquetas</h2>
+                        <p class="text-[11px] sm:text-xs text-gray-500">Calcula pliegos, cantidad por hoja y márgenes.</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Medidas del Sticker</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Medidas del Sticker</h3>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Ancho del Sticker (cm)</label>
-                            <input type="number" id="stk-ancho" value="5" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Ancho (cm)</label>
+                            <input type="number" id="stk-ancho" value="5" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularStickers()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Alto del Sticker (cm)</label>
-                            <input type="number" id="stk-alto" value="5" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Alto (cm)</label>
+                            <input type="number" id="stk-alto" value="5" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularStickers()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Espaciado / Sangrado (cm)</label>
-                            <input type="number" id="stk-gap" value="0.3" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Espaciado / Sangrado (cm)</label>
+                            <input type="number" id="stk-gap" value="0.3" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularStickers()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Cantidad Total (Unidades)</label>
-                            <input type="number" id="stk-cantidad" value="100" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Cantidad Total (Unidades)</label>
+                            <input type="number" id="stk-cantidad" value="100" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularStickers()">
                         </div>
                     </div>
 
-                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Material y Hoja</h3>
+                    <div class="space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Material y Hoja</h3>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Seleccionar Insumo</label>
-                            <select id="stk-insumo-select" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" onchange="seleccionarInsumoSticker()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Seleccionar Insumo</label>
+                            <select id="stk-insumo-select" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" onchange="seleccionarInsumoSticker()">
                                 <option value="0">-- Cargar desde Insumos --</option>
                             </select>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Ancho Hoja (cm)</label>
-                                <input type="number" id="stk-hoja-ancho" value="30" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Ancho Hoja (cm)</label>
+                                <input type="number" id="stk-hoja-ancho" value="30" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularStickers()">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Alto Hoja (cm)</label>
-                                <input type="number" id="stk-hoja-alto" value="40" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Alto Hoja (cm)</label>
+                                <input type="number" id="stk-hoja-alto" value="40" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularStickers()">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Hoja / Material ($)</label>
-                            <input type="number" id="stk-costo-hoja" value="0.50" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Costo Hoja / Material ($)</label>
+                            <input type="number" id="stk-costo-hoja" value="0.50" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularStickers()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Impresión + Corte ($)</label>
-                            <input type="number" id="stk-costo-corte" value="0.30" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Costo Impresión + Corte ($)</label>
+                            <input type="number" id="stk-costo-corte" value="0.30" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularStickers()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">% Ganancia</label>
-                            <input type="number" id="stk-ganancia" value="50" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularStickers()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">% Ganancia</label>
+                            <input type="number" id="stk-ganancia" value="50" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularStickers()">
                         </div>
                     </div>
 
-                    <div class="space-y-4 bg-white p-5 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                    <div class="space-y-4 bg-white p-4 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
                         <div>
-                            <h3 class="font-bold text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
+                            <h3 class="font-bold text-sm sm:text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
                             <div class="space-y-2 text-xs">
                                 <div class="flex justify-between"><span class="text-gray-500">Stickers por Hoja:</span><span id="stk-res-por-hoja" class="font-bold text-[#2c2c2c]">0 uds</span></div>
                                 <div class="flex justify-between"><span class="text-gray-500">Hojas Requeridas:</span><span id="stk-res-hojas-req" class="font-bold text-[#2c2c2c]">0 hojas</span></div>
@@ -268,13 +268,13 @@
                             </div>
 
                             <div class="mt-4 bg-[#faf8f6] p-3 rounded-lg border border-[#e8dbd3] text-center space-y-1">
-                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Venta Lote</p>
+                                <p class="text-[11px] uppercase text-gray-500 font-semibold">Precio Venta Lote</p>
                                 <p id="stk-res-precio-lote" class="text-2xl font-extrabold text-[#b88a73]">$0.00</p>
                                 <p class="text-xs text-gray-500">Unitario: <span id="stk-res-precio-unit" class="font-bold text-[#2c2c2c]">$0.00</span></p>
                             </div>
                         </div>
 
-                        <button onclick="enviarStickerAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-3 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
+                        <button onclick="enviarStickerAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-plus-circle"></i>
                             <span>Agregar a Presupuesto Actual</span>
                         </button>
@@ -284,48 +284,48 @@
         </section>
 
         <!-- CALCULADORA TOPPERS -->
-        <section id="module-calc-toppers" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
+        <section id="module-calc-toppers" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
                     <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cake-candles text-[#b88a73] mr-2"></i> Calculadora Multicapa para Toppers</h2>
-                        <p class="text-xs text-gray-500">Suma capas de cartulina, accesorios y mano de obra.</p>
+                        <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cake-candles text-[#b88a73] mr-2"></i> Calculadora Multicapa para Toppers</h2>
+                        <p class="text-[11px] sm:text-xs text-gray-500">Suma capas de cartulina, accesorios y mano de obra.</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="md:col-span-2 space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Temática del Topper</label>
-                                <input type="text" id="top-nombre" value="Topper Multicapa Personalizado" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm">
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Temática del Topper</label>
+                                <input type="text" id="top-nombre" value="Topper Multicapa Personalizado" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Horas de Diseño/Armado</label>
-                                <input type="number" id="top-horas" value="1" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularTopper()">
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Horas de Diseño/Armado</label>
+                                <input type="number" id="top-horas" value="1" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularTopper()">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Mano de Obra ($/Hora)</label>
-                                <input type="number" id="top-tarifa-hora" value="3.00" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularTopper()">
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">Mano de Obra ($/Hora)</label>
+                                <input type="number" id="top-tarifa-hora" value="3.00" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularTopper()">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">% Margen Ganancia</label>
-                                <input type="number" id="top-ganancia" value="40" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularTopper()">
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">% Margen Ganancia</label>
+                                <input type="number" id="top-ganancia" value="40" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularTopper()">
                             </div>
                         </div>
 
-                        <div class="border border-[#e8dbd3] rounded-xl p-4 bg-white space-y-3">
+                        <div class="border border-[#e8dbd3] rounded-xl p-3.5 bg-white space-y-3">
                             <div class="flex justify-between items-center">
-                                <h3 class="font-bold text-sm text-[#2c2c2c]">Materiales y Capas</h3>
-                                <button onclick="agregarFilaTopper()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-plus mr-1"></i> Agregar Material</button>
+                                <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c]">Materiales y Capas</h3>
+                                <button onclick="agregarFilaTopper()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-plus mr-1"></i> Agregar</button>
                             </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-xs text-left">
-                                    <thead class="bg-[#faf8f6] text-gray-500 uppercase">
+                            <div class="overflow-x-auto w-full">
+                                <table class="w-full text-xs text-left min-w-[320px]">
+                                    <thead class="bg-[#faf8f6] text-gray-500 uppercase text-[10px]">
                                         <tr>
-                                            <th class="p-2 w-[40%]">Material / Capa</th>
-                                            <th class="p-2 w-[20%] text-center">Cant</th>
-                                            <th class="p-2 w-[25%] text-center">Costo Unit. ($)</th>
+                                            <th class="p-2 w-[45%]">Material / Capa</th>
+                                            <th class="p-2 w-[18%] text-center">Cant</th>
+                                            <th class="p-2 w-[22%] text-center">Costo ($)</th>
                                             <th class="p-2 w-[15%] text-center">Acción</th>
                                         </tr>
                                     </thead>
@@ -335,22 +335,22 @@
                         </div>
                     </div>
 
-                    <div class="space-y-4 bg-white p-5 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                    <div class="space-y-4 bg-white p-4 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
                         <div>
-                            <h3 class="font-bold text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen de Topper</h3>
+                            <h3 class="font-bold text-sm sm:text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen de Topper</h3>
                             <div class="space-y-2 text-xs">
                                 <div class="flex justify-between"><span class="text-gray-500">Costo Materiales:</span><span id="top-res-mat" class="font-semibold text-gray-700">$0.00</span></div>
                                 <div class="flex justify-between"><span class="text-gray-500">Costo Mano Obra:</span><span id="top-res-mo" class="font-semibold text-gray-700">$0.00</span></div>
                                 <div class="flex justify-between font-bold text-sm border-t border-[#e8dbd3] pt-2"><span class="text-gray-700">Costo Producción:</span><span id="top-res-costo-total" class="text-rose-600">$0.00</span></div>
                             </div>
 
-                            <div class="mt-6 bg-[#faf8f6] p-4 rounded-lg border border-[#e8dbd3] text-center space-y-1">
-                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Venta Recomendado</p>
+                            <div class="mt-4 bg-[#faf8f6] p-3 rounded-lg border border-[#e8dbd3] text-center space-y-1">
+                                <p class="text-[11px] uppercase text-gray-500 font-semibold">Precio Venta Recomendado</p>
                                 <p id="top-res-precio-final" class="text-3xl font-extrabold text-[#b88a73]">$0.00</p>
                             </div>
                         </div>
 
-                        <button onclick="enviarTopperAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-3 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
+                        <button onclick="enviarTopperAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-plus-circle"></i>
                             <span>Agregar a Presupuesto Actual</span>
                         </button>
@@ -360,64 +360,64 @@
         </section>
 
         <!-- CALCULADORA FLYERS Y PAPELERÍA -->
-        <section id="module-calc-flyers" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
+        <section id="module-calc-flyers" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
                     <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-file-lines text-[#b88a73] mr-2"></i> Calculadora de Flyers, Revistas y Papelería</h2>
-                        <p class="text-xs text-gray-500">Calcula costos de impresión por millares o lotes con papel base y tintas.</p>
+                        <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-file-lines text-[#b88a73] mr-2"></i> Calculadora de Flyers y Papelería</h2>
+                        <p class="text-[11px] sm:text-xs text-gray-500">Calcula costos de impresión por millares o lotes.</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Detalles del Tiraje</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Detalles del Tiraje</h3>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre del Trabajo</label>
-                            <input type="text" id="fly-nombre" value="Flyers Publicitarios A6 (Couché)" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Nombre del Trabajo</label>
+                            <input type="text" id="fly-nombre" value="Flyers Publicitarios A6" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Cantidad Total (Unidades)</label>
-                            <input type="number" id="fly-cantidad" value="1000" step="100" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularFlyers()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Cantidad Total (Unidades)</label>
+                            <input type="number" id="fly-cantidad" value="1000" step="100" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularFlyers()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Unidades por Pliego / Hoja</label>
-                            <input type="number" id="fly-por-hoja" value="4" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularFlyers()">
-                        </div>
-                    </div>
-
-                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Costos de Insumos</h3>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Hoja / Resma Base ($)</label>
-                            <input type="number" id="fly-costo-hoja" value="0.10" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularFlyers()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Tinta y Desgaste por Hoja ($)</label>
-                            <input type="number" id="fly-costo-tinta" value="0.05" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularFlyers()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">% Margen Ganancia</label>
-                            <input type="number" id="fly-ganancia" value="50" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularFlyers()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Unidades por Pliego / Hoja</label>
+                            <input type="number" id="fly-por-hoja" value="4" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularFlyers()">
                         </div>
                     </div>
 
-                    <div class="space-y-4 bg-white p-5 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                    <div class="space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Costos de Insumos</h3>
                         <div>
-                            <h3 class="font-bold text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Costo Hoja / Resma Base ($)</label>
+                            <input type="number" id="fly-costo-hoja" value="0.10" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularFlyers()">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Costo Tinta y Desgaste ($)</label>
+                            <input type="number" id="fly-costo-tinta" value="0.05" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularFlyers()">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">% Margen Ganancia</label>
+                            <input type="number" id="fly-ganancia" value="50" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularFlyers()">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-white p-4 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-sm sm:text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
                             <div class="space-y-2 text-xs">
                                 <div class="flex justify-between"><span class="text-gray-500">Hojas Requeridas:</span><span id="fly-res-hojas" class="font-bold text-[#2c2c2c]">0 hojas</span></div>
                                 <div class="flex justify-between border-t border-gray-100 pt-2"><span class="text-gray-500">Costo Producción:</span><span id="fly-res-costo" class="font-semibold text-gray-700">$0.00</span></div>
                             </div>
 
-                            <div class="mt-6 bg-[#faf8f6] p-4 rounded-lg border border-[#e8dbd3] text-center space-y-1">
-                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Venta Total</p>
+                            <div class="mt-4 bg-[#faf8f6] p-3 rounded-lg border border-[#e8dbd3] text-center space-y-1">
+                                <p class="text-[11px] uppercase text-gray-500 font-semibold">Precio Venta Total</p>
                                 <p id="fly-res-precio" class="text-2xl font-extrabold text-[#b88a73]">$0.00</p>
                                 <p class="text-xs text-gray-500">Unitario: <span id="fly-res-unit" class="font-bold text-[#2c2c2c]">$0.00</span></p>
                             </div>
                         </div>
 
-                        <button onclick="enviarFlyersAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-3 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
+                        <button onclick="enviarFlyersAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-plus-circle"></i>
                             <span>Agregar a Presupuesto Actual</span>
                         </button>
@@ -427,60 +427,60 @@
         </section>
 
         <!-- CALCULADORA SUBLIMACIÓN -->
-        <section id="module-calc-sublimacion" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
+        <section id="module-calc-sublimacion" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
                     <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-mug-hot text-[#b88a73] mr-2"></i> Calculadora de Sublimación y Artículos</h2>
-                        <p class="text-xs text-gray-500">Calcula costos de tazas, chemises, gorras con insumo virgen y plancha.</p>
+                        <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-mug-hot text-[#b88a73] mr-2"></i> Calculadora de Sublimación</h2>
+                        <p class="text-[11px] sm:text-xs text-gray-500">Calcula costos de tazas, chemises, gorras y artículos.</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Artículo y Cantidad</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Artículo y Cantidad</h3>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre del Artículo</label>
-                            <input type="text" id="sub-nombre" value="Taza Mágica Sublimada" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Nombre del Artículo</label>
+                            <input type="text" id="sub-nombre" value="Taza Mágica Sublimada" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Cantidad (Unidades)</label>
-                            <input type="number" id="sub-cantidad" value="1" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularSublimacion()">
-                        </div>
-                    </div>
-
-                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Costos Unitarios ($)</h3>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo del Artículo Virgen ($)</label>
-                            <input type="number" id="sub-costo-virgen" value="1.80" step="0.10" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularSublimacion()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Papel + Tinta Transfer ($)</label>
-                            <input type="number" id="sub-costo-transfer" value="0.30" step="0.05" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularSublimacion()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">% Margen Ganancia</label>
-                            <input type="number" id="sub-ganancia" value="60" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularSublimacion()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Cantidad (Unidades)</label>
+                            <input type="number" id="sub-cantidad" value="1" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularSublimacion()">
                         </div>
                     </div>
 
-                    <div class="space-y-4 bg-white p-5 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                    <div class="space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Costos Unitarios ($)</h3>
                         <div>
-                            <h3 class="font-bold text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Costo Artículo Virgen ($)</label>
+                            <input type="number" id="sub-costo-virgen" value="1.80" step="0.10" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularSublimacion()">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Costo Papel + Tinta ($)</label>
+                            <input type="number" id="sub-costo-transfer" value="0.30" step="0.05" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularSublimacion()">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">% Margen Ganancia</label>
+                            <input type="number" id="sub-ganancia" value="60" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularSublimacion()">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-white p-4 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-sm sm:text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
                             <div class="space-y-2 text-xs">
-                                <div class="flex justify-between"><span class="text-gray-500">Costo Producción Unit.:</span><span id="sub-res-unit-cost" class="font-semibold text-gray-700">$0.00</span></div>
+                                <div class="flex justify-between"><span class="text-gray-500">Costo Unit.:</span><span id="sub-res-unit-cost" class="font-semibold text-gray-700">$0.00</span></div>
                                 <div class="flex justify-between border-t border-gray-100 pt-2"><span class="text-gray-500">Costo Total Lote:</span><span id="sub-res-total-cost" class="font-semibold text-rose-600">$0.00</span></div>
                             </div>
 
-                            <div class="mt-6 bg-[#faf8f6] p-4 rounded-lg border border-[#e8dbd3] text-center space-y-1">
-                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Venta Lote</p>
+                            <div class="mt-4 bg-[#faf8f6] p-3 rounded-lg border border-[#e8dbd3] text-center space-y-1">
+                                <p class="text-[11px] uppercase text-gray-500 font-semibold">Precio Venta Lote</p>
                                 <p id="sub-res-precio-lote" class="text-2xl font-extrabold text-[#b88a73]">$0.00</p>
                                 <p class="text-xs text-gray-500">Por Unidad: <span id="sub-res-precio-unit" class="font-bold text-[#2c2c2c]">$0.00</span></p>
                             </div>
                         </div>
 
-                        <button onclick="enviarSublimacionAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-3 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
+                        <button onclick="enviarSublimacionAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-plus-circle"></i>
                             <span>Agregar a Presupuesto Actual</span>
                         </button>
@@ -490,63 +490,63 @@
         </section>
 
         <!-- CALCULADORA AUDIOVISUAL -->
-        <section id="module-calc-audiovisual" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
+        <section id="module-calc-audiovisual" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
                     <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-video text-[#b88a73] mr-2"></i> Calculadora de Producción Audiovisual y Videos</h2>
-                        <p class="text-xs text-gray-500">Calcula cotizaciones para reels, videos corporativos y montaje según horas de trabajo.</p>
+                        <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-video text-[#b88a73] mr-2"></i> Calculadora Audiovisual y Videos</h2>
+                        <p class="text-[11px] sm:text-xs text-gray-500">Calcula cotizaciones para reels y videos corporativos.</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Horas de Trabajo</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Horas de Trabajo</h3>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Concepto del Proyecto</label>
-                            <input type="text" id="vid-nombre" value="Pack 4 Reels para Redes Sociales" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Concepto del Proyecto</label>
+                            <input type="text" id="vid-nombre" value="Pack 4 Reels Redes Sociales" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Horas de Grabación / Campo</label>
-                            <input type="number" id="vid-horas-grab" value="3" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularAudiovisual()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Horas de Grabación</label>
+                            <input type="number" id="vid-horas-grab" value="3" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularAudiovisual()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Horas de Edición y Montaje</label>
-                            <input type="number" id="vid-horas-edit" value="5" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularAudiovisual()">
-                        </div>
-                    </div>
-
-                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Tarifas y Equipos</h3>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Tarifa por Hora de Producción ($)</label>
-                            <input type="number" id="vid-tarifa" value="10.00" step="1.00" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularAudiovisual()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Alquiler Equipos / Luces / Extras ($)</label>
-                            <input type="number" id="vid-equipos" value="15.00" step="5.00" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularAudiovisual()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">% Margen Ganancia / Agencia</label>
-                            <input type="number" id="vid-ganancia" value="30" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularAudiovisual()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Horas de Edición y Montaje</label>
+                            <input type="number" id="vid-horas-edit" value="5" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularAudiovisual()">
                         </div>
                     </div>
 
-                    <div class="space-y-4 bg-white p-5 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                    <div class="space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Tarifas y Equipos</h3>
                         <div>
-                            <h3 class="font-bold text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Tarifa por Hora ($)</label>
+                            <input type="number" id="vid-tarifa" value="10.00" step="1.00" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularAudiovisual()">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Alquiler Equipos / Luces ($)</label>
+                            <input type="number" id="vid-equipos" value="15.00" step="5.00" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularAudiovisual()">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">% Margen Ganancia / Agencia</label>
+                            <input type="number" id="vid-ganancia" value="30" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularAudiovisual()">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-white p-4 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-sm sm:text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
                             <div class="space-y-2 text-xs">
                                 <div class="flex justify-between"><span class="text-gray-500">Costo Base Servicios:</span><span id="vid-res-base" class="font-semibold text-gray-700">$0.00</span></div>
                                 <div class="flex justify-between border-t border-gray-100 pt-2"><span class="text-gray-500">Costo Total Producción:</span><span id="vid-res-costo" class="font-semibold text-rose-600">$0.00</span></div>
                             </div>
 
-                            <div class="mt-6 bg-[#faf8f6] p-4 rounded-lg border border-[#e8dbd3] text-center space-y-1">
-                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Venta Proyecto</p>
+                            <div class="mt-4 bg-[#faf8f6] p-3 rounded-lg border border-[#e8dbd3] text-center space-y-1">
+                                <p class="text-[11px] uppercase text-gray-500 font-semibold">Precio Venta Proyecto</p>
                                 <p id="vid-res-precio" class="text-3xl font-extrabold text-[#b88a73]">$0.00</p>
                             </div>
                         </div>
 
-                        <button onclick="enviarAudiovisualAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-3 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
+                        <button onclick="enviarAudiovisualAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-plus-circle"></i>
                             <span>Agregar a Presupuesto Actual</span>
                         </button>
@@ -556,64 +556,64 @@
         </section>
 
         <!-- CALCULADORA VINIL Y DTF -->
-        <section id="module-calc-vinil" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-4">
+        <section id="module-calc-vinil" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
                     <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-scroll text-[#b88a73] mr-2"></i> Calculadora de Vinil, DTF y Rotulación</h2>
-                        <p class="text-xs text-gray-500">Calcula cotizaciones para vinil autoadhesivo por metros, rotulación de vidrios o DTF textil.</p>
+                        <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-scroll text-[#b88a73] mr-2"></i> Calculadora de Vinil, DTF y Rotulación</h2>
+                        <p class="text-[11px] sm:text-xs text-gray-500">Calcula cotizaciones para vinil autoadhesivo y DTF.</p>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Medidas y Metraje</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">1. Medidas y Metraje</h3>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Concepto del Trabajo</label>
-                            <input type="text" id="vin-nombre" value="Rotulación de Vidrio con Vinil de Corte" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Concepto del Trabajo</label>
+                            <input type="text" id="vin-nombre" value="Rotulación de Vidrio con Vinil" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Ancho (cm)</label>
-                            <input type="number" id="vin-ancho" value="100" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularVinil()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Ancho (cm)</label>
+                            <input type="number" id="vin-ancho" value="100" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularVinil()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Alto (cm)</label>
-                            <input type="number" id="vin-alto" value="50" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularVinil()">
-                        </div>
-                    </div>
-
-                    <div class="space-y-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                        <h3 class="font-bold text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Costos y Tarifas</h3>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Costo Material por Metro Cuadrado ($)</label>
-                            <input type="number" id="vin-costo-m2" value="8.00" step="0.50" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularVinil()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Mano de Obra / Instalación ($)</label>
-                            <input type="number" id="vin-mano-obra" value="5.00" step="1.00" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularVinil()">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">% Margen Ganancia</label>
-                            <input type="number" id="vin-ganancia" value="40" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-sm" oninput="calcularVinil()">
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Alto (cm)</label>
+                            <input type="number" id="vin-alto" value="50" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularVinil()">
                         </div>
                     </div>
 
-                    <div class="space-y-4 bg-white p-5 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                    <div class="space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                        <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-2">2. Costos y Tarifas</h3>
                         <div>
-                            <h3 class="font-bold text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Costo Material por m² ($)</label>
+                            <input type="number" id="vin-costo-m2" value="8.00" step="0.50" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularVinil()">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Mano de Obra / Instalación ($)</label>
+                            <input type="number" id="vin-mano-obra" value="5.00" step="1.00" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularVinil()">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 mb-1">% Margen Ganancia</label>
+                            <input type="number" id="vin-ganancia" value="40" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-2 text-xs sm:text-sm" oninput="calcularVinil()">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 bg-white p-4 rounded-xl border-2 border-[#b88a73] flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-sm sm:text-base text-[#2c2c2c] border-b border-[#e8dbd3] pb-2 mb-3">Resumen del Cálculo</h3>
                             <div class="space-y-2 text-xs">
                                 <div class="flex justify-between"><span class="text-gray-500">Metros Cuadrados (m²):</span><span id="vin-res-m2" class="font-bold text-[#2c2c2c]">0 m²</span></div>
                                 <div class="flex justify-between"><span class="text-gray-500">Costo Materiales:</span><span id="vin-res-costo-mat" class="font-semibold text-gray-700">$0.00</span></div>
                                 <div class="flex justify-between border-t border-gray-100 pt-2"><span class="text-gray-500">Costo Producción Total:</span><span id="vin-res-costo-total" class="font-semibold text-rose-600">$0.00</span></div>
                             </div>
 
-                            <div class="mt-6 bg-[#faf8f6] p-4 rounded-lg border border-[#e8dbd3] text-center space-y-1">
-                                <p class="text-xs uppercase text-gray-500 font-semibold">Precio Venta Recomendado</p>
+                            <div class="mt-4 bg-[#faf8f6] p-3 rounded-lg border border-[#e8dbd3] text-center space-y-1">
+                                <p class="text-[11px] uppercase text-gray-500 font-semibold">Precio Venta Recomendado</p>
                                 <p id="vin-res-precio" class="text-3xl font-extrabold text-[#b88a73]">$0.00</p>
                             </div>
                         </div>
 
-                        <button onclick="enviarVinilAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-3 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
+                        <button onclick="enviarVinilAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-plus-circle"></i>
                             <span>Agregar a Presupuesto Actual</span>
                         </button>
@@ -623,73 +623,74 @@
         </section>
 
         <!-- COTIZADOR Y PRESUPUESTOS -->
-        <section id="module-calculadora" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
+        <section id="module-calculadora" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
                 
-                <div class="flex flex-wrap justify-between items-center gap-4">
+                <div class="flex flex-wrap justify-between items-center gap-3">
                     <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-file-invoice-dollar text-[#b88a73] mr-2"></i> Generador de Presupuestos Profesionales</h2>
-                        <p class="text-xs text-gray-500">Selecciona servicios o insumos, ajusta ganancias y genera presupuestos.</p>
+                        <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-file-invoice-dollar text-[#b88a73] mr-2"></i> Generador de Presupuestos</h2>
+                        <p class="text-[11px] sm:text-xs text-gray-500">Selecciona servicios o insumos y genera presupuestos.</p>
                     </div>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <label class="flex items-center space-x-2 text-xs font-semibold text-gray-600 bg-[#faf8f6] px-3 py-2 rounded-xl border border-[#e8dbd3] cursor-pointer">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="flex items-center space-x-1.5 text-[11px] sm:text-xs font-semibold text-gray-600 bg-[#faf8f6] px-2.5 py-1.5 rounded-xl border border-[#e8dbd3] cursor-pointer">
                             <input type="checkbox" id="chk-ocultar-bcv" onchange="alternarOcultarBCV()" class="rounded border-[#e8dbd3] text-[#b88a73] focus:ring-0">
-                            <span>Ocultar Tasa BCV (PDF y WhatsApp)</span>
+                            <span>Ocultar BCV</span>
                         </label>
-                        <button onclick="guardarPresupuestoStandBy()" id="btn-guardar-standby" class="bg-[#b88a73] hover:bg-[#a67963] text-white px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
+                        <button onclick="guardarPresupuestoStandBy()" id="btn-guardar-standby" class="bg-[#b88a73] hover:bg-[#a67963] text-white px-3 py-2 rounded-xl font-bold text-xs sm:text-sm transition shadow-sm flex items-center space-x-1.5">
                             <i class="fa-solid fa-clock"></i>
-                            <span>Guardar en Stand By</span>
+                            <span>Stand By</span>
                         </button>
-                        <button onclick="enviarPresupuestoWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
-                            <i class="fa-brands fa-whatsapp text-base"></i>
-                            <span>Enviar por WhatsApp</span>
+                        <button onclick="enviarPresupuestoWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl font-bold text-xs sm:text-sm transition shadow-sm flex items-center space-x-1.5">
+                            <i class="fa-brands fa-whatsapp text-sm"></i>
+                            <span>WhatsApp</span>
                         </button>
-                        <button onclick="exportarPDFPresupuesto()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-4 py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center space-x-2">
+                        <button onclick="exportarPDFPresupuesto()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-2 rounded-xl font-bold text-xs sm:text-sm transition shadow-sm flex items-center space-x-1.5">
                             <i class="fa-solid fa-file-pdf"></i>
-                            <span>Exportar PDF / Imprimir</span>
+                            <span>PDF</span>
                         </button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Cliente Destino</label>
-                        <select id="presupuesto-cliente" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm focus:outline-none" onchange="manejarCambioClientePresupuesto(this)">
-                            <option value="Cliente General">-- Seleccionar Cliente CRM --</option>
+                        <label class="block text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Cliente Destino</label>
+                        <select id="presupuesto-cliente" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-2 text-[#2c2c2c] text-xs sm:text-sm focus:outline-none" onchange="manejarCambioClientePresupuesto(this)">
+                            <option value="Cliente General">-- Seleccionar Cliente --</option>
                             <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Validez del Presupuesto</label>
-                        <input type="text" id="presupuesto-validez" value="7 días hábiles" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm focus:outline-none" oninput="recalcularPresupuestoTotal()">
+                        <label class="block text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Validez</label>
+                        <input type="text" id="presupuesto-validez" value="7 días hábiles" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-2 text-[#2c2c2c] text-xs sm:text-sm focus:outline-none" oninput="recalcularPresupuestoTotal()">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">% Ganancia Global por Defecto</label>
-                        <input type="number" id="presupuesto-ganancia-global" value="30" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm focus:outline-none" oninput="aplicarGananciaGlobalEnCascada()">
+                        <label class="block text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">% Ganancia Global</label>
+                        <input type="number" id="presupuesto-ganancia-global" value="30" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-2 text-[#2c2c2c] text-xs sm:text-sm focus:outline-none" oninput="aplicarGananciaGlobalEnCascada()">
                     </div>
                 </div>
 
-                <div class="w-full flex justify-center py-2 overflow-x-auto">
-                    <div id="area-impresion-presupuesto" class="bg-white p-8 rounded-2xl border-2 border-[#b88a73] space-y-6 shadow-xs w-full max-w-4xl mx-auto">
+                <!-- CONTENEDOR DE LA VISTA PREVIA DEL PRESUPUESTO (Optimizado horizontalmente para móviles) -->
+                <div class="w-full overflow-x-auto py-1">
+                    <div id="area-impresion-presupuesto" class="bg-white p-4 sm:p-8 rounded-2xl border-2 border-[#b88a73] space-y-5 shadow-xs w-full min-w-[650px] sm:min-w-0 max-w-4xl mx-auto box-border">
                         
-                        <div class="flex justify-between items-start border-b border-[#e8dbd3] pb-6">
+                        <div class="flex justify-between items-start border-b border-[#e8dbd3] pb-4">
                             <div class="flex items-center space-x-3">
-                                <div id="doc-logo-preview" class="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center bg-[#b88a73] text-white font-bold shrink-0">
+                                <div id="doc-logo-preview" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden flex items-center justify-center bg-[#b88a73] text-white font-bold shrink-0">
                                     <i class="fa-solid fa-layer-group"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xl font-bold text-[#2c2c2c] tracking-wide">LAN ESTUDIO</h3>
-                                    <p class="text-xs text-gray-500">Agencia de Publicidad y Comunicación</p>
+                                    <h3 class="text-base sm:text-xl font-bold text-[#2c2c2c] tracking-wide">LAN ESTUDIO</h3>
+                                    <p class="text-[10px] sm:text-xs text-gray-500">Agencia de Publicidad y Comunicación</p>
                                 </div>
                             </div>
                             <div class="text-right shrink-0">
-                                <h4 class="text-sm font-bold text-[#b88a73] uppercase tracking-widest">PRESUPUESTO</h4>
-                                <p id="presupuesto-fecha-doc" class="text-xs text-gray-500 mt-1">Fecha: --/--/----</p>
-                                <p id="container-tasa-doc" class="text-xs text-gray-500">Ref Tasa BCV: <span id="presupuesto-tasa-doc" class="text-[#2c2c2c] font-semibold">0.00</span></p>
+                                <h4 class="text-xs sm:text-sm font-bold text-[#b88a73] uppercase tracking-widest">PRESUPUESTO</h4>
+                                <p id="presupuesto-fecha-doc" class="text-[10px] sm:text-xs text-gray-500 mt-1">Fecha: --/--/----</p>
+                                <p id="container-tasa-doc" class="text-[10px] sm:text-xs text-gray-500">Ref Tasa BCV: <span id="presupuesto-tasa-doc" class="text-[#2c2c2c] font-semibold">0.00</span></p>
                             </div>
                         </div>
 
-                        <div class="text-xs text-gray-700 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3] flex justify-between items-center">
+                        <div class="text-xs text-gray-700 bg-[#faf8f6] p-3 sm:p-4 rounded-xl border border-[#e8dbd3] flex justify-between items-center">
                             <div>
                                 <span class="text-gray-500 font-semibold">Preparado para:</span> <span id="doc-cliente-nombre" class="text-[#2c2c2c] font-bold">Cliente General</span>
                             </div>
@@ -699,25 +700,24 @@
                         </div>
 
                         <div class="space-y-3">
-                            <div class="flex justify-between items-center mb-2">
-                                <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Ítems, Servicios e Insumos</h4>
-                                <div class="space-x-2">
-                                    <button onclick="agregarRenglonServicio()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-bullhorn mr-1"></i> Añadir Servicio</button>
-                                    <button onclick="agregarRenglonInsumo()" class="text-xs bg-[#b88a73] hover:bg-[#a67963] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-box mr-1"></i> Añadir Insumo</button>
+                            <div class="flex justify-between items-center mb-1">
+                                <h4 class="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">Ítems, Servicios e Insumos</h4>
+                                <div class="space-x-1.5">
+                                    <button onclick="agregarRenglonServicio()" class="text-[11px] bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2.5 py-1 rounded-lg transition font-medium"><i class="fa-solid fa-bullhorn mr-1"></i> Servicio</button>
+                                    <button onclick="agregarRenglonInsumo()" class="text-[11px] bg-[#b88a73] hover:bg-[#a67963] text-white px-2.5 py-1 rounded-lg transition font-medium"><i class="fa-solid fa-box mr-1"></i> Insumo</button>
                                 </div>
                             </div>
 
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left text-xs text-gray-700">
-                                    <thead class="bg-[#f7f4f0] text-xs uppercase text-gray-600 border-b border-[#e8dbd3]">
+                                    <thead class="bg-[#f7f4f0] text-[10px] uppercase text-gray-600 border-b border-[#e8dbd3]">
                                         <tr>
-                                            <th class="p-3 w-[56%]">Descripción</th>
-                                            <th class="p-3 w-[14%] text-center">Cant</th>
-                                            <th class="p-3 w-[10%] text-center">Costo Unit. ($)</th>
-                                            <th class="p-3 w-[10%] text-center">% Ganancia</th>
-                                            <th class="p-3 w-[10%] text-right">Precio Sug. ($)</th>
-                                            <th class="p-3 w-[30%] text-right font-bold text-[#b88a73]">Precio Final ($)</th>
-                                            <th class="p-3 w-[10%] text-center">Acción</th>
+                                            <th class="p-2 sm:p-3 w-[46%]">Descripción</th>
+                                            <th class="p-2 sm:p-3 w-[12%] text-center">Cant</th>
+                                            <th class="p-2 sm:p-3 w-[12%] text-center">Costo ($)</th>
+                                            <th class="p-2 sm:p-3 w-[10%] text-center">%G</th>
+                                            <th class="p-2 sm:p-3 w-[20%] text-right font-bold text-[#b88a73]">Precio Final</th>
+                                            <th class="p-2 sm:p-3 w-[10%] text-center">X</th>
                                         </tr>
                                     </thead>
                                     <tbody id="lista-renglones-presupuesto"></tbody>
@@ -725,12 +725,12 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-between items-end pt-4 border-t border-[#e8dbd3]">
-                            <div class="text-[11px] text-gray-500 space-y-1">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end pt-3 border-t border-[#e8dbd3] gap-4">
+                            <div class="text-[10px] sm:text-[11px] text-gray-500 space-y-1">
                                 <p><b>Condiciones:</b> Presupuesto sujeto a revisión de material o arte final.</p>
                                 <p class="text-[#b88a73] font-medium">¡Gracias por confiar en LAN Estudio! 🚀</p>
                             </div>
-                            <div class="w-full sm:w-80 space-y-2.5 text-sm bg-[#faf8f6] p-5 rounded-xl border border-[#e8dbd3]">
+                            <div class="w-full sm:w-72 space-y-2 text-sm bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3] box-border">
                                 <div class="flex justify-between text-gray-500 text-xs hidden">
                                     <span>Costo Producción:</span>
                                     <span id="doc-subtotal-costo" class="font-bold text-[#2c2c2c]">$0.00</span>
@@ -740,19 +740,19 @@
                                     <span id="doc-total-ganancia" class="font-bold text-[#b88a73]">$0.00</span>
                                 </div>
                                 
-                                <div class="flex justify-between items-center text-base font-bold text-[#2c2c2c]">
-                                    <span class="uppercase tracking-wide text-xs text-gray-600 font-bold">Total Presupuesto:</span>
-                                    <span id="doc-total-usd" class="text-lg font-extrabold text-[#b88a73]">$0.00</span>
+                                <div class="flex justify-between items-center text-sm sm:text-base font-bold text-[#2c2c2c]">
+                                    <span class="uppercase tracking-wide text-[11px] text-gray-600 font-bold">Total:</span>
+                                    <span id="doc-total-usd" class="text-base sm:text-lg font-extrabold text-[#b88a73]">$0.00</span>
                                 </div>
 
-                                <div id="container-total-ves-doc" class="flex justify-between items-center text-xs text-gray-600 font-semibold border-t border-dashed border-[#e8dbd3] pt-2">
-                                    <span>Equivalente Bolívares (VES):</span>
+                                <div id="container-total-ves-doc" class="flex justify-between items-center text-xs text-gray-600 font-semibold border-t border-dashed border-[#e8dbd3] pt-1.5">
+                                    <span>Bolívares (VES):</span>
                                     <span id="doc-total-ves" class="font-bold text-[#2c2c2c]">Bs. 0.00</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="text-center border-t border-[#e8dbd3] pt-4 text-[10px] text-gray-400 tracking-wider">
+                        <div class="text-center border-t border-[#e8dbd3] pt-3 text-[9px] sm:text-[10px] text-gray-400 tracking-wider">
                             LAN ESTUDIO • Agencia de Publicidad y Comunicación • Innovación y Diseño
                         </div>
                     </div>
@@ -761,42 +761,41 @@
         </section>
 
         <!-- CAJA Y PAGOS -->
-        <section id="module-caja" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section id="module-caja" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                <div class="lg:col-span-2 space-y-5">
+                <div class="lg:col-span-2 space-y-4">
                     <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
-                        <h2 class="text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cash-register text-[#b88a73] mr-2"></i> Caja Rápida / Punto de Venta</h2>
+                        <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cash-register text-[#b88a73] mr-2"></i> Caja Rápida / POS</h2>
                         <div class="flex items-center space-x-2">
-                            <button onclick="abrirArqueoCaja()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
+                            <button onclick="abrirArqueoCaja()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1">
                                 <i class="fa-solid fa-scale-balanced text-[#b88a73]"></i>
                                 <span>Arqueo Diario</span>
                             </button>
-                            <span class="text-xs bg-[#faf8f6] border border-[#e8dbd3] px-3 py-1 rounded-full text-gray-600 font-medium hidden sm:inline"><i class="fa-solid fa-keyboard text-[#b88a73] mr-1"></i> Teclado (↑ ↓ Enter)</span>
                         </div>
                     </div>
                     
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Cliente (CRM)</label>
-                        <select id="caja-cliente" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]" onchange="manejarCambioClienteCaja(this)">
+                        <label class="block text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Cliente (CRM)</label>
+                        <select id="caja-cliente" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm focus:outline-none focus:border-[#b88a73]" onchange="manejarCambioClienteCaja(this)">
                             <option value="Cliente General">-- Cliente General --</option>
                             <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
                         </select>
                     </div>
 
-                    <div class="space-y-2 bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3]">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-magnifying-glass text-[#b88a73] mr-1"></i> Detalle de Servicios / Insumos</span>
-                            <button onclick="agregarItemCajaFila()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1.5 rounded-lg transition font-medium"><i class="fa-solid fa-plus mr-1"></i> Añadir Fila</button>
+                    <div class="space-y-2 bg-[#faf8f6] p-3.5 rounded-2xl border border-[#e8dbd3]">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-magnifying-glass text-[#b88a73] mr-1"></i> Detalle de Ítems</span>
+                            <button onclick="agregarItemCajaFila()" class="text-xs bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2.5 py-1 rounded-lg transition font-medium"><i class="fa-solid fa-plus mr-1"></i> Añadir</button>
                         </div>
-                        <div class="overflow-x-visible">
-                            <table class="w-full text-left text-xs text-gray-700">
-                                <thead class="bg-white text-gray-500 uppercase border-b border-[#e8dbd3]">
+                        <div class="overflow-x-auto w-full">
+                            <table class="w-full text-left text-xs text-gray-700 min-w-[320px]">
+                                <thead class="bg-white text-gray-500 uppercase border-b border-[#e8dbd3] text-[10px]">
                                     <tr>
-                                        <th class="p-2 w-[52%]">Buscar Insumo / Servicio (Usa ↑ ↓ Enter)</th>
-                                        <th class="p-2 w-[13%] text-center">Cant</th>
+                                        <th class="p-2 w-[55%]">Insumo / Servicio (↑ ↓ Enter)</th>
+                                        <th class="p-2 w-[15%] text-center">Cant</th>
                                         <th class="p-2 w-[20%] text-right">Precio ($)</th>
-                                        <th class="p-2 w-[15%] text-center">Acción</th>
+                                        <th class="p-2 w-[10%] text-center">X</th>
                                     </tr>
                                 </thead>
                                 <tbody id="lista-items-caja"></tbody>
@@ -805,44 +804,44 @@
                     </div>
 
                     <!-- OPCIONES DE CAJA: DESCUENTO Y NOTAS -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3]">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#faf8f6] p-3.5 rounded-2xl border border-[#e8dbd3]">
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Descuento Global (%)</label>
-                            <input type="number" id="caja-descuento-pct" value="0" min="0" max="100" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-xl px-4 py-2 text-sm font-bold text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]" oninput="recalcularTotalesCaja()">
+                            <label class="block text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Descuento Global (%)</label>
+                            <input type="number" id="caja-descuento-pct" value="0" min="0" max="100" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]" oninput="recalcularTotalesCaja()">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Notas / Observaciones Ticket</label>
-                            <input type="text" id="caja-notas" placeholder="Ej. Entregar el martes, pendiente arte..." class="w-full bg-white border border-[#e8dbd3] rounded-xl px-4 py-2 text-sm text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]">
+                            <label class="block text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Notas / Observaciones</label>
+                            <input type="text" id="caja-notas" placeholder="Ej. Entregar el martes..." class="w-full bg-white border border-[#e8dbd3] rounded-xl px-3 py-2 text-xs sm:text-sm text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3]">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#faf8f6] p-3.5 rounded-2xl border border-[#e8dbd3]">
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Total a Pagar ($)</label>
-                            <input type="number" id="caja-total-usd" value="0.00" step="0.01" readonly class="w-full bg-white border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-xl font-extrabold text-[#b88a73] focus:outline-none">
+                            <label class="block text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Total a Pagar ($)</label>
+                            <input type="number" id="caja-total-usd" value="0.00" step="0.01" readonly class="w-full bg-white border border-[#e8dbd3] rounded-xl px-3 py-2 text-base sm:text-xl font-extrabold text-[#b88a73] focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Total en Bolívares (VES)</label>
-                            <input type="text" id="caja-total-ves" readonly class="w-full bg-white border border-[#e8dbd3] rounded-xl px-4 py-2.5 text-lg font-bold text-[#2c2c2c]">
+                            <label class="block text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">Total en Bolívares (VES)</label>
+                            <input type="text" id="caja-total-ves" readonly class="w-full bg-white border border-[#e8dbd3] rounded-xl px-3 py-2 text-sm sm:text-lg font-bold text-[#2c2c2c]">
                         </div>
                     </div>
 
                     <div class="space-y-2">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500">Métodos de Pago Rápidos (1 Clic)</label>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                            <button onclick="registrarPagoRapido('Efectivo USD')" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-xs">
+                        <label class="block text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500">Métodos de Pago Rápidos (1 Clic)</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            <button onclick="registrarPagoRapido('Efectivo USD')" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 px-2.5 rounded-xl text-[11px] sm:text-xs font-bold transition flex items-center justify-center space-x-1 shadow-xs">
                                 <i class="fa-solid fa-money-bill-wave text-emerald-400"></i>
                                 <span>Efectivo ($)</span>
                             </button>
-                            <button onclick="registrarPagoRapido('Pago Móvil')" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-xs">
+                            <button onclick="registrarPagoRapido('Pago Móvil')" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 px-2.5 rounded-xl text-[11px] sm:text-xs font-bold transition flex items-center justify-center space-x-1 shadow-xs">
                                 <i class="fa-solid fa-mobile-screen text-sky-400"></i>
                                 <span>Pago Móvil</span>
                             </button>
-                            <button onclick="registrarPagoRapido('Zelle')" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-xs">
+                            <button onclick="registrarPagoRapido('Zelle')" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 px-2.5 rounded-xl text-[11px] sm:text-xs font-bold transition flex items-center justify-center space-x-1 shadow-xs">
                                 <i class="fa-solid fa-building-columns text-amber-400"></i>
                                 <span>Zelle / Binance</span>
                             </button>
-                            <button onclick="registrarPagoRapido('Cashea')" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-xs">
+                            <button onclick="registrarPagoRapido('Cashea')" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 px-2.5 rounded-xl text-[11px] sm:text-xs font-bold transition flex items-center justify-center space-x-1 shadow-xs">
                                 <i class="fa-solid fa-handshake text-rose-400"></i>
                                 <span>Cashea</span>
                             </button>
@@ -851,59 +850,59 @@
 
                     <div class="space-y-2">
                         <div class="flex justify-between items-center">
-                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Pagos Registrados</span>
-                            <button onclick="agregarMetodoPago()" class="text-xs text-[#b88a73] font-bold hover:underline"><i class="fa-solid fa-plus mr-1"></i> Añadir pago manual / parcial</button>
+                            <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-500">Pagos Registrados</span>
+                            <button onclick="agregarMetodoPago()" class="text-xs text-[#b88a73] font-bold hover:underline"><i class="fa-solid fa-plus mr-1"></i> Añadir manual</button>
                         </div>
-                        <div id="lista-pagos" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
+                        <div id="lista-pagos" class="space-y-2 max-h-36 overflow-y-auto pr-1"></div>
                     </div>
                 </div>
 
-                <div class="bg-[#faf8f6] p-5 rounded-2xl border border-[#e8dbd3] flex flex-col justify-between space-y-6">
-                    <div class="space-y-4">
-                        <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider border-b border-[#e8dbd3] pb-2">Resumen de Cobro</h3>
+                <div class="bg-[#faf8f6] p-4 sm:p-5 rounded-2xl border border-[#e8dbd3] flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <h3 class="text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wider border-b border-[#e8dbd3] pb-2">Resumen de Cobro</h3>
                         
-                        <div class="space-y-3 text-xs">
+                        <div class="space-y-2 text-xs">
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-500 font-semibold">Total Factura:</span>
                                 <div class="text-right">
                                     <span id="resumen-total" class="font-bold text-[#2c2c2c] text-sm block">$0.00</span>
-                                    <span id="resumen-total-ves" class="text-gray-500 block">Bs. 0.00</span>
+                                    <span id="resumen-total-ves" class="text-gray-500 block text-[10px]">Bs. 0.00</span>
                                 </div>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-500 font-semibold">Total Abonado:</span>
                                 <div class="text-right">
                                     <span id="resumen-abonado" class="font-bold text-[#b88a73] text-sm block">$0.00</span>
-                                    <span id="resumen-abonado-ves" class="text-gray-500 block">Bs. 0.00</span>
+                                    <span id="resumen-abonado-ves" class="text-gray-500 block text-[10px]">Bs. 0.00</span>
                                 </div>
                             </div>
-                            <div class="flex justify-between items-center border-t border-[#e8dbd3] pt-3">
+                            <div class="flex justify-between items-center border-t border-[#e8dbd3] pt-2">
                                 <span class="text-gray-500 font-semibold">Restante / Vuelto:</span>
                                 <div class="text-right">
                                     <span id="resumen-restante" class="font-bold text-amber-600 text-sm block">Falta: $0.00</span>
-                                    <span id="resumen-restante-ves" class="text-gray-500 block">Bs. 0.00</span>
+                                    <span id="resumen-restante-ves" class="text-gray-500 block text-[10px]">Bs. 0.00</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-white p-3 rounded-xl border border-[#e8dbd3] text-xs text-gray-500 space-y-1">
-                            <p class="font-semibold text-gray-700"><i class="fa-solid fa-keyboard text-[#b88a73] mr-1"></i> Atajo Teclado:</p>
-                            <p>Usa <b>↑</b> y <b>↓</b> para navegar y <b>Enter</b> para elegir tu insumo.</p>
+                        <div class="bg-white p-3 rounded-xl border border-[#e8dbd3] text-[11px] text-gray-500 space-y-1">
+                            <p class="font-semibold text-gray-700"><i class="fa-solid fa-keyboard text-[#b88a73] mr-1"></i> Atajo:</p>
+                            <p>Usa <b>↑</b> y <b>↓</b> para navegar y <b>Enter</b> para elegir tu insumo/servicio.</p>
                         </div>
                     </div>
 
                     <div class="space-y-2">
-                        <button onclick="procesarPagoFinal()" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-3.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-check-circle text-lg"></i>
+                        <button onclick="procesarPagoFinal()" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-3 rounded-xl font-bold text-xs sm:text-sm transition shadow-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-check-circle text-base"></i>
                             <span>Guardar y Procesar Venta</span>
                         </button>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="exportarReciboCajaPDF()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1.5">
+                            <button onclick="exportarReciboCajaPDF()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-xl font-bold text-[11px] sm:text-xs transition shadow-sm flex items-center justify-center space-x-1">
                                 <i class="fa-solid fa-file-pdf"></i>
                                 <span>Recibo PDF</span>
                             </button>
-                            <button onclick="enviarUltimaVentaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1.5">
-                                <i class="fa-brands fa-whatsapp text-sm"></i>
+                            <button onclick="enviarUltimaVentaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl font-bold text-[11px] sm:text-xs transition shadow-sm flex items-center justify-center space-x-1">
+                                <i class="fa-brands fa-whatsapp"></i>
                                 <span>WhatsApp</span>
                             </button>
                         </div>
@@ -913,29 +912,29 @@
         </section>
 
         <!-- INSUMOS Y STOCK -->
-        <section id="module-insumos" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
+        <section id="module-insumos" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-boxes-stacked text-[#b88a73] mr-2"></i> Control de Insumos y Materiales</h2>
+                    <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-boxes-stacked text-[#b88a73] mr-2"></i> Control de Insumos y Materiales</h2>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                    <input type="text" id="insumo-nombre" placeholder="Nombre del Material" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="text" id="insumo-categoria" placeholder="Categoría" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="insumo-costo" placeholder="Costo Unit. ($)" step="0.01" min="0" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="insumo-stock" placeholder="Stock Actual" min="0" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="insumo-minimo" placeholder="Stock Mínimo Alerta" min="0" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarInsumo()" class="sm:col-span-5 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Registrar Insumo en Firebase</button>
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                    <input type="text" id="insumo-nombre" placeholder="Nombre del Material" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
+                    <input type="text" id="insumo-categoria" placeholder="Categoría" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
+                    <input type="number" id="insumo-costo" placeholder="Costo Unit. ($)" step="0.01" min="0" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
+                    <input type="number" id="insumo-stock" placeholder="Stock Actual" min="0" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
+                    <input type="number" id="insumo-minimo" placeholder="Stock Mínimo" min="0" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
+                    <button onclick="guardarInsumo()" class="sm:col-span-5 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-xs sm:text-sm">Registrar Insumo en Firebase</button>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-700">
-                        <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full text-left text-xs sm:text-sm text-gray-700 min-w-[500px]">
+                        <thead class="bg-[#faf8f6] text-[10px] sm:text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
                             <tr>
-                                <th class="p-3">Nombre</th>
-                                <th class="p-3">Categoría</th>
-                                <th class="p-3">Costo ($)</th>
-                                <th class="p-3">Stock Actual</th>
-                                <th class="p-3">Stock Mínimo</th>
-                                <th class="p-3">Acciones</th>
+                                <th class="p-2.5">Nombre</th>
+                                <th class="p-2.5">Categoría</th>
+                                <th class="p-2.5">Costo ($)</th>
+                                <th class="p-2.5">Stock Actual</th>
+                                <th class="p-2.5">Stock Mínimo</th>
+                                <th class="p-2.5">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-insumos">
@@ -947,21 +946,21 @@
         </section>
 
         <!-- SERVICIOS -->
-        <section id="module-servicios" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-bullhorn text-[#b88a73] mr-2"></i> Catálogo de Servicios Publicitarios</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                    <input type="text" id="servicio-nombre" placeholder="Nombre del Servicio" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="number" id="servicio-precio" placeholder="Precio Base ($)" step="0.01" min="0" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarServicio()" class="sm:col-span-2 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-sm">Guardar Servicio en Firebase</button>
+        <section id="module-servicios" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
+                <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-bullhorn text-[#b88a73] mr-2"></i> Catálogo de Servicios Publicitarios</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                    <input type="text" id="servicio-nombre" placeholder="Nombre del Servicio" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
+                    <input type="number" id="servicio-precio" placeholder="Precio Base ($)" step="0.01" min="0" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
+                    <button onclick="guardarServicio()" class="sm:col-span-2 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-lg font-medium transition text-xs sm:text-sm">Guardar Servicio en Firebase</button>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-700">
-                        <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full text-left text-xs sm:text-sm text-gray-700 min-w-[350px]">
+                        <thead class="bg-[#faf8f6] text-[10px] sm:text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
                             <tr>
-                                <th class="p-3">Servicio</th>
-                                <th class="p-3">Precio Base ($)</th>
-                                <th class="p-3">Acciones</th>
+                                <th class="p-2.5">Servicio</th>
+                                <th class="p-2.5">Precio Base ($)</th>
+                                <th class="p-2.5">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-servicios">
@@ -973,34 +972,34 @@
         </section>
 
         <!-- CRM CLIENTES MEJORADO -->
-        <section id="module-crm" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
-                <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Directorio de Clientes y Datos Fiscales (CRM)</h2>
+        <section id="module-crm" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
+                <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Directorio de Clientes (CRM)</h2>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#faf8f6] p-4 rounded-xl border border-[#e8dbd3]">
-                    <input type="text" id="cliente-nombre" placeholder="Nombre o Empresa *" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="text" id="cliente-rif" placeholder="RIF / Cédula (Ej. J-12345678-0)" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <select id="cliente-tipo" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                    <input type="text" id="cliente-nombre" placeholder="Nombre o Empresa *" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
+                    <input type="text" id="cliente-rif" placeholder="RIF / Cédula" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
+                    <select id="cliente-tipo" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
                         <option value="Persona Natural">Persona Natural</option>
                         <option value="Empresa (B2B)">Empresa (B2B)</option>
                     </select>
-                    <input type="text" id="cliente-tel" placeholder="Teléfono / WhatsApp" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="email" id="cliente-email" placeholder="Correo Electrónico" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="text" id="cliente-insta" placeholder="Instagram" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <input type="text" id="cliente-direccion" placeholder="Dirección Fiscal / Envíos" class="sm:col-span-2 bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-sm">
-                    <button onclick="guardarCliente()" class="sm:col-span-4 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-lg font-medium transition text-sm">Guardar Cliente en Firebase</button>
+                    <input type="text" id="cliente-tel" placeholder="Teléfono / WhatsApp" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
+                    <input type="email" id="cliente-email" placeholder="Correo Electrónico" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
+                    <input type="text" id="cliente-insta" placeholder="Instagram" class="bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
+                    <input type="text" id="cliente-direccion" placeholder="Dirección Fiscal" class="sm:col-span-2 bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-[#2c2c2c] text-xs sm:text-sm">
+                    <button onclick="guardarCliente()" class="sm:col-span-4 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-lg font-medium transition text-xs sm:text-sm">Guardar Cliente en Firebase</button>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-700">
-                        <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full text-left text-xs sm:text-sm text-gray-700 min-w-[600px]">
+                        <thead class="bg-[#faf8f6] text-[10px] sm:text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
                             <tr>
-                                <th class="p-3">Cliente / Empresa</th>
-                                <th class="p-3">RIF / Cédula</th>
-                                <th class="p-3">Tipo</th>
-                                <th class="p-3">Contacto</th>
-                                <th class="p-3">Dirección</th>
-                                <th class="p-3 text-center">Acciones</th>
+                                <th class="p-2.5">Cliente / Empresa</th>
+                                <th class="p-2.5">RIF / Cédula</th>
+                                <th class="p-2.5">Tipo</th>
+                                <th class="p-2.5">Contacto</th>
+                                <th class="p-2.5">Dirección</th>
+                                <th class="p-2.5 text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-clientes">
@@ -1012,13 +1011,13 @@
         </section>
 
         <!-- CONTROL FINANCIERO -->
-        <section id="module-finanzas" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-6">
+        <section id="module-finanzas" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
                 
-                <div class="flex flex-wrap justify-between items-center border-b border-[#e8dbd3] pb-4 gap-4">
+                <div class="flex flex-wrap justify-between items-center border-b border-[#e8dbd3] pb-3 gap-3">
                     <div>
-                        <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-wallet text-[#b88a73] mr-2"></i> Control Financiero y Balance (P&L)</h2>
-                        <p class="text-xs text-gray-500">Resumen en tiempo real de ingresos por ventas, egresos operativos y utilidad neta.</p>
+                        <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-wallet text-[#b88a73] mr-2"></i> Control Financiero y Balance (P&L)</h2>
+                        <p class="text-[11px] sm:text-xs text-gray-500">Resumen en tiempo real de ingresos, egresos y utilidad.</p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <label class="text-xs font-semibold text-gray-600">Periodo:</label>
@@ -1029,58 +1028,58 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                    <div class="bg-[#faf8f6] p-5 rounded-2xl border border-[#e8dbd3]">
-                        <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Total Ingresos (Ventas)</p>
-                        <h3 id="fin-total-ingresos" class="text-2xl font-bold text-emerald-600 mt-2">$0.00</h3>
-                        <p id="fin-total-ingresos-ves" class="text-xs text-gray-500 mt-1">Bs. 0.00</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3]">
+                        <p class="text-[10px] sm:text-xs uppercase tracking-wider text-gray-500 font-semibold">Total Ingresos (Ventas)</p>
+                        <h3 id="fin-total-ingresos" class="text-xl sm:text-2xl font-bold text-emerald-600 mt-2">$0.00</h3>
+                        <p id="fin-total-ingresos-ves" class="text-[11px] text-gray-500 mt-1">Bs. 0.00</p>
                     </div>
-                    <div class="bg-[#faf8f6] p-5 rounded-2xl border border-[#e8dbd3]">
-                        <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Total Egresos (Gastos)</p>
-                        <h3 id="fin-total-egresos" class="text-2xl font-bold text-rose-600 mt-2">$0.00</h3>
-                        <p id="fin-total-egresos-ves" class="text-xs text-gray-500 mt-1">Bs. 0.00</p>
+                    <div class="bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3]">
+                        <p class="text-[10px] sm:text-xs uppercase tracking-wider text-gray-500 font-semibold">Total Egresos (Gastos)</p>
+                        <h3 id="fin-total-egresos" class="text-xl sm:text-2xl font-bold text-rose-600 mt-2">$0.00</h3>
+                        <p id="fin-total-egresos-ves" class="text-[11px] text-gray-500 mt-1">Bs. 0.00</p>
                     </div>
-                    <div class="bg-white p-5 rounded-2xl border-2 border-[#b88a73] shadow-xs">
-                        <p class="text-xs uppercase tracking-wider text-[#b88a73] font-bold">Utilidad Neta (Beneficio)</p>
-                        <h3 id="fin-utilidad-neta" class="text-2xl font-extrabold text-[#2c2c2c] mt-2">$0.00</h3>
-                        <p id="fin-utilidad-neta-ves" class="text-xs text-gray-500 mt-1">Bs. 0.00</p>
+                    <div class="bg-white p-4 rounded-2xl border-2 border-[#b88a73] shadow-xs">
+                        <p class="text-[10px] sm:text-xs uppercase tracking-wider text-[#b88a73] font-bold">Utilidad Neta (Beneficio)</p>
+                        <h3 id="fin-utilidad-neta" class="text-xl sm:text-2xl font-extrabold text-[#2c2c2c] mt-2">$0.00</h3>
+                        <p id="fin-utilidad-neta-ves" class="text-[11px] text-gray-500 mt-1">Bs. 0.00</p>
                     </div>
                 </div>
 
-                <div class="bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3] space-y-3">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-chart-pie mr-1 text-[#b88a73]"></i> Desglose de Gastos por Categoría</h3>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                        <div class="bg-white p-3 rounded-xl border border-[#e8dbd3]">
-                            <span class="text-gray-500 block font-medium">Operativo</span>
+                <div class="bg-[#faf8f6] p-3.5 rounded-2xl border border-[#e8dbd3] space-y-2">
+                    <h3 class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-chart-pie mr-1 text-[#b88a73]"></i> Desglose de Gastos</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                        <div class="bg-white p-2.5 rounded-xl border border-[#e8dbd3]">
+                            <span class="text-gray-500 block font-medium text-[10px]">Operativo</span>
                             <span id="cat-operativo" class="font-bold text-[#2c2c2c] text-sm">$0.00</span>
                         </div>
-                        <div class="bg-white p-3 rounded-xl border border-[#e8dbd3]">
-                            <span class="text-gray-500 block font-medium">Insumos</span>
+                        <div class="bg-white p-2.5 rounded-xl border border-[#e8dbd3]">
+                            <span class="text-gray-500 block font-medium text-[10px]">Insumos</span>
                             <span id="cat-insumos" class="font-bold text-[#2c2c2c] text-sm">$0.00</span>
                         </div>
-                        <div class="bg-white p-3 rounded-xl border border-[#e8dbd3]">
-                            <span class="text-gray-500 block font-medium">Marketing</span>
+                        <div class="bg-white p-2.5 rounded-xl border border-[#e8dbd3]">
+                            <span class="text-gray-500 block font-medium text-[10px]">Marketing</span>
                             <span id="cat-marketing" class="font-bold text-[#2c2c2c] text-sm">$0.00</span>
                         </div>
-                        <div class="bg-white p-3 rounded-xl border border-[#e8dbd3]">
-                            <span class="text-gray-500 block font-medium">Otros</span>
+                        <div class="bg-white p-2.5 rounded-xl border border-[#e8dbd3]">
+                            <span class="text-gray-500 block font-medium text-[10px]">Otros</span>
                             <span id="cat-otros" class="font-bold text-[#2c2c2c] text-sm">$0.00</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-[#faf8f6] p-5 rounded-2xl border border-[#e8dbd3] space-y-4">
-                    <h3 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-plus-circle mr-1 text-[#b88a73]"></i> Registrar Nuevo Egreso / Gasto</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                        <input type="text" id="gasto-concepto" placeholder="Concepto (Ej. Alquiler, Tinta...)" class="bg-white border border-[#e8dbd3] rounded-xl px-3 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]">
-                        <input type="number" id="gasto-monto" placeholder="Monto ($)" step="0.01" min="0" class="bg-white border border-[#e8dbd3] rounded-xl px-3 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]">
-                        <select id="gasto-categoria" class="bg-white border border-[#e8dbd3] rounded-xl px-3 py-2.5 text-[#2c2c2c] text-sm focus:outline-none focus:border-[#b88a73]">
+                <div class="bg-[#faf8f6] p-4 rounded-2xl border border-[#e8dbd3] space-y-3">
+                    <h3 class="text-xs sm:text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-plus-circle mr-1 text-[#b88a73]"></i> Registrar Nuevo Egreso / Gasto</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <input type="text" id="gasto-concepto" placeholder="Concepto (Ej. Alquiler)" class="bg-white border border-[#e8dbd3] rounded-xl px-3 py-2 text-xs sm:text-sm text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]">
+                        <input type="number" id="gasto-monto" placeholder="Monto ($)" step="0.01" min="0" class="bg-white border border-[#e8dbd3] rounded-xl px-3 py-2 text-xs sm:text-sm text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]">
+                        <select id="gasto-categoria" class="bg-white border border-[#e8dbd3] rounded-xl px-3 py-2 text-xs sm:text-sm text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]">
                             <option value="Operativo">Operativo (Alquiler, Servicios)</option>
-                            <option value="Insumos">Compra de Insumos / Materiales</option>
+                            <option value="Insumos">Compra de Insumos</option>
                             <option value="Marketing">Marketing / Publicidad</option>
                             <option value="Otros">Otros Egresos</option>
                         </select>
-                        <button onclick="guardarGasto()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold transition text-sm shadow-sm flex items-center justify-center space-x-2">
+                        <button onclick="guardarGasto()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-xl font-bold transition text-xs sm:text-sm shadow-sm flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-save"></i>
                             <span>Registrar Gasto</span>
                         </button>
@@ -1088,16 +1087,16 @@
                 </div>
 
                 <div class="space-y-3">
-                    <h3 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-list mr-1 text-[#b88a73]"></i> Historial de Egresos Registrados</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm text-gray-700">
-                            <thead class="bg-[#faf8f6] text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
+                    <h3 class="text-xs sm:text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-list mr-1 text-[#b88a73]"></i> Historial de Egresos</h3>
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-left text-xs sm:text-sm text-gray-700 min-w-[450px]">
+                            <thead class="bg-[#faf8f6] text-[10px] sm:text-xs uppercase text-gray-500 border-b border-[#e8dbd3]">
                                 <tr>
-                                    <th class="p-3">Fecha</th>
-                                    <th class="p-3">Concepto</th>
-                                    <th class="p-3">Categoría</th>
-                                    <th class="p-3">Monto ($)</th>
-                                    <th class="p-3 text-center">Acción</th>
+                                    <th class="p-2.5">Fecha</th>
+                                    <th class="p-2.5">Concepto</th>
+                                    <th class="p-2.5">Categoría</th>
+                                    <th class="p-2.5">Monto ($)</th>
+                                    <th class="p-2.5 text-center">Acción</th>
                                 </tr>
                             </thead>
                             <tbody id="tabla-gastos">
@@ -1110,28 +1109,28 @@
         </section>
 
         <!-- CONFIGURAR LOGO -->
-        <section id="module-logo" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
-                <h2 class="text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-image text-[#b88a73] mr-2"></i> Configuración del Logotipo</h2>
-                <p class="text-sm text-gray-500">Sube una imagen para personalizar la barra superior y los presupuestos en PDF de forma sincronizada en la nube.</p>
-                <div class="flex items-center space-x-4">
-                    <input type="file" id="logo-file-input" accept="image/*" class="bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-4 py-2 text-sm text-gray-700">
-                    <button onclick="actualizarLogo()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-4 py-2 rounded-xl text-sm font-medium transition">Aplicar y Sincronizar Logo</button>
+        <section id="module-logo" class="hidden space-y-4 sm:space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-4">
+                <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c]"><i class="fa-solid fa-image text-[#b88a73] mr-2"></i> Configuración del Logotipo</h2>
+                <p class="text-xs sm:text-sm text-gray-500">Sube una imagen para personalizar la barra superior y los PDFs.</p>
+                <div class="flex flex-wrap items-center gap-3">
+                    <input type="file" id="logo-file-input" accept="image/*" class="bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-3 py-2 text-xs sm:text-sm text-gray-700 max-w-full">
+                    <button onclick="actualizarLogo()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition">Aplicar y Sincronizar</button>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- Contenedores Ocultos Fijos en el DOM para Exportar PDF Perfectos (Ancho Ajustado y Centrado) -->
+    <!-- Contenedores Ocultos Fijos en el DOM para Exportar PDF Perfectos -->
     <div id="pdf-container-presupuesto" style="display:none;"></div>
     <div id="pdf-container-recibo" style="display:none;"></div>
 
     <!-- MODAL ARQUEO DE CAJA DIARIO -->
-    <div id="modal-arqueo" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 border border-[#e8dbd3] shadow-xl">
+    <div id="modal-arqueo" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 space-y-4 border border-[#e8dbd3] shadow-xl">
             <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
-                <h3 class="text-lg font-bold text-[#2c2c2c]"><i class="fa-solid fa-scale-balanced mr-2 text-[#b88a73]"></i> Arqueo de Caja Diario</h3>
+                <h3 class="text-base sm:text-lg font-bold text-[#2c2c2c]"><i class="fa-solid fa-scale-balanced mr-2 text-[#b88a73]"></i> Arqueo de Caja Diario</h3>
                 <button onclick="cerrarArqueoCaja()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div id="contenido-arqueo" class="space-y-3 text-xs text-gray-700 max-h-80 overflow-y-auto pr-1">
@@ -1144,10 +1143,10 @@
     </div>
 
     <!-- MODAL HISTORIAL DE CLIENTE CRM -->
-    <div id="modal-historial-cliente" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-4 border border-[#e8dbd3] shadow-xl">
+    <div id="modal-historial-cliente" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-4 sm:p-6 space-y-4 border border-[#e8dbd3] shadow-xl">
             <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
-                <h3 id="titulo-historial-cliente" class="text-lg font-bold text-[#2c2c2c]"><i class="fa-solid fa-clock-rotate-left mr-2 text-[#b88a73]"></i> Historial del Cliente</h3>
+                <h3 id="titulo-historial-cliente" class="text-base sm:text-lg font-bold text-[#2c2c2c]"><i class="fa-solid fa-clock-rotate-left mr-2 text-[#b88a73]"></i> Historial del Cliente</h3>
                 <button onclick="cerrarHistorialCliente()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div id="contenido-historial-cliente" class="space-y-3 text-xs text-gray-700 max-h-96 overflow-y-auto pr-1">
@@ -1187,13 +1186,13 @@
             if (!contenedor) {
                 contenedor = document.createElement('div');
                 contenedor.id = 'toast-container';
-                contenedor.className = 'fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none';
+                contenedor.className = 'fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none max-w-[90vw]';
                 document.body.appendChild(contenedor);
             }
             
             const toast = document.createElement('div');
             const bgColor = tipo === 'success' ? 'bg-[#2c2c2c] text-white border-[#b88a73]' : 'bg-rose-600 text-white border-rose-700';
-            toast.className = `${bgColor} px-4 py-3 rounded-lg shadow-lg border text-xs font-medium flex items-center space-x-2 transition-all transform translate-y-2 opacity-0 pointer-events-auto`;
+            toast.className = `${bgColor} px-3.5 py-2.5 rounded-lg shadow-lg border text-xs font-medium flex items-center space-x-2 transition-all transform translate-y-2 opacity-0 pointer-events-auto`;
             toast.innerHTML = `<i class="fa-solid ${tipo === 'success' ? 'fa-circle-check text-[#b88a73]' : 'fa-triangle-exclamation'}"></i><span>${mensaje}</span>`;
             
             contenedor.appendChild(toast);
@@ -1254,9 +1253,9 @@
                 if(el) el.classList.add('hidden');
                 if(btn) {
                     if(btn.tagName === 'BUTTON' && btn.id.startsWith('tab-') && !btn.classList.contains('w-full')) {
-                        btn.className = "px-4 py-2 rounded-xl font-medium text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap";
+                        btn.className = "px-3 py-1.5 rounded-xl font-medium text-xs sm:text-sm text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap";
                     } else if(btn.tagName === 'BUTTON') {
-                        btn.className = "w-full text-left px-3 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center";
+                        btn.className = "w-full text-left px-2.5 py-2 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center";
                     }
                 }
             });
@@ -1266,9 +1265,9 @@
             if(activeEl) activeEl.classList.remove('hidden');
             if(activeBtn) {
                 if(!activeBtn.classList.contains('w-full')) {
-                    activeBtn.className = "px-4 py-2 rounded-xl font-medium text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap";
+                    activeBtn.className = "px-3 py-1.5 rounded-xl font-medium text-xs sm:text-sm bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap";
                 } else {
-                    activeBtn.className = "w-full text-left px-3 py-2 text-xs font-medium bg-[#faf8f6] text-[#2c2c2c] font-bold rounded-xl flex items-center";
+                    activeBtn.className = "w-full text-left px-2.5 py-2 text-xs font-medium bg-[#faf8f6] text-[#2c2c2c] font-bold rounded-xl flex items-center";
                 }
             }
 
@@ -1461,12 +1460,12 @@
                 const alertaStock = ins.stock <= ins.stock_minimo ? 'text-rose-600 font-bold' : '';
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${ins.nombre}</td>
-                        <td class="p-3 text-xs">${ins.categoria || 'General'}</td>
-                        <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(ins.costo_unitario).toFixed(2)}</td>
-                        <td class="p-3 ${alertaStock}">${ins.stock} uds</td>
-                        <td class="p-3 text-xs text-gray-500">${ins.stock_minimo}</td>
-                        <td class="p-3 space-x-1.5 whitespace-nowrap">
+                        <td class="p-2.5 font-semibold text-[#2c2c2c]">${ins.nombre}</td>
+                        <td class="p-2.5 text-xs">${ins.categoria || 'General'}</td>
+                        <td class="p-2.5 text-[#b88a73] font-bold">$${parseFloat(ins.costo_unitario).toFixed(2)}</td>
+                        <td class="p-2.5 ${alertaStock}">${ins.stock} uds</td>
+                        <td class="p-2.5 text-xs text-gray-500">${ins.stock_minimo}</td>
+                        <td class="p-2.5 space-x-1.5 whitespace-nowrap">
                             <button onclick="eliminarInsumo('${ins.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
@@ -1503,9 +1502,9 @@
             listaServiciosDB.forEach((s) => {
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${s.nombre}</td>
-                        <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(s.precio).toFixed(2)}</td>
-                        <td class="p-3 space-x-1.5 whitespace-nowrap">
+                        <td class="p-2.5 font-semibold text-[#2c2c2c]">${s.nombre}</td>
+                        <td class="p-2.5 text-[#b88a73] font-bold">$${parseFloat(s.precio).toFixed(2)}</td>
+                        <td class="p-2.5 space-x-1.5 whitespace-nowrap">
                             <button onclick="eliminarServicio('${s.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
@@ -1553,16 +1552,16 @@
                 const tipoBadge = c.tipo === 'Empresa (B2B)' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${c.nombre}</td>
-                        <td class="p-3 text-xs font-mono">${c.rif || 'S/R'}</td>
-                        <td class="p-3 text-xs"><span class="px-2 py-0.5 rounded-full border text-[10px] font-semibold ${tipoBadge}">${c.tipo || 'Persona Natural'}</span></td>
-                        <td class="p-3 text-xs">
+                        <td class="p-2.5 font-semibold text-[#2c2c2c]">${c.nombre}</td>
+                        <td class="p-2.5 text-xs font-mono">${c.rif || 'S/R'}</td>
+                        <td class="p-2.5 text-xs"><span class="px-2 py-0.5 rounded-full border text-[10px] font-semibold ${tipoBadge}">${c.tipo || 'Persona Natural'}</span></td>
+                        <td class="p-2.5 text-xs">
                             <div>${c.tel || 'Sin telf'}</div>
                             <div class="text-[10px] text-gray-500">${c.email || 'Sin correo'}</div>
                         </td>
-                        <td class="p-3 text-xs text-gray-600 truncate max-w-xs" title="${c.direccion || 'Sin dirección'}">${c.direccion || 'N/A'}</td>
-                        <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
-                            <button onclick="verHistorialCliente('${c.nombre}')" class="bg-gray-100 hover:bg-indigo-100 text-indigo-700 p-2 rounded-xl transition text-xs" title="Ver Historial de Compras"><i class="fa-solid fa-clock-rotate-left"></i></button>
+                        <td class="p-2.5 text-xs text-gray-600 truncate max-w-xs" title="${c.direccion || 'Sin dirección'}">${c.direccion || 'N/A'}</td>
+                        <td class="p-2.5 text-center space-x-1.5 whitespace-nowrap">
+                            <button onclick="verHistorialCliente('${c.nombre}')" class="bg-gray-100 hover:bg-indigo-100 text-indigo-700 p-2 rounded-xl transition text-xs" title="Ver Historial"><i class="fa-solid fa-clock-rotate-left"></i></button>
                             <button onclick="eliminarCliente('${c.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
@@ -1795,18 +1794,18 @@
             const utilidadVesEl = document.getElementById('fin-utilidad-neta-ves');
             utilidadEl.innerText = `$${utilidadNeta.toFixed(2)}`;
             utilidadVesEl.innerText = `Bs. ${(utilidadNeta * tasaBCV).toFixed(2)}`;
-            utilidadEl.className = utilidadNeta < 0 ? "text-2xl font-extrabold text-rose-600 mt-2" : "text-2xl font-extrabold text-[#b88a73] mt-2";
+            utilidadEl.className = utilidadNeta < 0 ? "text-xl sm:text-2xl font-extrabold text-rose-600 mt-2" : "text-xl sm:text-2xl font-extrabold text-[#b88a73] mt-2";
 
             tbody.innerHTML = gastosFiltrados.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin egresos registrados para este periodo.</td></tr>';
             
             gastosFiltrados.slice().reverse().forEach((g) => {
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 text-xs text-gray-500">${g.fecha}</td>
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${g.concepto}</td>
-                        <td class="p-3 text-xs"><span class="bg-[#faf8f6] px-2 py-1 rounded border border-[#e8dbd3]">${g.categoria}</span></td>
-                        <td class="p-3 text-rose-600 font-bold">$${parseFloat(g.monto).toFixed(2)}</td>
-                        <td class="p-3 text-center">
+                        <td class="p-2.5 text-xs text-gray-500">${g.fecha}</td>
+                        <td class="p-2.5 font-semibold text-[#2c2c2c]">${g.concepto}</td>
+                        <td class="p-2.5 text-xs"><span class="bg-[#faf8f6] px-2 py-1 rounded border border-[#e8dbd3]">${g.categoria}</span></td>
+                        <td class="p-2.5 text-rose-600 font-bold">$${parseFloat(g.monto).toFixed(2)}</td>
+                        <td class="p-2.5 text-center">
                             <button onclick="eliminarGasto('${g.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
@@ -1831,7 +1830,7 @@
             let totalVentasVES = totalVentasUSD * tasaBCV;
             let insumosAlerta = insumos.filter(i => parseInt(i.stock || 0) <= parseInt(i.stock_minimo || 0)).length;
             
-            document.getElementById('dash-ventas').innerHTML = `$${totalVentasUSD.toFixed(2)} <span class="block text-xs font-normal text-gray-500">Bs. ${totalVentasVES.toFixed(2)}</span>`;
+            document.getElementById('dash-ventas').innerHTML = `$${totalVentasUSD.toFixed(2)} <span class="block text-[10px] font-normal text-gray-500">Bs. ${totalVentasVES.toFixed(2)}</span>`;
             document.getElementById('dash-insumos').innerText = insumos.length;
             document.getElementById('dash-insumos-alerta').innerText = insumosAlerta;
             document.getElementById('dash-clientes').innerText = clientes.length;
@@ -1902,7 +1901,7 @@
             } catch (error) {
                 mostrarNotificacion("Error al guardar Stand By.", "error");
             } finally {
-                if(btn) btn.innerHTML = '<i class="fa-solid fa-clock"></i><span>Guardar en Stand By</span>';
+                if(btn) btn.innerHTML = '<i class="fa-solid fa-clock"></i><span>Stand By</span>';
             }
         }
 
@@ -2043,11 +2042,11 @@
 
                     tbody.innerHTML += `
                         <tr class="border-b border-[#e8dbd3]">
-                            <td class="p-3 text-xs">${cot.created_at}</td>
-                            <td class="p-3 font-semibold text-[#2c2c2c]">${cot.cliente}</td>
-                            <td class="p-3 text-xs text-gray-600 max-w-xs truncate" title="${itemsResumen}">${itemsResumen}</td>
-                            <td class="p-3 text-[#b88a73] font-bold">$${parseFloat(cot.total_usd).toFixed(2)}</td>
-                            <td class="p-3 text-center space-x-1.5 whitespace-nowrap">
+                            <td class="p-2.5 text-xs">${cot.created_at}</td>
+                            <td class="p-2.5 font-semibold text-[#2c2c2c]">${cot.cliente}</td>
+                            <td class="p-2.5 text-xs text-gray-600 max-w-xs truncate" title="${itemsResumen}">${itemsResumen}</td>
+                            <td class="p-2.5 text-[#b88a73] font-bold">$${parseFloat(cot.total_usd).toFixed(2)}</td>
+                            <td class="p-2.5 text-center space-x-1.5 whitespace-nowrap">
                                 <button onclick='editarStandByAsCotizacion(${cotJsonEscaped})' class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-2 rounded-xl transition text-xs" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
                                 <button onclick='enviarStandByACaja(${cotJsonEscaped})' class="bg-gray-100 hover:bg-emerald-100 text-emerald-700 p-2 rounded-xl transition text-xs" title="Facturar"><i class="fa-solid fa-cash-register"></i></button>
                                 <button onclick="eliminarStandBy('${cot.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-2 rounded-xl transition text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
@@ -2187,7 +2186,7 @@
             const cant = parseInt(document.getElementById('stk-cantidad').value) || 1;
             const ancho = document.getElementById('stk-ancho').value;
             const alto = document.getElementById('stk-alto').value;
-            const concepto = `Stickers Personalizados (${ancho}x${alto}cm) - Pack de ${cant} uds`;
+            const concepto = `Stickers (${ancho}x${alto}cm) - Pack ${cant} uds`;
             const costoBase = parseFloat(document.getElementById('stk-res-costo-total').innerText.replace('$', '')) || 0;
             const ganancia = parseFloat(document.getElementById('stk-ganancia').value) || 50;
 
@@ -2208,7 +2207,7 @@
             const tbody = document.getElementById('lista-insumos-topper');
             const rowId = `top-row-${topperFilaIdx}`;
 
-            let opcionesInsumos = '<option value="">-- Seleccionar de Insumos --</option>';
+            let opcionesInsumos = '<option value="">-- Seleccionar Insumo --</option>';
             listaInsumosDB.forEach(ins => {
                 opcionesInsumos += `<option value="${ins.nombre}" data-costo="${ins.costo_unitario}">${ins.nombre} ($${ins.costo_unitario})</option>`;
             });
@@ -2216,7 +2215,7 @@
             const html = `
                 <tr id="${rowId}" class="border-b border-[#e8dbd3]">
                     <td class="p-2">
-                        <select class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded p-1 text-xs mb-1" onchange="seleccionarInsumoTopper('${rowId}')">
+                        <select class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded p-1 text-[11px] mb-1" onchange="seleccionarInsumoTopper('${rowId}')">
                             ${opcionesInsumos}
                         </select>
                         <input type="text" placeholder="Material / Capa" class="w-full border border-[#e8dbd3] rounded p-1 text-xs top-mat-nombre">
@@ -2424,33 +2423,32 @@
             const rowId = `renglon-${renglonIndex}`;
             const gananciaGlobal = parseFloat(document.getElementById('presupuesto-ganancia-global').value) || 30;
 
-            let opcionesServicios = '<option value="">-- Catálogo Servicios --</option>';
+            let opcionesServicios = '<option value="">-- Catálogo --</option>';
             listaServiciosDB.forEach(s => {
                 opcionesServicios += `<option value="${s.nombre}" data-precio="${s.precio}">${s.nombre} ($${s.precio})</option>`;
             });
 
             const html = `
                 <tr id="${rowId}" class="border-b border-[#e8dbd3] renglon-item">
-                    <td class="p-3 w-[56%] overflow-hidden">
-                        <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-servicio mb-1 truncate" onchange="seleccionarServicioCatalogo('${rowId}')">
+                    <td class="p-2 sm:p-3 w-[46%] overflow-hidden">
+                        <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1 text-[10px] w-full select-servicio mb-1 truncate" onchange="seleccionarServicioCatalogo('${rowId}')">
                             ${opcionesServicios}
                         </select>
                         <input type="text" value="${nombreDefault}" placeholder="Descripción" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium" oninput="guardarBorradorLocal()">
                     </td>
-                    <td class="p-3 w-[14%] text-center align-middle">
+                    <td class="p-2 sm:p-3 w-[12%] text-center align-middle">
                         <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
+                    <td class="p-2 sm:p-3 w-[12%] text-center align-middle">
                         <input type="number" step="0.01" min="0" value="${costoDefault}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
+                    <td class="p-2 sm:p-3 w-[10%] text-center align-middle">
                         <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
-                    <td class="p-3 w-[10%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle truncate">$0.00</td>
-                    <td class="p-3 w-[30%] text-right align-middle">
-                        <input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
+                    <td class="p-2 sm:p-3 w-[20%] text-right align-middle">
+                        <input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
                     </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
+                    <td class="p-2 sm:p-3 w-[10%] text-center align-middle">
                         <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal(); guardarBorradorLocal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
@@ -2466,33 +2464,32 @@
             const rowId = `renglon-${renglonIndex}`;
             const gananciaGlobal = parseFloat(document.getElementById('presupuesto-ganancia-global').value) || 30;
 
-            let opcionesInsumos = '<option value="">-- Catálogo Insumos --</option>';
+            let opcionesInsumos = '<option value="">-- Catálogo --</option>';
             listaInsumosDB.forEach(i => {
                 opcionesInsumos += `<option value="${i.nombre}" data-costo="${i.costo_unitario}">${i.nombre} ($${i.costo_unitario})</option>`;
             });
 
             const html = `
                 <tr id="${rowId}" class="border-b border-[#e8dbd3] renglon-item">
-                    <td class="p-3 w-[56%] overflow-hidden">
-                        <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1.5 py-1 text-[11px] w-full select-insumo mb-1 truncate" onchange="seleccionarInsumoCatalogo('${rowId}')">
+                    <td class="p-2 sm:p-3 w-[46%] overflow-hidden">
+                        <select class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1 text-[10px] w-full select-insumo mb-1 truncate" onchange="seleccionarInsumoCatalogo('${rowId}')">
                             ${opcionesInsumos}
                         </select>
                         <input type="text" placeholder="Insumo" class="bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-2 py-1.5 text-xs w-full desc-input font-medium" oninput="guardarBorradorLocal()">
                     </td>
-                    <td class="p-3 w-[14%] text-center align-middle">
+                    <td class="p-2 sm:p-3 w-[12%] text-center align-middle">
                         <input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
+                    <td class="p-2 sm:p-3 w-[12%] text-center align-middle">
                         <input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
+                    <td class="p-2 sm:p-3 w-[10%] text-center align-middle">
                         <input type="number" step="1" value="${gananciaGlobal}" class="w-full bg-white border border-[#e8dbd3] text-[#2c2c2c] rounded-lg px-1 py-1.5 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorLocal();">
                     </td>
-                    <td class="p-3 w-[10%] text-right text-[#b88a73] font-semibold sugerido-txt align-middle truncate">$0.00</td>
-                    <td class="p-3 w-[30%] text-right align-middle">
-                        <input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
+                    <td class="p-2 sm:p-3 w-[20%] text-right align-middle">
+                        <input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1 py-1.5 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${rowId}'); guardarBorradorLocal();">
                     </td>
-                    <td class="p-3 w-[10%] text-center align-middle">
+                    <td class="p-2 sm:p-3 w-[10%] text-center align-middle">
                         <button onclick="document.getElementById('${rowId}').remove(); recalcularPresupuestoTotal(); guardarBorradorLocal();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
@@ -2559,7 +2556,6 @@
                 totalCostoProduccion += costoFila;
                 
                 const precioSugerido = costoFila * (1 + (gananciaPct / 100));
-                row.querySelector('.sugerido-txt').innerText = `$${precioSugerido.toFixed(2)}`;
                 
                 if (!manualInput.classList.contains('modificado-manual')) {
                     manualInput.value = precioSugerido.toFixed(2);
@@ -2611,7 +2607,7 @@
             }
         }
 
-        // ================= MOTOR DE EXPORTACIÓN PDF ESTABLE (CENTRADO Y SIN DESCUADRES) =================
+        // ================= MOTOR DE EXPORTACIÓN PDF ESTABLE =================
         function exportarPDFPresupuesto() {
             const cliente = document.getElementById('presupuesto-cliente').value;
             const clienteNombre = cliente === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : cliente;
@@ -2633,10 +2629,10 @@
 
                 renglonesHTML += `
                     <tr style="border-bottom: 1px solid #e8dbd3;">
-                        <td style="padding: 12px; font-size: 12px; color: #2c2c2c; font-weight: 500;">${desc}</td>
-                        <td style="padding: 12px; font-size: 12px; text-align: center; color: #2c2c2c;">${cant}</td>
-                        <td style="padding: 12px; font-size: 12px; text-align: right; color: #2c2c2c;">$${unitario}</td>
-                        <td style="padding: 12px; font-size: 12px; text-align: right; font-weight: bold; color: #b88a73;">$${parseFloat(precioTotal).toFixed(2)}</td>
+                        <td style="padding: 10px; font-size: 12px; color: #2c2c2c; font-weight: 500;">${desc}</td>
+                        <td style="padding: 10px; font-size: 12px; text-align: center; color: #2c2c2c;">${cant}</td>
+                        <td style="padding: 10px; font-size: 12px; text-align: right; color: #2c2c2c;">$${unitario}</td>
+                        <td style="padding: 10px; font-size: 12px; text-align: right; font-weight: bold; color: #b88a73;">$${parseFloat(precioTotal).toFixed(2)}</td>
                     </tr>
                 `;
             });
@@ -2687,10 +2683,10 @@
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
                         <thead>
                             <tr style="background: #f7f4f0; font-size: 11px; text-transform: uppercase; color: #71717a; border-bottom: 1px solid #e8dbd3;">
-                                <th style="padding: 12px; text-align: left; width: 50%;">Descripción</th>
-                                <th style="padding: 12px; text-align: center; width: 12%;">Cant</th>
-                                <th style="padding: 12px; text-align: right; width: 19%;">Precio Unit.</th>
-                                <th style="padding: 12px; text-align: right; width: 19%;">Total</th>
+                                <th style="padding: 10px; text-align: left; width: 50%;">Descripción</th>
+                                <th style="padding: 10px; text-align: center; width: 12%;">Cant</th>
+                                <th style="padding: 10px; text-align: right; width: 19%;">Precio Unit.</th>
+                                <th style="padding: 10px; text-align: right; width: 19%;">Total</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2731,7 +2727,6 @@
                 mostrarNotificacion("¡Presupuesto exportado en PDF con éxito!");
             }).catch((err) => {
                 container.style.display = 'none';
-                console.error("Error html2pdf presupuesto:", err);
                 mostrarNotificacion("Error al generar el PDF del presupuesto.", "error");
             });
         }
@@ -2851,7 +2846,6 @@
                 mostrarNotificacion("¡Recibo exportado en PDF con éxito!");
             }).catch((err) => {
                 container.style.display = 'none';
-                console.error("Error html2pdf recibo:", err);
                 mostrarNotificacion("Error al generar el PDF del recibo.", "error");
             });
         }
@@ -2866,15 +2860,15 @@
                 <tr id="${rowId}" class="border-b border-[#e8dbd3] caja-item-row relative">
                     <td class="p-2 relative">
                         <div class="relative">
-                            <input type="text" value="${nombre}" placeholder="Escribe o usa flechas ↑ ↓ y Enter..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-3 py-2 text-xs caja-search-input font-medium focus:outline-none focus:border-[#b88a73]" autocomplete="off" oninput="guardarBorradorCaja()">
+                            <input type="text" value="${nombre}" placeholder="Escribe o usa ↑ ↓ y Enter..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs caja-search-input font-medium focus:outline-none focus:border-[#b88a73]" autocomplete="off" oninput="guardarBorradorCaja()">
                             <div class="autocomplete-suggestions hidden absolute left-0 right-0 top-full mt-1 bg-white border border-[#e8dbd3] rounded-xl shadow-lg max-h-48 overflow-y-auto z-50"></div>
                         </div>
                     </td>
                     <td class="p-2 text-center align-middle">
-                        <input type="number" value="${cant}" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-1 py-2 text-xs text-center caja-cant-input font-medium" oninput="recalcularTotalesCaja(); guardarBorradorCaja();">
+                        <input type="number" value="${cant}" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-1 py-1.5 text-xs text-center caja-cant-input font-medium" oninput="recalcularTotalesCaja(); guardarBorradorCaja();">
                     </td>
                     <td class="p-2 text-right align-middle">
-                        <input type="number" step="0.01" min="0" value="${parseFloat(precio).toFixed(2)}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-2 text-xs text-right caja-precio-input font-bold text-[#b88a73]" oninput="recalcularTotalesCaja(); guardarBorradorCaja();">
+                        <input type="number" step="0.01" min="0" value="${parseFloat(precio).toFixed(2)}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs text-right caja-precio-input font-bold text-[#b88a73]" oninput="recalcularTotalesCaja(); guardarBorradorCaja();">
                     </td>
                     <td class="p-2 text-center align-middle">
                         <button onclick="document.getElementById('${rowId}').remove(); recalcularTotalesCaja(); guardarBorradorCaja();" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
@@ -3020,8 +3014,8 @@
             const rowId = `pago-row-${pagoIndex}`;
             
             const html = `
-                <div id="${rowId}" class="flex space-x-2 items-center bg-white p-2.5 rounded-xl border border-[#e8dbd3] pago-item shadow-xs">
-                    <select class="w-1/3 bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73]">
+                <div id="${rowId}" class="flex space-x-1.5 items-center bg-white p-2 rounded-xl border border-[#e8dbd3] pago-item shadow-xs text-xs">
+                    <select class="w-[32%] bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-1.5 py-1.5 text-[#2c2c2c] text-[11px] focus:outline-none focus:border-[#b88a73]">
                         <option value="${metodo}">${metodo}</option>
                         <option value="Efectivo USD">Efectivo ($)</option>
                         <option value="Pago Móvil">Pago Móvil (Bs)</option>
@@ -3029,12 +3023,12 @@
                         <option value="Cashea">Cashea</option>
                         <option value="Transferencia">Transferencia</option>
                     </select>
-                    <div class="relative w-1/3">
-                        <span class="absolute left-2 top-1.5 text-gray-400 text-xs">$</span>
-                        <input type="number" value="${montoACobrar.toFixed(2)}" step="0.01" min="0" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg pl-5 pr-2 py-1.5 text-[#2c2c2c] font-bold text-xs focus:outline-none focus:border-[#b88a73] monto-pago" oninput="calcularRestanteCaja()">
+                    <div class="relative w-[32%]">
+                        <span class="absolute left-1.5 top-1.5 text-gray-400 text-xs">$</span>
+                        <input type="number" value="${montoACobrar.toFixed(2)}" step="0.01" min="0" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg pl-4 pr-1.5 py-1.5 text-[#2c2c2c] font-bold text-xs focus:outline-none focus:border-[#b88a73] monto-pago" oninput="calcularRestanteCaja()">
                     </div>
-                    <input type="text" placeholder="Ref / Nro" class="w-1/3 bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73] ref-pago">
-                    <button onclick="document.getElementById('${rowId}').remove(); calcularRestanteCaja();" class="text-rose-500 hover:text-rose-700 px-2"><i class="fa-solid fa-trash"></i></button>
+                    <input type="text" placeholder="Ref" class="w-[28%] bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-1.5 py-1.5 text-[#2c2c2c] text-[11px] focus:outline-none focus:border-[#b88a73] ref-pago">
+                    <button onclick="document.getElementById('${rowId}').remove(); calcularRestanteCaja();" class="text-rose-500 hover:text-rose-700 px-1"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `;
             lista.insertAdjacentHTML('beforeend', html);
@@ -3047,20 +3041,20 @@
             const rowId = `pago-row-${pagoIndex}`;
             
             const html = `
-                <div id="${rowId}" class="flex space-x-2 items-center bg-white p-2.5 rounded-xl border border-[#e8dbd3] pago-item shadow-xs">
-                    <select class="w-1/3 bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73]">
+                <div id="${rowId}" class="flex space-x-1.5 items-center bg-white p-2 rounded-xl border border-[#e8dbd3] pago-item shadow-xs text-xs">
+                    <select class="w-[32%] bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-1.5 py-1.5 text-[#2c2c2c] text-[11px] focus:outline-none focus:border-[#b88a73]">
                         <option value="Efectivo USD">Efectivo ($)</option>
                         <option value="Pago Móvil">Pago Móvil (Bs)</option>
                         <option value="Zelle">Zelle / Binance</option>
                         <option value="Cashea">Cashea</option>
                         <option value="Transferencia">Transferencia</option>
                     </select>
-                    <div class="relative w-1/3">
-                        <span class="absolute left-2 top-1.5 text-gray-400 text-xs">$</span>
-                        <input type="number" placeholder="Monto USD" step="0.01" min="0" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg pl-5 pr-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73] monto-pago" oninput="calcularRestanteCaja()">
+                    <div class="relative w-[32%]">
+                        <span class="absolute left-1.5 top-1.5 text-gray-400 text-xs">$</span>
+                        <input type="number" placeholder="Monto" step="0.01" min="0" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg pl-4 pr-1.5 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73] monto-pago" oninput="calcularRestanteCaja()">
                     </div>
-                    <input type="text" placeholder="Ref / Nro" class="w-1/3 bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73] ref-pago">
-                    <button onclick="document.getElementById('${rowId}').remove(); calcularRestanteCaja();" class="text-rose-500 hover:text-rose-700 px-2"><i class="fa-solid fa-trash"></i></button>
+                    <input type="text" placeholder="Ref" class="w-[28%] bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-1.5 py-1.5 text-[#2c2c2c] text-[11px] focus:outline-none focus:border-[#b88a73] ref-pago">
+                    <button onclick="document.getElementById('${rowId}').remove(); calcularRestanteCaja();" class="text-rose-500 hover:text-rose-700 px-1"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `;
             lista.insertAdjacentHTML('beforeend', html);
@@ -3187,11 +3181,11 @@
                 const d = v.fecha || new Date(v.fechaISO).toLocaleDateString();
                 tbody.innerHTML += `
                     <tr class="border-b border-[#e8dbd3]">
-                        <td class="p-3 text-xs text-gray-500">${d}</td>
-                        <td class="p-3 font-semibold text-[#2c2c2c]">${v.cliente}</td>
-                        <td class="p-3 text-xs text-gray-700 max-w-xs truncate" title="${v.concepto}">${v.concepto}</td>
-                        <td class="p-3 font-bold text-[#b88a73]">$${parseFloat(v.total_usd).toFixed(2)} <span class="block text-[11px] font-normal text-gray-500">Bs. ${(v.total_usd * tasaBCV).toFixed(2)}</span></td>
-                        <td class="p-3 text-xs text-gray-600">${v.metodos_pago}</td>
+                        <td class="p-2.5 text-xs text-gray-500">${d}</td>
+                        <td class="p-2.5 font-semibold text-[#2c2c2c]">${v.cliente}</td>
+                        <td class="p-2.5 text-xs text-gray-700 max-w-xs truncate" title="${v.concepto}">${v.concepto}</td>
+                        <td class="p-2.5 font-bold text-[#b88a73]">$${parseFloat(v.total_usd).toFixed(2)} <span class="block text-[10px] font-normal text-gray-500">Bs. ${(v.total_usd * tasaBCV).toFixed(2)}</span></td>
+                        <td class="p-2.5 text-xs text-gray-600">${v.metodos_pago}</td>
                     </tr>
                 `;
             });

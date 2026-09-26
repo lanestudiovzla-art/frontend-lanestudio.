@@ -669,7 +669,7 @@
                     </div>
                 </div>
 
-                <!-- CONTENEDOR DE LA VISTA PREVIA DEL PRESUPUESTO (Optimizado horizontalmente para móviles) -->
+                <!-- CONTENEDOR DE LA VISTA PREVIA DEL PRESUPUESTO -->
                 <div class="w-full overflow-x-auto py-1">
                     <div id="area-impresion-presupuesto" class="bg-white p-4 sm:p-8 rounded-2xl border-2 border-[#b88a73] space-y-5 shadow-xs w-full min-w-[650px] sm:min-w-0 max-w-4xl mx-auto box-border">
                         
@@ -760,11 +760,12 @@
             </div>
         </section>
 
-        <!-- CAJA Y PAGOS -->
+        <!-- CAJA Y PAGOS (MODIFICADO A 2 COLUMNAS CÓMODAS) -->
         <section id="module-caja" class="hidden space-y-4 sm:space-y-6">
-            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
-                <div class="lg:col-span-2 space-y-4">
+                <!-- COLUMNA IZQUIERDA (7 Columnas): Formulario y Tabla de Ítems -->
+                <div class="lg:col-span-7 space-y-4">
                     <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-3">
                         <h2 class="text-base sm:text-xl font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cash-register text-[#b88a73] mr-2"></i> Caja Rápida / POS</h2>
                         <div class="flex items-center space-x-2">
@@ -792,9 +793,9 @@
                             <table class="w-full text-left text-xs text-gray-700 min-w-[320px]">
                                 <thead class="bg-white text-gray-500 uppercase border-b border-[#e8dbd3] text-[10px]">
                                     <tr>
-                                        <th class="p-2 w-[55%]">Insumo / Servicio (↑ ↓ Enter)</th>
+                                        <th class="p-2 w-[50%]">Insumo / Servicio (↑ ↓ Enter)</th>
                                         <th class="p-2 w-[15%] text-center">Cant</th>
-                                        <th class="p-2 w-[20%] text-right">Precio ($)</th>
+                                        <th class="p-2 w-[25%] text-right">Precio ($)</th>
                                         <th class="p-2 w-[10%] text-center">X</th>
                                     </tr>
                                 </thead>
@@ -857,7 +858,8 @@
                     </div>
                 </div>
 
-                <div class="bg-[#faf8f6] p-4 sm:p-5 rounded-2xl border border-[#e8dbd3] flex flex-col justify-between space-y-4">
+                <!-- COLUMNA DERECHA (5 Columnas): Resumen de Cobro Fijo y Botones -->
+                <div class="lg:col-span-5 bg-[#faf8f6] p-4 sm:p-5 rounded-2xl border border-[#e8dbd3] flex flex-col justify-between space-y-4 lg:sticky lg:top-4">
                     <div class="space-y-3">
                         <h3 class="text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wider border-b border-[#e8dbd3] pb-2">Resumen de Cobro</h3>
                         
@@ -908,6 +910,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </section>
 

@@ -2024,8 +2024,7 @@
             if (entrega && entrega < hoy && o.estado !== 'Entregado') {
                 alerta = '<span class="text-[9px] text-rose-600 font-bold"><i class="fa-solid fa-exclamation-triangle mr-0.5"></i>Vencida</span>';
             }
-            const j = JSON.stringify(o).replace(/"/g, '&quot;').replace(/'/g, '&#39
-                ')`;
+          const j = JSON.stringify(o).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
             return `
                 <div class="bg-white p-2.5 rounded-xl border border-[#e8dbd3] shadow-xs hover:shadow-md transition cursor-pointer kanban-card" draggable="true" data-orden-id="${o.id}" onclick='verDetalleOrden(${j})'>
                     <div class="flex justify-between items-start mb-1">

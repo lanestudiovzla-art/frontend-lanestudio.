@@ -1,3 +1,1403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAN Estudio - Sistema Integral de Gestión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #faf8f6; color: #2c2c2c; overflow-x: hidden; }
+        .autocomplete-active { background-color: #faf8f6 !important; font-weight: bold; border-left: 3px solid #b88a73; }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.4s ease-out; }
+    </style>
+</head>
+<body class="bg-[#faf8f6] text-[#2c2c2c] antialiased min-h-screen flex flex-col max-w-full overflow-x-hidden">
+
+    <!-- PANTALLA DE LOGIN -->
+    <div id="login-screen" class="fixed inset-0 z-[100] bg-gradient-to-br from-[#2c2c2c] via-[#3a3a3a] to-[#2c2c2c] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-7 space-y-5 animate-fadeIn">
+            <div class="text-center space-y-2">
+                <div class="mx-auto w-16 h-16 rounded-2xl bg-[#b88a73] flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-[#2c2c2c] pt-1">LAN Estudio</h1>
+                <p class="text-xs text-gray-500">Sistema Integral de Gestión</p>
+            </div>
+
+            <form onsubmit="event.preventDefault(); iniciarSesion();" class="space-y-3">
+                <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">Usuario</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <input type="text" id="login-email" required placeholder="tu usuario" autocomplete="username" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl pl-9 pr-24 py-2.5 text-sm text-[#2c2c2c] focus:outline-none focus:border-[#b88a73] focus:ring-2 focus:ring-[#b88a73]/20 transition">
+                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-[11px] pointer-events-none">@lanestudio.app</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1">Contraseña</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <input type="password" id="login-password" required placeholder="••••••••" autocomplete="current-password" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-xl pl-9 pr-10 py-2.5 text-sm text-[#2c2c2c] focus:outline-none focus:border-[#b88a73] focus:ring-2 focus:ring-[#b88a73]/20 transition">
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#b88a73] text-xs">
+                            <i id="toggle-pass-icon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="login-error" class="hidden bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl px-3 py-2 flex items-start space-x-2">
+                    <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+                    <span id="login-error-text">Error</span>
+                </div>
+
+                <button type="submit" id="btn-login" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-3 rounded-xl font-bold text-sm transition shadow-md flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Iniciar Sesión</span>
+                </button>
+            </form>
+
+            <div class="text-center">
+                <button onclick="recuperarPassword()" class="text-[11px] text-gray-500 hover:text-[#b88a73] underline transition">
+                    ¿Olvidaste tu contraseña?
+                </button>
+            </div>
+
+            <div class="text-center border-t border-[#e8dbd3] pt-4">
+                <p class="text-[10px] text-gray-400">Acceso restringido • Solo personal autorizado</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-4 right-4 z-[110] space-y-2 pointer-events-none max-w-[90vw]"></div>
+
+    <!-- CONTENIDO DE LA APP -->
+    <div id="app-content" class="hidden flex flex-col min-h-screen w-full">
+
+        <header class="bg-[#2c2c2c] border-b border-[#e8dbd3] px-3 sm:px-6 py-2 flex flex-wrap justify-between items-center shadow-sm text-white gap-2">
+            <div class="flex items-center space-x-2.5">
+                <div id="logo-container" class="bg-[#b88a73] p-2 rounded-xl text-white font-bold text-lg flex items-center justify-center shadow-sm overflow-hidden w-9 h-9 sm:w-10 sm:h-10 shrink-0">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-base font-bold tracking-wide leading-tight">LAN Estudio</h1>
+                    <p class="text-[10px] text-gray-300">Agencia de Publicidad y Comunicación</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                <div class="flex items-center space-x-2 bg-[#383838] px-2.5 py-1 rounded-xl border border-[#4d4d4d]">
+                    <i class="fa-solid fa-user-circle text-[#b88a73] text-sm"></i>
+                    <span id="user-display" class="text-[11px] text-gray-300 font-medium max-w-[120px] truncate">Usuario</span>
+                    <button onclick="cerrarSesion()" title="Cerrar Sesión" class="text-xs bg-[#4d4d4d] hover:bg-rose-600 text-white px-2 py-0.5 rounded transition">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+                <div class="bg-[#383838] px-2.5 py-1 rounded-xl border border-[#4d4d4d] text-[11px] text-gray-300 flex items-center space-x-1.5">
+                    <i class="fa-regular fa-clock text-[#b88a73]"></i>
+                    <span id="live-clock-display">Cargando...</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-[#383838] px-2.5 py-1 rounded-xl border border-[#4d4d4d]">
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-[#b88a73] animate-pulse shrink-0"></span>
+                        <span class="text-[11px] text-gray-300 font-medium">Tasa BCV:</span>
+                        <input type="number" id="bcv-rate-input" step="0.01" value="855.66" class="w-20 bg-[#2c2c2c] border border-[#5e5e5e] rounded px-1.5 py-0.5 text-xs font-bold text-white text-center focus:outline-none focus:border-[#b88a73]" oninput="actualizarTasaManual(this.value)">
+                    </div>
+                    <button onclick="fetchBCVRate()" title="Sincronizar Tasa BCV" class="text-xs bg-[#4d4d4d] hover:bg-[#5e5e5e] text-white px-2 py-0.5 rounded transition">
+                        <i class="fa-solid fa-sync"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <nav class="bg-white border-b border-[#e8dbd3] px-3 sm:px-6 py-2 flex flex-wrap items-center justify-between shadow-xs relative gap-2">
+            <div class="flex space-x-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
+                <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-3 py-1 rounded-xl font-medium text-xs bg-[#2c2c2c] text-white transition shadow-sm whitespace-nowrap"><i class="fa-solid fa-chart-pie mr-1.5"></i>Dashboard</button>
+                <button onclick="switchTab('calculadora')" id="tab-calculadora" class="px-3 py-1 rounded-xl font-medium text-xs text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-file-invoice-dollar mr-1.5"></i>Cotizador</button>
+                <button onclick="switchTab('standby')" id="tab-standby" class="px-3 py-1 rounded-xl font-medium text-xs text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition relative whitespace-nowrap"><i class="fa-solid fa-clock mr-1.5"></i>Stand By <span id="badge-standby" class="ml-1 bg-[#b88a73] text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span></button>
+                <button onclick="switchTab('caja')" id="tab-caja" class="px-3 py-1 rounded-xl font-medium text-xs text-gray-600 hover:text-[#2c2c2c] hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-cash-register mr-1.5"></i>Caja y Pagos</button>
+            </div>
+            <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                <div class="relative">
+                    <button onclick="toggleDropdown('calculadoras')" id="btn-calculadoras" class="px-3 py-1 rounded-xl font-medium text-xs bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-calculator text-[#b88a73]"></i>
+                        <span>Calculadoras</span>
+                        <i class="fa-solid fa-chevron-down text-[10px] ml-0.5"></i>
+                    </button>
+                    <div id="dropdown-calculadoras" class="hidden absolute right-0 mt-2 w-[320px] sm:w-[360px] bg-white border border-[#e8dbd3] rounded-2xl shadow-xl p-2 z-50">
+                        <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[#b88a73]">Calculadoras Especializadas</div>
+                        <div class="grid grid-cols-2 gap-1 my-1">
+                            <button onclick="switchTab('calc-stickers'); toggleDropdown('calculadoras');" id="tab-calc-stickers" class="text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-note-sticky mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Stickers</span></button>
+                            <button onclick="switchTab('calc-toppers'); toggleDropdown('calculadoras');" id="tab-calc-toppers" class="text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-cake-candles mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Toppers</span></button>
+                            <button onclick="switchTab('calc-papeleria'); toggleDropdown('calculadoras');" id="tab-calc-papeleria" class="text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-file-lines mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Papelería Creativa</span></button>
+                            <button onclick="switchTab('calc-forros'); toggleDropdown('calculadoras');" id="tab-calc-forros" class="text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-book mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Forros Escolares</span></button>
+                            <button onclick="switchTab('calc-sublimacion'); toggleDropdown('calculadoras');" id="tab-calc-sublimacion" class="text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-mug-hot mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Sublimación</span></button>
+                            <button onclick="switchTab('calc-audiovisual'); toggleDropdown('calculadoras');" id="tab-calc-audiovisual" class="text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-video mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Audiovisual</span></button>
+                            <button onclick="switchTab('calc-vinil'); toggleDropdown('calculadoras');" id="tab-calc-vinil" class="text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-scroll mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Vinil y DTF</span></button>
+                            <button onclick="switchTab('catalogo-materiales'); toggleDropdown('calculadoras');" id="tab-catalogo-materiales" class="text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center truncate"><i class="fa-solid fa-layer-group mr-1.5 text-[#b88a73] shrink-0"></i><span class="truncate">Catálogo Materiales</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <button onclick="toggleDropdown('admin')" id="btn-admin" class="px-3 py-1 rounded-xl font-medium text-xs bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:text-[#2c2c2c] hover:bg-gray-100 transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-gears text-[#b88a73]"></i>
+                        <span>Admin</span>
+                        <i class="fa-solid fa-chevron-down text-[10px] ml-0.5"></i>
+                    </button>
+                    <div id="dropdown-admin" class="hidden absolute right-0 mt-2 w-[220px] bg-white border border-[#e8dbd3] rounded-2xl shadow-xl p-2 z-50">
+                        <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Gestión y Operaciones</div>
+                        <div class="space-y-0.5 mt-1">
+                            <button onclick="switchTab('insumos'); toggleDropdown('admin');" id="tab-insumos" class="w-full text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-boxes-stacked mr-2 text-[#b88a73]"></i>Insumos y Stock<span id="badge-alerta-insumos" class="ml-auto bg-rose-500 text-white text-[10px] px-1.5 py-0.2 rounded-full hidden">0</span></button>
+                            <button onclick="switchTab('servicios'); toggleDropdown('admin');" id="tab-servicios" class="w-full text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-bullhorn mr-2 text-[#b88a73]"></i>Servicios</button>
+                            <button onclick="switchTab('crm'); toggleDropdown('admin');" id="tab-crm" class="w-full text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-users mr-2 text-[#b88a73]"></i>CRM Clientes</button>
+                            <button onclick="switchTab('finanzas'); toggleDropdown('admin');" id="tab-finanzas" class="w-full text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-wallet mr-2 text-[#b88a73]"></i>Control Financiero</button>
+                            <button onclick="switchTab('movimientos'); toggleDropdown('admin');" id="tab-movimientos" class="w-full text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-arrow-right-arrow-left mr-2 text-[#b88a73]"></i>Movimientos Stock</button>
+                            <button onclick="switchTab('logo'); toggleDropdown('admin');" id="tab-logo" class="w-full text-left px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-[#faf8f6] hover:text-[#2c2c2c] rounded-xl flex items-center"><i class="fa-solid fa-image mr-2 text-[#b88a73]"></i>Configurar Logo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 space-y-3 box-border">
+
+            <!-- DASHBOARD -->
+            <section id="module-dashboard" class="space-y-3">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+                    <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
+                        <p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Ventas Totales</p>
+                        <h3 id="dash-ventas" class="text-sm sm:text-base font-bold text-[#b88a73] mt-1">$0.00 <span class="block text-[10px] font-normal text-gray-500">Bs. 0.00</span></h3>
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
+                        <p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Insumos Registrados</p>
+                        <h3 id="dash-insumos" class="text-lg sm:text-xl font-bold text-[#2c2c2c] mt-1">0</h3>
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
+                        <p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Insumos en Alerta</p>
+                        <h3 id="dash-insumos-alerta" class="text-lg sm:text-xl font-bold text-rose-600 mt-1">0</h3>
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between">
+                        <p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Clientes en CRM</p>
+                        <h3 id="dash-clientes" class="text-lg sm:text-xl font-bold text-[#2c2c2c] mt-1">0</h3>
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-col justify-between col-span-2 sm:col-span-1">
+                        <p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Cotizaciones Stand By</p>
+                        <h3 id="dash-standby" class="text-lg sm:text-xl font-bold text-[#b88a73] mt-1">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm overflow-hidden">
+                    <h3 class="text-xs sm:text-sm font-bold text-[#2c2c2c] mb-2"><i class="fa-solid fa-clock-rotate-left mr-2 text-[#b88a73]"></i> Historial Reciente de Transacciones</h3>
+                    <div class="overflow-x-auto w-full max-h-[340px] overflow-y-auto">
+                        <table class="w-full text-left text-xs text-gray-700 min-w-[500px]">
+                            <thead class="bg-[#faf8f6] text-[10px] uppercase text-gray-500 border-b border-[#e8dbd3] sticky top-0">
+                                <tr><th class="p-2">Fecha</th><th class="p-2">Cliente</th><th class="p-2">Concepto / Ítems</th><th class="p-2">Total</th><th class="p-2">Métodos de Pago</th></tr>
+                            </thead>
+                            <tbody id="tabla-historial-ventas">
+                                <tr><td colspan="5" class="p-4 text-center text-gray-400">Cargando registros...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STAND BY -->
+            <section id="module-standby" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
+                    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                        <div>
+                            <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-clock text-[#b88a73] mr-2"></i> Cotizaciones en Stand By</h2>
+                            <p class="text-[10px] text-gray-500">Administra presupuestos guardados en cola.</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto w-full max-h-[400px] overflow-y-auto">
+                        <table class="w-full text-left text-xs text-gray-700 min-w-[500px]">
+                            <thead class="bg-[#faf8f6] text-[10px] uppercase text-gray-500 border-b border-[#e8dbd3] sticky top-0">
+                                <tr><th class="p-2">Fecha</th><th class="p-2">Cliente</th><th class="p-2">Resumen</th><th class="p-2">Total ($)</th><th class="p-2 text-center">Acciones</th></tr>
+                            </thead>
+                            <tbody id="tabla-standby">
+                                <tr><td colspan="5" class="p-4 text-center text-gray-400">Cargando cotizaciones...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FORROS ESCOLARES -->
+            <section id="module-calc-forros" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
+                    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                        <div>
+                            <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-book text-[#b88a73] mr-2"></i> Calculadora de Forros Escolares</h2>
+                            <p class="text-[10px] text-gray-500">Forrado en vinil con laminado protector para cuadernos.</p>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="abrirModalPlantillas('forros')" class="text-[10px] bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:bg-gray-100 px-2.5 py-1 rounded-lg font-medium transition"><i class="fa-solid fa-folder-open mr-1"></i> Plantillas</button>
+                            <button onclick="guardarPlantillaCalculadora('forros')" class="text-[10px] bg-[#b88a73] hover:bg-[#a67963] text-white px-2.5 py-1 rounded-lg font-medium transition"><i class="fa-solid fa-floppy-disk mr-1"></i> Guardar</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+                        <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">1. Hoja de Vinil / Papel</h3>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tipo de Hoja</label>
+                                    <select id="forr-preset-hoja" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" onchange="aplicarPresetHoja('forr', this.value)">
+                                        <option value="21,29.7">A4 (21 × 29.7 cm)</option>
+                                        <option value="21.59,27.94">Carta (21.59 × 27.94 cm)</option>
+                                        <option value="21.59,33.02">Oficio (21.59 × 33.02 cm)</option>
+                                        <option value="27.94,43.18">Tabloide (27.94 × 43.18 cm)</option>
+                                        <option value="29.7,42">A3 (29.7 × 42 cm)</option>
+                                        <option value="personalizado">Personalizado</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Ancho Hoja (cm)</label><input type="number" id="forr-hoja-ancho" value="30" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Alto Hoja (cm)</label><input type="number" id="forr-hoja-alto" value="40" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                                </div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Costo Hoja / m² ($)</label><input type="number" id="forr-costo-vinil" value="4.50" step="0.10" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Laminado / m² ($)</label><input type="number" id="forr-costo-laminado" value="3.00" step="0.10" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                            </div>
+                            <div class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">2. Cuaderno y Grid</h3>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tipo de Cuaderno</label>
+                                    <select id="forr-preset-cuaderno" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" onchange="aplicarPresetCuadernoForro(this.value)">
+                                        <option value="15,21">Media Carta (15 × 21 cm)</option>
+                                        <option value="17.5,23" selected>Estándar (17.5 × 23 cm)</option>
+                                        <option value="19,24">Universitario (19 × 24 cm)</option>
+                                        <option value="21,27">Carta Grande (21 × 27 cm)</option>
+                                        <option value="personalizado">Personalizado</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Ancho Cuaderno (cm)</label><input type="number" id="forr-cuaderno-ancho" value="17.5" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Alto Cuaderno (cm)</label><input type="number" id="forr-cuaderno-alto" value="23" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                                </div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Separación entre Cuadernos (cm)</label><input type="number" id="forr-gap" value="0.5" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Cantidad de Cuadernos</label><input type="number" id="forr-cantidad" value="12" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">% Merma</label><input type="number" id="forr-merma" value="5" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                            </div>
+                            <div class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3] sm:col-span-2">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">3. Otros Costos</h3>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tinta / Hoja</label><input type="number" id="forr-costo-tinta" value="0.80" step="0.05" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Bolsa Empaque</label><input type="number" id="forr-costo-bolsa" value="0.15" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Mano Obra / ud</label><input type="number" id="forr-costo-mano" value="1.20" step="0.10" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Depreciación / ud</label><input type="number" id="forr-costo-depre" value="0.25" step="0.05" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                                </div>
+                                <label class="flex items-center space-x-1.5 text-[10px] text-gray-600 pt-1">
+                                    <input type="checkbox" id="forr-incluir-bolsa" checked class="rounded border-[#e8dbd3]" onchange="calcularForros()">
+                                    <span>Incluir bolsa / empaque</span>
+                                </label>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">% Ganancia sobre Costo</label><input type="number" id="forr-ganancia" value="60" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularForros()"></div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3] flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5 mb-2">Resumen del Cálculo</h3>
+                                <div class="space-y-1.5 text-xs">
+                                    <div class="flex justify-between"><span class="text-gray-500">Grid (Fila × Columna):</span><span id="forr-res-grid" class="font-bold text-[#2c2c2c]">0 × 0</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Cuadernos por Hoja:</span><span id="forr-res-por-hoja" class="font-bold text-[#2c2c2c]">0 uds</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Hojas Teóricas:</span><span id="forr-res-hojas-teoricas" class="font-bold text-[#2c2c2c]">0</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Hojas con Merma:</span><span id="forr-res-hojas-req" class="font-bold text-amber-600">0 hojas</span></div>
+                                    <div class="flex justify-between border-t border-gray-100 pt-1.5"><span class="text-gray-500">Vinil:</span><span id="forr-res-vinil" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Laminado:</span><span id="forr-res-laminado" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Tinta:</span><span id="forr-res-tinta" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Bolsa:</span><span id="forr-res-bolsa" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Mano de Obra:</span><span id="forr-res-mano" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Depreciación:</span><span id="forr-res-depre" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between font-bold text-xs border-t border-[#e8dbd3] pt-1.5"><span class="text-gray-700">Costo por Cuaderno:</span><span id="forr-res-costo-unit" class="text-rose-600">$0.00</span></div>
+                                </div>
+                                <div class="mt-3 bg-white p-3 rounded-xl border border-[#e8dbd3] text-center space-y-0.5">
+                                    <p class="text-[10px] uppercase text-gray-500 font-semibold">Precio Unitario Venta</p>
+                                    <p id="forr-res-precio-unit" class="text-xl sm:text-2xl font-extrabold text-[#b88a73]">$0.00</p>
+                                    <p class="text-[11px] text-gray-500 pt-1 border-t border-[#e8dbd3] mt-1">Lote: <span id="forr-res-precio-lote" class="font-bold text-[#2c2c2c]">$0.00</span></p>
+                                    <p class="text-[10px] text-gray-500">Ganancia total: <span id="forr-res-ganancia" class="font-bold text-emerald-600">$0.00</span></p>
+                                </div>
+                                <div id="forr-simulador-volumen" class="mt-3 bg-white p-2.5 rounded-xl border border-[#e8dbd3]">
+                                    <p class="text-[10px] uppercase text-gray-500 font-semibold mb-1.5">Simulador por Volumen</p>
+                                    <div id="forr-tabla-volumen" class="space-y-1 text-[10px]"></div>
+                                </div>
+                            </div>
+                            <button onclick="enviarForrosAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2 mt-3">
+                                <i class="fa-solid fa-plus-circle"></i><span>Agregar a Presupuesto Actual</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CALCULADORA STICKERS -->
+            <section id="module-calc-stickers" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
+                    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                        <div>
+                            <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-note-sticky text-[#b88a73] mr-2"></i> Calculadora de Stickers y Etiquetas</h2>
+                            <p class="text-[10px] text-gray-500">Calcula pliegos, merma, laminado y costos de corte.</p>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="abrirModalPlantillas('stickers')" class="text-[10px] bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:bg-gray-100 px-2.5 py-1 rounded-lg font-medium transition"><i class="fa-solid fa-folder-open mr-1"></i> Plantillas</button>
+                            <button onclick="guardarPlantillaCalculadora('stickers')" class="text-[10px] bg-[#b88a73] hover:bg-[#a67963] text-white px-2.5 py-1 rounded-lg font-medium transition"><i class="fa-solid fa-floppy-disk mr-1"></i> Guardar</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+                        <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">1. Especificaciones</h3>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tipo de Hoja</label>
+                                    <select id="stk-preset-hoja" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" onchange="aplicarPresetHoja('stk', this.value)">
+                                        <option value="21,29.7" selected>A4 (21 × 29.7 cm)</option>
+                                        <option value="21.59,27.94">Carta (21.59 × 27.94 cm)</option>
+                                        <option value="21.59,33.02">Oficio (21.59 × 33.02 cm)</option>
+                                        <option value="27.94,43.18">Tabloide (27.94 × 43.18 cm)</option>
+                                        <option value="29.7,42">A3 (29.7 × 42 cm)</option>
+                                        <option value="personalizado">Personalizado</option>
+                                    </select>
+                                </div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Ancho Sticker (cm)</label><input type="number" id="stk-ancho" value="6" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Alto Sticker (cm)</label><input type="number" id="stk-alto" value="6" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Separación (cm)</label><input type="number" id="stk-gap" value="0.4" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Cantidad Total</label><input type="number" id="stk-cantidad" value="60" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">% Merma / Prueba Corte</label><input type="number" id="stk-merma" value="10" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                            </div>
+                            <div class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">2. Hoja y Costos</h3>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Ancho Hoja</label><input type="number" id="stk-hoja-ancho" value="21" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Alto Hoja</label><input type="number" id="stk-hoja-alto" value="29.7" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                                </div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Papel / Vinilo por Hoja ($)</label><input type="number" id="stk-costo-hoja" value="0.35" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                                <label class="flex items-center space-x-1.5 text-[10px] text-gray-600"><input type="checkbox" id="stk-incluir-laminado" class="rounded border-[#e8dbd3]" onchange="calcularStickers()"><span>Incluir Laminado Protector</span></label>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Costo Laminado ($/hoja)</label><input type="number" id="stk-costo-laminado" value="0.25" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tinta ($/hoja)</label><input type="number" id="stk-costo-tinta" value="0.15" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Cuchilla ($/hoja)</label><input type="number" id="stk-costo-cuchilla" value="0.08" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Empaque ($/ud)</label><input type="number" id="stk-costo-empaque" value="0.05" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Gastos Fijos ($/ud)</label><input type="number" id="stk-costo-fijos" value="0.04" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                                </div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Mano de Obra ($/hora)</label><input type="number" id="stk-costo-mano" value="5.00" step="0.50" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">% Ganancia sobre Costo</label><input type="number" id="stk-ganancia" value="150" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularStickers()"></div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3] flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5 mb-2">Resumen de Producción</h3>
+                                <div class="space-y-1.5 text-xs">
+                                    <div class="flex justify-between"><span class="text-gray-500">Por Fila × Columna:</span><span id="stk-res-grid" class="font-bold text-[#2c2c2c]">0 × 0</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Stickers por Hoja:</span><span id="stk-res-por-hoja" class="font-bold text-[#2c2c2c]">0 uds</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Hojas Teóricas:</span><span id="stk-res-hojas-teoricas" class="font-bold text-[#2c2c2c]">0</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Hojas con Merma:</span><span id="stk-res-hojas-req" class="font-bold text-amber-600">0 hojas</span></div>
+                                    <div class="flex justify-between border-t border-gray-100 pt-1.5"><span class="text-gray-500">Material Base:</span><span id="stk-res-mat" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Laminado:</span><span id="stk-res-lam" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Tinta + Cuchilla:</span><span id="stk-res-tinta" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Mano de Obra:</span><span id="stk-res-mano" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Empaque + Fijos:</span><span id="stk-res-empaque" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between font-bold text-xs border-t border-[#e8dbd3] pt-1.5"><span class="text-gray-700">Costo Total:</span><span id="stk-res-costo-total" class="text-rose-600">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Costo Unitario:</span><span id="stk-res-costo-unit" class="font-semibold text-gray-700">$0.00</span></div>
+                                </div>
+                                <div class="mt-3 bg-white p-3 rounded-xl border border-[#e8dbd3] text-center space-y-0.5">
+                                    <p class="text-[10px] uppercase text-gray-500 font-semibold">Precio Venta Lote</p>
+                                    <p id="stk-res-precio-lote" class="text-xl sm:text-2xl font-extrabold text-[#b88a73]">$0.00</p>
+                                    <p class="text-[11px] text-gray-500">Unitario: <span id="stk-res-precio-unit" class="font-bold text-[#2c2c2c]">$0.00</span></p>
+                                    <p class="text-[10px] text-gray-500">Ganancia: <span id="stk-res-ganancia" class="font-bold text-emerald-600">$0.00</span></p>
+                                </div>
+                            </div>
+                            <button onclick="enviarStickerAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2 mt-3">
+                                <i class="fa-solid fa-plus-circle"></i><span>Agregar a Presupuesto Actual</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CALCULADORA TOPPERS -->
+            <section id="module-calc-toppers" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
+                    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                        <div>
+                            <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cake-candles text-[#b88a73] mr-2"></i> Calculadora Toppers Print & Cut (Cameo 5)</h2>
+                            <p class="text-[10px] text-gray-500">Materiales, mano de obra por etapas, grid y precio sugerido.</p>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="abrirModalPlantillas('toppers')" class="text-[10px] bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:bg-gray-100 px-2.5 py-1 rounded-lg font-medium transition"><i class="fa-solid fa-folder-open mr-1"></i> Plantillas</button>
+                            <button onclick="guardarPlantillaCalculadora('toppers')" class="text-[10px] bg-[#b88a73] hover:bg-[#a67963] text-white px-2.5 py-1 rounded-lg font-medium transition"><i class="fa-solid fa-floppy-disk mr-1"></i> Guardar</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+                        <div class="lg:col-span-7 space-y-3">
+                            <div class="border border-[#e8dbd3] rounded-xl p-3 bg-[#faf8f6] space-y-2">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">1. Hoja y Grid del Topper</h3>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tipo de Hoja</label>
+                                    <select id="top-preset-hoja" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" onchange="aplicarPresetHoja('top', this.value)">
+                                        <option value="21,29.7" selected>A4 (21 × 29.7 cm)</option>
+                                        <option value="21.59,27.94">Carta (21.59 × 27.94 cm)</option>
+                                        <option value="21.59,33.02">Oficio (21.59 × 33.02 cm)</option>
+                                        <option value="27.94,43.18">Tabloide (27.94 × 43.18 cm)</option>
+                                        <option value="29.7,42">A3 (29.7 × 42 cm)</option>
+                                        <option value="personalizado">Personalizado</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Ancho Hoja (cm)</label><input type="number" id="top-hoja-ancho" value="21" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularTopper()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Alto Hoja (cm)</label><input type="number" id="top-hoja-alto" value="29.7" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularTopper()"></div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Ancho Topper (cm)</label><input type="number" id="top-ancho" value="12" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularTopper()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Alto Topper (cm)</label><input type="number" id="top-alto" value="15" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularTopper()"></div>
+                                </div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Separación (cm)</label><input type="number" id="top-gap" value="0.3" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularTopper()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Cantidad Total</label><input type="number" id="top-cantidad" value="6" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularTopper()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">% Merma</label><input type="number" id="top-merma" value="5" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularTopper()"></div>
+                            </div>
+
+                            <div class="border border-[#e8dbd3] rounded-xl p-3 bg-[#faf8f6] space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="font-bold text-xs text-[#2c2c2c]">2. Materiales Extra</h3>
+                                    <button onclick="agregarFilaTopper()" class="text-[11px] bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2.5 py-1 rounded-lg transition font-medium"><i class="fa-solid fa-plus mr-1"></i> Agregar</button>
+                                </div>
+                                <div class="overflow-x-auto w-full max-h-[180px] overflow-y-auto">
+                                    <table class="w-full text-xs text-left min-w-[380px]">
+                                        <thead class="bg-white text-gray-500 uppercase text-[10px] sticky top-0">
+                                            <tr><th class="p-1.5 w-[45%]">Material / Capa</th><th class="p-1.5 w-[18%] text-center">Cant</th><th class="p-1.5 w-[22%] text-center">Costo ($)</th><th class="p-1.5 w-[15%] text-center">Acción</th></tr>
+                                        </thead>
+                                        <tbody id="lista-insumos-topper"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="border border-[#e8dbd3] rounded-xl p-3 bg-[#faf8f6] space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="font-bold text-xs text-[#2c2c2c]">3. Mano de Obra por Etapas</h3>
+                                    <button onclick="agregarFilaManoObraTopper()" class="text-[11px] bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2.5 py-1 rounded-lg transition font-medium"><i class="fa-solid fa-plus mr-1"></i> Agregar</button>
+                                </div>
+                                <div class="overflow-x-auto w-full max-h-[180px] overflow-y-auto">
+                                    <table class="w-full text-xs text-left min-w-[420px]">
+                                        <thead class="bg-white text-gray-500 uppercase text-[10px] sticky top-0">
+                                            <tr><th class="p-1.5 w-[45%]">Etapa</th><th class="p-1.5 w-[18%] text-center">Min</th><th class="p-1.5 w-[22%] text-center">$/Hora</th><th class="p-1.5 w-[15%] text-center">Acción</th></tr>
+                                        </thead>
+                                        <tbody id="lista-mano-obra-topper"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3] flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5 mb-2">Resumen del Topper</h3>
+                                <div class="space-y-1.5 text-xs">
+                                    <div class="flex justify-between"><span class="text-gray-500">Grid (Fila × Col):</span><span id="top-res-grid" class="font-bold text-[#2c2c2c]">0 × 0</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Toppers por Hoja:</span><span id="top-res-por-hoja" class="font-bold text-[#2c2c2c]">0 uds</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Hojas con Merma:</span><span id="top-res-hojas-req" class="font-bold text-amber-600">0 hojas</span></div>
+                                    <div class="flex justify-between border-t border-gray-100 pt-1.5"><span class="text-gray-500">Costo Materiales:</span><span id="top-res-mat" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Costo Mano Obra:</span><span id="top-res-mo" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Costo Directo:</span><span id="top-res-directo" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-500">Gastos Operativos (%):</span>
+                                        <input type="number" id="top-gastos-pct" value="10" min="0" class="w-16 bg-white border border-[#e8dbd3] rounded-lg px-1.5 py-0.5 text-xs text-center font-semibold" oninput="calcularTopper()">
+                                    </div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Gastos Operativos:</span><span id="top-res-operativos" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between font-bold text-xs border-t border-[#e8dbd3] pt-1.5"><span class="text-gray-700">Costo Total Lote:</span><span id="top-res-costo-total" class="text-rose-600">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Costo Unitario:</span><span id="top-res-costo-unit" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between items-center pt-1">
+                                        <span class="text-gray-500">% Ganancia sobre Costo:</span>
+                                        <input type="number" id="top-ganancia" value="150" min="0" class="w-16 bg-white border border-[#e8dbd3] rounded-lg px-1.5 py-0.5 text-xs text-center font-semibold" oninput="calcularTopper()">
+                                    </div>
+                                </div>
+                                <div class="mt-3 bg-white p-3 rounded-xl border border-[#e8dbd3] text-center space-y-0.5">
+                                    <p class="text-[10px] uppercase text-gray-500 font-semibold">Precio Unitario Venta</p>
+                                    <p id="top-res-precio-unit" class="text-2xl sm:text-3xl font-extrabold text-[#b88a73]">$0.00</p>
+                                    <p class="text-[10px] text-gray-500">Lote: <span id="top-res-precio-lote" class="font-bold text-[#2c2c2c]">$0.00</span></p>
+                                    <p class="text-[10px] text-gray-500">Ganancia: <span id="top-res-ganancia" class="font-bold text-emerald-600">$0.00</span></p>
+                                </div>
+                                <div class="mt-3 bg-white p-2.5 rounded-xl border border-[#e8dbd3]">
+                                    <p class="text-[10px] uppercase text-gray-500 font-semibold mb-1.5">Simulador por Volumen</p>
+                                    <div id="top-tabla-volumen" class="space-y-1 text-[10px]"></div>
+                                </div>
+                            </div>
+                            <button onclick="enviarTopperAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2 mt-3">
+                                <i class="fa-solid fa-plus-circle"></i><span>Agregar a Presupuesto Actual</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CALCULADORA PAPELERÍA CREATIVA -->
+            <section id="module-calc-papeleria" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
+                    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                        <div>
+                            <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-file-lines text-[#b88a73] mr-2"></i> Calculadora de Papelería Creativa</h2>
+                            <p class="text-[10px] text-gray-500">Menús, individuales, habladores, stickers, etiquetas, tarjetas, invitaciones y flyers.</p>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="abrirModalPlantillas('papeleria')" class="text-[10px] bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:bg-gray-100 px-2.5 py-1 rounded-lg font-medium transition"><i class="fa-solid fa-folder-open mr-1"></i> Plantillas</button>
+                            <button onclick="guardarPlantillaCalculadora('papeleria')" class="text-[10px] bg-[#b88a73] hover:bg-[#a67963] text-white px-2.5 py-1 rounded-lg font-medium transition"><i class="fa-solid fa-floppy-disk mr-1"></i> Guardar</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+                        <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">1. Producto y Medidas</h3>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tipo de Producto</label>
+                                    <select id="pap-tipo" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" onchange="aplicarPresetPapeleria()">
+                                        <option value="menu" data-ancho="21" data-alto="29.7" data-nombre="Menú A4">Menú de Restaurante (A4)</option>
+                                        <option value="individual" data-ancho="30" data-alto="40" data-nombre="Individual / Placemat">Individual / Placemat (30×40)</option>
+                                        <option value="hablador" data-ancho="10" data-alto="15" data-nombre="Hablador de Mesa">Hablador de Mesa (10×15)</option>
+                                        <option value="botella" data-ancho="6" data-alto="10" data-nombre="Sticker Botella Agua">Sticker Botella de Agua (6×10)</option>
+                                        <option value="etiqueta" data-ancho="5" data-alto="5" data-nombre="Etiqueta Envase">Etiqueta Envase / Frasco (5×5)</option>
+                                        <option value="tarjeta" data-ancho="9" data-alto="5" data-nombre="Tarjeta Presentación">Tarjeta de Presentación (9×5)</option>
+                                        <option value="invitacion" data-ancho="14" data-alto="21" data-nombre="Invitación">Invitación (14×21)</option>
+                                        <option value="flyer" data-ancho="10" data-alto="15" data-nombre="Flyer">Flyer Publicitario (10×15)</option>
+                                        <option value="personalizado" data-ancho="21" data-alto="29.7" data-nombre="Personalizado">Personalizado</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Nombre del Trabajo</label>
+                                    <input type="text" id="pap-nombre" value="Menú A4 Restaurante" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs">
+                                </div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Ancho (cm)</label><input type="number" id="pap-ancho" value="21" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Alto (cm)</label><input type="number" id="pap-alto" value="29.7" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                </div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Separación (cm)</label><input type="number" id="pap-gap" value="0.3" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Cantidad Total</label><input type="number" id="pap-cantidad" value="20" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">% Merma</label><input type="number" id="pap-merma" value="5" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                            </div>
+                            <div class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">2. Hoja y Materiales</h3>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tipo de Hoja</label>
+                                    <select id="pap-preset-hoja" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" onchange="aplicarPresetHoja('pap', this.value)">
+                                        <option value="21,29.7" selected>A4 (21 × 29.7 cm)</option>
+                                        <option value="21.59,27.94">Carta (21.59 × 27.94 cm)</option>
+                                        <option value="21.59,33.02">Oficio (21.59 × 33.02 cm)</option>
+                                        <option value="27.94,43.18">Tabloide (27.94 × 43.18 cm)</option>
+                                        <option value="29.7,42">A3 (29.7 × 42 cm)</option>
+                                        <option value="personalizado">Personalizado</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Ancho Hoja (cm)</label><input type="number" id="pap-hoja-ancho" value="21" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Alto Hoja (cm)</label><input type="number" id="pap-hoja-alto" value="29.7" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Cargar desde Catálogo</label>
+                                    <select id="pap-insumo-catalogo" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" onchange="aplicarInsumoCatalogoPapeleria()">
+                                        <option value="">-- Seleccionar material base --</option>
+                                    </select>
+                                </div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Material Base ($/hoja)</label><input type="number" id="pap-costo-material" value="0.35" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                <label class="flex items-center space-x-1.5 text-[10px] text-gray-600"><input type="checkbox" id="pap-incluir-laminado" class="rounded border-[#e8dbd3]" onchange="calcularPapeleria()"><span>Incluir Laminado</span></label>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Laminado ($/hoja)</label><input type="number" id="pap-costo-laminado" value="0.25" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tinta ($/hoja)</label><input type="number" id="pap-costo-tinta" value="0.15" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Corte ($/hoja)</label><input type="number" id="pap-costo-corte" value="0.08" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Empaque ($/ud)</label><input type="number" id="pap-costo-empaque" value="0.05" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Gastos Fijos ($/ud)</label><input type="number" id="pap-costo-fijos" value="0.04" step="0.01" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                </div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Horas de Diseño</label><input type="number" id="pap-horas-diseno" value="0.5" step="0.25" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tarifa Diseño ($/hora)</label><input type="number" id="pap-tarifa-diseno" value="10.00" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Mano Obra Producción ($/ud)</label><input type="number" id="pap-mano-obra" value="0.20" step="0.05" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">% Ganancia sobre Costo</label><input type="number" id="pap-ganancia" value="80" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularPapeleria()"></div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3] flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5 mb-2">Resumen del Cálculo</h3>
+                                <div class="space-y-1.5 text-xs">
+                                    <div class="flex justify-between"><span class="text-gray-500">Grid (Fila × Col):</span><span id="pap-res-grid" class="font-bold text-[#2c2c2c]">0 × 0</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Unidades por Hoja:</span><span id="pap-res-por-hoja" class="font-bold text-[#2c2c2c]">0 uds</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Hojas Teóricas:</span><span id="pap-res-hojas-teoricas" class="font-bold text-[#2c2c2c]">0</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Hojas con Merma:</span><span id="pap-res-hojas" class="font-bold text-amber-600">0 hojas</span></div>
+                                    <div class="flex justify-between border-t border-gray-100 pt-1.5"><span class="text-gray-500">Material Base:</span><span id="pap-res-mat" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Laminado:</span><span id="pap-res-lam" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Tinta + Corte:</span><span id="pap-res-tinta" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Diseño:</span><span id="pap-res-diseno" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Mano de Obra Prod.:</span><span id="pap-res-mano" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Empaque + Fijos:</span><span id="pap-res-empaque" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between font-bold text-xs border-t border-[#e8dbd3] pt-1.5"><span class="text-gray-700">Costo Total Lote:</span><span id="pap-res-costo-total" class="text-rose-600">$0.00</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Costo Unitario:</span><span id="pap-res-costo-unit" class="font-semibold text-gray-700">$0.00</span></div>
+                                </div>
+                                <div class="mt-3 bg-white p-3 rounded-xl border border-[#e8dbd3] text-center space-y-0.5">
+                                    <p class="text-[10px] uppercase text-gray-500 font-semibold">Precio Venta Lote</p>
+                                    <p id="pap-res-precio-lote" class="text-xl sm:text-2xl font-extrabold text-[#b88a73]">$0.00</p>
+                                    <p class="text-[11px] text-gray-500">Unitario: <span id="pap-res-precio-unit" class="font-bold text-[#2c2c2c]">$0.00</span></p>
+                                    <p class="text-[10px] text-gray-500">Ganancia: <span id="pap-res-ganancia" class="font-bold text-emerald-600">$0.00</span></p>
+                                </div>
+                                <div class="mt-3 bg-white p-2.5 rounded-xl border border-[#e8dbd3]">
+                                    <p class="text-[10px] uppercase text-gray-500 font-semibold mb-1.5">Simulador por Volumen</p>
+                                    <div id="pap-tabla-volumen" class="space-y-1 text-[10px]"></div>
+                                </div>
+                            </div>
+                            <button onclick="enviarPapeleriaAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2 mt-3">
+                                <i class="fa-solid fa-plus-circle"></i><span>Agregar a Presupuesto Actual</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SUBLIMACIÓN -->
+            <section id="module-calc-sublimacion" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
+                    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                        <div>
+                            <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-mug-hot text-[#b88a73] mr-2"></i> Calculadora de Sublimación</h2>
+                            <p class="text-[10px] text-gray-500">Tazas, chemises, gorras y artículos sublimados.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+                        <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">1. Artículo y Cantidad</h3>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Nombre del Artículo</label><input type="text" id="sub-nombre" value="Taza Mágica Sublimada" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Cantidad (Unidades)</label><input type="number" id="sub-cantidad" value="1" step="1" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularSublimacion()"></div>
+                            </div>
+                            <div class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">2. Costos Unitarios ($)</h3>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Costo Artículo Virgen</label><input type="number" id="sub-costo-virgen" value="1.80" step="0.10" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularSublimacion()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Costo Papel + Tinta</label><input type="number" id="sub-costo-transfer" value="0.30" step="0.05" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularSublimacion()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">% Ganancia sobre Costo</label><input type="number" id="sub-ganancia" value="60" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularSublimacion()"></div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3] flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5 mb-2">Resumen del Cálculo</h3>
+                                <div class="space-y-1.5 text-xs">
+                                    <div class="flex justify-between"><span class="text-gray-500">Costo Unit.:</span><span id="sub-res-unit-cost" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between border-t border-gray-100 pt-1.5"><span class="text-gray-500">Costo Total Lote:</span><span id="sub-res-total-cost" class="font-semibold text-rose-600">$0.00</span></div>
+                                </div>
+                                <div class="mt-3 bg-white p-3 rounded-xl border border-[#e8dbd3] text-center space-y-0.5">
+                                    <p class="text-[10px] uppercase text-gray-500 font-semibold">Precio Venta Lote</p>
+                                    <p id="sub-res-precio-lote" class="text-xl sm:text-2xl font-extrabold text-[#b88a73]">$0.00</p>
+                                    <p class="text-[11px] text-gray-500">Por Unidad: <span id="sub-res-precio-unit" class="font-bold text-[#2c2c2c]">$0.00</span></p>
+                                </div>
+                            </div>
+                            <button onclick="enviarSublimacionAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-plus-circle"></i><span>Agregar a Presupuesto Actual</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AUDIOVISUAL -->
+            <section id="module-calc-audiovisual" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
+                    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                        <div>
+                            <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-video text-[#b88a73] mr-2"></i> Calculadora Audiovisual y Videos</h2>
+                            <p class="text-[10px] text-gray-500">Reels, videos corporativos y producciones.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+                        <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">1. Horas de Trabajo</h3>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Concepto del Proyecto</label><input type="text" id="vid-nombre" value="Pack 4 Reels Redes Sociales" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Horas de Grabación</label><input type="number" id="vid-horas-grab" value="3" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularAudiovisual()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Horas de Edición</label><input type="number" id="vid-horas-edit" value="5" step="0.5" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularAudiovisual()"></div>
+                            </div>
+                            <div class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">2. Tarifas y Equipos</h3>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tarifa por Hora ($)</label><input type="number" id="vid-tarifa" value="10.00" step="1.00" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularAudiovisual()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Alquiler Equipos / Luces ($)</label><input type="number" id="vid-equipos" value="15.00" step="5.00" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularAudiovisual()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">% Ganancia sobre Costo</label><input type="number" id="vid-ganancia" value="30" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularAudiovisual()"></div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3] flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5 mb-2">Resumen del Cálculo</h3>
+                                <div class="space-y-1.5 text-xs">
+                                    <div class="flex justify-between"><span class="text-gray-500">Costo Base Servicios:</span><span id="vid-res-base" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between border-t border-gray-100 pt-1.5"><span class="text-gray-500">Costo Total Producción:</span><span id="vid-res-costo" class="font-semibold text-rose-600">$0.00</span></div>
+                                </div>
+                                <div class="mt-3 bg-white p-3 rounded-xl border border-[#e8dbd3] text-center space-y-0.5">
+                                    <p class="text-[10px] uppercase text-gray-500 font-semibold">Precio Venta Proyecto</p>
+                                    <p id="vid-res-precio" class="text-2xl sm:text-3xl font-extrabold text-[#b88a73]">$0.00</p>
+                                </div>
+                            </div>
+                            <button onclick="enviarAudiovisualAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-plus-circle"></i><span>Agregar a Presupuesto Actual</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VINIL Y DTF -->
+            <section id="module-calc-vinil" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
+                    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                        <div>
+                            <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-scroll text-[#b88a73] mr-2"></i> Calculadora de Vinil, DTF y Rotulación</h2>
+                            <p class="text-[10px] text-gray-500">Trabaja por grid (cuántas piezas caben por hoja) o por m².</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+                        <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">1. Modo de Cálculo</h3>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Modo</label>
+                                    <select id="vin-modo" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" onchange="toggleModoVinil()">
+                                        <option value="grid" selected>Por Grid (piezas por hoja)</option>
+                                        <option value="m2">Por Metro Cuadrado (m²)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Concepto del Trabajo</label>
+                                    <input type="text" id="vin-nombre" value="Rotulación de Vidrio" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs">
+                                </div>
+                            </div>
+                            <div class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">2. Costos y Tarifas</h3>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Costo Material por m² ($)</label><input type="number" id="vin-costo-m2" value="8.00" step="0.50" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularVinil()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Mano de Obra / Instalación ($)</label><input type="number" id="vin-mano-obra" value="5.00" step="1.00" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularVinil()"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">% Ganancia sobre Costo</label><input type="number" id="vin-ganancia" value="40" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularVinil()"></div>
+                            </div>
+                            <div id="vin-bloque-grid" class="space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3] sm:col-span-2">
+                                <h3 class="font-bold text-xs text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5">3. Grid: Hoja y Piezas</h3>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tipo de Hoja</label>
+                                    <select id="vin-preset-hoja" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" onchange="aplicarPresetHoja('vin', this.value)">
+                                        <option value="21,29.7">A4 (21 × 29.7 cm)</option>
+                                        <option value="21.59,27.94">Carta (21.59 × 27.94 cm)</option>
+                                        <option value="21.59,33.02">Oficio (21.59 × 33.02 cm)</option>
+                                        <option value="27.94,43.18">Tabloide (27.94 × 43.18 cm)</option>
+                                        <option value="29.7,42">A3 (29.7 × 42 cm)</option>
+                                        <option value="personalizado" selected>Personalizado</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Ancho Hoja</label><input type="number" id="vin-hoja-ancho" value="100" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularVinil()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Alto Hoja</label><input type="number" id="vin-hoja-alto" value="50" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularVinil()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Ancho Pieza</label><input type="number" id="vin-ancho" value="20" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularVinil()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Alto Pieza</label><input type="number" id="vin-alto" value="15" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularVinil()"></div>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Separación (cm)</label><input type="number" id="vin-gap" value="0.5" step="0.1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularVinil()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Cantidad Total</label><input type="number" id="vin-cantidad" value="4" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularVinil()"></div>
+                                    <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">% Merma</label><input type="number" id="vin-merma" value="5" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg p-1.5 text-xs" oninput="calcularVinil()"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 space-y-3 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3] flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-xs sm:text-sm text-[#2c2c2c] border-b border-[#e8dbd3] pb-1.5 mb-2">Resumen del Cálculo</h3>
+                                <div id="vin-resumen-grid" class="space-y-1.5 text-xs">
+                                    <div class="flex justify-between"><span class="text-gray-500">Grid (Fila × Col):</span><span id="vin-res-grid" class="font-bold text-[#2c2c2c]">0 × 0</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Piezas por Hoja:</span><span id="vin-res-por-hoja" class="font-bold text-[#2c2c2c]">0 uds</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Hojas con Merma:</span><span id="vin-res-hojas-req" class="font-bold text-amber-600">0 hojas</span></div>
+                                </div>
+                                <div class="space-y-1.5 text-xs mt-1.5">
+                                    <div class="flex justify-between"><span class="text-gray-500">Metros Cuadrados (m²):</span><span id="vin-res-m2" class="font-bold text-[#2c2c2c]">0 m²</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Costo Materiales:</span><span id="vin-res-costo-mat" class="font-semibold text-gray-700">$0.00</span></div>
+                                    <div class="flex justify-between border-t border-gray-100 pt-1.5"><span class="text-gray-500">Costo Producción Total:</span><span id="vin-res-costo-total" class="font-semibold text-rose-600">$0.00</span></div>
+                                </div>
+                                <div class="mt-3 bg-white p-3 rounded-xl border border-[#e8dbd3] text-center space-y-0.5">
+                                    <p class="text-[10px] uppercase text-gray-500 font-semibold">Precio Venta Recomendado</p>
+                                    <p id="vin-res-precio" class="text-2xl sm:text-3xl font-extrabold text-[#b88a73]">$0.00</p>
+                                </div>
+                            </div>
+                            <button onclick="enviarVinilAPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2.5 rounded-xl font-bold text-sm transition shadow-sm flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-plus-circle"></i><span>Agregar a Presupuesto Actual</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CATÁLOGO DE MATERIALES -->
+            <section id="module-catalogo-materiales" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                    <div class="lg:col-span-5 space-y-2.5 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                        <h2 id="cat-form-titulo" class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-layer-group text-[#b88a73] mr-2"></i> Registrar Material</h2>
+                        <input type="hidden" id="cat-edit-id" value="">
+                        <div class="space-y-2">
+                            <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Categoría</label>
+                                <select id="cat-categoria" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">
+                                    <option value="Papel / Vinilo">Papel / Vinilo</option>
+                                    <option value="Laminado">Laminado</option>
+                                    <option value="Tinta / Impresión">Tinta / Impresión</option>
+                                    <option value="Corte">Corte</option>
+                                    <option value="Empaque">Empaque</option>
+                                    <option value="Otros">Otros</option>
+                                </select>
+                            </div>
+                            <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Nombre del Material</label><input type="text" id="cat-nombre" placeholder="Ej. Vinilo Autoadhesivo A4" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Unidad</label>
+                                    <select id="cat-unidad" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">
+                                        <option value="hoja">Hoja</option>
+                                        <option value="m2">m²</option>
+                                        <option value="pliego">Pliego</option>
+                                        <option value="unidad">Unidad</option>
+                                        <option value="ml">Metro lineal</option>
+                                    </select>
+                                </div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Costo Unit. ($)</label><input type="number" id="cat-costo" placeholder="0.00" step="0.01" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="guardarMaterial()" id="btn-guardar-cat" class="flex-1 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-xl font-bold transition text-xs shadow-sm">Guardar Material</button>
+                                <button onclick="cancelarEdicionMaterial()" id="btn-cancelar-cat" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-xl font-bold transition text-xs">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-7 space-y-2.5">
+                        <h2 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-list text-[#b88a73] mr-2"></i> Catálogo de Materiales (Compartido)</h2>
+                        <div class="overflow-x-auto w-full max-h-[420px] overflow-y-auto">
+                            <table class="w-full text-left text-xs text-gray-700 min-w-[450px]">
+                                <thead class="bg-[#faf8f6] text-[10px] uppercase text-gray-500 border-b border-[#e8dbd3] sticky top-0">
+                                    <tr><th class="p-2">Categoría</th><th class="p-2">Material</th><th class="p-2">Unidad</th><th class="p-2">Costo ($)</th><th class="p-2 text-center">Acciones</th></tr>
+                                </thead>
+                                <tbody id="tabla-catalogo-materiales"><tr><td colspan="5" class="p-4 text-center text-gray-400">Cargando catálogo...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- COTIZADOR -->
+            <section id="module-calculadora" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                    <div class="lg:col-span-7 space-y-3">
+                        <div class="flex flex-wrap justify-between items-center gap-2 border-b border-[#e8dbd3] pb-2">
+                            <div>
+                                <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-file-invoice-dollar text-[#b88a73] mr-2"></i> Generador de Presupuestos</h2>
+                                <p class="text-[10px] text-gray-500">Selecciona servicios o insumos y arma tu cotización.</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                            <div>
+                                <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-0.5">Cliente Destino</label>
+                                <select id="presupuesto-cliente" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73]" onchange="manejarCambioClientePresupuesto(this)">
+                                    <option value="Cliente General">-- Seleccionar Cliente --</option>
+                                    <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
+                                </select>
+                            </div>
+                            <div><label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-0.5">Validez</label><input type="text" id="presupuesto-validez" value="7 días hábiles" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73]" oninput="recalcularPresupuestoTotal()"></div>
+                            <div><label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-0.5">% Ganancia Global</label><input type="number" id="presupuesto-ganancia-global" value="30" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73]" oninput="aplicarGananciaGlobalEnCascada()"></div>
+                        </div>
+                        <div class="space-y-1.5 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-list text-[#b88a73] mr-1"></i> Renglones del Presupuesto</span>
+                                <div class="space-x-1">
+                                    <button onclick="agregarRenglonServicio()" class="text-[10px] bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2 py-1 rounded-lg transition font-medium"><i class="fa-solid fa-bullhorn mr-1"></i> Servicio</button>
+                                    <button onclick="agregarRenglonInsumo()" class="text-[10px] bg-[#b88a73] hover:bg-[#a67963] text-white px-2 py-1 rounded-lg transition font-medium"><i class="fa-solid fa-box mr-1"></i> Insumo</button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto w-full max-h-[170px] overflow-y-auto">
+                                <table class="w-full text-left text-xs text-gray-700 min-w-[450px]">
+                                    <thead class="bg-white text-[10px] uppercase text-gray-600 border-b border-[#e8dbd3] sticky top-0">
+                                        <tr><th class="p-1.5 w-[42%]">Descripción</th><th class="p-1.5 w-[12%] text-center">Cant</th><th class="p-1.5 w-[14%] text-center">Costo ($)</th><th class="p-1.5 w-[10%] text-center">%G</th><th class="p-1.5 w-[14%] text-right font-bold text-[#b88a73]">Total</th><th class="p-1.5 w-[8%] text-center">Acción</th></tr>
+                                    </thead>
+                                    <tbody id="lista-renglones-presupuesto"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label class="flex items-center space-x-1.5 text-xs font-semibold text-gray-600 bg-[#faf8f6] px-2.5 py-1.5 rounded-xl border border-[#e8dbd3] cursor-pointer">
+                                <input type="checkbox" id="chk-ocultar-bcv" onchange="alternarOcultarBCV()" class="rounded border-[#e8dbd3] text-[#b88a73] focus:ring-0">
+                                <span>Ocultar Tasa BCV en PDF</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-5 bg-[#faf8f6] p-3.5 sm:p-4 rounded-xl border border-[#e8dbd3] flex flex-col justify-between space-y-3">
+                        <div class="space-y-2.5">
+                            <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-[#e8dbd3] pb-1.5">Resumen y Totales</h3>
+                            <div id="area-impresion-presupuesto" class="bg-white p-3 rounded-xl border border-[#e8dbd3] space-y-2 shadow-2xs">
+                                <div class="flex justify-between items-start border-b border-[#e8dbd3] pb-1.5">
+                                    <div class="flex items-center space-x-2">
+                                        <div id="doc-logo-preview" class="w-7 h-7 rounded-lg overflow-hidden flex items-center justify-center bg-[#b88a73] text-white font-bold shrink-0 text-xs"><i class="fa-solid fa-layer-group"></i></div>
+                                        <div><h4 class="text-[11px] font-bold text-[#2c2c2c]">LAN ESTUDIO</h4><p class="text-[9px] text-gray-500">Presupuesto</p></div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p id="presupuesto-fecha-doc" class="text-[9px] text-gray-500">Fecha: --/--/----</p>
+                                        <p id="container-tasa-doc" class="text-[9px] text-gray-500">BCV: <span id="presupuesto-tasa-doc" class="text-[#2c2c2c] font-semibold">0.00</span></p>
+                                    </div>
+                                </div>
+                                <div class="text-[10px] text-gray-700 flex justify-between">
+                                    <span><b>Cliente:</b> <span id="doc-cliente-nombre">Cliente General</span></span>
+                                    <span><b>Validez:</b> <span id="doc-validez-txt">7 días</span></span>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5 text-xs bg-white p-3 rounded-xl border border-[#e8dbd3]">
+                                <div class="flex justify-between items-center text-sm font-bold text-[#2c2c2c]">
+                                    <span class="uppercase tracking-wide text-[10px] text-gray-600">Total Presupuesto:</span>
+                                    <span id="doc-total-usd" class="text-base font-extrabold text-[#b88a73]">$0.00</span>
+                                </div>
+                                <div id="container-total-ves-doc" class="flex justify-between items-center text-xs text-gray-600 font-semibold border-t border-dashed border-[#e8dbd3] pt-1">
+                                    <span>Bolívares (VES):</span>
+                                    <span id="doc-total-ves" class="font-bold text-[#2c2c2c]">Bs. 0.00</span>
+                                </div>
+                            </div>
+                            <div class="hidden">
+                                <span id="doc-subtotal-costo">0</span>
+                                <span id="doc-total-ganancia">0</span>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <button onclick="guardarPresupuestoStandBy()" id="btn-guardar-standby" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-2 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1.5">
+                                <i class="fa-solid fa-clock"></i><span>Guardar en Stand By</span>
+                            </button>
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <button onclick="enviarPresupuestoWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1"><i class="fa-brands fa-whatsapp text-xs"></i><span>WhatsApp</span></button>
+                                <button onclick="exportarPDFPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-1.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1"><i class="fa-solid fa-file-pdf"></i><span>PDF</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CAJA Y PAGOS -->
+            <section id="module-caja" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                    <div class="lg:col-span-7 space-y-2.5">
+                        <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                            <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-cash-register text-[#b88a73] mr-2"></i> Caja Rápida / POS</h2>
+                            <button onclick="abrirArqueoCaja()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2.5 py-1 rounded-xl text-xs font-bold transition flex items-center space-x-1"><i class="fa-solid fa-scale-balanced text-[#b88a73]"></i><span>Arqueo Diario</span></button>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-0.5">Cliente (CRM)</label>
+                            <select id="caja-cliente" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-[#2c2c2c] text-xs focus:outline-none focus:border-[#b88a73]" onchange="manejarCambioClienteCaja(this)">
+                                <option value="Cliente General">-- Cliente General --</option>
+                                <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1.5 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-magnifying-glass text-[#b88a73] mr-1"></i> Detalle de Ítems</span>
+                                <button onclick="agregarItemCajaFila()" class="text-[10px] bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2.5 py-1 rounded-lg transition font-medium"><i class="fa-solid fa-plus mr-1"></i> Añadir</button>
+                            </div>
+                            <div class="overflow-x-auto w-full max-h-[130px] overflow-y-auto">
+                                <table class="w-full text-left text-xs text-gray-700 min-w-[320px]">
+                                    <thead class="bg-white text-gray-500 uppercase border-b border-[#e8dbd3] text-[10px] sticky top-0">
+                                        <tr><th class="p-1.5 w-[50%]">Insumo / Servicio (↑ ↓ Enter)</th><th class="p-1.5 w-[15%] text-center">Cant</th><th class="p-1.5 w-[25%] text-right">Precio ($)</th><th class="p-1.5 w-[10%] text-center">Acción</th></tr>
+                                    </thead>
+                                    <tbody id="lista-items-caja"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                            <div><label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-0.5">Descuento Global (%)</label><input type="number" id="caja-descuento-pct" value="0" min="0" max="100" step="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]" oninput="recalcularTotalesCaja()"></div>
+                            <div><label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-0.5">Notas / Observaciones</label><input type="text" id="caja-notas" placeholder="Ej. Entregar el martes..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]"></div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                            <div><label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-0.5">Total a Pagar ($)</label><input type="number" id="caja-total-usd" value="0.00" step="0.01" readonly class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-base font-extrabold text-[#b88a73] focus:outline-none"></div>
+                            <div><label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-0.5">Total en Bolívares (VES)</label><input type="text" id="caja-total-ves" readonly class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#2c2c2c]"></div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Métodos de Pago Rápidos (1 Clic)</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                                <button onclick="registrarPagoRapido('Efectivo USD')" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-1.5 px-2 rounded-xl text-[10px] font-bold transition flex items-center justify-center space-x-1 shadow-xs"><i class="fa-solid fa-money-bill-wave text-emerald-400"></i><span>Efectivo ($)</span></button>
+                                <button onclick="registrarPagoRapido('Pago Móvil')" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-1.5 px-2 rounded-xl text-[10px] font-bold transition flex items-center justify-center space-x-1 shadow-xs"><i class="fa-solid fa-mobile-screen text-sky-400"></i><span>Pago Móvil</span></button>
+                                <button onclick="registrarPagoRapido('Zelle')" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-1.5 px-2 rounded-xl text-[10px] font-bold transition flex items-center justify-center space-x-1 shadow-xs"><i class="fa-solid fa-building-columns text-amber-400"></i><span>Zelle / Binance</span></button>
+                                <button onclick="registrarPagoRapido('Cashea')" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-1.5 px-2 rounded-xl text-[10px] font-bold transition flex items-center justify-center space-x-1 shadow-xs"><i class="fa-solid fa-handshake text-rose-400"></i><span>Cashea</span></button>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-semibold uppercase tracking-wider text-gray-500">Pagos Registrados</span>
+                                <button onclick="agregarMetodoPago()" class="text-[11px] text-[#b88a73] font-bold hover:underline"><i class="fa-solid fa-plus mr-1"></i> Añadir manual</button>
+                            </div>
+                            <div id="lista-pagos" class="space-y-1.5 max-h-24 overflow-y-auto pr-1"></div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-5 bg-[#faf8f6] p-3.5 sm:p-4 rounded-xl border border-[#e8dbd3] flex flex-col justify-between space-y-3">
+                        <div class="space-y-2.5">
+                            <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-[#e8dbd3] pb-1.5">Resumen de Cobro</h3>
+                            <div class="space-y-1.5 text-xs">
+                                <div class="flex justify-between items-center"><span class="text-gray-500 font-semibold">Total Factura:</span><div class="text-right"><span id="resumen-total" class="font-bold text-[#2c2c2c] text-xs block">$0.00</span><span id="resumen-total-ves" class="text-gray-500 block text-[9px]">Bs. 0.00</span></div></div>
+                                <div class="flex justify-between items-center"><span class="text-gray-500 font-semibold">Total Abonado:</span><div class="text-right"><span id="resumen-abonado" class="font-bold text-[#b88a73] text-xs block">$0.00</span><span id="resumen-abonado-ves" class="text-gray-500 block text-[9px]">Bs. 0.00</span></div></div>
+                                <div class="flex justify-between items-center border-t border-[#e8dbd3] pt-1.5"><span class="text-gray-500 font-semibold">Restante / Vuelto:</span><div class="text-right"><span id="resumen-restante" class="font-bold text-amber-600 text-xs block">Falta: $0.00</span><span id="resumen-restante-ves" class="text-gray-500 block text-[9px]">Bs. 0.00</span></div></div>
+                            </div>
+                            <div class="bg-white p-2.5 rounded-xl border border-[#e8dbd3] text-[10px] text-gray-500 space-y-0.5">
+                                <p class="font-semibold text-gray-700"><i class="fa-solid fa-keyboard text-[#b88a73] mr-1"></i> Atajo:</p>
+                                <p>Usa <b>↑</b> y <b>↓</b> para navegar y <b>Enter</b> para elegir tu insumo/servicio.</p>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <button onclick="procesarPagoFinal()" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1.5"><i class="fa-solid fa-check-circle text-sm"></i><span>Guardar y Procesar Venta</span></button>
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <button onclick="exportarReciboCajaPDF()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-1.5 rounded-xl font-bold text-[10px] transition shadow-sm flex items-center justify-center space-x-1"><i class="fa-solid fa-file-pdf"></i><span>Recibo PDF</span></button>
+                                <button onclick="enviarUltimaVentaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded-xl font-bold text-[10px] transition shadow-sm flex items-center justify-center space-x-1"><i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- INSUMOS -->
+            <section id="module-insumos" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                    <div class="lg:col-span-5 space-y-2.5 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                        <h2 id="insumo-form-titulo" class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-boxes-stacked text-[#b88a73] mr-2"></i> Registrar Insumo</h2>
+                        <input type="hidden" id="insumo-edit-id" value="">
+                        <div class="space-y-2">
+                            <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Nombre del Material</label><input type="text" id="insumo-nombre" placeholder="Ej. Vinil Autoadhesivo" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                            <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Categoría</label><input type="text" id="insumo-categoria" placeholder="Ej. Papelería / Viniles" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Costo Unit. ($)</label><input type="number" id="insumo-costo" placeholder="0.00" step="0.01" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Stock Actual</label><input type="number" id="insumo-stock" placeholder="0" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                            </div>
+                            <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Stock Mínimo (Alerta)</label><input type="number" id="insumo-minimo" placeholder="5" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                            <div class="flex space-x-2">
+                                <button onclick="guardarInsumo()" id="btn-guardar-insumo" class="flex-1 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-xl font-bold transition text-xs shadow-sm">Guardar Insumo</button>
+                                <button onclick="cancelarEdicionInsumo()" id="btn-cancelar-insumo" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-xl font-bold transition text-xs">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-7 space-y-2.5">
+                        <h2 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-list text-[#b88a73] mr-2"></i> Inventario Actual</h2>
+                        <div class="overflow-x-auto w-full max-h-[380px] overflow-y-auto">
+                            <table class="w-full text-left text-xs text-gray-700 min-w-[450px]">
+                                <thead class="bg-[#faf8f6] text-[10px] uppercase text-gray-500 border-b border-[#e8dbd3] sticky top-0">
+                                    <tr><th class="p-2">Nombre</th><th class="p-2">Categoría</th><th class="p-2">Costo ($)</th><th class="p-2">Stock</th><th class="p-2 text-center">Acciones</th></tr>
+                                </thead>
+                                <tbody id="tabla-insumos"><tr><td colspan="5" class="p-4 text-center text-gray-400">Cargando insumos...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MOVIMIENTOS DE STOCK -->
+            <section id="module-movimientos" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
+                    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                        <div>
+                            <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-arrow-right-arrow-left text-[#b88a73] mr-2"></i> Movimientos de Inventario</h2>
+                            <p class="text-[10px] text-gray-500">Historial de entradas y salidas de stock.</p>
+                        </div>
+                        <button onclick="cargarMovimientos()" class="text-[10px] bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:bg-gray-100 px-2.5 py-1 rounded-lg font-medium transition"><i class="fa-solid fa-sync mr-1"></i> Actualizar</button>
+                    </div>
+                    <div class="overflow-x-auto w-full max-h-[500px] overflow-y-auto">
+                        <table class="w-full text-left text-xs text-gray-700 min-w-[650px]">
+                            <thead class="bg-[#faf8f6] text-[10px] uppercase text-gray-500 border-b border-[#e8dbd3] sticky top-0">
+                                <tr><th class="p-2">Fecha</th><th class="p-2">Insumo</th><th class="p-2 text-center">Tipo</th><th class="p-2 text-center">Cant</th><th class="p-2 text-center">Antes</th><th class="p-2 text-center">Después</th><th class="p-2">Motivo</th></tr>
+                            </thead>
+                            <tbody id="tabla-movimientos"><tr><td colspan="7" class="p-4 text-center text-gray-400">Cargando movimientos...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SERVICIOS -->
+            <section id="module-servicios" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                    <div class="lg:col-span-5 space-y-2.5 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3]">
+                        <h2 id="servicio-form-titulo" class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-bullhorn text-[#b88a73] mr-2"></i> Registrar Servicio</h2>
+                        <input type="hidden" id="servicio-edit-id" value="">
+                        <div class="space-y-2">
+                            <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Nombre del Servicio</label><input type="text" id="servicio-nombre" placeholder="Ej. Diseño de Logo / Reel" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                            <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Precio Base ($)</label><input type="number" id="servicio-precio" placeholder="0.00" step="0.01" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                            <div class="flex space-x-2">
+                                <button onclick="guardarServicio()" id="btn-guardar-servicio" class="flex-1 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-xl font-bold transition text-xs shadow-sm">Guardar Servicio</button>
+                                <button onclick="cancelarEdicionServicio()" id="btn-cancelar-servicio" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-xl font-bold transition text-xs">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-7 space-y-2.5">
+                        <h2 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-list text-[#b88a73] mr-2"></i> Catálogo de Servicios</h2>
+                        <div class="overflow-x-auto w-full max-h-[380px] overflow-y-auto">
+                            <table class="w-full text-left text-xs text-gray-700 min-w-[350px]">
+                                <thead class="bg-[#faf8f6] text-[10px] uppercase text-gray-500 border-b border-[#e8dbd3] sticky top-0">
+                                    <tr><th class="p-2">Servicio</th><th class="p-2">Precio Base ($)</th><th class="p-2 text-center">Acciones</th></tr>
+                                </thead>
+                                <tbody id="tabla-servicios"><tr><td colspan="3" class="p-4 text-center text-gray-400">Cargando servicios...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CRM -->
+            <section id="module-crm" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                    <div class="lg:col-span-5 space-y-2 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                        <h2 id="cliente-form-titulo" class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-users text-[#b88a73] mr-2"></i> Registrar Cliente</h2>
+                        <input type="hidden" id="cliente-edit-id" value="">
+                        <div class="space-y-1.5">
+                            <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Nombre o Empresa *</label><input type="text" id="cliente-nombre" placeholder="Nombre completo o empresa" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">RIF / Cédula</label><input type="text" id="cliente-rif" placeholder="V-12345678" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                                <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tipo</label>
+                                    <select id="cliente-tipo" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-1.5 py-1.5 text-xs">
+                                        <option value="Persona Natural">Natural</option>
+                                        <option value="Empresa (B2B)">Empresa B2B</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Teléfono / WhatsApp</label><input type="text" id="cliente-tel" placeholder="+58 412..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                            <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Correo Electrónico</label><input type="email" id="cliente-email" placeholder="correo@domain.com" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                            <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Instagram</label><input type="text" id="cliente-insta" placeholder="@usuario" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                            <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Dirección Fiscal</label><input type="text" id="cliente-direccion" placeholder="Dirección..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></div>
+                            <div class="flex space-x-2 pt-1">
+                                <button onclick="guardarCliente()" id="btn-guardar-cliente" class="flex-1 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-xl font-bold transition text-xs shadow-sm">Guardar Cliente</button>
+                                <button onclick="cancelarEdicionCliente()" id="btn-cancelar-cliente" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-xl font-bold transition text-xs">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-7 space-y-2.5">
+                        <h2 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-list text-[#b88a73] mr-2"></i> Directorio de Clientes</h2>
+                        <div class="overflow-x-auto w-full max-h-[380px] overflow-y-auto">
+                            <table class="w-full text-left text-xs text-gray-700 min-w-[500px]">
+                                <thead class="bg-[#faf8f6] text-[10px] uppercase text-gray-500 border-b border-[#e8dbd3] sticky top-0">
+                                    <tr><th class="p-2">Cliente / Empresa</th><th class="p-2">Contacto</th><th class="p-2">Tipo</th><th class="p-2 text-center">Acciones</th></tr>
+                                </thead>
+                                <tbody id="tabla-clientes"><tr><td colspan="4" class="p-4 text-center text-gray-400">Cargando clientes...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FINANZAS -->
+            <section id="module-finanzas" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
+                    <div class="flex flex-wrap justify-between items-center border-b border-[#e8dbd3] pb-2 gap-2">
+                        <div>
+                            <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c]"><i class="fa-solid fa-wallet text-[#b88a73] mr-2"></i> Control Financiero y Balance (P&L)</h2>
+                            <p class="text-[10px] text-gray-500">Resumen en tiempo real de ingresos, egresos y utilidad.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="flex items-center space-x-1">
+                                <label class="text-[11px] font-semibold text-gray-600">Periodo:</label>
+                                <select id="filtro-periodo" onchange="cambiarFiltroPeriodoFinanzas()" class="bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1 text-xs font-semibold text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]">
+                                    <option value="este_mes">Este Mes (Actual)</option>
+                                    <option value="rango">Rango Personalizado</option>
+                                    <option value="todos">Todo el Histórico</option>
+                                </select>
+                            </div>
+                            <button onclick="exportarBalancePDF()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-3 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1 shadow-sm"><i class="fa-solid fa-file-pdf"></i><span>Exportar PDF</span></button>
+                        </div>
+                    </div>
+                    <div id="contenedor-rango-fechas" class="hidden bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3] flex flex-wrap items-center gap-3 text-xs">
+                        <div><label class="block font-semibold text-gray-600 mb-0.5">Desde:</label><input type="date" id="filtro-fecha-desde" class="bg-white border border-[#e8dbd3] rounded-lg px-2 py-1" onchange="cargarGastosYBalance()"></div>
+                        <div><label class="block font-semibold text-gray-600 mb-0.5">Hasta:</label><input type="date" id="filtro-fecha-hasta" class="bg-white border border-[#e8dbd3] rounded-lg px-2 py-1" onchange="cargarGastosYBalance()"></div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                            <p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Total Ingresos (Ventas)</p>
+                            <h3 id="fin-total-ingresos" class="text-lg sm:text-xl font-bold text-emerald-600 mt-1">$0.00</h3>
+                            <p id="fin-total-ingresos-ves" class="text-[10px] text-gray-500 mt-0.5">Bs. 0.00</p>
+                        </div>
+                        <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                            <p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Total Egresos (Gastos)</p>
+                            <h3 id="fin-total-egresos" class="text-lg sm:text-xl font-bold text-rose-600 mt-1">$0.00</h3>
+                            <p id="fin-total-egresos-ves" class="text-[10px] text-gray-500 mt-0.5">Bs. 0.00</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border-2 border-[#b88a73] shadow-xs">
+                            <p class="text-[10px] uppercase tracking-wider text-[#b88a73] font-bold">Utilidad Neta (Beneficio)</p>
+                            <h3 id="fin-utilidad-neta" class="text-lg sm:text-xl font-extrabold text-[#2c2c2c] mt-1">$0.00</h3>
+                            <p id="fin-utilidad-neta-ves" class="text-[10px] text-gray-500 mt-0.5">Bs. 0.00</p>
+                        </div>
+                    </div>
+                    <div class="bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3] space-y-2">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-chart-pie mr-1 text-[#b88a73]"></i> Desglose de Egresos por Categoría</h3>
+                        <div id="desglose-categorias-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                            <div class="bg-white p-2 rounded-lg border border-[#e8dbd3]"><span class="text-gray-500 block text-[10px]">Operativo</span><span id="cat-operativo-val" class="font-bold text-[#2c2c2c]">$0.00 (0%)</span></div>
+                            <div class="bg-white p-2 rounded-lg border border-[#e8dbd3]"><span class="text-gray-500 block text-[10px]">Insumos</span><span id="cat-insumos-val" class="font-bold text-[#2c2c2c]">$0.00 (0%)</span></div>
+                            <div class="bg-white p-2 rounded-lg border border-[#e8dbd3]"><span class="text-gray-500 block text-[10px]">Marketing</span><span id="cat-marketing-val" class="font-bold text-[#2c2c2c]">$0.00 (0%)</span></div>
+                            <div class="bg-white p-2 rounded-lg border border-[#e8dbd3]"><span class="text-gray-500 block text-[10px]">Otros</span><span id="cat-otros-val" class="font-bold text-[#2c2c2c]">$0.00 (0%)</span></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+                        <div class="lg:col-span-5 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3] space-y-2">
+                            <h3 id="gasto-form-titulo" class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-plus-circle mr-1 text-[#b88a73]"></i> Registrar Nuevo Egreso / Gasto</h3>
+                            <input type="hidden" id="gasto-edit-id" value="">
+                            <div class="space-y-2">
+                                <input type="text" id="gasto-concepto" placeholder="Concepto (Ej. Alquiler)" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="number" id="gasto-monto" placeholder="Monto ($)" step="0.01" min="0" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]">
+                                    <select id="gasto-categoria" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs text-[#2c2c2c] focus:outline-none focus:border-[#b88a73]">
+                                        <option value="Operativo">Operativo</option>
+                                        <option value="Insumos">Insumos</option>
+                                        <option value="Marketing">Marketing</option>
+                                        <option value="Otros">Otros</option>
+                                    </select>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="guardarGasto()" id="btn-guardar-gasto" class="flex-1 bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-2 rounded-xl font-bold transition text-xs shadow-sm flex items-center justify-center space-x-1.5"><i class="fa-solid fa-save"></i><span>Registrar Gasto</span></button>
+                                    <button onclick="cancelarEdicionGasto()" id="btn-cancelar-gasto" class="hidden bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-xl font-bold transition text-xs">Cancelar</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-7 space-y-2">
+                            <h3 class="text-xs font-bold text-[#2c2c2c]"><i class="fa-solid fa-list mr-1 text-[#b88a73]"></i> Historial de Egresos</h3>
+                            <div class="overflow-x-auto w-full max-h-[220px] overflow-y-auto">
+                                <table class="w-full text-left text-xs text-gray-700 min-w-[400px]">
+                                    <thead class="bg-[#faf8f6] text-[10px] uppercase text-gray-500 border-b border-[#e8dbd3] sticky top-0">
+                                        <tr><th class="p-2">Fecha</th><th class="p-2">Concepto</th><th class="p-2">Categoría</th><th class="p-2">Monto ($)</th><th class="p-2 text-center">Acción</th></tr>
+                                    </thead>
+                                    <tbody id="tabla-gastos"><tr><td colspan="5" class="p-3 text-center text-gray-400">Cargando gastos...</td></tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CONFIGURAR LOGO -->
+            <section id="module-logo" class="hidden space-y-3">
+                <div class="bg-white p-4 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
+                    <h2 class="text-base font-bold text-[#2c2c2c]"><i class="fa-solid fa-image text-[#b88a73] mr-2"></i> Configuración del Logotipo</h2>
+                    <p class="text-xs text-gray-500">Sube una imagen para personalizar la barra superior y los PDFs.</p>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <input type="file" id="logo-file-input" accept="image/*" class="bg-[#faf8f6] border border-[#e8dbd3] rounded-xl px-3 py-1.5 text-xs text-gray-700 max-w-full">
+                        <button onclick="actualizarLogo()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-4 py-1.5 rounded-xl text-xs font-medium transition">Aplicar y Sincronizar</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="pdf-container-presupuesto" style="display:none;"></div>
+    <div id="pdf-container-recibo" style="display:none;"></div>
+    <div id="pdf-container-balance" style="display:none;"></div>
+
+    <!-- MODAL ARQUEO -->
+    <div id="modal-arqueo" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-4 space-y-3 border border-[#e8dbd3] shadow-xl">
+            <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                <h3 class="text-sm sm:text-base font-bold text-[#2c2c2c]"><i class="fa-solid fa-scale-balanced mr-2 text-[#b88a73]"></i> Arqueo de Caja Diario</h3>
+                <button onclick="cerrarArqueoCaja()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div id="contenido-arqueo" class="space-y-2 text-xs text-gray-700 max-h-64 overflow-y-auto pr-1"><p class="text-center text-gray-400">Calculando transacciones del día...</p></div>
+            <div class="border-t border-[#e8dbd3] pt-2 flex justify-end"><button onclick="cerrarArqueoCaja()" class="bg-[#2c2c2c] text-white px-3.5 py-1.5 rounded-xl font-bold text-xs">Cerrar</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL HISTORIAL CLIENTE -->
+    <div id="modal-historial-cliente" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-4 space-y-3 border border-[#e8dbd3] shadow-xl">
+            <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                <h3 id="titulo-historial-cliente" class="text-sm sm:text-base font-bold text-[#2c2c2c]"><i class="fa-solid fa-clock-rotate-left mr-2 text-[#b88a73]"></i> Historial del Cliente</h3>
+                <button onclick="cerrarHistorialCliente()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div id="contenido-historial-cliente" class="space-y-2 text-xs text-gray-700 max-h-80 overflow-y-auto pr-1"><p class="text-center text-gray-400">Cargando historial...</p></div>
+            <div class="border-t border-[#e8dbd3] pt-2 flex justify-end"><button onclick="cerrarHistorialCliente()" class="bg-[#2c2c2c] text-white px-3.5 py-1.5 rounded-xl font-bold text-xs">Cerrar</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL PLANTILLAS -->
+    <div id="modal-plantillas" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-4 space-y-3 border border-[#e8dbd3] shadow-xl">
+            <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                <h3 class="text-sm sm:text-base font-bold text-[#2c2c2c]"><i class="fa-solid fa-folder-open mr-2 text-[#b88a73]"></i> Plantillas Guardadas</h3>
+                <button onclick="cerrarModalPlantillas()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div id="contenido-plantillas" class="space-y-2 text-xs text-gray-700 max-h-80 overflow-y-auto pr-1"><p class="text-center text-gray-400">Cargando plantillas...</p></div>
+            <div class="border-t border-[#e8dbd3] pt-2 flex justify-end"><button onclick="cerrarModalPlantillas()" class="bg-[#2c2c2c] text-white px-3.5 py-1.5 rounded-xl font-bold text-xs">Cerrar</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL GENÉRICO INPUT -->
+    <div id="modal-input" class="hidden fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 space-y-4 border border-[#e8dbd3] shadow-xl animate-fadeIn">
+            <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                <h3 id="modal-input-titulo" class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-pen-to-square mr-2 text-[#b88a73]"></i> Editar</h3>
+                <button onclick="cerrarModalInput()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div id="modal-input-campos" class="space-y-3"></div>
+                <div id="modal-input-error" class="hidden bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl px-3 py-2 flex items-start space-x-2">
+                    <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+                    <span id="modal-input-error-text"></span>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="cerrarModalInput()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold transition">Cancelar</button>
+                <button onclick="confirmarModalInput()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-check"></i><span id="modal-input-btn-text">Guardar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIRMACIÓN -->
+    <div id="modal-confirm" class="hidden fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 space-y-4 border border-[#e8dbd3] shadow-xl animate-fadeIn">
+            <div class="text-center space-y-2">
+                <div id="modal-confirm-icono" class="mx-auto w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600 text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h3 id="modal-confirm-titulo" class="text-sm font-bold text-[#2c2c2c]">¿Confirmar acción?</h3>
+                <p id="modal-confirm-mensaje" class="text-xs text-gray-500">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="flex justify-center gap-2 pt-1">
+                <button onclick="cerrarModalConfirm(false)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold transition">Cancelar</button>
+                <button onclick="cerrarModalConfirm(true)" id="modal-confirm-btn" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-check"></i><span id="modal-confirm-btn-text">Confirmar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CREAR CLIENTE -->
+    <div id="modal-cliente-nuevo" class="hidden fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 space-y-4 border border-[#e8dbd3] shadow-xl animate-fadeIn">
+            <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+                <h3 class="text-sm font-bold text-[#2c2c2c]"><i class="fa-solid fa-user-plus mr-2 text-[#b88a73]"></i> Nuevo Cliente</h3>
+                <button onclick="cerrarModalClienteNuevo()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-2.5">
+                <div>
+                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Nombre o Empresa *</label>
+                    <input type="text" id="nuevo-cliente-nombre" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">RIF / Cédula</label>
+                        <input type="text" id="nuevo-cliente-rif" placeholder="V-12345678" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tipo</label>
+                        <select id="nuevo-cliente-tipo" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]">
+                            <option value="Persona Natural">Persona Natural</option>
+                            <option value="Empresa (B2B)">Empresa (B2B)</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Teléfono / WhatsApp</label>
+                    <input type="text" id="nuevo-cliente-tel" placeholder="+58 412..." class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Correo</label>
+                    <input type="email" id="nuevo-cliente-email" placeholder="correo@domain.com" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Dirección</label>
+                    <input type="text" id="nuevo-cliente-direccion" placeholder="Dirección fiscal..." class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]">
+                </div>
+                <div id="modal-cliente-error" class="hidden bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl px-3 py-2 flex items-start space-x-2">
+                    <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+                    <span id="modal-cliente-error-text"></span>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="cerrarModalClienteNuevo()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold transition">Cancelar</button>
+                <button onclick="guardarClienteDesdeModal()" id="modal-cliente-btn" class="bg-[#b88a73] hover:bg-[#a67963] text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-check"></i><span>Crear Cliente</span>
+                </button>
+            </div>
+        </div>
+    </div>
     <script>
         // ================= FIREBASE =================
         const firebaseConfig = {
@@ -34,7 +1434,6 @@
             const elAl = document.getElementById(`${prefijo}-hoja-alto`);
             if (elA) elA.value = ancho;
             if (elAl) elAl.value = alto;
-            // Disparar recálculo según la calculadora
             if (prefijo === 'forr') calcularForros();
             if (prefijo === 'stk') calcularStickers();
             if (prefijo === 'top') calcularTopper();
@@ -50,7 +1449,6 @@
             calcularForros();
         }
 
-        // Función genérica de grid: calcula cuántas piezas caben por hoja
         function calcularGrid(hojaAncho, hojaAlto, piezaAncho, piezaAlto, gap) {
             if (piezaAncho <= 0 || piezaAlto <= 0 || hojaAncho <= 0 || hojaAlto <= 0) {
                 return { porFila: 0, porCol: 0, porHoja: 0 };
@@ -104,7 +1502,8 @@
         }
 
         async function cerrarSesion() {
-            if (!confirm("¿Cerrar sesión?")) return;
+            const ok = await confirmarAccion('¿Cerrar sesión?', 'Deberás iniciar sesión de nuevo para acceder.', 'Cerrar Sesión', 'warning');
+            if (!ok) return;
             try { await auth.signOut(); } catch (e) {}
         }
 
@@ -162,7 +1561,7 @@
         setInterval(actualizarRelojFecha, 1000);
 
         function switchTab(tabId) {
-            const tabs = ['dashboard', 'calculadora', 'standby', 'calc-stickers', 'calc-toppers', 'calc-papeleria', 'calc-forros', 'calc-sublimacion', 'calc-audiovisual', 'calc-vinil', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo', 'catalogo-materiales'];
+            const tabs = ['dashboard', 'calculadora', 'standby', 'calc-stickers', 'calc-toppers', 'calc-papeleria', 'calc-forros', 'calc-sublimacion', 'calc-audiovisual', 'calc-vinil', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo', 'catalogo-materiales', 'movimientos'];
             tabs.forEach(t => {
                 const el = document.getElementById(`module-${t}`);
                 const btn = document.getElementById(`tab-${t}`);
@@ -196,11 +1595,12 @@
             if (tabId === 'crm') cargarClientes();
             if (tabId === 'finanzas') cargarGastosYBalance();
             if (tabId === 'catalogo-materiales') cargarCatalogoMateriales();
+            if (tabId === 'movimientos') cargarMovimientos();
         }
 
         function syncRoute() {
             const hash = window.location.hash.replace('#', '');
-            const tabs = ['dashboard', 'calculadora', 'standby', 'calc-stickers', 'calc-toppers', 'calc-papeleria', 'calc-forros', 'calc-sublimacion', 'calc-audiovisual', 'calc-vinil', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo', 'catalogo-materiales'];
+            const tabs = ['dashboard', 'calculadora', 'standby', 'calc-stickers', 'calc-toppers', 'calc-papeleria', 'calc-forros', 'calc-sublimacion', 'calc-audiovisual', 'calc-vinil', 'caja', 'insumos', 'servicios', 'crm', 'finanzas', 'logo', 'catalogo-materiales', 'movimientos'];
             if (tabs.includes(hash)) switchTab(hash);
             else switchTab('dashboard');
         }
@@ -258,6 +1658,7 @@
             db.collection('insumos').onSnapshot(snap => {
                 listaInsumosDB = []; snap.forEach(doc => listaInsumosDB.push({ id: doc.id, ...doc.data() }));
                 if (document.getElementById('module-insumos') && !document.getElementById('module-insumos').classList.contains('hidden')) cargarInsumos();
+                actualizarBadgeAlertasInsumos();
             }, err => console.warn("insumos:", err.message));
             db.collection('servicios').onSnapshot(snap => {
                 listaServiciosDB = []; snap.forEach(doc => listaServiciosDB.push({ id: doc.id, ...doc.data() }));
@@ -278,6 +1679,18 @@
             }, err => console.warn("plantillas:", err.message));
         }
 
+        function actualizarBadgeAlertasInsumos() {
+            const badge = document.getElementById('badge-alerta-insumos');
+            if (!badge) return;
+            const alertas = listaInsumosDB.filter(i => parseInt(i.stock || 0) <= parseInt(i.stock_minimo || 0)).length;
+            if (alertas > 0) {
+                badge.innerText = alertas;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
         async function cargarClientesEnSelects() {
             const selects = ['presupuesto-cliente', 'caja-cliente'];
             selects.forEach(id => {
@@ -289,7 +1702,140 @@
             });
         }
 
-        // ================== FORROS ESCOLARES (GRID) ==================
+        // ================== MODALES PROPIOS ==================
+        let modalInputCallback = null;
+        let modalConfirmResolve = null;
+        let callbackClienteCreado = null;
+
+        function abrirModalInput(config) {
+            document.getElementById('modal-input-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square mr-2 text-[#b88a73]"></i>${config.titulo || 'Editar'}`;
+            document.getElementById('modal-input-btn-text').innerText = config.textoBoton || 'Guardar';
+            const cont = document.getElementById('modal-input-campos');
+            cont.innerHTML = '';
+            (config.campos || []).forEach(c => {
+                let inputHTML = '';
+                if (c.tipo === 'select') {
+                    let ops = (c.opciones || []).map(o => `<option value="${o.valor}" ${o.valor == c.valor ? 'selected' : ''}>${o.etiqueta}</option>`).join('');
+                    inputHTML = `<select id="${c.id}" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]">${ops}</select>`;
+                } else if (c.tipo === 'textarea') {
+                    inputHTML = `<textarea id="${c.id}" rows="3" placeholder="${c.placeholder || ''}" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]">${c.valor || ''}</textarea>`;
+                } else {
+                    inputHTML = `<input type="${c.tipo || 'text'}" id="${c.id}" value="${c.valor || ''}" placeholder="${c.placeholder || ''}" ${c.min !== undefined ? `min="${c.min}"` : ''} ${c.max !== undefined ? `max="${c.max}"` : ''} ${c.step !== undefined ? `step="${c.step}"` : ''} class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]">`;
+                }
+                cont.innerHTML += `<div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">${c.label}</label>${inputHTML}</div>`;
+            });
+            document.getElementById('modal-input-error').classList.add('hidden');
+            modalInputCallback = config.onConfirm;
+            document.getElementById('modal-input').classList.remove('hidden');
+            setTimeout(() => { const first = cont.querySelector('input, select, textarea'); if (first) first.focus(); }, 100);
+        }
+
+        function cerrarModalInput() {
+            document.getElementById('modal-input').classList.add('hidden');
+            modalInputCallback = null;
+        }
+
+        async function confirmarModalInput() {
+            if (!modalInputCallback) { cerrarModalInput(); return; }
+            const result = await modalInputCallback();
+            if (result === true) cerrarModalInput();
+            else if (typeof result === 'string') {
+                document.getElementById('modal-input-error-text').innerText = result;
+                document.getElementById('modal-input-error').classList.remove('hidden');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !document.getElementById('modal-input').classList.contains('hidden')) {
+                if (e.target.tagName !== 'TEXTAREA') { e.preventDefault(); confirmarModalInput(); }
+            }
+            if (e.key === 'Escape') {
+                cerrarModalInput();
+                document.getElementById('modal-cliente-nuevo').classList.add('hidden');
+                if (!document.getElementById('modal-confirm').classList.contains('hidden')) cerrarModalConfirm(false);
+            }
+        });
+
+        function confirmarAccion(titulo, mensaje, textoBoton = 'Confirmar', tipo = 'danger') {
+            return new Promise(resolve => {
+                document.getElementById('modal-confirm-titulo').innerText = titulo;
+                document.getElementById('modal-confirm-mensaje').innerText = mensaje;
+                document.getElementById('modal-confirm-btn-text').innerText = textoBoton;
+                const icono = document.getElementById('modal-confirm-icono');
+                const btn = document.getElementById('modal-confirm-btn');
+                if (tipo === 'danger') {
+                    icono.className = 'mx-auto w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600 text-xl';
+                    btn.className = 'bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5';
+                } else if (tipo === 'warning') {
+                    icono.className = 'mx-auto w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 text-xl';
+                    btn.className = 'bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5';
+                } else {
+                    icono.className = 'mx-auto w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600 text-xl';
+                    btn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5';
+                }
+                icono.innerHTML = tipo === 'danger' ? '<i class="fa-solid fa-triangle-exclamation"></i>' : tipo === 'warning' ? '<i class="fa-solid fa-circle-exclamation"></i>' : '<i class="fa-solid fa-circle-check"></i>';
+                modalConfirmResolve = resolve;
+                document.getElementById('modal-confirm').classList.remove('hidden');
+            });
+        }
+
+        function cerrarModalConfirm(respuesta) {
+            document.getElementById('modal-confirm').classList.add('hidden');
+            if (modalConfirmResolve) { modalConfirmResolve(respuesta); modalConfirmResolve = null; }
+        }
+
+        function abrirModalClienteNuevo(callback) {
+            callbackClienteCreado = callback;
+            document.getElementById('nuevo-cliente-nombre').value = '';
+            document.getElementById('nuevo-cliente-rif').value = '';
+            document.getElementById('nuevo-cliente-tipo').value = 'Persona Natural';
+            document.getElementById('nuevo-cliente-tel').value = '';
+            document.getElementById('nuevo-cliente-email').value = '';
+            document.getElementById('nuevo-cliente-direccion').value = '';
+            document.getElementById('modal-cliente-error').classList.add('hidden');
+            document.getElementById('modal-cliente-nuevo').classList.remove('hidden');
+            setTimeout(() => document.getElementById('nuevo-cliente-nombre').focus(), 100);
+        }
+
+        function cerrarModalClienteNuevo() {
+            document.getElementById('modal-cliente-nuevo').classList.add('hidden');
+            callbackClienteCreado = null;
+        }
+
+        async function guardarClienteDesdeModal() {
+            const nombre = document.getElementById('nuevo-cliente-nombre').value.trim();
+            if (!nombre) {
+                document.getElementById('modal-cliente-error-text').innerText = 'El nombre es obligatorio.';
+                document.getElementById('modal-cliente-error').classList.remove('hidden');
+                return;
+            }
+            const btn = document.getElementById('modal-cliente-btn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Creando...</span>';
+            btn.disabled = true;
+            const nuevoCliente = {
+                nombre,
+                rif: document.getElementById('nuevo-cliente-rif').value.trim(),
+                tipo: document.getElementById('nuevo-cliente-tipo').value,
+                tel: document.getElementById('nuevo-cliente-tel').value.trim(),
+                email: document.getElementById('nuevo-cliente-email').value.trim(),
+                instagram: '',
+                direccion: document.getElementById('nuevo-cliente-direccion').value.trim()
+            };
+            try {
+                await db.collection('clientes').add(nuevoCliente);
+                mostrarNotificacion("¡Cliente creado!");
+                if (callbackClienteCreado) callbackClienteCreado(nuevoCliente);
+                cerrarModalClienteNuevo();
+            } catch (e) {
+                document.getElementById('modal-cliente-error-text').innerText = 'Error al crear cliente.';
+                document.getElementById('modal-cliente-error').classList.remove('hidden');
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i><span>Crear Cliente</span>';
+                btn.disabled = false;
+            }
+        }
+
+        // ================== FORROS ESCOLARES ==================
         function calcularForros() {
             const hojaA = parseFloat(document.getElementById('forr-hoja-ancho').value) || 0;
             const hojaAl = parseFloat(document.getElementById('forr-hoja-alto').value) || 0;
@@ -311,7 +1857,6 @@
             const hojasTeoricas = grid.porHoja > 0 ? Math.ceil(cant / grid.porHoja) : 0;
             const hojasReq = Math.ceil(hojasTeoricas * (1 + mermaPct / 100));
 
-            // m² por cuaderno según sus medidas reales
             const m2 = (cuadA * cuadAl) / 10000;
             const cVinil = m2 * cVinilM2;
             const cLaminado = m2 * cLamM2;
@@ -359,7 +1904,7 @@
             mostrarNotificacion("Forros escolares agregados al presupuesto.");
         }
 
-        // ================== STICKERS (GRID) ==================
+        // ================== STICKERS ==================
         function calcularStickers() {
             const aStk = parseFloat(document.getElementById('stk-ancho').value) || 0;
             const alStk = parseFloat(document.getElementById('stk-alto').value) || 0;
@@ -425,7 +1970,7 @@
             mostrarNotificacion("Stickers agregados al presupuesto.");
         }
 
-        // ================== TOPPERS (GRID) ==================
+        // ================== TOPPERS ==================
         let topperMatIdx = 0, topperMoIdx = 0;
         function agregarFilaTopper(nombre = '', cant = 1, costo = 0) {
             topperMatIdx++;
@@ -539,7 +2084,7 @@
             mostrarNotificacion("Topper agregado al presupuesto.");
         }
 
-        // ================== PAPELERÍA (GRID) ==================
+        // ================== PAPELERÍA ==================
         function poblarCatalogoEnPapeleria() {
             const sel = document.getElementById('pap-insumo-catalogo');
             if (!sel) return;
@@ -684,7 +2229,7 @@
             mostrarNotificacion("Servicio audiovisual agregado.");
         }
 
-        // ================== VINIL (GRID o M²) ==================
+        // ================== VINIL ==================
         function toggleModoVinil() {
             const modo = document.getElementById('vin-modo').value;
             const bloqueGrid = document.getElementById('vin-bloque-grid');
@@ -722,14 +2267,12 @@
                 const hojasTeoricas = Math.ceil(cant / porHoja);
                 const hojasReq = Math.ceil(hojasTeoricas * (1 + mermaPct / 100));
 
-                // m² totales de las hojas usadas
                 m2 = (hojaA * hojaAl / 10000) * hojasReq;
 
                 document.getElementById('vin-res-grid').innerText = `${grid.porFila} × ${grid.porCol}`;
                 document.getElementById('vin-res-por-hoja').innerText = `${porHoja} uds`;
                 document.getElementById('vin-res-hojas-req').innerText = `${hojasReq} hojas`;
             } else {
-                // Modo m² directo: usar el ancho/alto de la pieza como medidas del trabajo
                 const a = parseFloat(document.getElementById('vin-ancho').value) || 0;
                 const al = parseFloat(document.getElementById('vin-alto').value) || 0;
                 m2 = (a * al) / 10000;
@@ -789,7 +2332,8 @@
             document.getElementById('btn-cancelar-cat').classList.add('hidden');
         }
         async function eliminarMaterial(id) {
-            if (!confirm("¿Eliminar este material?")) return;
+            const ok = await confirmarAccion('¿Eliminar material?', 'Esta acción no se puede deshacer.', 'Eliminar', 'danger');
+            if (!ok) return;
             try { await db.collection('materiales').doc(id).delete(); mostrarNotificacion("Material eliminado."); } catch (e) {}
         }
         function cargarCatalogoMateriales() {
@@ -814,12 +2358,21 @@
         // ================== PLANTILLAS ==================
         function guardarPlantillaCalculadora(tipo) {
             plantillaTipoActual = tipo;
-            const nombre = prompt("Nombre de la plantilla:");
-            if (!nombre || !nombre.trim()) return;
-            const params = capturarParamsCalculadora(tipo);
-            db.collection('plantillas').add({ tipo, nombre: nombre.trim(), params: JSON.stringify(params), created_at: new Date().toLocaleString() })
-                .then(() => mostrarNotificacion("¡Plantilla guardada!"))
-                .catch(() => mostrarNotificacion("Error al guardar plantilla.", "error"));
+            abrirModalInput({
+                titulo: 'Guardar Plantilla',
+                textoBoton: 'Guardar',
+                campos: [{ id: 'plantilla-nombre', label: 'Nombre de la plantilla', tipo: 'text', valor: '', placeholder: 'Ej. Menú A4 Restaurante' }],
+                onConfirm: async () => {
+                    const nombre = document.getElementById('plantilla-nombre').value.trim();
+                    if (!nombre) return 'El nombre es obligatorio.';
+                    const params = capturarParamsCalculadora(tipo);
+                    try {
+                        await db.collection('plantillas').add({ tipo, nombre, params: JSON.stringify(params), created_at: new Date().toLocaleString() });
+                        mostrarNotificacion("¡Plantilla guardada!");
+                        return true;
+                    } catch (e) { return 'Error al guardar plantilla.'; }
+                }
+            });
         }
         function capturarParamsCalculadora(tipo) {
             const ids = {
@@ -872,7 +2425,8 @@
             } catch (e) { mostrarNotificacion("Error al cargar plantilla.", "error"); }
         }
         async function eliminarPlantilla(id) {
-            if (!confirm("¿Eliminar esta plantilla?")) return;
+            const ok = await confirmarAccion('¿Eliminar plantilla?', 'Esta acción no se puede deshacer.', 'Eliminar', 'danger');
+            if (!ok) return;
             try { await db.collection('plantillas').doc(id).delete(); abrirModalPlantillas(plantillaTipoActual); mostrarNotificacion("Plantilla eliminada."); } catch (e) {}
         }
         function cerrarModalPlantillas() { document.getElementById('modal-plantillas').classList.add('hidden'); }
@@ -887,8 +2441,30 @@
             const stock_minimo = Math.max(0, parseInt(document.getElementById('insumo-minimo').value) || 0);
             if (!nombre) { mostrarNotificacion("Introduce el nombre.", "error"); return; }
             try {
-                if (editId) { await db.collection('insumos').doc(editId).update({ nombre, categoria, costo_unitario, stock, stock_minimo }); mostrarNotificacion("¡Insumo actualizado!"); cancelarEdicionInsumo(); }
-                else { await db.collection('insumos').add({ nombre, categoria, costo_unitario, stock, stock_minimo }); mostrarNotificacion("¡Insumo guardado!"); document.getElementById('insumo-nombre').value = ''; document.getElementById('insumo-categoria').value = ''; document.getElementById('insumo-costo').value = ''; document.getElementById('insumo-stock').value = ''; document.getElementById('insumo-minimo').value = ''; }
+                if (editId) {
+                    const antes = listaInsumosDB.find(i => i.id === editId);
+                    await db.collection('insumos').doc(editId).update({ nombre, categoria, costo_unitario, stock, stock_minimo });
+                    // Si cambió el stock, registrar movimiento
+                    if (antes && antes.stock !== stock) {
+                        const diff = stock - antes.stock;
+                        await db.collection('movimientos_inventario').add({
+                            insumoId: editId, insumoNombre: nombre,
+                            tipo: diff > 0 ? 'entrada' : 'ajuste',
+                            cantidad: Math.abs(diff),
+                            stockAntes: antes.stock, stockDespues: stock,
+                            motivo: diff > 0 ? 'Reposición manual' : 'Ajuste manual',
+                            fechaISO: new Date().toISOString(),
+                            fecha: new Date().toLocaleDateString(),
+                            usuario: usuarioActual ? usuarioActual.email : 'desconocido'
+                        });
+                    }
+                    mostrarNotificacion("¡Insumo actualizado!"); cancelarEdicionInsumo();
+                } else {
+                    await db.collection('insumos').add({ nombre, categoria, costo_unitario, stock, stock_minimo });
+                    mostrarNotificacion("¡Insumo guardado!");
+                    document.getElementById('insumo-nombre').value = ''; document.getElementById('insumo-categoria').value = ''; document.getElementById('insumo-costo').value = ''; document.getElementById('insumo-stock').value = ''; document.getElementById('insumo-minimo').value = '';
+                }
+                actualizarBadgeAlertasInsumos();
             } catch (e) { mostrarNotificacion("Error al guardar.", "error"); }
         }
         function editarInsumo(id, nombre, categoria, costo, stock, minimo) {
@@ -933,8 +2509,43 @@
             });
         }
         async function eliminarInsumo(id) {
-            if (!confirm("¿Eliminar este insumo?")) return;
+            const ok = await confirmarAccion('¿Eliminar insumo?', 'Esta acción no se puede deshacer.', 'Eliminar', 'danger');
+            if (!ok) return;
             try { await db.collection('insumos').doc(id).delete(); mostrarNotificacion("Insumo eliminado."); } catch (e) {}
+        }
+
+        // ================== MOVIMIENTOS ==================
+        async function cargarMovimientos() {
+            const tbody = document.getElementById('tabla-movimientos');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Cargando...</td></tr>';
+            try {
+                let movs = [];
+                try {
+                    const snap = await db.collection('movimientos_inventario').orderBy('fechaISO', 'desc').limit(200).get();
+                    snap.forEach(d => movs.push({ id: d.id, ...d.data() }));
+                } catch (e) {
+                    const snap = await db.collection('movimientos_inventario').get();
+                    snap.forEach(d => movs.push({ id: d.id, ...d.data() }));
+                    movs = movs.reverse().slice(0, 200);
+                }
+                tbody.innerHTML = movs.length ? '' : '<tr><td colspan="7" class="p-4 text-center text-gray-400">Sin movimientos registrados.</td></tr>';
+                movs.forEach(m => {
+                    const badgeTipo = m.tipo === 'entrada' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : m.tipo === 'salida' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-amber-50 text-amber-700 border-amber-200';
+                    tbody.innerHTML += `
+                        <tr class="border-b border-[#e8dbd3]">
+                            <td class="p-2 text-xs text-gray-500">${m.fecha || ''}</td>
+                            <td class="p-2 font-semibold text-[#2c2c2c]">${m.insumoNombre || '-'}</td>
+                            <td class="p-2 text-center"><span class="px-2 py-0.5 rounded-full border text-[10px] font-semibold ${badgeTipo}">${m.tipo}</span></td>
+                            <td class="p-2 text-center font-bold">${m.cantidad}</td>
+                            <td class="p-2 text-center text-gray-500">${m.stockAntes}</td>
+                            <td class="p-2 text-center font-bold text-[#b88a73]">${m.stockDespues}</td>
+                            <td class="p-2 text-xs text-gray-600">${m.motivo || ''}</td>
+                        </tr>`;
+                });
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-rose-500">Error al cargar movimientos.</td></tr>';
+            }
         }
 
         // ================== SERVICIOS ==================
@@ -981,7 +2592,8 @@
             });
         }
         async function eliminarServicio(id) {
-            if (!confirm("¿Eliminar este servicio?")) return;
+            const ok = await confirmarAccion('¿Eliminar servicio?', 'Esta acción no se puede deshacer.', 'Eliminar', 'danger');
+            if (!ok) return;
             try { await db.collection('servicios').doc(id).delete(); mostrarNotificacion("Servicio eliminado."); } catch (e) {}
         }
 
@@ -1046,7 +2658,8 @@
             });
         }
         async function eliminarCliente(id) {
-            if (!confirm("¿Eliminar este cliente?")) return;
+            const ok = await confirmarAccion('¿Eliminar cliente?', 'Se borrará del directorio. Las ventas asociadas se conservan.', 'Eliminar', 'danger');
+            if (!ok) return;
             try { await db.collection('clientes').doc(id).delete(); mostrarNotificacion("Cliente eliminado."); } catch (e) {}
         }
         async function verHistorialCliente(nombre) {
@@ -1114,7 +2727,8 @@
             document.getElementById('btn-cancelar-gasto').classList.add('hidden');
         }
         async function eliminarGasto(id) {
-            if (!confirm("¿Eliminar este gasto?")) return;
+            const ok = await confirmarAccion('¿Eliminar gasto?', 'Esta acción no se puede deshacer.', 'Eliminar', 'danger');
+            if (!ok) return;
             try { await db.collection('gastos').doc(id).delete(); cargarGastosYBalance(); mostrarNotificacion("Gasto eliminado."); } catch (e) {}
         }
         async function cargarGastosYBalance() {
@@ -1251,8 +2865,20 @@
         function editarItemCajaFila(rowId) {
             const row = document.getElementById(rowId);
             const inp = row.querySelector('.caja-search-input');
-            const n = prompt("Modificar concepto:", inp.value);
-            if (n !== null && n.trim() !== '') { inp.value = n.trim(); recalcularTotalesCaja(); guardarBorradorCaja(); mostrarNotificacion("Ítem actualizado."); }
+            abrirModalInput({
+                titulo: 'Editar Concepto',
+                textoBoton: 'Actualizar',
+                campos: [{ id: 'edit-caja-desc', label: 'Concepto / Descripción', tipo: 'text', valor: inp.value }],
+                onConfirm: () => {
+                    const n = document.getElementById('edit-caja-desc').value.trim();
+                    if (!n) return 'El concepto no puede estar vacío.';
+                    inp.value = n;
+                    recalcularTotalesCaja();
+                    guardarBorradorCaja();
+                    mostrarNotificacion("Ítem actualizado.");
+                    return true;
+                }
+            });
         }
         function guardarBorradorCaja() {
             const items = [];
@@ -1358,14 +2984,66 @@
                 const r = it.querySelector('.ref-pago').value || 'S/R';
                 if (mo > 0) { metodos.push(`${m}: $${mo.toFixed(2)} (Ref: ${r})`); totalAb += mo; }
             });
-            if (totalAb < totalUSD) { if (!confirm(`Pago incompleto. Faltan $${(totalUSD - totalAb).toFixed(2)}. ¿Procesar igual?`)) return; }
+            if (totalAb < totalUSD) {
+                const ok = await confirmarAccion('Pago incompleto', `Faltan $${(totalUSD - totalAb).toFixed(2)}. ¿Procesar igual?`, 'Procesar igual', 'warning');
+                if (!ok) return;
+            }
+
+            // Detectar insumos y validar stock
+            const insumosAfectados = [];
+            items.forEach(item => {
+                const insumoEncontrado = listaInsumosDB.find(i => i.nombre.toLowerCase().trim() === item.desc.toLowerCase().trim());
+                if (insumoEncontrado) insumosAfectados.push({ insumo: insumoEncontrado, cantidad: item.cant });
+            });
+            const insuficientes = insumosAfectados.filter(x => x.insumo.stock < x.cantidad);
+            if (insuficientes.length > 0) {
+                const lista = insuficientes.map(x => `• ${x.insumo.nombre}: necesitas ${x.cantidad}, tienes ${x.insumo.stock}`).join('\n');
+                const ok = await confirmarAccion('Stock insuficiente', `Algunos ítems no tienen stock suficiente:\n\n${lista}\n\n¿Continuar y dejar el stock en negativo?`, 'Continuar', 'warning');
+                if (!ok) return;
+            }
+
             const concepto = items.map(i => `${i.cant}x ${i.desc}`).join(' + ');
             const metodosStr = metodos.join(' | ') || 'No especificado';
+
             try {
-                await db.collection('ventas').add({ fechaISO: new Date().toISOString(), fecha: new Date().toLocaleDateString(), cliente, concepto, total_usd: totalUSD, metodos_pago: metodosStr, descuento: `${descuento}%`, notas });
+                await db.collection('ventas').add({
+                    fechaISO: new Date().toISOString(),
+                    fecha: new Date().toLocaleDateString(),
+                    cliente, concepto, total_usd: totalUSD,
+                    metodos_pago: metodosStr,
+                    descuento: `${descuento}%`, notas,
+                    usuario: usuarioActual ? usuarioActual.email : 'desconocido'
+                });
+
+                for (const item of insumosAfectados) {
+                    const nuevoStock = item.insumo.stock - item.cantidad;
+                    await db.collection('insumos').doc(item.insumo.id).update({ stock: nuevoStock });
+                    await db.collection('movimientos_inventario').add({
+                        insumoId: item.insumo.id,
+                        insumoNombre: item.insumo.nombre,
+                        tipo: 'salida',
+                        cantidad: item.cantidad,
+                        stockAntes: item.insumo.stock,
+                        stockDespues: nuevoStock,
+                        motivo: `Venta a ${cliente}`,
+                        ventaConcepto: concepto,
+                        fechaISO: new Date().toISOString(),
+                        fecha: new Date().toLocaleDateString(),
+                        usuario: usuarioActual ? usuarioActual.email : 'desconocido'
+                    });
+                    if (nuevoStock <= item.insumo.stock_minimo) {
+                        mostrarNotificacion(`⚠️ Stock bajo: ${item.insumo.nombre} (${nuevoStock} uds)`, 'error');
+                    }
+                }
+
                 ultimaVentaProcesada = { cliente, concepto, total_usd: totalUSD, metodos_pago: metodosStr, notas };
-            } catch (e) { mostrarNotificacion("Error al guardar venta.", "error"); return; }
-            mostrarNotificacion("¡Venta procesada!");
+                mostrarNotificacion("¡Venta procesada!");
+            } catch (e) {
+                console.error(e);
+                mostrarNotificacion("Error al guardar venta.", "error");
+                return;
+            }
+
             localStorage.removeItem('lan_borrador_caja');
             document.getElementById('lista-items-caja').innerHTML = '';
             document.getElementById('lista-pagos').innerHTML = '';
@@ -1532,7 +3210,8 @@
             }, 200);
         }
         async function eliminarStandBy(id) {
-            if (!confirm("¿Eliminar cotización?")) return;
+            const ok = await confirmarAccion('¿Eliminar cotización?', 'Esta acción no se puede deshacer.', 'Eliminar', 'danger');
+            if (!ok) return;
             try { await db.collection('standby').doc(id).delete(); cargarCotizacionesStandBy(); mostrarNotificacion("Eliminada."); } catch (e) {}
         }
 
@@ -1594,14 +3273,41 @@
         }
         function editarRenglonCotizador(id) {
             const r = document.getElementById(id);
-            const d = r.querySelector('.desc-input'); const c = r.querySelector('.cant-input'); const co = r.querySelector('.costo-input'); const g = r.querySelector('.ganancia-input'); const p = r.querySelector('.precio-cliente-input');
-            const nD = prompt("Descripción:", d.value); if (nD !== null) d.value = nD.trim();
-            const nC = prompt("Cantidad:", c.value); if (nC !== null && !isNaN(nC)) c.value = nC;
-            const nCo = prompt("Costo unitario ($):", co.value); if (nCo !== null && !isNaN(nCo)) co.value = nCo;
-            const nG = prompt("% Ganancia:", g.value); if (nG !== null && !isNaN(nG)) { g.value = nG; p.classList.remove('modificado-manual'); }
-            recalcularPresupuestoTotal();
-            guardarBorradorPresupuesto();
-            mostrarNotificacion("Renglón actualizado.");
+            const d = r.querySelector('.desc-input');
+            const c = r.querySelector('.cant-input');
+            const co = r.querySelector('.costo-input');
+            const g = r.querySelector('.ganancia-input');
+            const p = r.querySelector('.precio-cliente-input');
+
+            abrirModalInput({
+                titulo: 'Editar Renglón',
+                textoBoton: 'Guardar Cambios',
+                campos: [
+                    { id: 'edit-desc', label: 'Descripción', tipo: 'text', valor: d.value },
+                    { id: 'edit-cant', label: 'Cantidad', tipo: 'number', valor: c.value, min: 1 },
+                    { id: 'edit-costo', label: 'Costo Unitario ($)', tipo: 'number', valor: co.value, min: 0, step: 0.01 },
+                    { id: 'edit-ganancia', label: '% Ganancia sobre Costo', tipo: 'number', valor: g.value, min: 0 }
+                ],
+                onConfirm: () => {
+                    const nD = document.getElementById('edit-desc').value.trim();
+                    const nC = parseFloat(document.getElementById('edit-cant').value);
+                    const nCo = parseFloat(document.getElementById('edit-costo').value);
+                    const nG = parseFloat(document.getElementById('edit-ganancia').value);
+                    if (!nD) return 'La descripción no puede estar vacía.';
+                    if (isNaN(nC) || nC <= 0) return 'Cantidad inválida.';
+                    if (isNaN(nCo) || nCo < 0) return 'Costo inválido.';
+                    if (isNaN(nG) || nG < 0) return 'Porcentaje inválido.';
+                    d.value = nD;
+                    c.value = nC;
+                    co.value = nCo;
+                    g.value = nG;
+                    p.classList.remove('modificado-manual');
+                    recalcularPresupuestoTotal();
+                    guardarBorradorPresupuesto();
+                    mostrarNotificacion("Renglón actualizado.");
+                    return true;
+                }
+            });
         }
         function selServCat(id) {
             const r = document.getElementById(id);
@@ -1671,29 +3377,21 @@
         }
         async function manejarCambioClientePresupuesto(sel) {
             if (sel.value === 'CREAR_NUEVO_CLIENTE') {
-                const n = prompt("Nombre del nuevo cliente:");
-                if (n && n.trim()) {
-                    const r = prompt("RIF/Cédula (opcional):") || '';
-                    const t = prompt("Teléfono (opcional):") || '';
-                    const d = prompt("Dirección (opcional):") || '';
-                    await db.collection('clientes').add({ nombre: n.trim(), rif: r, tipo: 'Persona Natural', tel: t, email: '', instagram: '', direccion: d });
-                    sel.value = n.trim();
-                    mostrarNotificacion("¡Cliente creado!");
-                } else sel.value = "Cliente General";
+                abrirModalClienteNuevo((nuevoCliente) => {
+                    sel.value = nuevoCliente.nombre;
+                    recalcularPresupuestoTotal();
+                });
+                sel.value = "Cliente General";
+                return;
             }
             recalcularPresupuestoTotal();
         }
         async function manejarCambioClienteCaja(sel) {
             if (sel.value === 'CREAR_NUEVO_CLIENTE') {
-                const n = prompt("Nombre del nuevo cliente:");
-                if (n && n.trim()) {
-                    const r = prompt("RIF/Cédula:") || '';
-                    const t = prompt("Teléfono:") || '';
-                    const d = prompt("Dirección:") || '';
-                    await db.collection('clientes').add({ nombre: n.trim(), rif: r, tipo: 'Persona Natural', tel: t, email: '', instagram: '', direccion: d });
-                    sel.value = n.trim();
-                    mostrarNotificacion("¡Cliente creado!");
-                } else sel.value = "Cliente General";
+                abrirModalClienteNuevo((nuevoCliente) => {
+                    sel.value = nuevoCliente.nombre;
+                });
+                sel.value = "Cliente General";
             }
         }
 

@@ -2488,12 +2488,12 @@
         }
 
         // ================== PAPELERÍA ==================
-        function poblarCatalogoEnPapeleria() {
-            const sel = document.getElementById('pap-insumo-catalogo');
-            if (!sel) return;
-            sel.innerHTML = '<option value="">-- Seleccionar material base --</option>';
-            listaMaterialesDB.forEach(m => { sel.innerHTML += `<option value="${m.costo}" data-nombre="${m.nombre}">${m.nombre} ($${m.costo}/${m.unidad})</option>`; });
-        }
+            function poblarCatalogoEnPapeleria() {
+         const sel = document.getElementById('pap-insumo-catalogo');
+         if (!sel) return;
+         sel.innerHTML = '<option value="">-- Seleccionar material base --</option>';
+         listaInsumosDB.forEach(i => { sel.innerHTML += `<option value="${i.costo_unitario}" data-nombre="${i.nombre}">${i.nombre} ($${i.costo_unitario})</option>`; });
+     }
         function aplicarInsumoCatalogoPapeleria() {
             const sel = document.getElementById('pap-insumo-catalogo');
             if (!sel.value) return;

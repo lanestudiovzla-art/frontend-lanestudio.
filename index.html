@@ -3939,7 +3939,9 @@
                     <div style="text-align:center; border-top:1px solid #e8dbd3; margin-top:25px; padding-top:15px; font-size:9px; color:#a1a1aa; letter-spacing:1px;">LAN ESTUDIO • Agencia de Publicidad y Comunicación</div>
                 </div>`;
                         const opt = { margin: 0, filename:`Orden_${o.numero || Date.now()}.pdf`, image:{type:'jpeg', quality:0.98}, html2canvas:{scale:2, useCORS:true, logging:false, letterRendering:true, windowWidth:794, scrollX:0, scrollY:0}, jsPDF:{unit:'px', format:[794, 1123], orientation:'portrait'} };
-            html2pdf().set(opt).from(c).save().then(() => { c.style.display = 'none'; mostrarNotificacion("¡PDF exportado!"); }).catch(() => { c.style.display = 'none'; mostrarNotificacion("Error al exportar.", "error"); });
+                        setTimeout(() => {
+                html2pdf().set(opt).from(c).save().then(() => { c.style.display = 'none'; mostrarNotificacion("¡PDF exportado!"); }).catch(() => { c.style.display = 'none'; mostrarNotificacion("Error al exportar.", "error"); });
+            }, 300);;
         }
 
         // ================== PDF PRESUPUESTO ==================

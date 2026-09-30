@@ -4112,7 +4112,7 @@
             imprimirComoPDF(html, `Recibo_${cl}_${fecha.replace(/\//g, '-').replace(/:/g, '-')}`);
         }
         // ================== PDF BALANCE ==================
-        f        function exportarBalancePDF() {
+                function exportarBalancePDF() {
             const ti = document.getElementById('fin-total-ingresos').innerText;
             const tiv = document.getElementById('fin-total-ingresos-ves').innerText;
             const te = document.getElementById('fin-total-egresos').innerText;

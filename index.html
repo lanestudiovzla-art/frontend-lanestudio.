@@ -4213,6 +4213,173 @@
                 });
             }
         }
+        // ================== MÓDULO VENTAS ==================
+        let ventasCache = [];
+
+        async function cargarVentas() {
+            const tbody = document.getElementById('tabla-ventas-completo');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Cargando ventas...</td></tr>';
+
+            try {
+                const snap = await db.collection('ventas').orderBy('fechaISO', 'desc').get();
+                ventasCache = [];
+                snap.forEach(doc => ventasCache.push({ id: doc.id, ...doc.data() }));
+
+                const q = (document.getElementById('ventas-buscador')?.value || '').toLowerCase().trim();
+                let filtradas = ventasCache;
+                if (q) {
+                    filtradas = ventasCache.filter(v =>
+                        (v.cliente || '').toLowerCase().includes(q) ||
+                        (v.concepto || '').toLowerCase().includes(q) ||
+                        (v.notas || '').toLowerCase().includes(q) ||
+                        String(v.total_usd || '').includes(q)
+                    );
+                }
+
+                // Estadísticas
+                const totalCount = ventasCache.length;
+                const totalUSD = ventasCache.reduce((a, v) => a + (parseFloat(v.total_usd) || 0), 0);
+                const promedio = totalCount > 0 ? totalUSD / totalCount : 0;
+                const hoy = new Date();
+                const mesCount = ventasCache.filter(v => {
+                    const f = v.fechaISO ? new Date(v.fechaISO) : new Date();
+                    return f.getMonth() === hoy.getMonth() && f.getFullYear() === hoy.getFullYear();
+                }).length;
+
+                document.getElementById('ventas-total-count').innerText = totalCount;
+                document.getElementById('ventas-total-usd').innerText = `$${totalUSD.toFixed(2)}`;
+                document.getElementById('ventas-promedio').innerText = `$${promedio.toFixed(2)}`;
+                document.getElementById('ventas-mes-count').innerText = mesCount;
+
+                tbody.innerHTML = '';
+                if (filtradas.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400">No hay ventas que coincidan.</td></tr>';
+                    return;
+                }
+
+                filtradas.forEach(v => {
+                    const fecha = v.fecha || (v.fechaISO ? new Date(v.fechaISO).toLocaleDateString() : '-');
+                    const total = parseFloat(v.total_usd || 0).toFixed(2);
+                    const totalVES = (parseFloat(v.total_usd || 0) * tasaBCV).toFixed(2);
+                    const idEsc = v.id;
+                    const notas = (v.notas || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                    tbody.innerHTML += `
+                        <tr class="border-b border-[#e8dbd3] hover:bg-[#faf8f6] transition">
+                            <td class="p-2 text-xs text-gray-500 whitespace-nowrap">${fecha}</td>
+                            <td class="p-2 font-semibold text-[#2c2c2c]">${v.cliente || 'Cliente General'}</td>
+                            <td class="p-2 text-xs text-gray-700 max-w-xs truncate" title="${(v.concepto || '').replace(/"/g, '&quot;')}">${v.concepto || ''}</td>
+                            <td class="p-2 text-right font-bold text-[#b88a73] whitespace-nowrap">$${total}<span class="block text-[9px] font-normal text-gray-500">Bs. ${totalVES}</span></td>
+                            <td class="p-2 text-xs text-gray-600 max-w-xs truncate" title="${(v.metodos_pago || '').replace(/"/g, '&quot;')}">${v.metodos_pago || '-'}</td>
+                            <td class="p-2 text-xs text-gray-500 max-w-xs truncate" title="${notas}">${notas || '-'}</td>
+                            <td class="p-2 text-center whitespace-nowrap">
+                                <button onclick="editarVenta('${idEsc}')" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-1.5 rounded-xl text-xs mr-0.5" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="eliminarVenta('${idEsc}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1.5 rounded-xl text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>`;
+                });
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-rose-500">Error al cargar ventas.</td></tr>';
+            }
+        }
+
+        async function editarVenta(id) {
+            const venta = ventasCache.find(v => v.id === id);
+            if (!venta) { mostrarNotificacion("Venta no encontrada.", "error"); return; }
+
+            abrirModalInput({
+                titulo: `Editar Venta`,
+                textoBoton: 'Guardar Cambios',
+                campos: [
+                    { id: 'ev-cliente', label: 'Cliente', tipo: 'text', valor: venta.cliente || 'Cliente General' },
+                    { id: 'ev-concepto', label: 'Concepto', tipo: 'textarea', valor: venta.concepto || '' },
+                    { id: 'ev-total', label: 'Total ($)', tipo: 'number', valor: parseFloat(venta.total_usd || 0).toFixed(2), min: 0, step: 0.01 },
+                    { id: 'ev-metodos', label: 'Métodos de Pago', tipo: 'text', valor: venta.metodos_pago || '' },
+                    { id: 'ev-notas', label: 'Notas', tipo: 'textarea', valor: venta.notas || '' }
+                ],
+                onConfirm: async () => {
+                    const nuevoCliente = document.getElementById('ev-cliente').value.trim();
+                    const nuevoConcepto = document.getElementById('ev-concepto').value.trim();
+                    const nuevoTotal = parseFloat(document.getElementById('ev-total').value);
+                    const nuevoMetodos = document.getElementById('ev-metodos').value.trim();
+                    const nuevoNotas = document.getElementById('ev-notas').value.trim();
+
+                    if (!nuevoCliente) return 'El cliente no puede estar vacío.';
+                    if (isNaN(nuevoTotal) || nuevoTotal < 0) return 'Total inválido.';
+
+                    try {
+                        await db.collection('ventas').doc(id).update({
+                            cliente: nuevoCliente,
+                            concepto: nuevoConcepto,
+                            total_usd: nuevoTotal,
+                            metodos_pago: nuevoMetodos,
+                            notas: nuevoNotas,
+                            editado_en: new Date().toISOString(),
+                            editado_por: usuarioActual ? usuarioActual.email : 'desconocido'
+                        });
+                        mostrarNotificacion("Venta actualizada.");
+                        await cargarVentas();
+                        cargarDashboard();
+                        return true;
+                    } catch (e) {
+                        console.error(e);
+                        return 'Error al actualizar la venta.';
+                    }
+                }
+            });
+        }
+
+        async function eliminarVenta(id) {
+            const venta = ventasCache.find(v => v.id === id);
+            if (!venta) { mostrarNotificacion("Venta no encontrada.", "error"); return; }
+
+            const ok = await confirmarAccion(
+                '¿Eliminar venta?',
+                `Se eliminará la venta de "${venta.cliente}" por $${parseFloat(venta.total_usd || 0).toFixed(2)}. Si tenía insumos, se devolverá el stock.`,
+                'Eliminar',
+                'danger'
+            );
+            if (!ok) return;
+
+            try {
+                // Devolver stock de los insumos que se descontaron
+                const concepto = venta.concepto || '';
+                const items = concepto.split(' + ');
+                for (const item of items) {
+                    const match = item.match(/^(\d+)x\s+(.+)$/);
+                    if (!match) continue;
+                    const cantidad = parseInt(match[1]) || 0;
+                    const nombreItem = match[2].trim();
+                    const insumo = listaInsumosDB.find(i => i.nombre.toLowerCase().trim() === nombreItem.toLowerCase().trim());
+                    if (insumo) {
+                        const nuevoStock = (parseInt(insumo.stock) || 0) + cantidad;
+                        await db.collection('insumos').doc(insumo.id).update({ stock: nuevoStock });
+                        await db.collection('movimientos_inventario').add({
+                            insumoId: insumo.id,
+                            insumoNombre: insumo.nombre,
+                            tipo: 'entrada',
+                            cantidad: cantidad,
+                            stockAntes: insumo.stock,
+                            stockDespues: nuevoStock,
+                            motivo: `Devolución por eliminación de venta`,
+                            fechaISO: new Date().toISOString(),
+                            fecha: new Date().toLocaleDateString(),
+                            usuario: usuarioActual ? usuarioActual.email : 'desconocido'
+                        });
+                    }
+                }
+
+                await db.collection('ventas').doc(id).delete();
+                mostrarNotificacion("Venta eliminada y stock devuelto.");
+                await cargarVentas();
+                cargarDashboard();
+            } catch (e) {
+                console.error(e);
+                mostrarNotificacion("Error al eliminar la venta.", "error");
+            }
+        }
 
         // ================== INIT / AUTH ==================
         auth.onAuthStateChanged(async (user) => {

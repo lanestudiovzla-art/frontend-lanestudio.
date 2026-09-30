@@ -3745,30 +3745,10 @@
                 }
             });
         }
-        function selServCat(id) {
-            const r = document.getElementById(id);
-            const s = r.querySelector('.select-servicio');
-            const o = s.options[s.selectedIndex];
-            const pb = parseFloat(o.getAttribute('data-precio')) || 0;
-            r.querySelector('.desc-input').value = s.value;
-            r.querySelector('.costo-input').value = (pb * 0.4).toFixed(2);
-            r.querySelector('.precio-cliente-input').value = pb.toFixed(2);
-            r.querySelector('.precio-cliente-input').classList.add('modificado-manual');
-            recalcularPresupuestoTotal();
-            guardarBorradorPresupuesto();
-        }
-        function selInsCat(id) {
-            const r = document.getElementById(id);
-            const s = r.querySelector('.select-insumo');
-            const o = s.options[s.selectedIndex];
-            const c = parseFloat(o.getAttribute('data-costo')) || 0;
-            r.querySelector('.desc-input').value = s.value;
-            r.querySelector('.costo-input').value = c.toFixed(2);
-            r.querySelector('.precio-cliente-input').classList.remove('modificado-manual');
-            recalcularPresupuestoTotal();
-            guardarBorradorPresupuesto();
-        }
-        function aplicarGananciaGlobalEnCascada() {
+            
+              function selServCat(id) { /* obsoleto: ahora se usa el buscador */ }
+        function selInsCat(id) { /* obsoleto: ahora se usa el buscador */ }
+                function aplicarGananciaGlobalEnCascada() {
             const g = parseFloat(document.getElementById('presupuesto-ganancia-global').value) || 30;
             document.querySelectorAll('.renglon-item').forEach(r => { r.querySelector('.ganancia-input').value = g; r.querySelector('.precio-cliente-input').classList.remove('modificado-manual'); });
             recalcularPresupuestoTotal();

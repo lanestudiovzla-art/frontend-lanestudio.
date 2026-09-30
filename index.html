@@ -4488,7 +4488,51 @@
                 mostrarNotificacion("Error al eliminar la venta.", "error");
             }
         }
+        // ================== SISTEMA UNIVERSAL DE PDF (via impresión del navegador) ==================
+        function imprimirComoPDF(htmlContenido, tituloDocumento) {
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            document.body.appendChild(iframe);
 
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${tituloDocumento}</title>
+                    <style>
+                        @page { size: A4; margin: 15mm; }
+                        * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+                        body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; color: #2c2c2c; background: white; }
+                        table { width: 100%; border-collapse: collapse; }
+                    </style>
+                </head>
+                <body>${htmlContenido}</body>
+                </html>
+            `);
+            doc.close();
+
+            setTimeout(() => {
+                try {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                } catch (e) {
+                    console.error("Error al imprimir:", e);
+                }
+                setTimeout(() => {
+                    if (document.body.contains(iframe)) document.body.removeChild(iframe);
+                }, 2000);
+            }, 500);
+        }
+
+        
         // ================== INIT / AUTH ==================
         auth.onAuthStateChanged(async (user) => {
             const loginScreen = document.getElementById('login-screen');

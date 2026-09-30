@@ -4079,6 +4079,83 @@
             const c1 = document.getElementById('logo-container'); if (c1) c1.innerHTML = h;
             const c2 = document.getElementById('doc-logo-preview'); if (c2) c2.innerHTML = h;
         }
+        // ================== BUSCADOR MÁGICO DEL COTIZADOR ==================
+        let cotizadorFocusIdx = -1;
+        function inicializarBuscadorCotizador() {
+            const input = document.getElementById('cotizador-buscador');
+            const sugBox = document.getElementById('cotizador-sugerencias');
+            if (!input || !sugBox) return;
+            if (input.dataset.inicializado === '1') return;
+            input.dataset.inicializado = '1';
+
+            input.addEventListener('input', function() {
+                const q = this.value.toLowerCase().trim();
+                cotizadorFocusIdx = -1;
+                let matches = [];
+                if (q.length > 0) {
+                    listaServiciosDB.forEach(s => {
+                        if (s.nombre.toLowerCase().includes(q)) matches.push({ tipo: 'Servicio', nombre: s.nombre, precio: parseFloat(s.precio) || 0 });
+                    });
+                    listaInsumosDB.forEach(i => {
+                        if (i.nombre.toLowerCase().includes(q)) matches.push({ tipo: 'Insumo', nombre: i.nombre, precio: parseFloat(i.costo_unitario) || 0 });
+                    });
+                }
+                if (matches.length > 0) {
+                    sugBox.innerHTML = '';
+                    sugBox.classList.remove('hidden');
+                    matches.slice(0, 20).forEach((m, idx) => {
+                        const badgeColor = m.tipo === 'Insumo' ? 'bg-[#b88a73] text-white' : 'bg-slate-700 text-white';
+                        const d = document.createElement('div');
+                        d.className = 'px-3 py-2 text-sm hover:bg-[#faf8f6] cursor-pointer flex justify-between items-center border-b border-gray-100 last:border-none transition';
+                        d.dataset.idx = idx;
+                        d.innerHTML = `<span class="font-medium text-gray-800 truncate mr-2">${m.nombre}</span><div class="flex items-center gap-2 shrink-0"><span class="text-[9px] px-1.5 py-0.5 rounded ${badgeColor} font-bold">${m.tipo}</span><span class="font-bold text-[#b88a73] text-xs">$${m.precio.toFixed(2)}</span></div>`;
+                        d.onclick = () => {
+                            agregarRenglonServicio(m.nombre, m.precio, m.tipo);
+                            input.value = '';
+                            sugBox.classList.add('hidden');
+                            input.focus();
+                            mostrarNotificacion(`${m.nombre} agregado.`);
+                        };
+                        sugBox.appendChild(d);
+                    });
+                } else {
+                    sugBox.classList.add('hidden');
+                }
+            });
+
+            input.addEventListener('keydown', function(e) {
+                const items = sugBox.querySelectorAll('div[data-idx]');
+                if (!items.length) return;
+                if (e.key === 'ArrowDown') {
+                    cotizadorFocusIdx++;
+                    if (cotizadorFocusIdx >= items.length) cotizadorFocusIdx = 0;
+                    actualizarFocoSugerencias(items);
+                    e.preventDefault();
+                } else if (e.key === 'ArrowUp') {
+                    cotizadorFocusIdx--;
+                    if (cotizadorFocusIdx < 0) cotizadorFocusIdx = items.length - 1;
+                    actualizarFocoSugerencias(items);
+                    e.preventDefault();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (cotizadorFocusIdx > -1 && items[cotizadorFocusIdx]) items[cotizadorFocusIdx].click();
+                    else if (items.length > 0) items[0].click();
+                } else if (e.key === 'Escape') {
+                    sugBox.classList.add('hidden');
+                }
+            });
+
+            function actualizarFocoSugerencias(items) {
+                items.forEach((it, i) => {
+                    if (i === cotizadorFocusIdx) {
+                        it.classList.add('bg-[#faf8f6]', 'border-l-4', 'border-l-[#b88a73]');
+                        it.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        it.classList.remove('bg-[#faf8f6]', 'border-l-4', 'border-l-[#b88a73]');
+                    }
+                });
+            }
+        }
 
         // ================== INIT / AUTH ==================
         auth.onAuthStateChanged(async (user) => {

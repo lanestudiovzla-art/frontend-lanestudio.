@@ -100,7 +100,7 @@
 
 <main class="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 space-y-3 box-border">
 
-<!-- ============ DASHBOARD ============ -->
+<!-- DASHBOARD -->
 <section id="module-dashboard" class="space-y-3">
   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
     <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm">
@@ -124,12 +124,11 @@
   </div>
 </section>
 
-<!-- ============ COTIZADOR ============ -->
+<!-- COTIZADOR -->
 <section id="module-cotizador" class="hidden space-y-3">
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
     <div class="lg:col-span-7 space-y-3">
 
-      <!-- PRESETS -->
       <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm">
         <div class="flex justify-between items-center mb-2">
           <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-wand-magic-sparkles text-[#b88a73] mr-1"></i>¿Qué vas a cotizar?</h3>
@@ -147,7 +146,6 @@
         </div>
       </div>
 
-      <!-- CALCULADORA -->
       <div id="calc-universal" class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm hidden">
         <div class="flex justify-between items-center mb-3 border-b border-[#e8dbd3] pb-2">
           <h3 id="calc-titulo" class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-calculator text-[#b88a73] mr-1"></i>Configurar ítem</h3>
@@ -159,7 +157,6 @@
         </button>
       </div>
 
-      <!-- LISTA ÍTEMS -->
       <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm">
         <div class="flex justify-between items-center mb-2">
           <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700"><i class="fa-solid fa-list text-[#b88a73] mr-1"></i>Ítems del presupuesto (<span id="cotizador-count">0</span>)</h3>
@@ -169,7 +166,6 @@
       </div>
     </div>
 
-    <!-- RESUMEN DERECHA -->
     <div class="lg:col-span-5 bg-[#faf8f6] p-3.5 rounded-xl border border-[#e8dbd3] flex flex-col justify-between space-y-3 sticky top-2">
       <div class="space-y-2.5">
         <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-[#e8dbd3] pb-1.5">Resumen</h3>
@@ -232,7 +228,7 @@
   </div>
 </section>
 
-<!-- ============ TRABAJOS ============ -->
+<!-- TRABAJOS -->
 <section id="module-trabajos" class="hidden space-y-3">
   <div class="bg-white p-3.5 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
     <div class="flex flex-wrap justify-between items-center border-b border-[#e8dbd3] pb-2 gap-2">
@@ -270,7 +266,7 @@
   </div>
 </section>
 
-<!-- ============ CAJA ============ -->
+<!-- CAJA -->
 <section id="module-caja" class="hidden space-y-3">
   <div class="bg-white p-3.5 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
     <div class="lg:col-span-7 space-y-2.5">
@@ -352,7 +348,7 @@
   </div>
 </section>
 
-<!-- ============ VENTAS ============ -->
+<!-- VENTAS -->
 <section id="module-ventas" class="hidden space-y-3">
   <div class="bg-white p-3.5 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
     <div class="flex flex-wrap justify-between items-center border-b border-[#e8dbd3] pb-2 gap-2">
@@ -377,7 +373,7 @@
   </div>
 </section>
 
-<!-- ============ ADMIN ============ -->
+<!-- ADMIN -->
 <section id="module-admin" class="hidden space-y-3">
   <div class="bg-white p-2 rounded-2xl border border-[#e8dbd3] shadow-sm flex flex-wrap gap-1">
     <button onclick="switchAdmin('insumos')" id="adm-tab-insumos" class="adm-tab px-3 py-1.5 rounded-lg text-xs font-medium bg-[#2c2c2c] text-white"><i class="fa-solid fa-boxes-stacked mr-1"></i>Insumos</button>
@@ -698,7 +694,7 @@ let ultimaVentaProcesada = null;
 let ordenActualDetalle = null;
 let itemsPresupuesto = [];
 let presetActual = null;
-let resultadoPresetActual = null; // ⚡ FIX: aquí se guarda el resultado del cálculo
+let resultadoPresetActual = null;
 let cajaItemIdx = 0;
 let pagoIdx = 0;
 let topperMatIdx = 0;
@@ -1016,7 +1012,6 @@ async function guardarClienteDesdeModal() {
 function cargarPreset(tipo) {
   presetActual = tipo;
   resultadoPresetActual = null;
-  // Resaltar botón
   document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('preset-activo'));
   const btnAct = document.querySelector(`.preset-btn[data-preset="${tipo}"]`);
   if (btnAct) btnAct.classList.add('preset-activo');
@@ -1038,45 +1033,49 @@ function cerrarCalculadora() {
   resultadoPresetActual = null;
 }
 
-// ================= PRESETS =================
+// ================= PRESETS (con badges LOTE/UD/HOJA/HORA) =================
 const PRESETS = {
   stickers: {
     titulo: 'Stickers / Etiquetas', icono:'fa-note-sticky', tieneGrid:true, hojaDefault:'a4',
     camposFijos:[{id:'stk-cantidad', label:'Cantidad total', tipo:'number', valor:60, min:1}],
     camposGrid:[
-      {id:'stk-ancho', label:'Ancho pieza (cm)', tipo:'number', valor:6, step:0.1},
-      {id:'stk-alto', label:'Alto pieza (cm)', tipo:'number', valor:6, step:0.1},
-      {id:'stk-gap', label:'Separación (cm)', tipo:'number', valor:0.4, step:0.1}
+      {id:'stk-ancho', label:'Ancho pieza (cm)', tipo:'number', valor:6, step:0.1, badge:'PIEZA'},
+      {id:'stk-alto', label:'Alto pieza (cm)', tipo:'number', valor:6, step:0.1, badge:'PIEZA'},
+      {id:'stk-gap', label:'Separación (cm)', tipo:'number', valor:0.4, step:0.1, badge:'SEP'}
     ],
     costosGrid:[
-      {id:'stk-costo-hoja', label:'Material ($/hoja)', tipo:'number', valor:0.35, step:0.01},
-      {id:'stk-costo-laminado', label:'Laminado ($/hoja)', tipo:'number', valor:0.25, step:0.01},
-      {id:'stk-costo-tinta', label:'Tinta ($/hoja)', tipo:'number', valor:0.15, step:0.01},
-      {id:'stk-costo-cuchilla', label:'Cuchilla ($/hoja)', tipo:'number', valor:0.08, step:0.01},
-      {id:'stk-costo-empaque', label:'Empaque ($/ud)', tipo:'number', valor:0.05, step:0.01},
-      {id:'stk-costo-fijos', label:'Gastos fijos ($/ud)', tipo:'number', valor:0.04, step:0.01},
-      {id:'stk-costo-mano-h', label:'Mano de obra ($/h)', tipo:'number', valor:5.00, step:0.5}
+      {id:'stk-costo-hoja', label:'Material ($)', tipo:'number', valor:0.35, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'stk-costo-laminado', label:'Laminado ($)', tipo:'number', valor:0.25, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'stk-costo-tinta', label:'Tinta ($)', tipo:'number', valor:0.15, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'stk-costo-cuchilla', label:'Cuchilla ($)', tipo:'number', valor:0.08, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'stk-costo-mano-h', label:'Mano de obra ($)', tipo:'number', valor:5.00, step:0.5, badge:'POR HORA', badgeColor:'bg-purple-100 text-purple-700'}
     ],
     otros:[
-      {id:'stk-merma', label:'% Merma', tipo:'number', valor:10},
-      {id:'stk-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:150}
+      {id:'stk-empaque-modo', label:'Modo de empaque', tipo:'select', valor:'lote', opciones:[
+        {valor:'lote', etiqueta:'Un empaque para todo el lote'},
+        {valor:'unidad', etiqueta:'Empaque individual por unidad'}
+      ]},
+      {id:'stk-empaque-costo', label:'Empaque ($)', tipo:'number', valor:0.05, step:0.01, badge:'LOTE/UD', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'stk-fijos-costo', label:'Gastos fijos lote ($)', tipo:'number', valor:0.50, step:0.01, badge:'LOTE', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'stk-merma', label:'% Merma', tipo:'number', valor:10, badge:'%', badgeColor:'bg-gray-100 text-gray-600'},
+      {id:'stk-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:150, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
     ]
   },
   toppers: {
     titulo:'Toppers Print & Cut', icono:'fa-cake-candles', tieneGrid:true, hojaDefault:'a4',
     camposFijos:[{id:'top-cantidad', label:'Cantidad total', tipo:'number', valor:6, min:1}],
     camposGrid:[
-      {id:'top-ancho', label:'Ancho pieza (cm)', tipo:'number', valor:12, step:0.1},
-      {id:'top-alto', label:'Alto pieza (cm)', tipo:'number', valor:15, step:0.1},
-      {id:'top-gap', label:'Separación (cm)', tipo:'number', valor:0.3, step:0.1}
+      {id:'top-ancho', label:'Ancho pieza (cm)', tipo:'number', valor:12, step:0.1, badge:'PIEZA'},
+      {id:'top-alto', label:'Alto pieza (cm)', tipo:'number', valor:15, step:0.1, badge:'PIEZA'},
+      {id:'top-gap', label:'Separación (cm)', tipo:'number', valor:0.3, step:0.1, badge:'SEP'}
     ],
     costosGrid:[
-      {id:'top-costo-hoja', label:'Material ($/hoja)', tipo:'number', valor:0.40, step:0.01}
+      {id:'top-costo-hoja', label:'Material ($)', tipo:'number', valor:0.40, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'}
     ],
     otros:[
-      {id:'top-merma', label:'% Merma', tipo:'number', valor:5},
-      {id:'top-gastos-pct', label:'% Gastos operativos', tipo:'number', valor:10},
-      {id:'top-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:150}
+      {id:'top-merma', label:'% Merma', tipo:'number', valor:5, badge:'%', badgeColor:'bg-gray-100 text-gray-600'},
+      {id:'top-gastos-pct', label:'% Gastos operativos', tipo:'number', valor:10, badge:'% SOBRE COSTO', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'top-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:150, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
     ],
     materialesExtra:true,
     manoObraExtra:true
@@ -1085,60 +1084,69 @@ const PRESETS = {
     titulo:'Papelería Creativa', icono:'fa-file-lines', tieneGrid:true, hojaDefault:'a4',
     camposFijos:[{id:'pap-cantidad', label:'Cantidad total', tipo:'number', valor:20, min:1}],
     camposGrid:[
-      {id:'pap-ancho', label:'Ancho (cm)', tipo:'number', valor:21, step:0.1},
-      {id:'pap-alto', label:'Alto (cm)', tipo:'number', valor:29.7, step:0.1},
-      {id:'pap-gap', label:'Separación (cm)', tipo:'number', valor:0.3, step:0.1}
+      {id:'pap-ancho', label:'Ancho (cm)', tipo:'number', valor:21, step:0.1, badge:'PIEZA'},
+      {id:'pap-alto', label:'Alto (cm)', tipo:'number', valor:29.7, step:0.1, badge:'PIEZA'},
+      {id:'pap-gap', label:'Separación (cm)', tipo:'number', valor:0.3, step:0.1, badge:'SEP'}
     ],
     costosGrid:[
-      {id:'pap-costo-material', label:'Material ($/hoja)', tipo:'number', valor:0.35, step:0.01},
-      {id:'pap-costo-laminado', label:'Laminado ($/hoja)', tipo:'number', valor:0.25, step:0.01},
-      {id:'pap-costo-tinta', label:'Tinta ($/hoja)', tipo:'number', valor:0.15, step:0.01},
-      {id:'pap-costo-corte', label:'Corte ($/hoja)', tipo:'number', valor:0.08, step:0.01},
-      {id:'pap-mano-obra', label:'Mano obra ($/ud)', tipo:'number', valor:0.20, step:0.05},
-      {id:'pap-horas-diseno', label:'Horas de diseño', tipo:'number', valor:0.5, step:0.25},
-      {id:'pap-tarifa-diseno', label:'Tarifa diseño ($/h)', tipo:'number', valor:10.00, step:0.5}
+      {id:'pap-costo-material', label:'Material ($)', tipo:'number', valor:0.35, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'pap-costo-laminado', label:'Laminado ($)', tipo:'number', valor:0.25, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'pap-costo-tinta', label:'Tinta ($)', tipo:'number', valor:0.15, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'pap-costo-corte', label:'Corte ($)', tipo:'number', valor:0.08, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'pap-horas-diseno', label:'Horas de diseño', tipo:'number', valor:0.5, step:0.25, badge:'HORAS', badgeColor:'bg-purple-100 text-purple-700'},
+      {id:'pap-tarifa-diseno', label:'Tarifa diseño ($)', tipo:'number', valor:10.00, step:0.5, badge:'POR HORA', badgeColor:'bg-purple-100 text-purple-700'}
     ],
     otros:[
-      {id:'pap-merma', label:'% Merma', tipo:'number', valor:5},
-      {id:'pap-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:80}
+      {id:'pap-empaque-modo', label:'Modo de empaque', tipo:'select', valor:'unidad', opciones:[
+        {valor:'lote', etiqueta:'Un empaque para todo el lote'},
+        {valor:'unidad', etiqueta:'Empaque individual por unidad'}
+      ]},
+      {id:'pap-empaque-costo', label:'Empaque ($)', tipo:'number', valor:0.05, step:0.01, badge:'LOTE/UD', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'pap-fijos-costo', label:'Gastos fijos lote ($)', tipo:'number', valor:0.50, step:0.01, badge:'LOTE', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'pap-merma', label:'% Merma', tipo:'number', valor:5, badge:'%', badgeColor:'bg-gray-100 text-gray-600'},
+      {id:'pap-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:80, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
     ]
   },
   forros: {
     titulo:'Forros Escolares', icono:'fa-book', tieneGrid:true, hojaDefault:'tabloide',
     camposFijos:[{id:'forr-cantidad', label:'Cantidad cuadernos', tipo:'number', valor:12, min:1}],
     camposGrid:[
-      {id:'forr-cuaderno-ancho', label:'Ancho cuaderno (cm)', tipo:'number', valor:17.5, step:0.1},
-      {id:'forr-cuaderno-alto', label:'Alto cuaderno (cm)', tipo:'number', valor:23, step:0.1},
-      {id:'forr-gap', label:'Separación (cm)', tipo:'number', valor:0.5, step:0.1}
+      {id:'forr-cuaderno-ancho', label:'Ancho cuaderno (cm)', tipo:'number', valor:17.5, step:0.1, badge:'PIEZA'},
+      {id:'forr-cuaderno-alto', label:'Alto cuaderno (cm)', tipo:'number', valor:23, step:0.1, badge:'PIEZA'},
+      {id:'forr-gap', label:'Separación (cm)', tipo:'number', valor:0.5, step:0.1, badge:'SEP'}
     ],
     costosGrid:[
-      {id:'forr-costo-vinil', label:'Vinil ($/m²)', tipo:'number', valor:4.50, step:0.1},
-      {id:'forr-costo-laminado', label:'Laminado ($/m²)', tipo:'number', valor:3.00, step:0.1},
-      {id:'forr-costo-tinta', label:'Tinta ($/hoja)', tipo:'number', valor:0.80, step:0.05},
-      {id:'forr-costo-bolsa', label:'Bolsa ($/ud)', tipo:'number', valor:0.15, step:0.01},
-      {id:'forr-costo-mano', label:'Mano obra ($/ud)', tipo:'number', valor:1.20, step:0.1},
-      {id:'forr-costo-depre', label:'Depreciación ($/ud)', tipo:'number', valor:0.25, step:0.05}
+      {id:'forr-costo-vinil', label:'Vinil ($)', tipo:'number', valor:4.50, step:0.1, badge:'POR m²', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'forr-costo-laminado', label:'Laminado ($)', tipo:'number', valor:3.00, step:0.1, badge:'POR m²', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'forr-costo-tinta', label:'Tinta ($)', tipo:'number', valor:0.80, step:0.05, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'forr-costo-mano', label:'Mano obra ($)', tipo:'number', valor:1.20, step:0.1, badge:'POR UNIDAD', badgeColor:'bg-purple-100 text-purple-700'}
     ],
     otros:[
-      {id:'forr-merma', label:'% Merma', tipo:'number', valor:5},
-      {id:'forr-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:60}
+      {id:'forr-empaque-modo', label:'Modo de empaque', tipo:'select', valor:'lote', opciones:[
+        {valor:'lote', etiqueta:'Un empaque para todo el lote'},
+        {valor:'unidad', etiqueta:'Empaque individual por unidad'}
+      ]},
+      {id:'forr-empaque-costo', label:'Bolsa ($)', tipo:'number', valor:0.15, step:0.01, badge:'LOTE/UD', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'forr-depre-costo', label:'Depreciación lote ($)', tipo:'number', valor:0.25, step:0.05, badge:'LOTE', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'forr-merma', label:'% Merma', tipo:'number', valor:5, badge:'%', badgeColor:'bg-gray-100 text-gray-600'},
+      {id:'forr-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:60, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
     ]
   },
   vinil: {
     titulo:'Vinil / DTF / Rotulación', icono:'fa-scroll', tieneGrid:true, hojaDefault:'personalizado',
     camposFijos:[{id:'vin-cantidad', label:'Cantidad piezas', tipo:'number', valor:4, min:1}],
     camposGrid:[
-      {id:'vin-ancho', label:'Ancho pieza (cm)', tipo:'number', valor:20, step:0.1},
-      {id:'vin-alto', label:'Alto pieza (cm)', tipo:'number', valor:15, step:0.1},
-      {id:'vin-gap', label:'Separación (cm)', tipo:'number', valor:0.5, step:0.1}
+      {id:'vin-ancho', label:'Ancho pieza (cm)', tipo:'number', valor:20, step:0.1, badge:'PIEZA'},
+      {id:'vin-alto', label:'Alto pieza (cm)', tipo:'number', valor:15, step:0.1, badge:'PIEZA'},
+      {id:'vin-gap', label:'Separación (cm)', tipo:'number', valor:0.5, step:0.1, badge:'SEP'}
     ],
     costosGrid:[
-      {id:'vin-costo-m2', label:'Costo material ($/m²)', tipo:'number', valor:8.00, step:0.5},
-      {id:'vin-mano-obra', label:'Mano de obra ($)', tipo:'number', valor:5.00, step:0.5}
+      {id:'vin-costo-m2', label:'Costo material ($)', tipo:'number', valor:8.00, step:0.5, badge:'POR m²', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'vin-mano-obra', label:'Mano de obra ($)', tipo:'number', valor:5.00, step:0.5, badge:'LOTE', badgeColor:'bg-purple-100 text-purple-700'}
     ],
     otros:[
-      {id:'vin-merma', label:'% Merma', tipo:'number', valor:5},
-      {id:'vin-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:40}
+      {id:'vin-merma', label:'% Merma', tipo:'number', valor:5, badge:'%', badgeColor:'bg-gray-100 text-gray-600'},
+      {id:'vin-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:40, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
     ]
   },
   sublimacion: {
@@ -1146,20 +1154,20 @@ const PRESETS = {
     camposFijos:[
       {id:'sub-nombre', label:'Nombre del artículo', tipo:'text', valor:'Taza Sublimada'},
       {id:'sub-cantidad', label:'Cantidad', tipo:'number', valor:1, min:1},
-      {id:'sub-costo-virgen', label:'Costo artículo virgen ($)', tipo:'number', valor:1.80, step:0.1},
-      {id:'sub-costo-transfer', label:'Papel + tinta ($)', tipo:'number', valor:0.30, step:0.05},
-      {id:'sub-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:60}
+      {id:'sub-costo-virgen', label:'Costo artículo virgen ($)', tipo:'number', valor:1.80, step:0.1, badge:'POR UNIDAD', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'sub-costo-transfer', label:'Papel + tinta ($)', tipo:'number', valor:0.30, step:0.05, badge:'POR UNIDAD', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'sub-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:60, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
     ]
   },
   audiovisual: {
     titulo:'Audiovisual', icono:'fa-video', tieneGrid:false,
     camposFijos:[
       {id:'vid-nombre', label:'Concepto del proyecto', tipo:'text', valor:'Pack 4 Reels'},
-      {id:'vid-horas-grab', label:'Horas grabación', tipo:'number', valor:3, step:0.5},
-      {id:'vid-horas-edit', label:'Horas edición', tipo:'number', valor:5, step:0.5},
-      {id:'vid-tarifa', label:'Tarifa por hora ($)', tipo:'number', valor:10.00, step:1},
-      {id:'vid-equipos', label:'Alquiler equipos ($)', tipo:'number', valor:15.00, step:5},
-      {id:'vid-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:30}
+      {id:'vid-horas-grab', label:'Horas grabación', tipo:'number', valor:3, step:0.5, badge:'HORAS', badgeColor:'bg-purple-100 text-purple-700'},
+      {id:'vid-horas-edit', label:'Horas edición', tipo:'number', valor:5, step:0.5, badge:'HORAS', badgeColor:'bg-purple-100 text-purple-700'},
+      {id:'vid-tarifa', label:'Tarifa por hora ($)', tipo:'number', valor:10.00, step:1, badge:'POR HORA', badgeColor:'bg-purple-100 text-purple-700'},
+      {id:'vid-equipos', label:'Alquiler equipos ($)', tipo:'number', valor:15.00, step:5, badge:'LOTE', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'vid-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:30, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
     ]
   },
   manual: {
@@ -1167,31 +1175,39 @@ const PRESETS = {
     camposFijos:[
       {id:'man-nombre', label:'Descripción', tipo:'text', valor:''},
       {id:'man-cantidad', label:'Cantidad', tipo:'number', valor:1, min:1},
-      {id:'man-costo', label:'Costo unitario ($)', tipo:'number', valor:0, step:0.01},
-      {id:'man-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:30}
+      {id:'man-costo', label:'Costo unitario ($)', tipo:'number', valor:0, step:0.01, badge:'POR UNIDAD', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'man-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:30, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
     ]
   }
 };
 
-// ================= RENDER CAMPOS =================
+// ================= RENDER CAMPOS (con badge visual) =================
+function renderInputConBadge(c, onChangeCallback) {
+  const badge = c.badge ? `<span class="text-[8px] px-1 py-0.5 rounded ${c.badgeColor||'bg-gray-100 text-gray-600'} font-bold whitespace-nowrap">${c.badge}</span>` : '';
+  const labelHTML = `<label class="flex items-center justify-between text-[10px] font-semibold text-gray-600 mb-0.5"><span>${c.label}</span>${badge}</label>`;
+  if (c.tipo === 'select') {
+    const ops = (c.opciones || []).map(o => `<option value="${o.valor}" ${o.valor==c.valor?'selected':''}>${o.etiqueta}</option>`).join('');
+    return `<div>${labelHTML}<select id="${c.id}" oninput="${onChangeCallback}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-[#b88a73]">${ops}</select></div>`;
+  }
+  if (c.tipo === 'text') {
+    return `<div>${labelHTML}<input type="text" id="${c.id}" value="${c.valor}" oninput="${onChangeCallback}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-[#b88a73]"></div>`;
+  }
+  return `<div>${labelHTML}<input type="${c.tipo}" id="${c.id}" value="${c.valor}" ${c.min!==undefined?`min="${c.min}"`:''} ${c.step!==undefined?`step="${c.step}"`:''} oninput="${onChangeCallback}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-[#b88a73]"></div>`;
+}
+
 function renderizarCamposPreset(preset) {
   const cont = $('calc-campos');
   cont.innerHTML = '';
 
-  // 1) Campos fijos
   if (preset.camposFijos?.length) {
     let html = `<div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
       <h4 class="text-[10px] font-bold uppercase text-gray-500 mb-2"><i class="fa-solid fa-list-ol mr-1"></i>Datos generales</h4>
       <div class="grid grid-cols-2 gap-2 text-xs">`;
-    preset.camposFijos.forEach(c => {
-      html += `<div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">${c.label}</label>
-        <input type="${c.tipo}" id="${c.id}" value="${c.valor}" ${c.min!==undefined?`min="${c.min}"`:''} ${c.step!==undefined?`step="${c.step}"`:''} oninput="recalcularPreset()" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-[#b88a73]"></div>`;
-    });
+    preset.camposFijos.forEach(c => { html += renderInputConBadge(c, 'recalcularPreset()'); });
     html += `</div></div>`;
     cont.innerHTML += html;
   }
 
-  // 2) Bloque de hoja + grid
   if (preset.tieneGrid) {
     const hojaDef = HOJAS_ESTANDAR.find(h => h.id === preset.hojaDefault) || HOJAS_ESTANDAR[0];
     let html = `<div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
@@ -1208,32 +1224,26 @@ function renderizarCamposPreset(preset) {
         <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Alto hoja (cm)</label><input type="number" id="hoja-alto" value="${hojaDef.alto || 29.7}" step="0.1" oninput="recalcularPreset()" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs"></div>
       </div>
       <div class="grid grid-cols-3 gap-2 text-xs">
-        ${preset.camposGrid.map(c => `<div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">${c.label}</label><input type="${c.tipo}" id="${c.id}" value="${c.valor}" ${c.step!==undefined?`step="${c.step}"`:''} oninput="recalcularPreset()" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs"></div>`).join('')}
+        ${preset.camposGrid.map(c => renderInputConBadge(c, 'recalcularPreset()')).join('')}
       </div>
     </div>`;
     cont.innerHTML += html;
   }
 
-  // 3) Costos y ganancia
   if (preset.costosGrid?.length || preset.otros?.length) {
     let html = `<div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
       <h4 class="text-[10px] font-bold uppercase text-gray-500 mb-2"><i class="fa-solid fa-dollar-sign mr-1"></i>Costos y ganancia</h4>
       <div class="grid grid-cols-2 gap-2 text-xs">`;
-    (preset.costosGrid || []).forEach(c => {
-      html += `<div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">${c.label}</label><input type="${c.tipo}" id="${c.id}" value="${c.valor}" ${c.step!==undefined?`step="${c.step}"`:''} oninput="recalcularPreset()" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs"></div>`;
-    });
-    (preset.otros || []).forEach(c => {
-      html += `<div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">${c.label}</label><input type="${c.tipo}" id="${c.id}" value="${c.valor}" ${c.step!==undefined?`step="${c.step}"`:''} oninput="recalcularPreset()" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs"></div>`;
-    });
+    (preset.costosGrid || []).forEach(c => { html += renderInputConBadge(c, 'recalcularPreset()'); });
+    (preset.otros || []).forEach(c => { html += renderInputConBadge(c, 'recalcularPreset()'); });
     html += `</div></div>`;
     cont.innerHTML += html;
   }
 
-  // 4) Materiales extra (Toppers)
   if (preset.materialesExtra) {
     let html = `<div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
       <div class="flex justify-between items-center mb-2">
-        <h4 class="text-[10px] font-bold uppercase text-gray-500"><i class="fa-solid fa-boxes-stacked mr-1"></i>Materiales extra</h4>
+        <h4 class="text-[10px] font-bold uppercase text-gray-500"><i class="fa-solid fa-boxes-stacked mr-1"></i>Materiales extra (cantidades por lote)</h4>
         <button type="button" onclick="agregarFilaTopperMat()" class="text-[10px] bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2 py-1 rounded-lg"><i class="fa-solid fa-plus mr-1"></i>Agregar</button>
       </div>
       <table class="w-full text-xs">
@@ -1248,11 +1258,10 @@ function renderizarCamposPreset(preset) {
     agregarFilaTopperMat('Laminado', 1, 0.30);
   }
 
-  // 5) Mano de obra (Toppers)
   if (preset.manoObraExtra) {
     let html = `<div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
       <div class="flex justify-between items-center mb-2">
-        <h4 class="text-[10px] font-bold uppercase text-gray-500"><i class="fa-solid fa-hand mr-1"></i>Mano de obra por etapas</h4>
+        <h4 class="text-[10px] font-bold uppercase text-gray-500"><i class="fa-solid fa-hand mr-1"></i>Mano de obra por etapas (minutos totales)</h4>
         <button type="button" onclick="agregarFilaTopperMO()" class="text-[10px] bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2 py-1 rounded-lg"><i class="fa-solid fa-plus mr-1"></i>Agregar</button>
       </div>
       <table class="w-full text-xs">
@@ -1268,7 +1277,6 @@ function renderizarCamposPreset(preset) {
     agregarFilaTopperMO('Ensamble', 4, 5);
   }
 
-  // Sincronizar visibilidad de medidas de hoja
   setTimeout(() => cambiarHojaPreset(true), 50);
 }
 
@@ -1324,7 +1332,6 @@ function recalcularPreset() {
   let cant = 1, costoTotal = 0, precioTotal = 0, costoUnit = 0, nombreItem = '';
   let gananciaPct = 30;
 
-  // Cálculo según preset
   if (preset.tieneGrid) {
     const hojaA = num($('hoja-ancho')?.value) || 21;
     const hojaAl = num($('hoja-alto')?.value) || 29.7;
@@ -1332,21 +1339,23 @@ function recalcularPreset() {
     const piezaAl = num($(preset.camposGrid[1].id)?.value) || 0;
     const gap = num($(preset.camposGrid[2].id)?.value) || 0;
     const cCantidad = num($(preset.camposFijos[0].id)?.value) || 1;
-    const mermaPct = num($(`${presetActual === 'stickers' ? 'stk' : presetActual === 'toppers' ? 'top' : presetActual === 'papeleria' ? 'pap' : presetActual === 'forros' ? 'forr' : 'vin'}-merma`)?.value) || 0;
+    const prefijo = presetActual === 'stickers' ? 'stk' : presetActual === 'toppers' ? 'top' : presetActual === 'papeleria' ? 'pap' : presetActual === 'forros' ? 'forr' : 'vin';
+    const mermaPct = num($(`${prefijo}-merma`)?.value) || 0;
 
     const grid = calcularGrid(hojaA, hojaAl, piezaA, piezaAl, gap);
     const porHoja = Math.max(grid.t, 1);
     const hojasT = Math.ceil(cCantidad / porHoja);
     const hojasR = Math.ceil(hojasT * (1 + mermaPct / 100));
 
-    // Costos según preset
     if (presetActual === 'stickers') {
       const cMat = hojasR * num($('stk-costo-hoja').value);
       const cLam = hojasR * num($('stk-costo-laminado').value);
       const cTinta = hojasR * num($('stk-costo-tinta').value);
       const cCuch = hojasR * num($('stk-costo-cuchilla').value);
-      const cEmp = cCantidad * num($('stk-costo-empaque').value);
-      const cFij = cCantidad * num($('stk-costo-fijos').value);
+      const modoEmp = $('stk-empaque-modo')?.value || 'lote';
+      const cEmpUnit = num($('stk-empaque-costo').value);
+      const cEmp = modoEmp === 'lote' ? cEmpUnit : cEmpUnit * cCantidad;
+      const cFij = num($('stk-fijos-costo').value);
       const cMano = (cCantidad * 1.5 / 60) * num($('stk-costo-mano-h').value);
       costoTotal = cMat + cLam + cTinta + cCuch + cEmp + cFij + cMano;
       gananciaPct = num($('stk-ganancia').value);
@@ -1356,13 +1365,15 @@ function recalcularPreset() {
         <div class="flex justify-between"><span class="text-gray-500">Grid:</span><span class="font-bold">${grid.f} × ${grid.c} = ${grid.t} uds/hoja</span></div>
         <div class="flex justify-between"><span class="text-gray-500">Hojas teóricas:</span><span>${hojasT}</span></div>
         <div class="flex justify-between"><span class="text-gray-500">Hojas con merma:</span><span class="font-bold text-amber-600">${hojasR}</span></div>
-        <div class="flex justify-between border-t border-[#e8dbd3] pt-1 mt-1"><span class="text-gray-500">Material + laminado + tinta:</span><span>${fmt(cMat+cLam+cTinta+cCuch)}</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Empaque + fijos + mano:</span><span>${fmt(cEmp+cFij+cMano)}</span></div>`;
+        <div class="flex justify-between border-t border-[#e8dbd3] pt-1 mt-1"><span class="text-gray-500">Material + laminado + tinta + cuchilla:</span><span>${fmt(cMat+cLam+cTinta+cCuch)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Empaque (${modoEmp === 'lote' ? '1 para todo el lote' : cCantidad + ' individuales'}):</span><span>${fmt(cEmp)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Gastos fijos del lote:</span><span>${fmt(cFij)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Mano de obra (${(cCantidad*1.5/60).toFixed(2)} h):</span><span>${fmt(cMano)}</span></div>`;
     } else if (presetActual === 'toppers') {
       const cHoja = hojasR * num($('top-costo-hoja').value);
       let cMatExtra = 0;
       document.querySelectorAll('#lista-materiales-extra tr').forEach(r => {
-        cMatExtra += (num(r.querySelector('.topper-mat-cant').value) * num(r.querySelector('.topper-mat-costo').value));
+        cMatExtra += num(r.querySelector('.topper-mat-cant').value) * num(r.querySelector('.topper-mat-costo').value);
       });
       let cMano = 0;
       document.querySelectorAll('#lista-mano-obra-extra tr').forEach(r => {
@@ -1379,14 +1390,17 @@ function recalcularPreset() {
         <div class="flex justify-between"><span class="text-gray-500">Grid:</span><span class="font-bold">${grid.f} × ${grid.c} = ${grid.t} uds/hoja</span></div>
         <div class="flex justify-between"><span class="text-gray-500">Hojas con merma:</span><span class="font-bold text-amber-600">${hojasR}</span></div>
         <div class="flex justify-between border-t border-[#e8dbd3] pt-1 mt-1"><span class="text-gray-500">Material hoja:</span><span>${fmt(cHoja)}</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Materiales extra:</span><span>${fmt(cMatExtra)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Materiales extra (lote):</span><span>${fmt(cMatExtra)}</span></div>
         <div class="flex justify-between"><span class="text-gray-500">Mano de obra:</span><span>${fmt(cMano)}</span></div>
         <div class="flex justify-between"><span class="text-gray-500">Gastos operativos (${gastosPct}%):</span><span>${fmt(gastos)}</span></div>`;
     } else if (presetActual === 'papeleria') {
       const cMat = hojasR * (num($('pap-costo-material').value) + num($('pap-costo-laminado').value) + num($('pap-costo-tinta').value) + num($('pap-costo-corte').value));
-      const cMano = cCantidad * num($('pap-mano-obra').value);
+      const modoEmp = $('pap-empaque-modo')?.value || 'unidad';
+      const cEmpUnit = num($('pap-empaque-costo').value);
+      const cEmp = modoEmp === 'lote' ? cEmpUnit : cEmpUnit * cCantidad;
+      const cFij = num($('pap-fijos-costo').value);
       const cDiseno = num($('pap-horas-diseno').value) * num($('pap-tarifa-diseno').value);
-      costoTotal = cMat + cMano + cDiseno;
+      costoTotal = cMat + cEmp + cFij + cDiseno;
       gananciaPct = num($('pap-ganancia').value);
       nombreItem = `Papelería ${piezaA}×${piezaAl}cm — ${cCantidad} uds (Hoja ${hojaA}×${hojaAl})`;
       html = `
@@ -1394,17 +1408,20 @@ function recalcularPreset() {
         <div class="flex justify-between"><span class="text-gray-500">Grid:</span><span class="font-bold">${grid.f} × ${grid.c} = ${grid.t} uds/hoja</span></div>
         <div class="flex justify-between"><span class="text-gray-500">Hojas con merma:</span><span class="font-bold text-amber-600">${hojasR}</span></div>
         <div class="flex justify-between border-t border-[#e8dbd3] pt-1 mt-1"><span class="text-gray-500">Materiales (impresión+corte):</span><span>${fmt(cMat)}</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Mano de obra:</span><span>${fmt(cMano)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Empaque (${modoEmp === 'lote' ? '1 para todo el lote' : cCantidad + ' individuales'}):</span><span>${fmt(cEmp)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Gastos fijos del lote:</span><span>${fmt(cFij)}</span></div>
         <div class="flex justify-between"><span class="text-gray-500">Diseño:</span><span>${fmt(cDiseno)}</span></div>`;
     } else if (presetActual === 'forros') {
       const m2 = (piezaA * piezaAl) / 10000;
       const cVinil = m2 * num($('forr-costo-vinil').value) * cCantidad;
       const cLam = m2 * num($('forr-costo-laminado').value) * cCantidad;
       const cTinta = hojasR * num($('forr-costo-tinta').value);
-      const cBolsa = cCantidad * num($('forr-costo-bolsa').value);
+      const modoEmp = $('forr-empaque-modo')?.value || 'lote';
+      const cEmpUnit = num($('forr-empaque-costo').value);
+      const cBolsa = modoEmp === 'lote' ? cEmpUnit : cEmpUnit * cCantidad;
+      const cDepre = num($('forr-depre-costo').value);
       const cMano = cCantidad * num($('forr-costo-mano').value);
-      const cDepre = cCantidad * num($('forr-costo-depre').value);
-      costoTotal = cVinil + cLam + cTinta + cBolsa + cMano + cDepre;
+      costoTotal = cVinil + cLam + cTinta + cBolsa + cDepre + cMano;
       gananciaPct = num($('forr-ganancia').value);
       nombreItem = `Forros ${piezaA}×${piezaAl}cm — ${cCantidad} uds`;
       html = `
@@ -1412,8 +1429,10 @@ function recalcularPreset() {
         <div class="flex justify-between"><span class="text-gray-500">Grid:</span><span class="font-bold">${grid.f} × ${grid.c} = ${grid.t} uds/hoja</span></div>
         <div class="flex justify-between"><span class="text-gray-500">Hojas con merma:</span><span class="font-bold text-amber-600">${hojasR}</span></div>
         <div class="flex justify-between border-t border-[#e8dbd3] pt-1 mt-1"><span class="text-gray-500">Vinil + laminado:</span><span>${fmt(cVinil+cLam)}</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Tinta + bolsa:</span><span>${fmt(cTinta+cBolsa)}</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Mano + depreciación:</span><span>${fmt(cMano+cDepre)}</span></div>`;
+        <div class="flex justify-between"><span class="text-gray-500">Tinta:</span><span>${fmt(cTinta)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Bolsa (${modoEmp === 'lote' ? '1 para todo el lote' : cCantidad + ' individuales'}):</span><span>${fmt(cBolsa)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Depreciación lote:</span><span>${fmt(cDepre)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Mano de obra:</span><span>${fmt(cMano)}</span></div>`;
     } else if (presetActual === 'vinil') {
       const m2Hoja = (hojaA * hojaAl) / 10000;
       const m2 = m2Hoja * hojasR;
@@ -1427,7 +1446,7 @@ function recalcularPreset() {
         <div class="flex justify-between"><span class="text-gray-500">Grid:</span><span class="font-bold">${grid.f} × ${grid.c} = ${grid.t} uds/hoja</span></div>
         <div class="flex justify-between"><span class="text-gray-500">m² totales:</span><span class="font-bold">${m2.toFixed(2)}</span></div>
         <div class="flex justify-between border-t border-[#e8dbd3] pt-1 mt-1"><span class="text-gray-500">Material:</span><span>${fmt(cMat)}</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Mano de obra:</span><span>${fmt(cMano)}</span></div>`;
+        <div class="flex justify-between"><span class="text-gray-500">Mano de obra (lote):</span><span>${fmt(cMano)}</span></div>`;
     }
     cant = cCantidad;
   } else if (presetActual === 'sublimacion') {
@@ -1464,24 +1483,18 @@ function recalcularPreset() {
   costoUnit = cant > 0 ? costoTotal / cant : 0;
   precioTotal = costoTotal * (1 + gananciaPct / 100);
 
-  html += `<div class="flex justify-between border-t border-[#e8dbd3] pt-1.5 mt-1.5"><span class="text-gray-500">Costo total:</span><span class="font-bold text-rose-600">${fmt(costoTotal)}</span></div>
+  html += `<div class="flex justify-between border-t border-[#e8dbd3] pt-1.5 mt-1.5"><span class="text-gray-500">Costo total del lote:</span><span class="font-bold text-rose-600">${fmt(costoTotal)}</span></div>
            <div class="flex justify-between"><span class="text-gray-500">Costo unitario:</span><span class="font-bold">${fmt(costoUnit)}</span></div>
-           <div class="flex justify-between font-bold text-[#b88a73] text-sm"><span>Precio venta:</span><span>${fmt(precioTotal)}</span></div>`;
+           <div class="flex justify-between font-bold text-[#b88a73] text-sm"><span>Precio venta del lote:</span><span>${fmt(precioTotal)}</span></div>`;
 
   res.innerHTML = html;
 
-  // ⚡ GUARDAR EN VARIABLE GLOBAL (no en dataset)
   resultadoPresetActual = {
-    tipo: presetActual,
-    nombre: nombreItem,
-    cant: cant,
-    costoTotal: costoTotal,
-    costoUnit: costoUnit,
-    precioTotal: precioTotal,
-    ganancia: gananciaPct
+    tipo: presetActual, nombre: nombreItem, cant: cant,
+    costoTotal: costoTotal, costoUnit: costoUnit,
+    precioTotal: precioTotal, ganancia: gananciaPct
   };
 
-  // ⚡ Sugerencia inteligente de hoja
   if (preset.tieneGrid) {
     const piezaA = num($(preset.camposGrid[0].id)?.value);
     const piezaAl = num($(preset.camposGrid[1].id)?.value);
@@ -1506,18 +1519,13 @@ function aplicarSugerenciaHoja(idHoja) {
   mostrarNotificacion("Hoja aplicada.");
 }
 
-// ⚡ AGREGAR AL PRESUPUESTO (arreglado)
 function agregarItemAlPresupuesto() {
   if (!resultadoPresetActual) { mostrarNotificacion("Primero configura un ítem.", "error"); return; }
   const r = resultadoPresetActual;
   if (!r.nombre || r.cant <= 0) { mostrarNotificacion("Datos inválidos.", "error"); return; }
   itemsPresupuesto.push({
-    tipo: r.tipo,
-    nombre: r.nombre,
-    cant: r.cant,
-    costo: r.costoUnit,
-    ganancia: r.ganancia,
-    precio: null
+    tipo: r.tipo, nombre: r.nombre, cant: r.cant,
+    costo: r.costoUnit, ganancia: r.ganancia, precio: null
   });
   renderizarItemsPresupuesto();
   mostrarNotificacion(`"${r.nombre}" agregado al presupuesto.`);
@@ -1526,8 +1534,7 @@ function agregarItemAlPresupuesto() {
 
 function agregarItemManual() {
   abrirModalInput({
-    titulo: 'Agregar ítem manual',
-    textoBoton: 'Agregar',
+    titulo: 'Agregar ítem manual', textoBoton: 'Agregar',
     campos: [
       { id:'man-n', label:'Descripción', tipo:'text', valor:'' },
       { id:'man-c', label:'Cantidad', tipo:'number', valor:1, min:1 },
@@ -1559,7 +1566,7 @@ function renderizarItemsPresupuesto() {
         <div class="flex items-start justify-between gap-2">
           <div class="flex-1 min-w-0">
             <span class="text-[9px] px-1.5 py-0.5 rounded ${badgeColor} font-bold">${it.tipo}</span>
-            <input type="text" value="${it.nombre.replace(/"/g,'&quot;')}" class="bg-transparent border-b border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] text-sm w-full desc-input font-semibold mt-1 focus:outline-none py-0.5" oninput="itemsPresupuesto[${i}].nombre=this.value">
+            <input type="text" value="${(it.nombre||'').replace(/"/g,'&quot;')}" class="bg-transparent border-b border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] text-sm w-full desc-input font-semibold mt-1 focus:outline-none py-0.5" oninput="itemsPresupuesto[${i}].nombre=this.value">
           </div>
           <button onclick="eliminarItemPresupuesto(${i})" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded-lg"><i class="fa-solid fa-trash text-xs"></i></button>
         </div>
@@ -1603,7 +1610,6 @@ function recalcularPresupuestoTotal() {
   const cl = $('presupuesto-cliente').value;
   $('doc-cliente-nombre').innerText = cl === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : cl;
   $('doc-validez-txt').innerText = $('presupuesto-validez').value || 'N/A';
-  // Autoguardar
   try { localStorage.setItem('lan_borrador_presupuesto', JSON.stringify(itemsPresupuesto)); } catch(e){}
 }
 
@@ -1689,7 +1695,7 @@ function agregarItemCajaFila(nombre='', cant=1, precio=0) {
   const rowId = `caja-item-${cajaItemIdx}`;
   const html = `
     <tr id="${rowId}" class="border-b border-[#e8dbd3] caja-item-row">
-      <td class="p-1.5"><input type="text" value="${nombre.replace(/"/g,'&quot;')}" placeholder="Descripción..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs caja-desc-input" oninput="guardarBorradorCaja()"></td>
+      <td class="p-1.5"><input type="text" value="${(nombre||'').replace(/"/g,'&quot;')}" placeholder="Descripción..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs caja-desc-input" oninput="guardarBorradorCaja()"></td>
       <td class="p-1.5 text-center"><input type="number" value="${cant}" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-1 py-1 text-xs text-center caja-cant-input" oninput="recalcularTotalesCaja(); guardarBorradorCaja()"></td>
       <td class="p-1.5 text-right"><input type="number" step="0.01" min="0" value="${parseFloat(precio).toFixed(2)}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs text-right caja-precio-input font-bold text-[#b88a73]" oninput="recalcularTotalesCaja(); guardarBorradorCaja()"></td>
       <td class="p-1.5 text-center"><button onclick="document.getElementById('${rowId}').remove(); recalcularTotalesCaja(); guardarBorradorCaja()" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1 rounded text-xs"><i class="fa-solid fa-trash"></i></button></td>
@@ -2833,7 +2839,6 @@ auth.onAuthStateChanged(async user => {
     iniciarListenersTiempoReal();
     await fetchBCVRate();
     await cargarLogoCloud();
-    // Restaurar borrador cotizador
     const b = localStorage.getItem('lan_borrador_presupuesto');
     if (b) {
       try {

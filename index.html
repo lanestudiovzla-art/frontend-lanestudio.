@@ -3944,7 +3944,7 @@
         }
 
         // ================== PDF PRESUPUESTO ==================
-                function exportarPDFPresupuesto() {
+                   function exportarPDFPresupuesto() {
             const cl = document.getElementById('presupuesto-cliente').value;
             const clN = cl === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : cl;
             const va = document.getElementById('presupuesto-validez').value || '7 días hábiles';
@@ -3974,16 +3974,17 @@
 
             const container = document.getElementById('pdf-container-presupuesto');
             container.style.display = 'block';
-            container.style.position = 'fixed';
-            container.style.left = '-9999px';
+            container.style.position = 'absolute';
+            container.style.left = '0';
             container.style.top = '0';
+            container.style.zIndex = '-9999';
+            container.style.opacity = '0';
+            container.style.pointerEvents = 'none';
             container.style.width = '794px';
             container.style.background = 'white';
-            container.style.padding = '0';
-            container.style.margin = '0';
 
             container.innerHTML = `
-                <div style="background:white; padding:40px; font-family:'Inter',sans-serif; box-sizing:border-box; width:794px; min-height:1123px;">
+                <div style="background:white; padding:40px; font-family:'Inter',sans-serif; box-sizing:border-box; width:794px;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid #e8dbd3; padding-bottom:20px; margin-bottom:25px;">
                         <div style="display:flex; align-items:center; gap:12px;">
                             <div style="width:52px; height:52px; border-radius:12px; background:#b88a73; display:flex; align-items:center; justify-content:center; overflow:hidden;">${logoHTML}</div>
@@ -4033,17 +4034,20 @@
                 margin: 0,
                 filename: `Presupuesto_LANEstudio_${Date.now()}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true, windowWidth: 794, scrollX: 0, scrollY: 0 },
+                html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true, windowWidth: 794 },
                 jsPDF: { unit: 'px', format: [794, 1123], orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(container).save().then(() => {
-                container.style.display = 'none';
-                mostrarNotificacion("¡PDF exportado!");
-            }).catch(() => {
-                container.style.display = 'none';
-                mostrarNotificacion("Error al exportar.", "error");
-            });
+            setTimeout(() => {
+                html2pdf().set(opt).from(container).save().then(() => {
+                    container.style.display = 'none';
+                    mostrarNotificacion("¡PDF exportado!");
+                }).catch((err) => {
+                    console.error(err);
+                    container.style.display = 'none';
+                    mostrarNotificacion("Error al exportar.", "error");
+                });
+            }, 300);
         }
 
         // ================== PDF RECIBO ==================

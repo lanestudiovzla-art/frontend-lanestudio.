@@ -1687,7 +1687,7 @@
             if (tabId === 'caja') { cargarClientesEnSelects(); cargarRegistrosCajaEditable(); cargarBorradorCaja(); }
             if (tabId === 'standby') cargarCotizacionesStandBy();
             if (tabId === 'ordenes') cargarOrdenes();
-            if (tabId === 'calculadora') { cargarClientesEnSelects(); const f = document.getElementById('presupuesto-fecha-doc'); if (f) f.innerText = `Fecha: ${new Date().toLocaleDateString()}`; const t = document.getElementById('presupuesto-tasa-doc'); if (t) t.innerText = `Bs. ${tasaBCV.toFixed(2)}`; }
+            if (tabId === 'calculadora') { cargarClientesEnSelects(); inicializarBuscadorCotizador(); const f = document.getElementById('presupuesto-fecha-doc'); if (f) f.innerText = `Fecha: ${new Date().toLocaleDateString()}`; const t = document.getElementById('presupuesto-tasa-doc'); if (t) t.innerText = `Bs. ${tasaBCV.toFixed(2)}`; }
             if (tabId === 'calc-stickers') calcularStickers();
             if (tabId === 'calc-forros') calcularForros();
             if (tabId === 'calc-toppers') { if (document.querySelectorAll('#lista-insumos-topper tr').length === 0) agregarFilaTopper(); if (document.querySelectorAll('#lista-mano-obra-topper tr').length === 0) agregarFilaManoObraTopper(); calcularTopper(); }

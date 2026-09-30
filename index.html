@@ -3708,32 +3708,8 @@
             recalcularPresupuestoTotal();
             guardarBorradorPresupuesto();
         }
-        function agregarRenglonInsumo() {
-            renglonIdx++;
-            const tb = document.getElementById('lista-renglones-presupuesto');
-            if (!tb) return;
-            const id = `renglon-${renglonIdx}`;
-            const gan = parseFloat(document.getElementById('presupuesto-ganancia-global').value) || 30;
-            let ops = '<option value="">-- Catálogo --</option>';
-            listaInsumosDB.forEach(i => ops += `<option value="${i.nombre}" data-costo="${i.costo_unitario}">${i.nombre} ($${i.costo_unitario})</option>`);
-            const html = `
-                <tr id="${id}" class="border-b border-[#e8dbd3] renglon-item">
-                    <td class="p-1.5 w-[42%] overflow-hidden">
-                        <select class="bg-white border border-[#e8dbd3] rounded-lg px-1 py-0.5 text-[10px] w-full select-insumo mb-1 truncate" onchange="selInsCat('${id}')">${ops}</select>
-                        <input type="text" placeholder="Insumo" class="bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs w-full desc-input font-medium" oninput="guardarBorradorPresupuesto()">
-                    </td>
-                    <td class="p-1.5 w-[12%] text-center"><input type="number" value="1" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-1 py-1 text-xs text-center cant-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorPresupuesto();"></td>
-                    <td class="p-1.5 w-[14%] text-center"><input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-1 py-1 text-xs text-center costo-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorPresupuesto();"></td>
-                    <td class="p-1.5 w-[10%] text-center"><input type="number" step="1" value="${gan}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-1 py-1 text-xs text-center ganancia-input font-medium" oninput="recalcularPresupuestoTotal(); guardarBorradorPresupuesto();"></td>
-                    <td class="p-1.5 w-[14%] text-right"><input type="number" step="0.01" min="0" value="0.00" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1 py-1 text-xs text-right precio-cliente-input" oninput="marcarModificadoPrecio('${id}'); guardarBorradorPresupuesto();"></td>
-                    <td class="p-1.5 w-[8%] text-center whitespace-nowrap">
-                        <button onclick="editarRenglonCotizador('${id}')" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-1 rounded text-xs mr-0.5"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button onclick="document.getElementById('${id}').remove(); recalcularPresupuestoTotal(); guardarBorradorPresupuesto();" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1 rounded text-xs"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>`;
-            tb.insertAdjacentHTML('beforeend', html);
-            recalcularPresupuestoTotal();
-            guardarBorradorPresupuesto();
+                function agregarRenglonInsumo() {
+            agregarRenglonServicio('', 0, 'Insumo');
         }
         function editarRenglonCotizador(id) {
             const r = document.getElementById(id);

@@ -1021,6 +1021,62 @@
                     </div>
                 </div>
             </section>
+                        <!-- VENTAS -->
+            <section id="module-ventas" class="hidden space-y-3">
+                <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
+                    <div class="flex flex-wrap justify-between items-center border-b border-[#e8dbd3] pb-2 gap-2">
+                        <div>
+                            <h2 class="text-sm sm:text-base font-bold text-[#2c2c2c] flex items-center"><i class="fa-solid fa-receipt text-[#b88a73] mr-2"></i> Historial de Ventas</h2>
+                            <p class="text-[10px] text-gray-500">Consulta, edita o elimina las ventas registradas.</p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-1 sm:flex-initial max-w-md">
+                            <input type="text" id="ventas-buscador" placeholder="Buscar por cliente, concepto o monto..." class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]" oninput="cargarVentas()">
+                            <button onclick="cargarVentas()" class="text-[10px] bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 hover:bg-gray-100 px-2.5 py-1.5 rounded-lg font-medium transition" title="Refrescar">
+                                <i class="fa-solid fa-sync"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                            <p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Total Ventas</p>
+                            <h3 id="ventas-total-count" class="text-lg sm:text-xl font-bold text-[#2c2c2c] mt-1">0</h3>
+                        </div>
+                        <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                            <p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Ingresos Totales</p>
+                            <h3 id="ventas-total-usd" class="text-lg sm:text-xl font-bold text-emerald-600 mt-1">$0.00</h3>
+                        </div>
+                        <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                            <p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Promedio</p>
+                            <h3 id="ventas-promedio" class="text-lg sm:text-xl font-bold text-[#b88a73] mt-1">$0.00</h3>
+                        </div>
+                        <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+                            <p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Este Mes</p>
+                            <h3 id="ventas-mes-count" class="text-lg sm:text-xl font-bold text-sky-600 mt-1">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto w-full max-h-[550px] overflow-y-auto">
+                        <table class="w-full text-left text-xs text-gray-700 min-w-[800px]">
+                            <thead class="bg-[#faf8f6] text-[10px] uppercase text-gray-500 border-b border-[#e8dbd3] sticky top-0">
+                                <tr>
+                                    <th class="p-2">Fecha</th>
+                                    <th class="p-2">Cliente</th>
+                                    <th class="p-2">Concepto</th>
+                                    <th class="p-2 text-right">Total ($)</th>
+                                    <th class="p-2">Pago</th>
+                                    <th class="p-2">Notas</th>
+                                    <th class="p-2 text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-ventas-completo">
+                                <tr><td colspan="7" class="p-4 text-center text-gray-400">Cargando ventas...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
             <section id="module-caja" class="hidden space-y-3">
                 <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                     <div class="lg:col-span-7 space-y-2.5">

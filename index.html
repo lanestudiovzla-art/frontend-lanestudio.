@@ -3779,9 +3779,11 @@
             r.querySelector('.precio-cliente-input').classList.add('modificado-manual');
             recalcularPresupuestoTotal();
         }
-        function recalcularPresupuestoTotal() {
+               function recalcularPresupuestoTotal() {
             let tc = 0, tv = 0;
+            let count = 0;
             document.querySelectorAll('.renglon-item').forEach(r => {
+                count++;
                 const c = parseFloat(r.querySelector('.cant-input').value) || 0;
                 const cu = parseFloat(r.querySelector('.costo-input').value) || 0;
                 const g = parseFloat(r.querySelector('.ganancia-input').value) || 0;
@@ -3800,6 +3802,8 @@
             const sel = document.getElementById('presupuesto-cliente').value;
             document.getElementById('doc-cliente-nombre').innerText = sel === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : sel;
             document.getElementById('doc-validez-txt').innerText = document.getElementById('presupuesto-validez').value || 'N/A';
+            const cnt = document.getElementById('cotizador-count');
+            if (cnt) cnt.innerText = count;
         }
         function guardarBorradorPresupuesto() {
             const items = [];

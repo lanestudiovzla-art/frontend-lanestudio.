@@ -4170,13 +4170,11 @@
                 iniciarListenersTiempoReal();
                 await fetchBCVRate();
                 await cargarLogoCloud();
-                const b = localStorage.getItem('lan_borrador_presupuesto');
-                              const b = localStorage.getItem('lan_borrador_presupuesto');
-                const tb = document.getElementById('lista-renglones-presupuesto');
-                if (tb && tb.children.length === 0) {
-                    if (b) {
-                        try {
-                            const p = JSON.parse(b);
+               const borradorPresupuesto = localStorage.getItem('lan_borrador_presupuesto');
+if (tb && tb.children.length === 0) {
+    if (borradorPresupuesto) {
+        try {
+            const p = JSON.parse(borradorPresupuesto);
                             if (Array.isArray(p) && p.length) {
                                 tb.innerHTML = '';
                                 p.forEach(i => {

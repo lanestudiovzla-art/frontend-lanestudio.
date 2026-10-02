@@ -4,11 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LAN Estudio - Sistema de Gestión</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#b88a73">
+<link rel="apple-touch-icon" href="/icon-512.png">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
   * { font-family: 'Inter', sans-serif; }
@@ -25,6 +30,7 @@
   .card-menu { position:fixed; z-index:9999; }
   .card-menu-btn { width:22px; height:22px; display:flex; align-items:center; justify-content:center; border-radius:6px; }
   .fecha-inteligente { cursor: text; }
+  .grafico-container { position: relative; height: 260px; width: 100%; }
 </style>
 </head>
 <body class="min-h-screen flex flex-col max-w-full overflow-x-hidden">
@@ -77,6 +83,7 @@
     <div class="flex items-center space-x-2 bg-[#383838] px-2.5 py-1 rounded-xl border border-[#4d4d4d]">
       <i class="fa-solid fa-user-circle text-[#b88a73] text-sm"></i>
       <span id="user-display" class="text-[11px] text-gray-300 font-medium max-w-[100px] truncate">Usuario</span>
+      <span id="rol-badge" class="hidden text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase"></span>
       <button onclick="cerrarSesion()" class="text-xs bg-[#4d4d4d] hover:bg-rose-600 text-white px-2 py-0.5 rounded"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
     <div class="bg-[#383838] px-2.5 py-1 rounded-xl border border-[#4d4d4d] text-[11px] text-gray-300 flex items-center space-x-1.5">
@@ -98,7 +105,7 @@
   <button onclick="switchTab('trabajos')" id="tab-trabajos" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition relative whitespace-nowrap"><i class="fa-solid fa-clipboard-list mr-1.5"></i>Trabajos <span id="badge-trabajos" class="ml-1 bg-[#b88a73] text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span></button>
   <button onclick="switchTab('caja')" id="tab-caja" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-cash-register mr-1.5"></i>Caja</button>
   <button onclick="switchTab('ventas')" id="tab-ventas" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-receipt mr-1.5"></i>Ventas</button>
-  <button onclick="switchTab('admin')" id="tab-admin" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-gears mr-1.5"></i>Admin</button>
+  <button onclick="switchTab('admin')" id="tab-admin" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap tab-solo-admin"><i class="fa-solid fa-gears mr-1.5"></i>Admin</button>
 </nav>
 
 <main class="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 space-y-3 box-border">
@@ -117,6 +124,18 @@
     <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm"><p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Órdenes Activas</p><h3 id="dash-ordenes" class="text-lg font-bold text-sky-600 mt-1">0</h3></div>
     <div class="bg-white p-3 rounded-2xl border-2 border-rose-300 shadow-sm"><p class="text-[10px] uppercase tracking-wider text-rose-600 font-bold">Por Cobrar</p><h3 id="dash-porcobrar" class="text-lg font-extrabold text-rose-600 mt-1">$0.00</h3><span id="dash-porcobrar-count" class="block text-[10px] text-gray-500">0 órdenes</span></div>
   </div>
+
+  <div id="graficos-admin" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-3">
+    <div class="bg-white p-3.5 rounded-2xl border border-[#e8dbd3] shadow-sm">
+      <h3 class="text-sm font-bold mb-3"><i class="fa-solid fa-chart-column mr-2 text-[#b88a73]"></i>Ventas últimos 6 meses (USD)</h3>
+      <div class="grafico-container"><canvas id="grafico-ventas-mes"></canvas></div>
+    </div>
+    <div class="bg-white p-3.5 rounded-2xl border border-[#e8dbd3] shadow-sm">
+      <h3 class="text-sm font-bold mb-3"><i class="fa-solid fa-chart-pie mr-2 text-[#b88a73]"></i>Métodos de pago</h3>
+      <div class="grafico-container"><canvas id="grafico-metodos-pago"></canvas></div>
+    </div>
+  </div>
+
   <div class="bg-white p-3.5 rounded-2xl border border-[#e8dbd3] shadow-sm">
     <h3 class="text-sm font-bold mb-2"><i class="fa-solid fa-clock-rotate-left mr-2 text-[#b88a73]"></i>Últimas 10 ventas</h3>
     <div class="overflow-x-auto max-h-[340px] overflow-y-auto">
@@ -380,6 +399,7 @@
       <div class="flex items-center gap-2 flex-1 sm:flex-initial max-w-md">
         <input type="text" id="ventas-buscador" placeholder="Buscar..." class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]" oninput="debounceBuscarVentas()">
         <button onclick="cargarVentas()" class="text-[10px] bg-[#faf8f6] border border-[#e8dbd3] px-2.5 py-1.5 rounded-lg"><i class="fa-solid fa-sync"></i></button>
+        <button onclick="exportarVentasExcel()" id="btn-excel-ventas" class="hidden text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-700 px-2.5 py-1.5 rounded-lg font-bold flex items-center gap-1"><i class="fa-solid fa-file-excel"></i><span>Excel</span></button>
       </div>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -766,6 +786,8 @@ const DOMINIO_USUARIO = '@lanestudio.app';
 const ESTADOS_ORDEN = ['Cotización', 'Pendiente', 'En Diseño', 'En Impresión', 'Listo', 'Entregado'];
 
 let usuarioActual = null;
+let usuarioRol = 'vendedor';
+let usuarioNombre = '';
 let tasaBCV = 855.66;
 let listaInsumosDB = [];
 let listaServiciosDB = [];
@@ -786,6 +808,8 @@ let topperMoIdx = 0;
 let editandoOrdenId = null;
 let ventasCache = [];
 let debounceVentasTimer = null;
+let chartVentasMes = null;
+let chartMetodosPago = null;
 
 const HOJAS_ESTANDAR = [
   { id:'a4', nombre:'A4', ancho:21, alto:29.7 },
@@ -880,6 +904,54 @@ function parsearFechaInteligente(txt) {
   return null;
 }
 
+// ================= ROLES Y PERMISOS =================
+async function cargarRolUsuario(email) {
+  try {
+    const doc = await db.collection('usuarios').doc(email).get();
+    if (doc.exists) {
+      const data = doc.data();
+      usuarioRol = data.rol === 'admin' ? 'admin' : 'vendedor';
+      usuarioNombre = data.nombre || '';
+    } else {
+      usuarioRol = 'vendedor';
+      usuarioNombre = '';
+    }
+  } catch (e) {
+    console.warn('Error cargando rol:', e);
+    usuarioRol = 'vendedor';
+  }
+}
+
+function aplicarPermisos() {
+  const esAdmin = usuarioRol === 'admin';
+  // Ocultar tabs solo-admin
+  document.querySelectorAll('.tab-solo-admin').forEach(el => {
+    if (esAdmin) el.classList.remove('hidden');
+    else el.classList.add('hidden');
+  });
+  // Gráficos
+  const gr = $('graficos-admin');
+  if (gr) { if (esAdmin) gr.classList.remove('hidden'); else gr.classList.add('hidden'); }
+  // Botón Excel
+  const bx = $('btn-excel-ventas');
+  if (bx) { if (esAdmin) bx.classList.remove('hidden'); else bx.classList.add('hidden'); }
+  // Badge de rol
+  const badge = $('rol-badge');
+  if (badge) {
+    badge.classList.remove('hidden');
+    if (esAdmin) {
+      badge.className = 'text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase bg-[#b88a73] text-white';
+      badge.innerText = 'Admin';
+    } else {
+      badge.className = 'text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase bg-emerald-600 text-white';
+      badge.innerText = 'Vendedor';
+    }
+  }
+  // Nombre en el header
+  const ud = $('user-display');
+  if (ud && usuarioNombre) ud.innerText = usuarioNombre;
+}
+
 // ================= AUTH =================
 function togglePasswordVisibility() {
   const i = $('login-password'), ic = $('toggle-pass-icon');
@@ -924,6 +996,10 @@ async function recuperarPassword() {
 
 // ================= NAVEGACIÓN =================
 function switchTab(tabId) {
+  if (tabId === 'admin' && usuarioRol !== 'admin') {
+    mostrarNotificacion("Acceso restringido a administradores.", "error");
+    return;
+  }
   document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('tab-active'); b.classList.add('text-gray-600'); });
   ['dashboard','cotizador','trabajos','caja','ventas','admin'].forEach(t => { const el = $('module-' + t); if (el) el.classList.add('hidden'); });
   const btn = $('tab-' + tabId), mod = $('module-' + tabId);
@@ -938,6 +1014,7 @@ function switchTab(tabId) {
 }
 
 function switchAdmin(seccion) {
+  if (usuarioRol !== 'admin') { mostrarNotificacion("Acceso restringido.", "error"); return; }
   document.querySelectorAll('.adm-tab').forEach(b => { b.classList.remove('bg-[#2c2c2c]','text-white'); b.classList.add('text-gray-600'); });
   const btn = $('adm-tab-' + seccion);
   if (btn) { btn.classList.add('bg-[#2c2c2c]','text-white'); btn.classList.remove('text-gray-600'); }
@@ -1641,7 +1718,6 @@ function agregarItemManual() {
   });
 }
 
-// ---- FIX #7: no redibujar al escribir, solo actualizar ----
 function renderizarItemsPresupuesto() {
   const cont = $('lista-items-presupuesto');
   cont.innerHTML = '';
@@ -1668,7 +1744,6 @@ function renderizarItemsPresupuesto() {
         </div>
       </div>`;
   });
-  // Listeners SIN redibujar (mantienen foco)
   cont.querySelectorAll('.item-nombre-input').forEach(el => el.addEventListener('input', e => {
     itemsPresupuesto[int(el.dataset.idx)].nombre = el.value;
     guardarBorradorPresupuesto();
@@ -1726,9 +1801,8 @@ function aplicarGananciaGlobal() {
 }
 
 function recalcularPresupuestoTotal() {
-  let tc = 0, tv = 0;
+  let tv = 0;
   itemsPresupuesto.forEach(it => {
-    tc += it.cant * it.costo;
     if (it.precio !== null) tv += it.precio;
     else tv += it.cant * it.costo * (1 + it.ganancia/100);
   });
@@ -1982,7 +2056,6 @@ async function procesarPagoFinal() {
   let conceptoEdit = ($('caja-concepto')?.value || '').trim();
   if (totalUSD <= 0) { mostrarNotificacion("Factura vacía.", "error"); return; }
 
-  // FIX #14: bloquear si la orden vinculada ya está pagada
   if (ordenVinculadaCaja) {
     const o = listaOrdenesDB.find(x => x.id === ordenVinculadaCaja.id);
     if (o && calcularEstadoPago(o) === 'Pagado') {
@@ -2001,7 +2074,6 @@ async function procesarPagoFinal() {
   if (!items.length) { mostrarNotificacion("Añade al menos un ítem.", "error"); return; }
   if (!conceptoEdit) conceptoEdit = items.map(i => `${i.cant}x ${i.desc}`).join(' + ');
 
-  // FIX #15: validar stock antes de vender
   const faltantes = [];
   items.forEach(item => {
     const ins = encontrarInsumoPorNombre(item.desc);
@@ -2098,20 +2170,16 @@ async function procesarPagoFinal() {
   switchTab('dashboard');
 }
 
-// FIX #3: búsqueda flexible de insumo por nombre
 function encontrarInsumoPorNombre(desc) {
   if (!desc) return null;
   const d = String(desc).toLowerCase().trim();
-  // 1) match exacto
   let m = listaInsumosDB.find(i => (i.nombre||'').toLowerCase().trim() === d);
   if (m) return m;
-  // 2) el nombre del insumo está contenido en la descripción
   m = listaInsumosDB.find(i => {
     const n = (i.nombre||'').toLowerCase().trim();
     return n && n.length >= 3 && d.includes(n);
   });
   if (m) return m;
-  // 3) la descripción está contenida en el nombre del insumo
   m = listaInsumosDB.find(i => {
     const n = (i.nombre||'').toLowerCase().trim();
     return n && d.length >= 3 && n.includes(d);
@@ -2177,7 +2245,6 @@ function getBadgeEstado(est) {
 }
 
 function renderKanbanCard(o) {
-  const oEsc = escapeHTML(JSON.stringify(o));
   const pago = calcularEstadoPago(o);
   const bP = getBadgePago(pago);
   const restante = num(o.precio) - num(o.abonado);
@@ -2254,7 +2321,6 @@ async function cobrarRestanteAhora(ordenId) {
   if (!o) return;
   const restante = Math.max(0, num(o.precio) - num(o.abonado));
   if (restante <= 0) { mostrarNotificacion("Esta orden ya está pagada.", "error"); return; }
-  // FIX #20: preguntar método
   abrirModalInput({
     titulo: 'Cobrar restante', textoBoton: 'Cobrar',
     campos: [
@@ -2388,7 +2454,6 @@ function editarOrden(id) {
   sel.innerHTML = '<option value="Cliente General">-- Cliente General --</option>';
   sel.innerHTML += '<option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>';
   listaClientesDB.forEach(c => { sel.innerHTML += `<option value="${escapeHTML(c.nombre)}">${escapeHTML(c.nombre)} (${escapeHTML(c.tel||'Sin telf')})</option>`; });
-  // FIX #2: si el cliente no está en la lista, agregarlo
   const clienteOrden = o.cliente || 'Cliente General';
   if (clienteOrden !== 'Cliente General' && !listaClientesDB.some(c => c.nombre === clienteOrden)) {
     sel.innerHTML += `<option value="${escapeHTML(clienteOrden)}">${escapeHTML(clienteOrden)} (histórico)</option>`;
@@ -2553,7 +2618,6 @@ function abrirModalPagoOrden(ordenId) {
 }
 function cerrarModalPagoOrden() { $('modal-pago-orden').classList.add('hidden'); ordenPagandoActual = null; }
 
-// FIX #5: recalcular correcto
 function mpSetMonto(tipo) {
   if (!ordenPagandoActual) return;
   const total = num(ordenPagandoActual.precio);
@@ -2679,6 +2743,105 @@ async function cargarDashboard() {
       });
     } catch(e){ tb.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-500">Error.</td></tr>'; }
   }
+  // Gráficos (solo admin)
+  if (usuarioRol === 'admin') renderizarGraficos(ventas);
+}
+
+// ================= GRÁFICOS =================
+function renderizarGraficos(ventas) {
+  if (usuarioRol !== 'admin') return;
+  if (typeof Chart === 'undefined') { console.warn('Chart.js no cargó'); return; }
+  // 1. Ventas por mes (últimos 6 meses)
+  const hoy = new Date();
+  const meses = [];
+  const labels = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+    meses.push({ year: d.getFullYear(), month: d.getMonth() });
+    labels.push(d.toLocaleDateString('es-ES', { month: 'short', year: '2-digit' }));
+  }
+  const dataMes = meses.map(m => {
+    return ventas.filter(v => {
+      const f = v.fechaISO ? new Date(v.fechaISO) : null;
+      if (!f) return false;
+      return f.getFullYear() === m.year && f.getMonth() === m.month;
+    }).reduce((a,v) => a + (parseFloat(v.total_usd)||0), 0);
+  });
+  const ctx1 = $('grafico-ventas-mes');
+  if (ctx1) {
+    if (chartVentasMes) chartVentasMes.destroy();
+    chartVentasMes = new Chart(ctx1.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Ventas USD',
+          data: dataMes,
+          backgroundColor: 'rgba(184, 138, 115, 0.7)',
+          borderColor: '#b88a73',
+          borderWidth: 2,
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { callback: v => '$' + v } }
+        }
+      }
+    });
+  }
+  // 2. Métodos de pago
+  const metodos = {};
+  ventas.forEach(v => {
+    const mp = v.metodos_pago || '';
+    // Formato: "Efectivo USD: $100.00 (Ref: X) | Pago Móvil: $50.00 (Ref: Y)"
+    mp.split('|').forEach(parte => {
+      const m = parte.match(/^([^:]+):\s*\$([0-9.]+)/);
+      if (m) {
+        const metodo = m[1].trim();
+        const monto = parseFloat(m[2]) || 0;
+        metodos[metodo] = (metodos[metodo] || 0) + monto;
+      }
+    });
+  });
+  const labelsMP = Object.keys(metodos);
+  const dataMP = Object.values(metodos);
+  const colores = ['#b88a73', '#2c2c2c', '#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6'];
+  const ctx2 = $('grafico-metodos-pago');
+  if (ctx2) {
+    if (chartMetodosPago) chartMetodosPago.destroy();
+    if (labelsMP.length === 0) {
+      chartMetodosPago = new Chart(ctx2.getContext('2d'), {
+        type: 'doughnut',
+        data: { labels: ['Sin datos'], datasets: [{ data: [1], backgroundColor: ['#e8dbd3'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+      });
+    } else {
+      chartMetodosPago = new Chart(ctx2.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: labelsMP,
+          datasets: [{
+            data: dataMP,
+            backgroundColor: colores.slice(0, labelsMP.length),
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } },
+            tooltip: { callbacks: { label: ctx => `${ctx.label}: $${ctx.parsed.toFixed(2)}` } }
+          }
+        }
+      });
+    }
+  }
 }
 
 // ================= VENTAS =================
@@ -2725,6 +2888,36 @@ async function cargarVentas() {
         </tr>`;
     });
   } catch(e) { tb.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-rose-500">Error.</td></tr>'; }
+}
+
+// ================= EXPORTAR EXCEL =================
+function exportarVentasExcel() {
+  if (usuarioRol !== 'admin') { mostrarNotificacion("Acceso restringido.", "error"); return; }
+  if (typeof XLSX === 'undefined') { mostrarNotificacion("SheetJS no cargó. Revisa tu conexión.", "error"); return; }
+  const q = ($('ventas-buscador')?.value || '').toLowerCase().trim();
+  let filtradas = ventasCache;
+  if (q) filtradas = ventasCache.filter(v => (v.cliente||'').toLowerCase().includes(q) || (v.concepto||'').toLowerCase().includes(q));
+  if (filtradas.length === 0) { mostrarNotificacion("No hay ventas para exportar.", "error"); return; }
+  const datos = filtradas.map(v => ({
+    'Fecha': v.fecha || '',
+    'Cliente': v.cliente || '',
+    'Concepto': v.concepto || '',
+    'Total USD': parseFloat(v.total_usd || 0).toFixed(2),
+    'Total Bs': (parseFloat(v.total_usd || 0) * tasaBCV).toFixed(2),
+    'Métodos de pago': v.metodos_pago || '',
+    'Descuento': v.descuento || '',
+    'Notas': v.notas || '',
+    'Usuario': v.usuario || ''
+  }));
+  const ws = XLSX.utils.json_to_sheet(datos);
+  ws['!cols'] = [
+    { wch: 12 }, { wch: 22 }, { wch: 40 }, { wch: 12 }, { wch: 14 }, { wch: 35 }, { wch: 10 }, { wch: 30 }, { wch: 22 }
+  ];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Ventas');
+  const fecha = new Date().toISOString().split('T')[0];
+  XLSX.writeFile(wb, `LAN_Estudio_Ventas_${fecha}.xlsx`);
+  mostrarNotificacion(`Exportadas ${filtradas.length} ventas a Excel.`);
 }
 
 async function editarVenta(id) {
@@ -3285,6 +3478,17 @@ function exportarBalancePDF() {
   imprimirComoPDF(html, `Balance_${fecha.replace(/\//g,'-')}`);
 }
 
+// ================= SERVICE WORKER =================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').then(reg => {
+      console.log('[SW] Registrado:', reg.scope);
+    }).catch(err => {
+      console.warn('[SW] Error al registrar:', err);
+    });
+  });
+}
+
 // ================= INIT =================
 auth.onAuthStateChanged(async user => {
   const ls = $('login-screen'), ac = $('app-content');
@@ -3292,7 +3496,11 @@ auth.onAuthStateChanged(async user => {
     usuarioActual = user;
     ls.classList.add('hidden');
     ac.classList.remove('hidden');
-    const d = $('user-display'); if (d) d.innerText = user.email ? user.email.split('@')[0] : 'Usuario';
+    // Cargar rol ANTES de aplicar permisos
+    await cargarRolUsuario(user.email);
+    aplicarPermisos();
+    const d = $('user-display');
+    if (d) d.innerText = usuarioNombre || (user.email ? user.email.split('@')[0] : 'Usuario');
     iniciarListenersTiempoReal();
     await fetchBCVRate();
     await cargarLogoCloud();
@@ -3312,6 +3520,8 @@ auth.onAuthStateChanged(async user => {
     else switchTab('dashboard');
   } else {
     usuarioActual = null;
+    usuarioRol = 'vendedor';
+    usuarioNombre = '';
     ls.classList.remove('hidden');
     ac.classList.add('hidden');
     const pe = $('login-password'); if (pe) pe.value = '';

@@ -1828,10 +1828,11 @@ function recalcularTotalesCaja() {
   const total = Math.max(0, sub - (sub * desc / 100));
   const tEl = $('caja-total-usd'); if (tEl) tEl.value = total.toFixed(2);
   const vEl = $('caja-total-ves'); if (vEl) vEl.value = `Bs. ${(total * tasaBCV).toFixed(2)}`;
+  const tView = $('caja-total-usd-view'); if (tView) tView.innerText = total.toFixed(2);
+  const vView = $('caja-total-ves-view'); if (vView) vView.innerText = `Bs. ${(total * tasaBCV).toFixed(2)}`;
   const rT = $('resumen-total'); if (rT) rT.innerText = `$${total.toFixed(2)}`;
   calcularRestanteCaja();
 }
-
 function registrarPagoRapido(metodo) {
   const total = num($('caja-total-usd').value);
   let ab = 0;

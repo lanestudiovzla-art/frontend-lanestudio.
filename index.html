@@ -21,6 +21,14 @@
   .kanban-drop-hover { background:rgba(184,138,115,.1); border:2px dashed #b88a73!important; }
   .tab-active { background:#2c2c2c!important; color:#fff!important; }
   .preset-activo { border-color:#b88a73!important; background:#fff5ef!important; }
+  *:focus-visible { outline:2px solid #b88a73; outline-offset:2px; border-radius:6px; }
+  .card-menu { position:fixed; z-index:9999; }
+  .card-menu-btn { width:22px; height:22px; display:flex; align-items:center; justify-content:center; border-radius:6px; }
+  .modo-caja-btn { transition: all .2s; }
+  .modo-caja-btn.activo { background:#2c2c2c!important; color:#fff!important; border-color:#2c2c2c!important; }
+  .kbd { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); border-radius:5px; padding:1px 5px; font-size:10px; font-weight:600; }
+  .kbd-light { background:#faf8f6; border:1px solid #e8dbd3; border-radius:5px; padding:1px 5px; font-size:10px; font-weight:600; color:#2c2c2c; }
+  .fecha-inteligente { cursor: text; }
 </style>
 </head>
 <body class="min-h-screen flex flex-col max-w-full overflow-x-hidden">
@@ -51,7 +59,7 @@
         </div>
       </div>
       <div id="login-error" class="hidden bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl px-3 py-2 flex items-start space-x-2"><i class="fa-solid fa-circle-exclamation mt-0.5"></i><span id="login-error-text"></span></div>
-      <button type="submit" id="btn-login" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-3 rounded-xl font-bold text-sm transition shadow-md flex items-center justify-center space-x-2"><i class="fa-solid fa-right-to-bracket"></i><span>Iniciar Sesión</span></button>
+      <button type="submit" id="btn-login" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-3 rounded-xl font-bold text-sm transition shadow-md flex items-center justify-center space-x-2"><i class="fa-solid fa-right-to-bracket"></i><span>Iniciar Sesión</span><span class="kbd ml-2">Enter</span></button>
     </form>
     <div class="text-center"><button onclick="recuperarPassword()" class="text-[11px] text-gray-500 hover:text-[#b88a73] underline">¿Olvidaste tu contraseña?</button></div>
     <div class="text-center border-t border-[#e8dbd3] pt-4"><p class="text-[10px] text-gray-400">Acceso restringido</p></div>
@@ -89,12 +97,13 @@
 
 <!-- NAV -->
 <nav class="bg-white border-b border-[#e8dbd3] px-3 sm:px-6 py-2 flex flex-wrap items-center gap-1.5 shadow-xs sticky top-0 z-40">
-  <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-chart-pie mr-1.5"></i>Dashboard</button>
-  <button onclick="switchTab('cotizador')" id="tab-cotizador" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-file-invoice-dollar mr-1.5"></i>Cotizador</button>
-  <button onclick="switchTab('trabajos')" id="tab-trabajos" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition relative whitespace-nowrap"><i class="fa-solid fa-clipboard-list mr-1.5"></i>Trabajos <span id="badge-trabajos" class="ml-1 bg-[#b88a73] text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span></button>
-  <button onclick="switchTab('caja')" id="tab-caja" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-cash-register mr-1.5"></i>Caja</button>
-  <button onclick="switchTab('ventas')" id="tab-ventas" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-receipt mr-1.5"></i>Ventas</button>
-  <button onclick="switchTab('admin')" id="tab-admin" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-gears mr-1.5"></i>Admin</button>
+  <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-chart-pie mr-1.5"></i>Dashboard<span class="kbd-light ml-1 hidden lg:inline">Alt+1</span></button>
+  <button onclick="switchTab('cotizador')" id="tab-cotizador" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-file-invoice-dollar mr-1.5"></i>Cotizador<span class="kbd-light ml-1 hidden lg:inline">Alt+2</span></button>
+  <button onclick="switchTab('trabajos')" id="tab-trabajos" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition relative whitespace-nowrap"><i class="fa-solid fa-clipboard-list mr-1.5"></i>Trabajos <span id="badge-trabajos" class="ml-1 bg-[#b88a73] text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span><span class="kbd-light ml-1 hidden lg:inline">Alt+3</span></button>
+  <button onclick="switchTab('caja')" id="tab-caja" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-cash-register mr-1.5"></i>Caja<span class="kbd-light ml-1 hidden lg:inline">Alt+4</span></button>
+  <button onclick="switchTab('ventas')" id="tab-ventas" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-receipt mr-1.5"></i>Ventas<span class="kbd-light ml-1 hidden lg:inline">Alt+5</span></button>
+  <button onclick="switchTab('admin')" id="tab-admin" class="tab-btn px-3 py-1.5 rounded-xl font-medium text-xs text-gray-600 hover:bg-[#faf8f6] transition whitespace-nowrap"><i class="fa-solid fa-gears mr-1.5"></i>Admin<span class="kbd-light ml-1 hidden lg:inline">Alt+6</span></button>
+  <div class="ml-auto text-[10px] text-gray-400 hidden xl:flex items-center gap-1"><i class="fa-solid fa-keyboard"></i> <span class="kbd-light">Ctrl+K</span> buscar · <span class="kbd-light">Alt+S</span> guardar venta · <span class="kbd-light">Alt+N</span> nuevo</div>
 </nav>
 
 <main class="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 space-y-3 box-border">
@@ -109,7 +118,7 @@
     <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm"><p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Insumos</p><h3 id="dash-insumos" class="text-lg font-bold mt-1">0</h3></div>
     <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm"><p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Alertas Stock</p><h3 id="dash-alertas" class="text-lg font-bold text-rose-600 mt-1">0</h3></div>
     <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm"><p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Clientes</p><h3 id="dash-clientes" class="text-lg font-bold mt-1">0</h3></div>
-    <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm"><p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Stand By</p><h3 id="dash-standby" class="text-lg font-bold text-amber-600 mt-1">0</h3></div>
+    <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm"><p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Cotizaciones</p><h3 id="dash-standby" class="text-lg font-bold text-amber-600 mt-1">0</h3></div>
     <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm"><p class="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Órdenes Activas</p><h3 id="dash-ordenes" class="text-lg font-bold text-sky-600 mt-1">0</h3></div>
     <div class="bg-white p-3 rounded-2xl border-2 border-rose-300 shadow-sm"><p class="text-[10px] uppercase tracking-wider text-rose-600 font-bold">Por Cobrar</p><h3 id="dash-porcobrar" class="text-lg font-extrabold text-rose-600 mt-1">$0.00</h3><span id="dash-porcobrar-count" class="block text-[10px] text-gray-500">0 órdenes</span></div>
   </div>
@@ -173,7 +182,13 @@
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div><label class="block text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Validez</label><input type="text" id="presupuesto-validez" value="7 días hábiles" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]"></div>
-            <div><label class="block text-[10px] font-semibold uppercase text-gray-500 mb-0.5">% Ganancia global</label><input type="number" id="presupuesto-ganancia-global" value="30" step="1" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]" oninput="aplicarGananciaGlobal()"></div>
+            <div>
+              <label class="block text-[10px] font-semibold uppercase text-gray-500 mb-0.5">% Ganancia global</label>
+              <div class="flex gap-1">
+                <input type="number" id="presupuesto-ganancia-global" value="30" step="1" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]">
+                <button onclick="aplicarGananciaGlobal()" class="text-[10px] bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2 rounded-lg font-bold whitespace-nowrap" title="Aplicar a todos los ítems">Aplicar</button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="bg-white p-3 rounded-xl border border-[#e8dbd3]">
@@ -202,8 +217,8 @@
         </label>
       </div>
       <div class="space-y-1.5">
-        <button onclick="guardarEnStandBy()" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1.5"><i class="fa-solid fa-clock"></i><span>Guardar en Stand By</span></button>
-        <button onclick="enviarACaja()" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1.5"><i class="fa-solid fa-cash-register"></i><span>Cobrar ahora (Caja)</span></button>
+        <button onclick="cobrarDesdeCotizador()" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1.5"><i class="fa-solid fa-cash-register"></i><span>Cobrar ahora (ir a Caja)</span></button>
+        <button onclick="guardarCotizacionEnKanban()" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1.5"><i class="fa-solid fa-bookmark"></i><span>Guardar cotización pendiente</span></button>
         <div class="grid grid-cols-2 gap-1.5">
           <button onclick="enviarPresupuestoWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded-xl font-bold text-xs transition flex items-center justify-center space-x-1"><i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span></button>
           <button onclick="exportarPDFPresupuesto()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-1.5 rounded-xl font-bold text-xs transition flex items-center justify-center space-x-1"><i class="fa-solid fa-file-pdf"></i><span>PDF</span></button>
@@ -217,20 +232,25 @@
 <section id="module-trabajos" class="hidden space-y-3">
   <div class="bg-white p-3.5 rounded-2xl border border-[#e8dbd3] shadow-sm space-y-3">
     <div class="flex flex-wrap justify-between items-center border-b border-[#e8dbd3] pb-2 gap-2">
-      <div><h2 class="text-sm font-bold flex items-center"><i class="fa-solid fa-clipboard-list text-[#b88a73] mr-2"></i>Trabajos y Cotizaciones</h2><p class="text-[10px] text-gray-500">Órdenes de trabajo y presupuestos en Stand By.</p></div>
+      <div><h2 class="text-sm font-bold flex items-center"><i class="fa-solid fa-clipboard-list text-[#b88a73] mr-2"></i>Trabajos y Cotizaciones</h2><p class="text-[10px] text-gray-500">Cotizaciones, órdenes y estado de pago en un solo lugar.</p></div>
       <div class="flex flex-wrap items-center gap-2">
         <label class="flex items-center space-x-1.5 text-xs font-semibold text-gray-700 bg-rose-50 border border-rose-200 px-2.5 py-1.5 rounded-lg cursor-pointer">
           <input type="checkbox" id="filtro-solo-impagos" onchange="renderizarKanban(); renderizarTablaTrabajos()" class="rounded border-rose-300 text-rose-600 focus:ring-0">
           <span class="text-rose-700"><i class="fa-solid fa-filter mr-1"></i>Solo sin pagar</span>
         </label>
+        <label class="flex items-center space-x-1.5 text-xs font-semibold text-gray-700 bg-amber-50 border border-amber-200 px-2.5 py-1.5 rounded-lg cursor-pointer">
+          <input type="checkbox" id="filtro-vencidas" onchange="renderizarKanban(); renderizarTablaTrabajos()" class="rounded border-amber-300 text-amber-600 focus:ring-0">
+          <span class="text-amber-800"><i class="fa-solid fa-clock mr-1"></i>Vencidas</span>
+        </label>
         <div class="flex bg-[#faf8f6] border border-[#e8dbd3] rounded-lg p-0.5">
           <button onclick="cambiarVistaTrabajos('kanban')" id="btn-vista-kanban" class="px-2.5 py-1 text-[11px] font-semibold rounded-md bg-[#2c2c2c] text-white transition">Kanban</button>
           <button onclick="cambiarVistaTrabajos('tabla')" id="btn-vista-tabla" class="px-2.5 py-1 text-[11px] font-semibold rounded-md text-gray-600 transition">Tabla</button>
         </div>
-        <button onclick="abrirModalNuevaOrden()" class="bg-[#b88a73] hover:bg-[#a67963] text-white px-3 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1"><i class="fa-solid fa-plus"></i><span>Nueva Orden</span></button>
+        <button onclick="abrirModalNuevaOrden()" class="bg-[#b88a73] hover:bg-[#a67963] text-white px-3 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1"><i class="fa-solid fa-plus"></i><span>Nueva Orden</span><span class="kbd-light ml-1 hidden md:inline">Alt+N</span></button>
       </div>
     </div>
-    <div id="vista-kanban-trabajos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
+    <div id="vista-kanban-trabajos" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+      <div class="bg-amber-50/40 rounded-xl border border-amber-200 p-2 min-h-[300px]"><div class="flex justify-between items-center mb-2 pb-1.5 border-b border-amber-200"><span class="text-[11px] font-bold uppercase text-amber-700"><i class="fa-solid fa-file-invoice mr-1"></i>Cotización</span><span id="kc-Cotización" class="bg-white text-amber-700 text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span></div><div id="kl-Cotización" class="space-y-2 kanban-dropzone" data-estado="Cotización"></div></div>
       <div class="bg-[#faf8f6] rounded-xl border border-[#e8dbd3] p-2 min-h-[300px]"><div class="flex justify-between items-center mb-2 pb-1.5 border-b border-[#e8dbd3]"><span class="text-[11px] font-bold uppercase text-gray-600"><i class="fa-solid fa-hourglass-start mr-1 text-amber-500"></i>Pendiente</span><span id="kc-Pendiente" class="bg-white text-gray-600 text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span></div><div id="kl-Pendiente" class="space-y-2 kanban-dropzone" data-estado="Pendiente"></div></div>
       <div class="bg-[#faf8f6] rounded-xl border border-[#e8dbd3] p-2 min-h-[300px]"><div class="flex justify-between items-center mb-2 pb-1.5 border-b border-[#e8dbd3]"><span class="text-[11px] font-bold uppercase text-gray-600"><i class="fa-solid fa-pen-ruler mr-1 text-blue-500"></i>En Diseño</span><span id="kc-En Diseño" class="bg-white text-gray-600 text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span></div><div id="kl-En Diseño" class="space-y-2 kanban-dropzone" data-estado="En Diseño"></div></div>
       <div class="bg-[#faf8f6] rounded-xl border border-[#e8dbd3] p-2 min-h-[300px]"><div class="flex justify-between items-center mb-2 pb-1.5 border-b border-[#e8dbd3]"><span class="text-[11px] font-bold uppercase text-gray-600"><i class="fa-solid fa-print mr-1 text-purple-500"></i>En Impresión</span><span id="kc-En Impresión" class="bg-white text-gray-600 text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span></div><div id="kl-En Impresión" class="space-y-2 kanban-dropzone" data-estado="En Impresión"></div></div>
@@ -239,33 +259,36 @@
     </div>
     <div id="vista-tabla-trabajos" class="hidden overflow-x-auto max-h-[500px] overflow-y-auto">
       <table class="w-full text-left text-xs min-w-[800px]">
-        <thead class="bg-[#faf8f6] text-[10px] uppercase text-gray-500 border-b border-[#e8dbd3] sticky top-0"><tr><th class="p-2">N° OT</th><th class="p-2">Cliente</th><th class="p-2">Concepto</th><th class="p-2">Estado</th><th class="p-2">Pago</th><th class="p-2">Entrega</th><th class="p-2 text-center">Acciones</th></tr></thead>
+        <thead class="bg-[#faf8f6] text-[10px] uppercase text-gray-500 border-b border-[#e8dbd3] sticky top-0"><tr><th class="p-2">N°</th><th class="p-2">Cliente</th><th class="p-2">Concepto</th><th class="p-2">Estado</th><th class="p-2">Pago</th><th class="p-2">Entrega</th><th class="p-2 text-center">Acciones</th></tr></thead>
         <tbody id="tabla-trabajos"><tr><td colspan="7" class="p-4 text-center text-gray-400">Cargando...</td></tr></tbody>
       </table>
-    </div>
-    <div class="border-t border-[#e8dbd3] pt-3">
-      <h3 class="text-xs font-bold uppercase text-gray-700 mb-2"><i class="fa-solid fa-clock text-amber-500 mr-1"></i>Presupuestos en Stand By</h3>
-      <div class="overflow-x-auto max-h-[300px] overflow-y-auto">
-        <table class="w-full text-left text-xs min-w-[500px]">
-          <thead class="bg-[#faf8f6] text-[10px] uppercase text-gray-500 border-b border-[#e8dbd3] sticky top-0"><tr><th class="p-2">Fecha</th><th class="p-2">Cliente</th><th class="p-2">Resumen</th><th class="p-2 text-right">Total</th><th class="p-2 text-center">Acciones</th></tr></thead>
-          <tbody id="tabla-standby"><tr><td colspan="5" class="p-4 text-center text-gray-400">Cargando...</td></tr></tbody>
-        </table>
-      </div>
     </div>
   </div>
 </section>
 
 <!-- CAJA -->
 <section id="module-caja" class="hidden space-y-3">
+  <div class="bg-white p-3 rounded-2xl border border-[#e8dbd3] shadow-sm">
+    <h2 class="text-sm font-bold flex items-center mb-2"><i class="fa-solid fa-cash-register text-[#b88a73] mr-2"></i>Caja · Punto de cobro</h2>
+    <div class="grid grid-cols-3 gap-1.5">
+      <button onclick="cambiarModoCaja('rapida')" id="modo-caja-rapida" class="modo-caja-btn activo bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 px-2.5 py-2 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1"><i class="fa-solid fa-bolt"></i><span class="hidden sm:inline">Venta rápida</span><span class="sm:hidden">Rápida</span></button>
+      <button onclick="cambiarModoCaja('orden')" id="modo-caja-orden" class="modo-caja-btn bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 px-2.5 py-2 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1"><i class="fa-solid fa-clipboard-list"></i><span class="hidden sm:inline">Cobrar orden</span><span class="sm:hidden">Orden</span></button>
+      <button onclick="cambiarModoCaja('cotizacion')" id="modo-caja-cotizacion" class="modo-caja-btn bg-[#faf8f6] border border-[#e8dbd3] text-gray-700 px-2.5 py-2 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1"><i class="fa-solid fa-file-invoice-dollar"></i><span class="hidden sm:inline">Desde cotización</span><span class="sm:hidden">Cotización</span></button>
+    </div>
+    <div id="caja-selector-pendiente" class="hidden mt-2.5 bg-sky-50 border border-sky-200 rounded-xl p-2.5">
+      <label class="block text-[10px] font-bold text-sky-800 uppercase mb-1" id="caja-selector-label">Seleccionar</label>
+      <select id="caja-pendiente-select" onchange="seleccionarPendienteCaja(this.value)" class="w-full bg-white border border-sky-200 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-sky-400">
+        <option value="">-- Ninguno --</option>
+      </select>
+      <div id="caja-orden-vinculada-info" class="hidden mt-2 text-[11px] text-sky-800"></div>
+    </div>
+  </div>
+
   <div class="bg-white p-3.5 rounded-2xl border border-[#e8dbd3] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
     <div class="lg:col-span-7 space-y-2.5">
       <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
-        <h2 class="text-sm font-bold flex items-center"><i class="fa-solid fa-cash-register text-[#b88a73] mr-2"></i>Caja / POS</h2>
+        <h2 class="text-sm font-bold flex items-center"><i class="fa-solid fa-pen-to-square text-[#b88a73] mr-2"></i>Detalle de la venta</h2>
         <button onclick="abrirArqueoCaja()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2.5 py-1 rounded-xl text-xs font-bold flex items-center space-x-1"><i class="fa-solid fa-scale-balanced text-[#b88a73]"></i><span>Arqueo</span></button>
-      </div>
-      <div id="caja-orden-vinculada" class="hidden bg-sky-50 border border-sky-200 rounded-xl p-2.5 flex items-center justify-between">
-        <div class="flex items-center gap-2 text-xs"><i class="fa-solid fa-link text-sky-600"></i><span class="text-sky-800">Cobrando orden: <b id="caja-orden-txt"></b></span></div>
-        <button onclick="desvincularOrdenCaja()" class="text-sky-600 hover:text-sky-800 text-xs"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div>
         <label class="block text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Cliente</label>
@@ -274,12 +297,19 @@
           <option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>
         </select>
       </div>
+      <div>
+        <label class="block text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Concepto (editable)</label>
+        <input type="text" id="caja-concepto" placeholder="Ej. 30 stickers holográficos..." class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]">
+      </div>
       <div class="space-y-1.5 bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
         <div class="flex justify-between items-center mb-1">
           <span class="text-[11px] font-bold uppercase text-gray-700"><i class="fa-solid fa-list text-[#b88a73] mr-1"></i>Ítems</span>
-          <button onclick="agregarItemCajaFila()" class="text-[10px] bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2.5 py-1 rounded-lg"><i class="fa-solid fa-plus mr-1"></i>Añadir</button>
+          <div class="flex gap-1">
+            <button onclick="agregarItemCajaFila()" class="text-[10px] bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2.5 py-1 rounded-lg"><i class="fa-solid fa-plus mr-1"></i>Añadir</button>
+            <button onclick="focoBuscarProducto()" class="text-[10px] bg-sky-100 hover:bg-sky-200 text-sky-700 px-2.5 py-1 rounded-lg" title="Buscar insumo/servicio (Ctrl+K)"><i class="fa-solid fa-magnifying-glass"></i></button>
+          </div>
         </div>
-        <div class="overflow-x-auto max-h-[150px] overflow-y-auto">
+        <div class="overflow-x-auto max-h-[200px] overflow-y-auto">
           <table class="w-full text-left text-xs min-w-[320px]">
             <thead class="bg-white text-gray-500 uppercase border-b border-[#e8dbd3] text-[10px] sticky top-0"><tr><th class="p-1.5 w-[50%]">Descripción</th><th class="p-1.5 w-[15%] text-center">Cant</th><th class="p-1.5 w-[25%] text-right">Precio ($)</th><th class="p-1.5 w-[10%]"></th></tr></thead>
             <tbody id="lista-items-caja"></tbody>
@@ -300,8 +330,8 @@
           <span class="text-xs font-semibold text-gray-700"><i class="fa-solid fa-clipboard-list text-[#b88a73] mr-1"></i>Generar Orden de Trabajo al procesar</span>
         </label>
         <div id="caja-ot-fecha-container" class="hidden mt-2">
-          <label class="block text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Fecha entrega estimada</label>
-          <input type="date" id="caja-ot-fecha-entrega" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">
+          <label class="block text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Fecha entrega (escribe "hoy", "mañana" o "+2")</label>
+          <input type="date" id="caja-ot-fecha-entrega" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs fecha-inteligente">
         </div>
       </div>
       <div>
@@ -331,7 +361,7 @@
         </div>
       </div>
       <div class="space-y-1.5">
-        <button onclick="procesarPagoFinal()" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center space-x-1.5"><i class="fa-solid fa-check-circle"></i><span>Guardar Venta</span></button>
+        <button onclick="procesarPagoFinal()" class="w-full bg-[#b88a73] hover:bg-[#a67963] text-white py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center space-x-1.5"><i class="fa-solid fa-check-circle"></i><span>Guardar venta</span><span class="kbd-light ml-2">Alt+S</span></button>
         <div class="grid grid-cols-2 gap-1.5">
           <button onclick="exportarReciboCajaPDF()" class="w-full bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white py-1.5 rounded-xl font-bold text-[10px] flex items-center justify-center space-x-1"><i class="fa-solid fa-file-pdf"></i><span>Recibo</span></button>
           <button onclick="enviarUltimaVentaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded-xl font-bold text-[10px] flex items-center justify-center space-x-1"><i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span></button>
@@ -632,7 +662,7 @@
       <select id="orden-cliente" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"><option value="Cliente General">-- Cliente General --</option></select>
       <input type="text" id="orden-concepto" placeholder="Concepto *" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">
       <div class="grid grid-cols-2 gap-2">
-        <select id="orden-estado" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs"><option value="Pendiente">Pendiente</option><option value="En Diseño">En Diseño</option><option value="En Impresión">En Impresión</option><option value="Listo">Listo</option><option value="Entregado">Entregado</option></select>
+        <select id="orden-estado" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs"><option value="Cotización">Cotización</option><option value="Pendiente" selected>Pendiente</option><option value="En Diseño">En Diseño</option><option value="En Impresión">En Impresión</option><option value="Listo">Listo</option><option value="Entregado">Entregado</option></select>
         <input type="number" id="orden-precio" value="0.00" step="0.01" min="0" placeholder="Precio" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">
       </div>
       <div class="grid grid-cols-2 gap-2">
@@ -659,7 +689,13 @@
 
 <div id="modal-ver-orden" class="hidden fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-3">
   <div class="bg-white rounded-2xl max-w-2xl w-full p-5 space-y-4 border border-[#e8dbd3] shadow-xl animate-fadeIn max-h-[90vh] overflow-y-auto">
-    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2"><h3 id="modal-ver-orden-titulo" class="text-sm font-bold"><i class="fa-solid fa-clipboard-check mr-2 text-[#b88a73]"></i>Detalle</h3><button onclick="cerrarModalVerOrden()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+      <h3 id="modal-ver-orden-titulo" class="text-sm font-bold"><i class="fa-solid fa-clipboard-check mr-2 text-[#b88a73]"></i>Detalle</h3>
+      <div class="flex gap-1.5">
+        <button id="btn-editar-orden-modal" onclick="editarOrdenActualModal()" class="hidden bg-amber-100 hover:bg-amber-200 text-amber-700 px-2.5 py-1 rounded-lg text-[11px] font-bold"><i class="fa-solid fa-pen mr-1"></i>Editar</button>
+        <button onclick="cerrarModalVerOrden()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
     <div id="contenido-ver-orden" class="space-y-3 text-xs"></div>
     <div class="border-t border-[#e8dbd3] pt-2 flex justify-end gap-2">
       <button onclick="cerrarModalVerOrden()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold">Cerrar</button>
@@ -724,7 +760,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 const DOMINIO_USUARIO = '@lanestudio.app';
-const ESTADOS_ORDEN = ['Pendiente', 'En Diseño', 'En Impresión', 'Listo', 'Entregado'];
+const ESTADOS_ORDEN = ['Cotización', 'Pendiente', 'En Diseño', 'En Impresión', 'Listo', 'Entregado'];
 
 let usuarioActual = null;
 let tasaBCV = 855.66;
@@ -737,6 +773,7 @@ let ultimaVentaProcesada = null;
 let ordenActualDetalle = null;
 let ordenPagandoActual = null;
 let ordenVinculadaCaja = null;
+let modoCaja = 'rapida';
 let itemsPresupuesto = [];
 let presetActual = null;
 let resultadoPresetActual = null;
@@ -744,6 +781,7 @@ let cajaItemIdx = 0;
 let pagoIdx = 0;
 let topperMatIdx = 0;
 let topperMoIdx = 0;
+let editandoOrdenId = null;
 
 const HOJAS_ESTANDAR = [
   { id:'a4', nombre:'A4', ancho:21, alto:29.7 },
@@ -814,6 +852,19 @@ function getBadgePago(estado) {
   }
 }
 
+function parsearFechaInteligente(txt) {
+  if (!txt) return null;
+  const t = txt.toLowerCase().trim();
+  const hoy = new Date();
+  if (t === 'hoy') return hoy.toISOString().split('T')[0];
+  if (t === 'mañana' || t === 'manana') { hoy.setDate(hoy.getDate()+1); return hoy.toISOString().split('T')[0]; }
+  if (t.startsWith('+')) {
+    const n = parseInt(t.slice(1));
+    if (!isNaN(n)) { hoy.setDate(hoy.getDate()+n); return hoy.toISOString().split('T')[0]; }
+  }
+  return null;
+}
+
 // ================= AUTH =================
 function togglePasswordVisibility() {
   const i = $('login-password'), ic = $('toggle-pass-icon');
@@ -839,7 +890,7 @@ async function iniciarSesion() {
     else if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') m = "Usuario o contraseña incorrectos.";
     else if (e.code === 'auth/too-many-requests') m = "Demasiados intentos.";
     mostrarErrorLogin(m);
-  } finally { b.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Iniciar Sesión</span>'; b.disabled = false; }
+  } finally { b.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Iniciar Sesión</span><span class="kbd ml-2">Enter</span>'; b.disabled = false; }
 }
 
 async function cerrarSesion() {
@@ -865,8 +916,8 @@ function switchTab(tabId) {
   if (mod) mod.classList.remove('hidden');
   if (tabId === 'dashboard') cargarDashboard();
   if (tabId === 'cotizador') { cargarClientesEnSelects(); const f = $('presupuesto-fecha-doc'); if (f) f.innerText = new Date().toLocaleDateString(); }
-  if (tabId === 'trabajos') { cargarOrdenes(); cargarStandBy(); }
-  if (tabId === 'caja') { cargarClientesEnSelects(); cargarBorradorCaja(); }
+  if (tabId === 'trabajos') cargarOrdenes();
+  if (tabId === 'caja') { cargarClientesEnSelects(); cargarBorradorCaja(); actualizarModosCaja(); }
   if (tabId === 'ventas') cargarVentas();
   if (tabId === 'admin') { cargarInsumos(); cargarServicios(); cargarClientes(); cargarCatalogoMateriales(); }
 }
@@ -960,14 +1011,17 @@ function iniciarListenersTiempoReal() {
     listaOrdenesDB = []; s.forEach(d => listaOrdenesDB.push({ id:d.id, ...d.data() }));
     actualizarBadges();
     if (!$('module-trabajos')?.classList.contains('hidden')) { renderizarKanban(); renderizarTablaTrabajos(); }
+    if (!$('module-caja')?.classList.contains('hidden') && modoCaja !== 'rapida') poblarSelectorPendientes();
   }, e => console.warn(e));
 }
 
 function actualizarBadges() {
-  const activas = listaOrdenesDB.filter(o => o.estado !== 'Entregado').length;
+  const activas = listaOrdenesDB.filter(o => o.estado !== 'Entregado' && o.estado !== 'Cotización').length;
+  const cotizaciones = listaOrdenesDB.filter(o => o.estado === 'Cotización').length;
   const bT = $('badge-trabajos');
-  if (bT) { if (activas > 0) { bT.innerText = activas; bT.classList.remove('hidden'); } else bT.classList.add('hidden'); }
+  if (bT) { const total = activas + cotizaciones; if (total > 0) { bT.innerText = total; bT.classList.remove('hidden'); } else bT.classList.add('hidden'); }
   const dO = $('dash-ordenes'); if (dO) dO.innerText = activas;
+  const dS = $('dash-standby'); if (dS) dS.innerText = cotizaciones;
 }
 
 function cargarClientesEnSelects() {
@@ -981,7 +1035,7 @@ function cargarClientesEnSelects() {
   });
 }
 
-// ================= MODALES =================
+// ================= MODALES GENÉRICOS =================
 let modalInputCallback = null;
 let modalConfirmResolve = null;
 let callbackClienteCreado = null;
@@ -1023,6 +1077,7 @@ document.addEventListener('keydown', e => {
     $('modal-nueva-orden').classList.add('hidden');
     $('modal-ver-orden').classList.add('hidden');
     $('modal-pago-orden').classList.add('hidden');
+    document.querySelectorAll('.card-menu').forEach(m => m.remove());
     if (!$('modal-confirm').classList.contains('hidden')) cerrarModalConfirm(false);
   }
 });
@@ -1049,6 +1104,7 @@ function abrirModalClienteNuevo(cb) {
   $('nuevo-cliente-tipo').value = 'Persona Natural';
   $('modal-cliente-error').classList.add('hidden');
   $('modal-cliente-nuevo').classList.remove('hidden');
+  setTimeout(() => $('nuevo-cliente-nombre').focus(), 100);
 }
 function cerrarModalClienteNuevo() { $('modal-cliente-nuevo').classList.add('hidden'); callbackClienteCreado = null; }
 async function guardarClienteDesdeModal() {
@@ -1548,7 +1604,13 @@ function renderizarItemsPresupuesto() {
 }
 
 function eliminarItemPresupuesto(i) { itemsPresupuesto.splice(i, 1); renderizarItemsPresupuesto(); mostrarNotificacion("Ítem eliminado."); }
-function aplicarGananciaGlobal() { const g = num($('presupuesto-ganancia-global').value); itemsPresupuesto.forEach(it => { it.ganancia = g; it.precio = null; }); renderizarItemsPresupuesto(); }
+function aplicarGananciaGlobal() {
+  const g = num($('presupuesto-ganancia-global').value);
+  if (itemsPresupuesto.length === 0) { mostrarNotificacion("No hay ítems para aplicar.", "error"); return; }
+  itemsPresupuesto.forEach(it => { it.ganancia = g; it.precio = null; });
+  renderizarItemsPresupuesto();
+  mostrarNotificacion(`Ganancia del ${g}% aplicada a todos los ítems.`);
+}
 
 function recalcularPresupuestoTotal() {
   let tc = 0, tv = 0;
@@ -1580,39 +1642,138 @@ function manejarCambioClienteCaja(sel) {
   if (sel.value === 'CREAR_NUEVO_CLIENTE') { abrirModalClienteNuevo(cl => { sel.value = cl.nombre; }); sel.value = 'Cliente General'; }
 }
 
-async function guardarEnStandBy() {
-  const cliente = $('presupuesto-cliente').value;
-  const validez = $('presupuesto-validez').value;
-  let total = 0;
-  itemsPresupuesto.forEach(it => total += (it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100)));
-  if (total <= 0 || itemsPresupuesto.length === 0) { mostrarNotificacion("El presupuesto está vacío.", "error"); return; }
-  try {
-    await db.collection('standby').add({ cliente, validez, total_usd: total, items: JSON.stringify(itemsPresupuesto), created_at: new Date().toLocaleString(), fechaISO: new Date().toISOString() });
-    mostrarNotificacion("¡Guardado en Stand By!");
-    itemsPresupuesto = [];
-    renderizarItemsPresupuesto();
-    cargarStandBy();
-    switchTab('trabajos');
-  } catch(e) { mostrarNotificacion("Error al guardar.", "error"); }
-}
+// ============ COTIZADOR: ACCIONES ============
 
-function enviarACaja() {
+async function cobrarDesdeCotizador() {
   if (itemsPresupuesto.length === 0) { mostrarNotificacion("El presupuesto está vacío.", "error"); return; }
   const cliente = $('presupuesto-cliente').value;
-  switchTab('caja');
-  setTimeout(() => {
-    const sel = $('caja-cliente'); if (sel) sel.value = cliente;
-    const tb = $('lista-items-caja'); tb.innerHTML = '';
-    itemsPresupuesto.forEach(it => {
-      const p = it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100);
-      agregarItemCajaFila(it.nombre, it.cant, (p / it.cant).toFixed(2));
+  const concepto = itemsPresupuesto.map(i => `${i.cant}x ${i.nombre}`).join(' + ');
+  const numero = await obtenerSiguienteNumeroOrden('COT');
+  const totalUSD = itemsPresupuesto.reduce((a, it) => a + (it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100)), 0);
+  const itemsParaOrden = itemsPresupuesto.map(i => ({ desc: i.nombre, cant: i.cant, precio: i.precio !== null ? i.precio : i.cant * i.costo * (1 + i.ganancia/100) }));
+  try {
+    const doc = await db.collection('ordenes').add({
+      numero, cliente, concepto, estado: 'Cotización',
+      precio: totalUSD, abonado: 0, estado_pago: 'Pendiente',
+      fecha: new Date().toLocaleDateString(), fechaEntrega: '', notas: '',
+      items: itemsParaOrden,
+      fechaISO: new Date().toISOString(),
+      usuario: usuarioActual ? usuarioActual.email : 'desconocido',
+      historial: [{ estado: 'Cotización', fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' }],
+      pagos: []
     });
-    recalcularTotalesCaja();
-    mostrarNotificacion("Ítems cargados en Caja.");
-  }, 200);
+    itemsPresupuesto = [];
+    renderizarItemsPresupuesto();
+    localStorage.removeItem('lan_borrador_presupuesto');
+    switchTab('caja');
+    setTimeout(() => {
+      cambiarModoCaja('cotizacion');
+      const o = { id: doc.id, numero, cliente, concepto, estado: 'Cotización', precio: totalUSD, abonado: 0, items: itemsParaOrden };
+      vincularOrdenCaja(o);
+      const sel = $('caja-cliente'); if (sel) sel.value = cliente;
+      const con = $('caja-concepto'); if (con) con.value = concepto;
+      const tb = $('lista-items-caja'); if (tb) tb.innerHTML = '';
+      itemsParaOrden.forEach(it => agregarItemCajaFila(it.desc, it.cant, it.precio));
+      recalcularTotalesCaja();
+      mostrarNotificacion("Cotización lista. Registra el pago.");
+    }, 300);
+  } catch(e) { console.error(e); mostrarNotificacion("Error.", "error"); }
 }
 
-// ================= CAJA =================
+async function guardarCotizacionEnKanban() {
+  const cliente = $('presupuesto-cliente').value;
+  const validez = $('presupuesto-validez').value || '7 días hábiles';
+  if (itemsPresupuesto.length === 0) { mostrarNotificacion("El presupuesto está vacío.", "error"); return; }
+  const totalUSD = itemsPresupuesto.reduce((a, it) => a + (it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100)), 0);
+  const concepto = itemsPresupuesto.map(i => `${i.cant}x ${i.nombre}`).join(' + ');
+  try {
+    const numero = await obtenerSiguienteNumeroOrden('COT');
+    await db.collection('ordenes').add({
+      numero, cliente, concepto, estado: 'Cotización',
+      precio: totalUSD, abonado: 0, estado_pago: 'Pendiente',
+      fecha: new Date().toLocaleDateString(), fechaEntrega: '', notas: `Válido por: ${validez}`,
+      items: itemsPresupuesto.map(i => ({ desc: i.nombre, cant: i.cant, precio: i.precio !== null ? i.precio : i.cant * i.costo * (1 + i.ganancia/100) })),
+      fechaISO: new Date().toISOString(),
+      usuario: usuarioActual ? usuarioActual.email : 'desconocido',
+      historial: [{ estado: 'Cotización', fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' }],
+      pagos: []
+    });
+    mostrarNotificacion(`Cotización ${numero} guardada.`);
+    itemsPresupuesto = [];
+    renderizarItemsPresupuesto();
+    localStorage.removeItem('lan_borrador_presupuesto');
+    switchTab('trabajos');
+  } catch(e) { console.error(e); mostrarNotificacion("Error.", "error"); }
+}
+
+// ================= CAJA: MODOS =================
+function cambiarModoCaja(modo) {
+  modoCaja = modo;
+  ['rapida','orden','cotizacion'].forEach(m => {
+    const btn = $('modo-caja-' + m);
+    if (!btn) return;
+    if (m === modo) btn.classList.add('activo');
+    else btn.classList.remove('activo');
+  });
+  const sel = $('caja-selector-pendiente');
+  if (!sel) return;
+  if (modo === 'rapida') { sel.classList.add('hidden'); desvincularOrdenCaja(); }
+  else {
+    sel.classList.remove('hidden');
+    const label = $('caja-selector-label');
+    if (label) label.innerText = modo === 'orden' ? 'Órdenes activas' : 'Cotizaciones pendientes';
+    poblarSelectorPendientes();
+  }
+}
+
+function actualizarModosCaja() { cambiarModoCaja(modoCaja); }
+
+function poblarSelectorPendientes() {
+  const sel = $('caja-pendiente-select');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- Seleccionar --</option>';
+  const filtro = modoCaja === 'orden' ? ESTADOS_ORDEN.filter(e => e !== 'Cotización' && e !== 'Entregado') : ['Cotización'];
+  listaOrdenesDB.filter(o => filtro.includes(o.estado)).forEach(o => {
+    const restante = num(o.precio) - num(o.abonado);
+    sel.innerHTML += `<option value="${o.id}">${o.numero||'S/N'} — ${o.cliente} — Resta $${restante.toFixed(2)}</option>`;
+  });
+}
+
+function seleccionarPendienteCaja(ordenId) {
+  if (!ordenId) { desvincularOrdenCaja(); return; }
+  const o = listaOrdenesDB.find(x => x.id === ordenId);
+  if (!o) return;
+  vincularOrdenCaja(o);
+  const sel = $('caja-cliente'); if (sel) sel.value = o.cliente;
+  const concepto = $('caja-concepto'); if (concepto && !concepto.value) concepto.value = o.concepto || '';
+  const tb = $('lista-items-caja'); if (tb) tb.innerHTML = '';
+  if (Array.isArray(o.items) && o.items.length) {
+    o.items.forEach(it => agregarItemCajaFila(it.desc || it.nombre, it.cant || 1, it.precio || 0));
+  } else {
+    const restante = Math.max(0, num(o.precio) - num(o.abonado));
+    agregarItemCajaFila(o.concepto, 1, restante.toFixed(2));
+  }
+  recalcularTotalesCaja();
+}
+
+function vincularOrdenCaja(orden) {
+  ordenVinculadaCaja = orden;
+  const info = $('caja-orden-vinculada-info');
+  if (info) {
+    const restante = num(orden.precio) - num(orden.abonado);
+    info.classList.remove('hidden');
+    info.innerHTML = `<b>${orden.numero}</b> — Total: $${num(orden.precio).toFixed(2)} — Abonado: $${num(orden.abonado).toFixed(2)} — <span class="font-bold text-rose-600">Resta: $${restante.toFixed(2)}</span>`;
+  }
+}
+function desvincularOrdenCaja() {
+  ordenVinculadaCaja = null;
+  const info = $('caja-orden-vinculada-info');
+  if (info) info.classList.add('hidden');
+  const sel = $('caja-pendiente-select');
+  if (sel) sel.value = '';
+}
+
+// ================= CAJA: FILAS =================
 function cargarBorradorCaja() {
   const tb = $('lista-items-caja');
   if (!tb) return;
@@ -1629,9 +1790,9 @@ function agregarItemCajaFila(nombre='', cant=1, precio=0) {
   const tb = $('lista-items-caja'); if (!tb) return;
   const rowId = `caja-item-${cajaItemIdx}`;
   tb.insertAdjacentHTML('beforeend', `<tr id="${rowId}" class="border-b border-[#e8dbd3] caja-item-row">
-      <td class="p-1.5"><input type="text" value="${(nombre||'').replace(/"/g,'&quot;')}" placeholder="Descripción..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs caja-desc-input" oninput="guardarBorradorCaja()"></td>
-      <td class="p-1.5 text-center"><input type="number" value="${cant}" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-1 py-1 text-xs text-center caja-cant-input" oninput="recalcularTotalesCaja(); guardarBorradorCaja()"></td>
-      <td class="p-1.5 text-right"><input type="number" step="0.01" min="0" value="${parseFloat(precio).toFixed(2)}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs text-right caja-precio-input font-bold text-[#b88a73]" oninput="recalcularTotalesCaja(); guardarBorradorCaja()"></td>
+      <td class="p-1.5"><input type="text" value="${(nombre||'').replace(/"/g,'&quot;')}" placeholder="Descripción..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs caja-desc-input" oninput="guardarBorradorCaja()" onkeydown="enterEnCajaDesc(event, this)"></td>
+      <td class="p-1.5 text-center"><input type="number" value="${cant}" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-1 py-1 text-xs text-center caja-cant-input" oninput="recalcularTotalesCaja(); guardarBorradorCaja()" onkeydown="enterEnCajaCant(event, this)"></td>
+      <td class="p-1.5 text-right"><input type="number" step="0.01" min="0" value="${parseFloat(precio).toFixed(2)}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs text-right caja-precio-input font-bold text-[#b88a73]" oninput="recalcularTotalesCaja(); guardarBorradorCaja()" onkeydown="enterEnCajaPrecio(event, this)"></td>
       <td class="p-1.5 text-center"><button onclick="document.getElementById('${rowId}').remove(); recalcularTotalesCaja(); guardarBorradorCaja()" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1 rounded text-xs"><i class="fa-solid fa-trash"></i></button></td>
     </tr>`);
   recalcularTotalesCaja();
@@ -1643,6 +1804,23 @@ function guardarBorradorCaja() {
     items.push({ desc: r.querySelector('.caja-desc-input').value, cant: r.querySelector('.caja-cant-input').value, precio: r.querySelector('.caja-precio-input').value });
   });
   localStorage.setItem('lan_borrador_caja', JSON.stringify(items));
+}
+
+function enterEnCajaDesc(e, el) { if (e.key === 'Enter') { e.preventDefault(); const row = el.closest('.caja-item-row'); if (row) row.querySelector('.caja-cant-input')?.focus(); } }
+function enterEnCajaCant(e, el) { if (e.key === 'Enter') { e.preventDefault(); const row = el.closest('.caja-item-row'); if (row) row.querySelector('.caja-precio-input')?.focus(); } }
+function enterEnCajaPrecio(e, el) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const row = el.closest('.caja-item-row');
+    const desc = row?.querySelector('.caja-desc-input')?.value.trim();
+    if (desc) { agregarItemCajaFila(); setTimeout(() => { const ult = document.querySelector('.caja-item-row:last-child .caja-desc-input'); if (ult) ult.focus(); }, 30); }
+  }
+}
+
+function focoBuscarProducto() {
+  const filas = document.querySelectorAll('.caja-item-row');
+  if (filas.length === 0) agregarItemCajaFila();
+  setTimeout(() => { const ult = document.querySelector('.caja-item-row:last-child .caja-desc-input'); if (ult) { ult.focus(); ult.select(); } }, 50);
 }
 
 function recalcularTotalesCaja() {
@@ -1702,6 +1880,7 @@ async function procesarPagoFinal() {
   const descuento = $('caja-descuento-pct').value || '0';
   const generarOT = $('caja-generar-ot').checked;
   const fechaEntregaOT = $('caja-ot-fecha-entrega').value;
+  let conceptoEdit = ($('caja-concepto')?.value || '').trim();
   if (totalUSD <= 0) { mostrarNotificacion("Factura vacía.", "error"); return; }
   let items = [];
   document.querySelectorAll('.caja-item-row').forEach(r => {
@@ -1711,6 +1890,7 @@ async function procesarPagoFinal() {
     if (d) items.push({ desc:d, cant:c, precio:p });
   });
   if (!items.length) { mostrarNotificacion("Añade al menos un ítem.", "error"); return; }
+  if (!conceptoEdit) conceptoEdit = items.map(i => `${i.cant}x ${i.desc}`).join(' + ');
   let metodos = [], totalAb = 0;
   document.querySelectorAll('.pago-item').forEach(it => {
     const m = it.querySelector('select').value;
@@ -1727,13 +1907,12 @@ async function procesarPagoFinal() {
     const ins = listaInsumosDB.find(i => i.nombre.toLowerCase().trim() === item.desc.toLowerCase().trim());
     if (ins) insumosAfectados.push({ insumo: ins, cantidad: item.cant });
   });
-  const concepto = items.map(i => `${i.cant}x ${i.desc}`).join(' + ');
   const metodosStr = metodos.join(' | ') || 'No especificado';
   const pagadoFull = totalAb >= totalUSD - 0.01;
   try {
     await db.collection('ventas').add({
       fechaISO: new Date().toISOString(), fecha: new Date().toLocaleDateString(),
-      cliente, concepto, total_usd: totalUSD, metodos_pago: metodosStr,
+      cliente, concepto: conceptoEdit, total_usd: totalUSD, metodos_pago: metodosStr,
       descuento: `${descuento}%`, notas,
       abonado: totalAb, estado_pago: pagadoFull ? 'Pagado' : (totalAb > 0 ? 'Abonado' : 'Pendiente'),
       ordenVinculada: ordenVinculadaCaja ? ordenVinculadaCaja.id : null,
@@ -1753,20 +1932,25 @@ async function procesarPagoFinal() {
       const o = listaOrdenesDB.find(x => x.id === ordenVinculadaCaja.id);
       if (o) {
         const nuevoAb = num(o.abonado) + totalAb;
-        const nuevoEstado = nuevoAb >= num(o.precio) - 0.01 ? 'Pagado' : (nuevoAb > 0 ? 'Abonado' : 'Pendiente');
-        await db.collection('ordenes').doc(o.id).update({
-          abonado: nuevoAb, estado_pago: nuevoEstado,
+        const nuevoEstadoPago = nuevoAb >= num(o.precio) - 0.01 ? 'Pagado' : (nuevoAb > 0 ? 'Abonado' : 'Pendiente');
+        const update = {
+          abonado: nuevoAb, estado_pago: nuevoEstadoPago,
           pagos: firebase.firestore.FieldValue.arrayUnion({
             fecha: new Date().toLocaleString(), monto: totalAb, metodo: metodosStr, nota: notas || '',
             usuario: usuarioActual ? usuarioActual.email : 'desconocido'
           })
-        });
+        };
+        if (o.estado === 'Cotización' && totalAb >= num(o.precio) - 0.01) {
+          update.estado = 'Pendiente';
+          update.historial = firebase.firestore.FieldValue.arrayUnion({ estado: 'Pendiente', fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' });
+        }
+        await db.collection('ordenes').doc(o.id).update(update);
         mostrarNotificacion(`¡Venta procesada! Abono aplicado a ${o.numero}.`);
       } else mostrarNotificacion("¡Venta procesada!");
     } else if (generarOT) {
-      const numero = await obtenerSiguienteNumeroOrden();
+      const numero = await obtenerSiguienteNumeroOrden('OT');
       await db.collection('ordenes').add({
-        numero, cliente, concepto, estado:'Pendiente', precio: totalUSD,
+        numero, cliente, concepto: conceptoEdit, estado:'Pendiente', precio: totalUSD,
         abonado: pagadoFull ? totalUSD : 0,
         estado_pago: pagadoFull ? 'Pagado' : 'Pendiente',
         fecha: new Date().toLocaleDateString(), fechaEntrega: fechaEntregaOT || '',
@@ -1777,12 +1961,13 @@ async function procesarPagoFinal() {
       });
       mostrarNotificacion(`Venta procesada + ${numero} creada.`);
     } else mostrarNotificacion("¡Venta procesada!");
-    ultimaVentaProcesada = { cliente, concepto, total_usd: totalUSD, metodos_pago: metodosStr, notas };
+    ultimaVentaProcesada = { cliente, concepto: conceptoEdit, total_usd: totalUSD, metodos_pago: metodosStr, notas };
   } catch(e) { console.error(e); mostrarNotificacion("Error.", "error"); return; }
   localStorage.removeItem('lan_borrador_caja');
   $('lista-items-caja').innerHTML = '';
   $('lista-pagos').innerHTML = '';
   $('caja-notas').value = '';
+  $('caja-concepto').value = '';
   $('caja-descuento-pct').value = '0';
   $('caja-generar-ot').checked = false;
   $('caja-ot-fecha-container').classList.add('hidden');
@@ -1792,21 +1977,10 @@ async function procesarPagoFinal() {
   switchTab('dashboard');
 }
 
-function vincularOrdenCaja(orden) {
-  ordenVinculadaCaja = orden;
-  const cont = $('caja-orden-vinculada'); const txt = $('caja-orden-txt');
-  if (cont && txt) { cont.classList.remove('hidden'); txt.innerText = `${orden.numero} — ${orden.cliente} — Total $${num(orden.precio).toFixed(2)} — Abonado $${num(orden.abonado).toFixed(2)}`; }
-}
-function desvincularOrdenCaja() {
-  ordenVinculadaCaja = null;
-  const cont = $('caja-orden-vinculada');
-  if (cont) cont.classList.add('hidden');
-}
-
 // ================= ÓRDENES =================
-async function obtenerSiguienteNumeroOrden() {
+async function obtenerSiguienteNumeroOrden(prefijo = 'OT') {
   const anio = new Date().getFullYear();
-  const ref = db.collection('contadores').doc('ordenes');
+  const ref = db.collection('contadores').doc(prefijo === 'COT' ? 'cotizaciones' : 'ordenes');
   try {
     return await db.runTransaction(async tx => {
       const d = await tx.get(ref);
@@ -1814,9 +1988,9 @@ async function obtenerSiguienteNumeroOrden() {
       if (d.exists && d.data().anio === anio) u = d.data().ultimo || 0;
       const n = u + 1;
       tx.set(ref, { ultimo: n, anio });
-      return `OT-${anio}-${String(n).padStart(4,'0')}`;
+      return `${prefijo}-${anio}-${String(n).padStart(4,'0')}`;
     });
-  } catch(e) { return `OT-${anio}-${Date.now().toString().slice(-4)}`; }
+  } catch(e) { return `${prefijo}-${anio}-${Date.now().toString().slice(-4)}`; }
 }
 
 function cargarOrdenes() { renderizarKanban(); renderizarTablaTrabajos(); actualizarBadges(); }
@@ -1824,6 +1998,13 @@ function cargarOrdenes() { renderizarKanban(); renderizarTablaTrabajos(); actual
 function ordenPasaFiltro(o) {
   const soloImpagos = $('filtro-solo-impagos')?.checked;
   if (soloImpagos) { const est = calcularEstadoPago(o); if (est === 'Pagado') return false; }
+  const soloVencidas = $('filtro-vencidas')?.checked;
+  if (soloVencidas) {
+    if (!o.fechaEntrega) return false;
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    const fe = new Date(o.fechaEntrega + 'T00:00:00');
+    if (fe >= hoy || o.estado === 'Entregado') return false;
+  }
   return true;
 }
 
@@ -1840,6 +2021,7 @@ function renderizarKanban() {
 
 function getBadgeEstado(est) {
   switch(est) {
+    case 'Cotización': return 'bg-amber-50 text-amber-700 border-amber-200';
     case 'Pendiente': return 'bg-amber-50 text-amber-700 border-amber-200';
     case 'En Diseño': return 'bg-blue-50 text-blue-700 border-blue-200';
     case 'En Impresión': return 'bg-purple-50 text-purple-700 border-purple-200';
@@ -1855,10 +2037,14 @@ function renderKanbanCard(o) {
   const bP = getBadgePago(pago);
   const restante = num(o.precio) - num(o.abonado);
   const txtPago = pago === 'Pagado' ? '' : `<span class="block text-[9px] font-bold text-rose-600 mt-0.5">Resta: $${restante.toFixed(2)}</span>`;
-  return `<div class="bg-white p-2.5 rounded-xl border border-[#e8dbd3] shadow-xs hover:shadow-md transition kanban-card relative group" draggable="true" data-orden-id="${o.id}">
+  const esCotizacion = o.estado === 'Cotización';
+  return `<div class="bg-white p-2.5 rounded-xl border ${esCotizacion ? 'border-amber-300' : 'border-[#e8dbd3]'} shadow-xs hover:shadow-md transition kanban-card relative" draggable="true" data-orden-id="${o.id}">
       <div class="flex justify-between items-start mb-1 gap-1">
-        <span class="text-[10px] font-bold text-[#b88a73] cursor-pointer" onclick='verDetalleOrden(${j})'>${o.numero||'S/N'}</span>
-        <span class="text-[9px] px-1.5 py-0.5 rounded-full border ${bP.cls} font-bold whitespace-nowrap"><i class="fa-solid ${bP.icon} mr-0.5"></i>${bP.txt}</span>
+        <span class="text-[10px] font-bold ${esCotizacion ? 'text-amber-700' : 'text-[#b88a73]'} cursor-pointer" onclick='verDetalleOrden(${j})'>${o.numero||'S/N'}</span>
+        <div class="flex items-center gap-0.5">
+          <span class="text-[9px] px-1.5 py-0.5 rounded-full border ${bP.cls} font-bold whitespace-nowrap"><i class="fa-solid ${bP.icon} mr-0.5"></i>${bP.txt}</span>
+          <button onclick='toggleCardMenu("${o.id}", event)' class="card-menu-btn bg-gray-100 hover:bg-gray-200 text-gray-600" title="Más acciones"><i class="fa-solid fa-ellipsis text-[10px]"></i></button>
+        </div>
       </div>
       <p class="text-xs font-semibold truncate mb-1 cursor-pointer" onclick='verDetalleOrden(${j})'>${o.concepto}</p>
       <p class="text-[10px] text-gray-500 truncate cursor-pointer" onclick='verDetalleOrden(${j})'><i class="fa-solid fa-user mr-1"></i>${o.cliente}</p>
@@ -1867,12 +2053,76 @@ function renderKanbanCard(o) {
         <span class="text-[10px] font-bold text-[#b88a73]">$${parseFloat(o.precio||0).toFixed(2)}</span>
       </div>
       ${txtPago}
-      <div class="flex justify-end gap-1 mt-2 pt-2 border-t border-[#f0ebe6]">
-        <button onclick='event.stopPropagation(); verDetalleOrden(${j})' class="flex-1 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 py-1 rounded-lg text-[10px] font-bold transition" title="Ver detalle"><i class="fa-solid fa-eye"></i> Ver</button>
-        <button onclick='event.stopPropagation(); editarOrden("${o.id}")' class="flex-1 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 py-1 rounded-lg text-[10px] font-bold transition" title="Editar"><i class="fa-solid fa-pen"></i> Editar</button>
-        <button onclick='event.stopPropagation(); eliminarOrden("${o.id}")' class="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 py-1 rounded-lg text-[10px] font-bold transition" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-      </div>
+      ${esCotizacion ? `<button onclick='event.stopPropagation(); aceptarCotizacionYProducto("${o.id}")' class="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white py-1 rounded-lg text-[10px] font-bold transition"><i class="fa-solid fa-play mr-1"></i>Aceptar y producir</button>` : ''}
     </div>`;
+}
+
+function toggleCardMenu(ordenId, event) {
+  if (event) event.stopPropagation();
+  document.querySelectorAll('.card-menu').forEach(m => m.remove());
+  const o = listaOrdenesDB.find(x => x.id === ordenId);
+  if (!o) return;
+  const menu = document.createElement('div');
+  menu.className = 'card-menu bg-white border border-[#e8dbd3] rounded-xl shadow-2xl p-1.5 space-y-0.5';
+  menu.style.minWidth = '180px';
+  const rect = event.currentTarget.getBoundingClientRect();
+  const left = Math.min(rect.left, window.innerWidth - 200);
+  const top = rect.bottom + 4;
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
+  const escO = JSON.stringify(o).replace(/'/g,"&#39;").replace(/"/g,'&quot;');
+  menu.innerHTML = `
+    <button onclick='event.stopPropagation(); verDetalleOrden(${escO}); document.querySelectorAll(".card-menu").forEach(m=>m.remove())' class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#faf8f6] text-xs flex items-center gap-2"><i class="fa-solid fa-eye text-sky-600 w-4"></i>Ver detalle</button>
+    <button onclick='event.stopPropagation(); editarOrden("${o.id}"); document.querySelectorAll(".card-menu").forEach(m=>m.remove())' class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#faf8f6] text-xs flex items-center gap-2"><i class="fa-solid fa-pen text-amber-600 w-4"></i>Editar</button>
+    ${o.estado === 'Cotización' ? `<button onclick='event.stopPropagation(); aceptarCotizacionYProducto("${o.id}"); document.querySelectorAll(".card-menu").forEach(m=>m.remove())' class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-50 text-xs flex items-center gap-2 text-emerald-700 font-semibold"><i class="fa-solid fa-play w-4"></i>Aceptar y producir</button>` : ''}
+    ${calcularEstadoPago(o) !== 'Pagado' ? `<button onclick='event.stopPropagation(); cobrarRestanteAhora("${o.id}"); document.querySelectorAll(".card-menu").forEach(m=>m.remove())' class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-50 text-xs flex items-center gap-2 text-emerald-700"><i class="fa-solid fa-money-bill-wave w-4"></i>Cobrar restante</button>` : ''}
+    <hr class="border-[#e8dbd3] my-0.5">
+    <button onclick='event.stopPropagation(); eliminarOrden("${o.id}"); document.querySelectorAll(".card-menu").forEach(m=>m.remove())' class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-rose-50 text-xs flex items-center gap-2 text-rose-600"><i class="fa-solid fa-trash w-4"></i>Eliminar</button>
+  `;
+  document.body.appendChild(menu);
+  setTimeout(() => {
+    const closeMenu = (ev) => {
+      if (!menu.contains(ev.target)) { menu.remove(); document.removeEventListener('click', closeMenu); }
+    };
+    document.addEventListener('click', closeMenu);
+  }, 10);
+}
+
+async function aceptarCotizacionYProducto(id) {
+  const o = listaOrdenesDB.find(x => x.id === id);
+  if (!o) return;
+  const ok = await confirmarAccion('Convertir cotización en orden', `Se generará una OT a partir de ${o.numero} y pasará a producción.`, 'Aceptar y producir', 'warning');
+  if (!ok) return;
+  try {
+    const nuevaOt = await obtenerSiguienteNumeroOrden('OT');
+    await db.collection('ordenes').doc(id).update({
+      numero: nuevaOt,
+      estado: 'Pendiente',
+      historial: firebase.firestore.FieldValue.arrayUnion({ estado: 'Pendiente', fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' })
+    });
+    mostrarNotificacion(`¡Cotización aceptada! Nueva ${nuevaOt}.`);
+  } catch(e) { mostrarNotificacion("Error.", "error"); }
+}
+
+async function cobrarRestanteAhora(ordenId) {
+  const o = listaOrdenesDB.find(x => x.id === ordenId);
+  if (!o) return;
+  const restante = Math.max(0, num(o.precio) - num(o.abonado));
+  if (restante <= 0) { mostrarNotificacion("Esta orden ya está pagada.", "error"); return; }
+  const ok = await confirmarAccion('Cobrar restante', `Registrar pago completo de $${restante.toFixed(2)} (método: Efectivo $)?`, 'Cobrar', 'warning');
+  if (!ok) return;
+  try {
+    const nuevoAb = num(o.abonado) + restante;
+    await db.collection('ordenes').doc(ordenId).update({
+      abonado: nuevoAb, estado_pago: 'Pagado',
+      pagos: firebase.firestore.FieldValue.arrayUnion({
+        fecha: new Date().toLocaleString(), monto: restante, metodo: 'Efectivo USD', nota: 'Cobro del restante completo',
+        usuario: usuarioActual ? usuarioActual.email : 'desconocido'
+      })
+    });
+    mostrarNotificacion(`Cobrado. Orden ahora PAGADA.`);
+    cerrarModalVerOrden();
+  } catch(e) { mostrarNotificacion("Error.", "error"); }
 }
 
 function renderizarTablaTrabajos() {
@@ -1891,8 +2141,9 @@ function renderizarTablaTrabajos() {
         <td class="p-2"><span class="px-2 py-0.5 rounded-full border text-[10px] font-semibold ${bP.cls}"><i class="fa-solid ${bP.icon} mr-1"></i>${bP.txt}</span></td>
         <td class="p-2 text-xs">${o.fechaEntrega||'-'}</td>
         <td class="p-2 text-center whitespace-nowrap">
-          <button onclick='verDetalleOrden(${j})' class="bg-gray-100 hover:bg-sky-100 text-sky-700 p-1.5 rounded-xl text-xs mr-0.5"><i class="fa-solid fa-eye"></i></button>
-          <button onclick='eliminarOrden("${o.id}")' class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1.5 rounded-xl text-xs"><i class="fa-solid fa-trash"></i></button>
+          <button onclick='verDetalleOrden(${j})' class="bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 px-2 py-1 rounded-lg text-[10px] font-bold mr-0.5" title="Ver"><i class="fa-solid fa-eye mr-1"></i>Ver</button>
+          <button onclick='editarOrden("${o.id}")' class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-2 py-1 rounded-lg text-[10px] font-bold mr-0.5" title="Editar"><i class="fa-solid fa-pen mr-1"></i>Editar</button>
+          <button onclick='eliminarOrden("${o.id}")' class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-2 py-1 rounded-lg text-[10px] font-bold" title="Eliminar"><i class="fa-solid fa-trash mr-1"></i>Eliminar</button>
         </td>
       </tr>`;
   });
@@ -1930,7 +2181,7 @@ document.addEventListener('drop', async e => {
 async function cambiarEstadoOrden(id, ne) {
   const o = listaOrdenesDB.find(x => x.id === id);
   if (!o || o.estado === ne) return;
-  const ok = await confirmarAccion('Cambiar estado', `¿Mover orden ${o.numero} de "${o.estado}" a "${ne}"?`, 'Confirmar', 'warning');
+  const ok = await confirmarAccion('Cambiar estado', `¿Mover ${o.numero} de "${o.estado}" a "${ne}"?`, 'Confirmar', 'warning');
   if (!ok) return;
   try {
     await db.collection('ordenes').doc(id).update({ estado: ne, historial: firebase.firestore.FieldValue.arrayUnion({ estado: ne, fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' }) });
@@ -1939,6 +2190,9 @@ async function cambiarEstadoOrden(id, ne) {
 }
 
 function abrirModalNuevaOrden() {
+  editandoOrdenId = null;
+  $('modal-orden-titulo').innerHTML = '<i class="fa-solid fa-clipboard-list mr-2 text-[#b88a73]"></i>Nueva Orden';
+  $('modal-orden-btn').innerHTML = '<i class="fa-solid fa-check"></i><span>Crear</span>';
   $('orden-cliente').value = 'Cliente General';
   $('orden-concepto').value = '';
   $('orden-estado').value = 'Pendiente';
@@ -1948,14 +2202,40 @@ function abrirModalNuevaOrden() {
   $('orden-fecha-entrega').value = h2.toISOString().split('T')[0];
   $('orden-notas').value = '';
   document.querySelectorAll('input[name="orden-pago-inicial"]').forEach(r => { r.checked = r.value === 'Pendiente'; });
+  const bloque = document.querySelector('input[name="orden-pago-inicial"]')?.closest('.bg-amber-50');
+  if (bloque) bloque.classList.remove('hidden');
   $('modal-orden-error').classList.add('hidden');
   const sel = $('orden-cliente');
   sel.innerHTML = '<option value="Cliente General">-- Cliente General --</option>';
   listaClientesDB.forEach(c => { sel.innerHTML += `<option value="${c.nombre}">${c.nombre} (${c.tel||'Sin telf'})</option>`; });
   $('modal-nueva-orden').classList.remove('hidden');
+  setTimeout(() => $('orden-concepto').focus(), 100);
 }
 
-function cerrarModalNuevaOrden() { $('modal-nueva-orden').classList.add('hidden'); }
+function editarOrden(id) {
+  const o = listaOrdenesDB.find(x => x.id === id);
+  if (!o) { mostrarNotificacion("Orden no encontrada.", "error"); return; }
+  editandoOrdenId = id;
+  $('modal-orden-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square mr-2 text-[#b88a73]"></i>Editar ${o.numero||'Orden'}`;
+  $('modal-orden-btn').innerHTML = '<i class="fa-solid fa-check"></i><span>Guardar cambios</span>';
+  const sel = $('orden-cliente');
+  sel.innerHTML = '<option value="Cliente General">-- Cliente General --</option>';
+  listaClientesDB.forEach(c => { sel.innerHTML += `<option value="${c.nombre}">${c.nombre} (${c.tel||'Sin telf'})</option>`; });
+  sel.value = o.cliente || 'Cliente General';
+  if (sel.value !== (o.cliente || 'Cliente General')) { sel.innerHTML += `<option value="${o.cliente}">${o.cliente}</option>`; sel.value = o.cliente; }
+  $('orden-concepto').value = o.concepto || '';
+  $('orden-estado').value = o.estado || 'Pendiente';
+  $('orden-precio').value = parseFloat(o.precio || 0).toFixed(2);
+  $('orden-fecha-creacion').value = o.fecha || '';
+  $('orden-fecha-entrega').value = o.fechaEntrega || '';
+  $('orden-notas').value = o.notas || '';
+  const bloque = document.querySelector('input[name="orden-pago-inicial"]')?.closest('.bg-amber-50');
+  if (bloque) bloque.classList.add('hidden');
+  $('modal-orden-error').classList.add('hidden');
+  $('modal-nueva-orden').classList.remove('hidden');
+}
+
+function cerrarModalNuevaOrden() { $('modal-nueva-orden').classList.add('hidden'); editandoOrdenId = null; }
 
 async function guardarOrdenDesdeModal() {
   const cliente = $('orden-cliente').value;
@@ -1965,10 +2245,25 @@ async function guardarOrdenDesdeModal() {
   const fc = $('orden-fecha-creacion').value;
   const fe = $('orden-fecha-entrega').value;
   const notas = $('orden-notas').value.trim();
-  const pagoIni = document.querySelector('input[name="orden-pago-inicial"]:checked')?.value || 'Pendiente';
   if (!concepto) { $('modal-orden-error-text').innerText = 'Concepto obligatorio.'; $('modal-orden-error').classList.remove('hidden'); return; }
+  if (editandoOrdenId) {
+    const o = listaOrdenesDB.find(x => x.id === editandoOrdenId);
+    if (!o) { $('modal-orden-error-text').innerText = 'Orden no encontrada.'; $('modal-orden-error').classList.remove('hidden'); return; }
+    try {
+      const update = { cliente, concepto, estado, precio, fecha: fc, fechaEntrega: fe, notas };
+      const abonado = num(o.abonado);
+      if (precio !== num(o.precio)) update.estado_pago = abonado >= precio - 0.01 ? 'Pagado' : (abonado > 0 ? 'Abonado' : 'Pendiente');
+      if (estado !== o.estado) update.historial = firebase.firestore.FieldValue.arrayUnion({ estado, fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' });
+      await db.collection('ordenes').doc(editandoOrdenId).update(update);
+      mostrarNotificacion(`Orden ${o.numero} actualizada.`);
+      cerrarModalNuevaOrden();
+    } catch(e) { console.error(e); $('modal-orden-error-text').innerText = 'Error.'; $('modal-orden-error').classList.remove('hidden'); }
+    return;
+  }
+  const pagoIni = document.querySelector('input[name="orden-pago-inicial"]:checked')?.value || 'Pendiente';
   try {
-    const numero = await obtenerSiguienteNumeroOrden();
+    const prefijo = estado === 'Cotización' ? 'COT' : 'OT';
+    const numero = await obtenerSiguienteNumeroOrden(prefijo);
     const abonadoIni = pagoIni === 'Pagado' ? precio : 0;
     await db.collection('ordenes').add({
       numero, cliente, concepto, estado, precio, abonado: abonadoIni, estado_pago: pagoIni,
@@ -1978,7 +2273,7 @@ async function guardarOrdenDesdeModal() {
       historial: [{ estado, fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' }],
       pagos: pagoIni === 'Pagado' ? [{ fecha: new Date().toLocaleString(), monto: precio, metodo: 'Registro inicial', nota: 'Creada como pagada', usuario: usuarioActual ? usuarioActual.email : 'desconocido' }] : []
     });
-    mostrarNotificacion(`¡Orden ${numero} creada!`);
+    mostrarNotificacion(`¡${prefijo} ${numero} creada!`);
     cerrarModalNuevaOrden();
   } catch(e) { $('modal-orden-error-text').innerText = 'Error.'; $('modal-orden-error').classList.remove('hidden'); }
 }
@@ -1986,6 +2281,8 @@ async function guardarOrdenDesdeModal() {
 function verDetalleOrden(o) {
   ordenActualDetalle = o;
   $('modal-ver-orden-titulo').innerHTML = `<i class="fa-solid fa-clipboard-check mr-2 text-[#b88a73]"></i> ${o.numero || 'Orden'}`;
+  const btnEditar = $('btn-editar-orden-modal');
+  if (btnEditar) { btnEditar.classList.remove('hidden'); btnEditar.onclick = () => { cerrarModalVerOrden(); editarOrden(o.id); }; }
   let hist = '';
   if (Array.isArray(o.historial) && o.historial.length) hist = o.historial.map(h => `<div class="flex justify-between text-[10px] py-1 border-b border-gray-100"><span class="font-semibold">${h.estado}</span><span class="text-gray-500">${h.fecha}</span></div>`).join('');
   else hist = '<p class="text-[10px] text-gray-400 italic">Sin historial.</p>';
@@ -2005,6 +2302,8 @@ function verDetalleOrden(o) {
     pagosHTML += '</div>';
   }
 
+  const esCotizacion = o.estado === 'Cotización';
+
   $('contenido-ver-orden').innerHTML = `
     <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3] space-y-1.5">
       <div class="flex justify-between"><span class="text-gray-500">Cliente:</span><span class="font-bold">${o.cliente}</span></div>
@@ -2014,6 +2313,8 @@ function verDetalleOrden(o) {
       <div class="flex justify-between"><span class="text-gray-500">Entrega:</span><span class="font-semibold">${o.fechaEntrega||'-'}</span></div>
       ${o.notas ? `<div class="pt-1.5 border-t border-[#e8dbd3]"><span class="text-gray-500 block mb-0.5">Notas:</span><p class="text-[11px]">${o.notas}</p></div>` : ''}
     </div>
+
+    ${esCotizacion ? `<div class="bg-emerald-50 p-3 rounded-xl border-2 border-emerald-200"><button onclick='aceptarCotizacionYProducto("${o.id}")' class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs transition"><i class="fa-solid fa-play mr-2"></i>Aceptar cotización y pasar a producción</button></div>` : ''}
 
     <div class="bg-amber-50 p-3 rounded-xl border-2 border-amber-200 space-y-2">
       <div class="flex justify-between items-center">
@@ -2027,7 +2328,8 @@ function verDetalleOrden(o) {
       </div>
       <div class="flex flex-wrap gap-1.5">
         ${pago !== 'Pagado' ? `<button onclick='abrirModalPagoOrden("${o.id}")' class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded-lg font-bold text-[10px] transition"><i class="fa-solid fa-plus mr-1"></i>Registrar pago</button>` : ''}
-        ${pago !== 'Pagado' ? `<button onclick='cobrarDesdeOrden("${o.id}")' class="flex-1 bg-[#b88a73] hover:bg-[#a67963] text-white py-1.5 rounded-lg font-bold text-[10px] transition"><i class="fa-solid fa-cash-register mr-1"></i>Cobrar ahora</button>` : ''}
+        ${pago !== 'Pagado' ? `<button onclick='cobrarDesdeOrden("${o.id}")' class="flex-1 bg-[#b88a73] hover:bg-[#a67963] text-white py-1.5 rounded-lg font-bold text-[10px] transition"><i class="fa-solid fa-cash-register mr-1"></i>Cobrar en Caja</button>` : ''}
+        ${pago !== 'Pagado' ? `<button onclick='cobrarRestanteAhora("${o.id}")' class="flex-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 py-1.5 rounded-lg font-bold text-[10px] transition"><i class="fa-solid fa-bolt mr-1"></i>Cobrar restante</button>` : ''}
         ${pago === 'Pagado' ? `<button onclick='marcarNoPagada("${o.id}")' class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-1.5 rounded-lg font-bold text-[10px] transition"><i class="fa-solid fa-rotate-left mr-1"></i>Marcar como no pagada</button>` : ''}
       </div>
       ${pagosHTML}
@@ -2040,17 +2342,21 @@ function verDetalleOrden(o) {
 
     <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
       <label class="block text-[10px] font-bold uppercase text-gray-500 mb-1.5">Cambiar estado rápido</label>
-      <div class="grid grid-cols-5 gap-1.5">${ESTADOS_ORDEN.map(e => `<button onclick="cambiarEstadoOrdenDesdeModal('${o.id}','${e}')" class="text-[10px] px-1 py-1.5 rounded-lg border font-semibold ${e===o.estado?'bg-[#2c2c2c] text-white':'bg-white text-gray-700 border-[#e8dbd3] hover:bg-gray-50'}">${e}</button>`).join('')}</div>
+      <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5">${ESTADOS_ORDEN.map(e => `<button onclick="cambiarEstadoOrdenDesdeModal('${o.id}','${e}')" class="text-[10px] px-1 py-1.5 rounded-lg border font-semibold ${e===o.estado?'bg-[#2c2c2c] text-white':'bg-white text-gray-700 border-[#e8dbd3] hover:bg-gray-50'}">${e}</button>`).join('')}</div>
     </div>`;
   $('modal-ver-orden').classList.remove('hidden');
 }
 
+function editarOrdenActualModal() { if (ordenActualDetalle) { cerrarModalVerOrden(); editarOrden(ordenActualDetalle.id); } }
+
 async function cambiarEstadoOrdenDesdeModal(id, e) { await cambiarEstadoOrden(id, e); cerrarModalVerOrden(); }
 function cerrarModalVerOrden() { $('modal-ver-orden').classList.add('hidden'); ordenActualDetalle = null; }
 async function eliminarOrden(id) {
-  const ok = await confirmarAccion('¿Eliminar orden?', 'No se puede deshacer.', 'Eliminar', 'danger');
+  const o = listaOrdenesDB.find(x => x.id === id);
+  if (!o) return;
+  const ok = await confirmarAccion('¿Eliminar?', `Se eliminará ${o.numero||'la orden'} (${o.cliente}). No se puede deshacer.`, 'Eliminar', 'danger');
   if (!ok) return;
-  try { await db.collection('ordenes').doc(id).delete(); mostrarNotificacion("Eliminada."); } catch(e){}
+  try { await db.collection('ordenes').doc(id).delete(); mostrarNotificacion("Eliminada."); } catch(e){ mostrarNotificacion("Error.", "error"); }
 }
 
 function abrirModalPagoOrden(ordenId) {
@@ -2070,6 +2376,7 @@ function abrirModalPagoOrden(ordenId) {
   $('mp-nota').value = '';
   $('mp-error').classList.add('hidden');
   $('modal-pago-orden').classList.remove('hidden');
+  setTimeout(() => $('mp-monto').focus(), 100);
 }
 function cerrarModalPagoOrden() { $('modal-pago-orden').classList.add('hidden'); ordenPagandoActual = null; }
 
@@ -2108,7 +2415,7 @@ async function confirmarPagoOrden() {
     mostrarNotificacion(`Pago registrado. Estado: ${nuevoEstado}`);
     cerrarModalPagoOrden();
     cerrarModalVerOrden();
-  } catch(e) { $('mp-error-text').innerText = 'Error al guardar pago.'; $('mp-error').classList.remove('hidden'); }
+  } catch(e) { $('mp-error-text').innerText = 'Error.'; $('mp-error').classList.remove('hidden'); }
 }
 
 async function marcarNoPagada(id) {
@@ -2129,9 +2436,11 @@ function cobrarDesdeOrden(id) {
   cerrarModalVerOrden();
   switchTab('caja');
   setTimeout(() => {
+    cambiarModoCaja(o.estado === 'Cotización' ? 'cotizacion' : 'orden');
     vincularOrdenCaja(o);
     const sel = $('caja-cliente'); if (sel) sel.value = o.cliente;
-    const tb = $('lista-items-caja'); tb.innerHTML = '';
+    const concepto = $('caja-concepto'); if (concepto) concepto.value = o.concepto || '';
+    const tb = $('lista-items-caja'); if (tb) tb.innerHTML = '';
     const restante = Math.max(0, num(o.precio) - num(o.abonado));
     if (Array.isArray(o.items) && o.items.length) {
       o.items.forEach(it => agregarItemCajaFila(it.desc || it.nombre, it.cant || 1, it.precio || 0));
@@ -2139,72 +2448,8 @@ function cobrarDesdeOrden(id) {
       agregarItemCajaFila(o.concepto, 1, restante.toFixed(2));
     }
     recalcularTotalesCaja();
-    mostrarNotificacion(`Cobrando ${o.numero}. Registra el pago y guarda la venta.`);
-  }, 200);
-}
-
-// ================= STAND BY =================
-async function cargarStandBy() {
-  const tb = $('tabla-standby'); if (!tb) return;
-  try {
-    const s = await db.collection('standby').get();
-    let arr = []; s.forEach(d => arr.push({ id:d.id, ...d.data() }));
-    tb.innerHTML = arr.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin cotizaciones.</td></tr>';
-    arr.forEach(c => {
-      let resumen = '';
-      try { const p = JSON.parse(c.items); if (Array.isArray(p)) resumen = p.map(i => `${i.cant}x ${i.nombre}`).join(', '); } catch(e){}
-      const j = JSON.stringify(c).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-      tb.innerHTML += `<tr class="border-b border-[#e8dbd3]">
-          <td class="p-2 text-xs">${c.created_at||''}</td>
-          <td class="p-2 font-semibold">${c.cliente}</td>
-          <td class="p-2 text-xs text-gray-600 max-w-xs truncate">${resumen}</td>
-          <td class="p-2 font-bold text-[#b88a73]">$${parseFloat(c.total_usd||0).toFixed(2)}</td>
-          <td class="p-2 text-center whitespace-nowrap">
-            <button onclick='cargarStandByACotizador(${j})' class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-1.5 rounded-xl text-xs mr-0.5"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button onclick='standByACaja(${j})' class="bg-gray-100 hover:bg-emerald-100 text-emerald-700 p-1.5 rounded-xl text-xs mr-0.5"><i class="fa-solid fa-cash-register"></i></button>
-            <button onclick="eliminarStandBy('${c.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1.5 rounded-xl text-xs"><i class="fa-solid fa-trash"></i></button>
-          </td>
-        </tr>`;
-    });
-    const dS = $('dash-standby'); if (dS) dS.innerText = arr.length;
-  } catch(e) { tb.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-500">Error.</td></tr>'; }
-}
-
-function cargarStandByACotizador(c) {
-  switchTab('cotizador');
-  setTimeout(() => {
-    try {
-      const items = JSON.parse(c.items);
-      itemsPresupuesto = items;
-      renderizarItemsPresupuesto();
-      const sel = $('presupuesto-cliente'); if (sel) sel.value = c.cliente;
-      const v = $('presupuesto-validez'); if (v) v.value = c.validez || '7 días hábiles';
-      mostrarNotificacion("Cotización cargada.");
-    } catch(e) { mostrarNotificacion("Error al cargar.", "error"); }
-  }, 200);
-}
-
-function standByACaja(c) {
-  switchTab('caja');
-  setTimeout(() => {
-    const sel = $('caja-cliente'); if (sel) sel.value = c.cliente;
-    const tb = $('lista-items-caja'); tb.innerHTML = '';
-    try {
-      const items = JSON.parse(c.items);
-      items.forEach(it => {
-        const p = it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100);
-        agregarItemCajaFila(it.nombre, it.cant, (p/it.cant).toFixed(2));
-      });
-    } catch(e) { agregarItemCajaFila('Cotización', 1, c.total_usd); }
-    recalcularTotalesCaja();
-    mostrarNotificacion("Ítems cargados en Caja.");
-  }, 200);
-}
-
-async function eliminarStandBy(id) {
-  const ok = await confirmarAccion('¿Eliminar cotización?', 'No se puede deshacer.', 'Eliminar', 'danger');
-  if (!ok) return;
-  try { await db.collection('standby').doc(id).delete(); cargarStandBy(); mostrarNotificacion("Eliminada."); } catch(e){}
+    mostrarNotificacion(`Cobrando ${o.numero}.`);
+  }, 250);
 }
 
 // ================= DASHBOARD =================
@@ -2224,6 +2469,7 @@ async function cargarDashboard() {
 
   let porCobrar = 0, countPorCobrar = 0;
   listaOrdenesDB.forEach(o => {
+    if (o.estado === 'Cotización') return;
     const est = calcularEstadoPago(o);
     if (est !== 'Pagado') {
       const restante = Math.max(0, num(o.precio) - num(o.abonado));
@@ -2474,7 +2720,6 @@ async function verHistorialCliente(nombre) {
     vS.forEach(d => vA.push(d.data())); sS.forEach(d => sA.push(d.data())); oS.forEach(d => oA.push(d.data()));
     if (vA.length) { html += '<h4 class="font-bold border-b pb-1 mb-2">Ventas</h4><div class="space-y-1.5 mb-3">'; vA.forEach(v => html += `<div class="bg-[#faf8f6] p-2 rounded-xl border border-[#e8dbd3] flex justify-between"><div><p class="font-bold">${v.concepto}</p><p class="text-[10px] text-gray-500">${v.fecha||''}</p></div><span class="font-extrabold text-[#b88a73]">$${parseFloat(v.total_usd).toFixed(2)}</span></div>`); html += '</div>'; }
     if (oA.length) { html += '<h4 class="font-bold border-b pb-1 mb-2">Órdenes</h4><div class="space-y-1.5 mb-3">'; oA.forEach(o => html += `<div class="bg-[#faf8f6] p-2 rounded-xl border border-[#e8dbd3] flex justify-between"><div><p class="font-bold">${o.numero||'OT'}</p><p class="text-[10px] text-gray-500">${o.estado}</p></div><span class="font-extrabold text-sky-600">$${parseFloat(o.precio||0).toFixed(2)}</span></div>`); html += '</div>'; }
-    if (sA.length) { html += '<h4 class="font-bold border-b pb-1 mb-2">Stand By</h4><div class="space-y-1.5">'; sA.forEach(s => html += `<div class="bg-[#faf8f6] p-2 rounded-xl border border-[#e8dbd3] flex justify-between"><p class="font-bold">Cotización</p><span class="font-extrabold text-amber-600">$${parseFloat(s.total_usd).toFixed(2)}</span></div>`); html += '</div>'; }
     if (!html) html = '<p class="text-center text-gray-400 py-4">Sin transacciones.</p>';
     cont.innerHTML = html;
   } catch(e) { cont.innerHTML = '<p class="text-center text-rose-500">Error.</p>'; }
@@ -2857,6 +3102,65 @@ function exportarBalancePDF() {
   </div>`;
   imprimirComoPDF(html, `Balance_${fecha.replace(/\//g,'-')}`);
 }
+
+// ================= ATAJOS DE TECLADO =================
+document.addEventListener('keydown', e => {
+  const enInput = ['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName);
+  const conAlt = e.altKey;
+  const conCtrl = e.ctrlKey || e.metaKey;
+
+  // Alt + 1..6: cambio de tab
+  if (conAlt && !conCtrl && e.key >= '1' && e.key <= '6') {
+    e.preventDefault();
+    const tabs = ['dashboard','cotizador','trabajos','caja','ventas','admin'];
+    switchTab(tabs[parseInt(e.key)-1]);
+    return;
+  }
+
+  // Alt + N
+  if (conAlt && (e.key === 'n' || e.key === 'N')) {
+    e.preventDefault();
+    const tabActivo = document.querySelector('.tab-btn.tab-active')?.id || '';
+    if (tabActivo.includes('trabajos')) abrirModalNuevaOrden();
+    else if (tabActivo.includes('caja')) { cambiarModoCaja('rapida'); focoBuscarProducto(); }
+    else switchTab('trabajos');
+    return;
+  }
+
+  // Alt + S
+  if (conAlt && (e.key === 's' || e.key === 'S')) {
+    if (!$('module-caja')?.classList.contains('hidden')) { e.preventDefault(); procesarPagoFinal(); }
+    return;
+  }
+
+  // Alt + C
+  if (conAlt && (e.key === 'c' || e.key === 'C')) {
+    e.preventDefault();
+    switchTab('cotizador');
+    return;
+  }
+
+  // Ctrl + K: buscar productos en caja
+  if (conCtrl && (e.key === 'k' || e.key === 'K')) {
+    e.preventDefault();
+    if ($('module-caja').classList.contains('hidden')) switchTab('caja');
+    setTimeout(() => focoBuscarProducto(), 100);
+    return;
+  }
+
+  // Esc: cerrar menús
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.card-menu').forEach(m => m.remove());
+  }
+});
+
+// Fechas inteligentes: aceptar "hoy", "mañana", "+2" cuando se escribe en un input de fecha
+document.addEventListener('input', e => {
+  if (e.target?.classList?.contains('fecha-inteligente')) {
+    const parse = parsearFechaInteligente(e.target.value);
+    if (parse) e.target.value = parse;
+  }
+});
 
 // ================= INIT =================
 auth.onAuthStateChanged(async user => {

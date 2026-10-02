@@ -1855,18 +1855,23 @@ function renderKanbanCard(o) {
   const bP = getBadgePago(pago);
   const restante = num(o.precio) - num(o.abonado);
   const txtPago = pago === 'Pagado' ? '' : `<span class="block text-[9px] font-bold text-rose-600 mt-0.5">Resta: $${restante.toFixed(2)}</span>`;
-  return `<div class="bg-white p-2.5 rounded-xl border border-[#e8dbd3] shadow-xs hover:shadow-md transition cursor-pointer kanban-card" draggable="true" data-orden-id="${o.id}" onclick='verDetalleOrden(${j})'>
+  return `<div class="bg-white p-2.5 rounded-xl border border-[#e8dbd3] shadow-xs hover:shadow-md transition kanban-card relative group" draggable="true" data-orden-id="${o.id}">
       <div class="flex justify-between items-start mb-1 gap-1">
-        <span class="text-[10px] font-bold text-[#b88a73]">${o.numero||'S/N'}</span>
+        <span class="text-[10px] font-bold text-[#b88a73] cursor-pointer" onclick='verDetalleOrden(${j})'>${o.numero||'S/N'}</span>
         <span class="text-[9px] px-1.5 py-0.5 rounded-full border ${bP.cls} font-bold whitespace-nowrap"><i class="fa-solid ${bP.icon} mr-0.5"></i>${bP.txt}</span>
       </div>
-      <p class="text-xs font-semibold truncate mb-1">${o.concepto}</p>
-      <p class="text-[10px] text-gray-500 truncate"><i class="fa-solid fa-user mr-1"></i>${o.cliente}</p>
+      <p class="text-xs font-semibold truncate mb-1 cursor-pointer" onclick='verDetalleOrden(${j})'>${o.concepto}</p>
+      <p class="text-[10px] text-gray-500 truncate cursor-pointer" onclick='verDetalleOrden(${j})'><i class="fa-solid fa-user mr-1"></i>${o.cliente}</p>
       <div class="flex justify-between items-center mt-1.5 pt-1.5 border-t border-[#f0ebe6]">
         <span class="text-[9px] text-gray-400">${o.fechaEntrega?'📅 '+o.fechaEntrega:'Sin fecha'}</span>
         <span class="text-[10px] font-bold text-[#b88a73]">$${parseFloat(o.precio||0).toFixed(2)}</span>
       </div>
       ${txtPago}
+      <div class="flex justify-end gap-1 mt-2 pt-2 border-t border-[#f0ebe6]">
+        <button onclick='event.stopPropagation(); verDetalleOrden(${j})' class="flex-1 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 py-1 rounded-lg text-[10px] font-bold transition" title="Ver detalle"><i class="fa-solid fa-eye"></i> Ver</button>
+        <button onclick='event.stopPropagation(); editarOrden("${o.id}")' class="flex-1 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 py-1 rounded-lg text-[10px] font-bold transition" title="Editar"><i class="fa-solid fa-pen"></i> Editar</button>
+        <button onclick='event.stopPropagation(); eliminarOrden("${o.id}")' class="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 py-1 rounded-lg text-[10px] font-bold transition" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+      </div>
     </div>`;
 }
 

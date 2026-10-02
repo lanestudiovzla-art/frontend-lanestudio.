@@ -264,10 +264,7 @@
         <button onclick="abrirArqueoCaja()" class="bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2.5 py-1 rounded-xl text-xs font-bold flex items-center space-x-1"><i class="fa-solid fa-scale-balanced text-[#b88a73]"></i><span>Arqueo</span></button>
       </div>
       <div id="caja-orden-vinculada" class="hidden bg-sky-50 border border-sky-200 rounded-xl p-2.5 flex items-center justify-between">
-        <div class="flex items-center gap-2 text-xs">
-          <i class="fa-solid fa-link text-sky-600"></i>
-          <span class="text-sky-800">Cobrando orden: <b id="caja-orden-txt"></b></span>
-        </div>
+        <div class="flex items-center gap-2 text-xs"><i class="fa-solid fa-link text-sky-600"></i><span class="text-sky-800">Cobrando orden: <b id="caja-orden-txt"></b></span></div>
         <button onclick="desvincularOrdenCaja()" class="text-sky-600 hover:text-sky-800 text-xs"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div>
@@ -645,15 +642,9 @@
       <div class="bg-amber-50 border border-amber-200 rounded-xl p-2.5">
         <label class="block text-[10px] font-bold text-amber-800 uppercase mb-1">Estado de pago inicial</label>
         <div class="grid grid-cols-3 gap-1.5">
-          <label class="flex items-center justify-center gap-1 bg-white border border-amber-200 rounded-lg py-1.5 text-[10px] font-semibold cursor-pointer">
-            <input type="radio" name="orden-pago-inicial" value="Pendiente" checked class="accent-rose-600"> Sin pagar
-          </label>
-          <label class="flex items-center justify-center gap-1 bg-white border border-amber-200 rounded-lg py-1.5 text-[10px] font-semibold cursor-pointer">
-            <input type="radio" name="orden-pago-inicial" value="Abonado" class="accent-amber-600"> Abonado
-          </label>
-          <label class="flex items-center justify-center gap-1 bg-white border border-amber-200 rounded-lg py-1.5 text-[10px] font-semibold cursor-pointer">
-            <input type="radio" name="orden-pago-inicial" value="Pagado" class="accent-emerald-600"> Pagado
-          </label>
+          <label class="flex items-center justify-center gap-1 bg-white border border-amber-200 rounded-lg py-1.5 text-[10px] font-semibold cursor-pointer"><input type="radio" name="orden-pago-inicial" value="Pendiente" checked class="accent-rose-600"> Sin pagar</label>
+          <label class="flex items-center justify-center gap-1 bg-white border border-amber-200 rounded-lg py-1.5 text-[10px] font-semibold cursor-pointer"><input type="radio" name="orden-pago-inicial" value="Abonado" class="accent-amber-600"> Abonado</label>
+          <label class="flex items-center justify-center gap-1 bg-white border border-amber-200 rounded-lg py-1.5 text-[10px] font-semibold cursor-pointer"><input type="radio" name="orden-pago-inicial" value="Pagado" class="accent-emerald-600"> Pagado</label>
         </div>
       </div>
       <textarea id="orden-notas" rows="2" placeholder="Notas internas" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></textarea>
@@ -679,10 +670,7 @@
 
 <div id="modal-pago-orden" class="hidden fixed inset-0 bg-black/50 z-[130] flex items-center justify-center p-3">
   <div class="bg-white rounded-2xl max-w-md w-full p-5 space-y-4 border border-[#e8dbd3] shadow-xl animate-fadeIn">
-    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
-      <h3 class="text-sm font-bold"><i class="fa-solid fa-money-bill-wave mr-2 text-emerald-600"></i>Registrar pago</h3>
-      <button onclick="cerrarModalPagoOrden()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
-    </div>
+    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2"><h3 class="text-sm font-bold"><i class="fa-solid fa-money-bill-wave mr-2 text-emerald-600"></i>Registrar pago</h3><button onclick="cerrarModalPagoOrden()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button></div>
     <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3] text-xs space-y-1">
       <div class="flex justify-between"><span class="text-gray-500">Orden:</span><span id="mp-orden-num" class="font-bold">-</span></div>
       <div class="flex justify-between"><span class="text-gray-500">Cliente:</span><span id="mp-orden-cliente" class="font-semibold">-</span></div>
@@ -722,7 +710,1618 @@
       <button onclick="confirmarPagoOrden()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5"><i class="fa-solid fa-check"></i><span>Registrar pago</span></button>
     </div>
   </div>
-</div>// ================= INSUMOS =================
+</div><script>
+// ================= FIREBASE =================
+const firebaseConfig = {
+  apiKey: "AIzaSyB2aL5Qi-ewIGYy9cCcLZ4JU_5-59p8las",
+  authDomain: "lan-estudio-f9b2b.firebaseapp.com",
+  projectId: "lan-estudio-f9b2b",
+  storageBucket: "lan-estudio-f9b2b.firebasestorage.app",
+  messagingSenderId: "456021907085",
+  appId: "1:456021907085:web:c4ee69f500f06ce5a9b4c4"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+const DOMINIO_USUARIO = '@lanestudio.app';
+const ESTADOS_ORDEN = ['Pendiente', 'En Diseño', 'En Impresión', 'Listo', 'Entregado'];
+
+let usuarioActual = null;
+let tasaBCV = 855.66;
+let listaInsumosDB = [];
+let listaServiciosDB = [];
+let listaClientesDB = [];
+let listaMaterialesDB = [];
+let listaOrdenesDB = [];
+let ultimaVentaProcesada = null;
+let ordenActualDetalle = null;
+let ordenPagandoActual = null;
+let ordenVinculadaCaja = null;
+let itemsPresupuesto = [];
+let presetActual = null;
+let resultadoPresetActual = null;
+let cajaItemIdx = 0;
+let pagoIdx = 0;
+let topperMatIdx = 0;
+let topperMoIdx = 0;
+
+const HOJAS_ESTANDAR = [
+  { id:'a4', nombre:'A4', ancho:21, alto:29.7 },
+  { id:'carta', nombre:'Carta', ancho:21.59, alto:27.94 },
+  { id:'oficio', nombre:'Oficio', ancho:21.59, alto:33.02 },
+  { id:'tabloide', nombre:'Tabloide', ancho:27.94, alto:43.18 },
+  { id:'a3', nombre:'A3', ancho:29.7, alto:42 },
+  { id:'a2', nombre:'A2', ancho:42, alto:59.4 },
+  { id:'a5', nombre:'A5', ancho:14.8, alto:21 },
+  { id:'a6', nombre:'A6', ancho:10.5, alto:14.8 },
+  { id:'personalizado', nombre:'Personalizado', ancho:0, alto:0 }
+];
+
+// ================= HELPERS =================
+function $(id) { return document.getElementById(id); }
+function num(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+function int(v) { const n = parseInt(v); return isNaN(n) ? 0 : n; }
+function fmt(n) { return '$' + (num(n)).toFixed(2); }
+
+function mostrarNotificacion(msg, tipo='success') {
+  const cont = $('toast-container');
+  const t = document.createElement('div');
+  const cls = tipo === 'success' ? 'bg-[#2c2c2c] text-white border-[#b88a73]' : 'bg-rose-600 text-white border-rose-700';
+  t.className = `${cls} px-3.5 py-2.5 rounded-lg shadow-lg border text-xs font-medium flex items-center space-x-2 transition-all transform translate-y-2 opacity-0 pointer-events-auto`;
+  t.innerHTML = `<i class="fa-solid ${tipo === 'success' ? 'fa-circle-check text-[#b88a73]' : 'fa-triangle-exclamation'}"></i><span>${msg}</span>`;
+  cont.appendChild(t);
+  setTimeout(() => t.classList.remove('translate-y-2','opacity-0'), 50);
+  setTimeout(() => { t.classList.add('translate-y-2','opacity-0'); setTimeout(()=>t.remove(), 300); }, 3200);
+}
+
+function calcularGrid(hojaA, hojaAl, piezaA, piezaAl, gap) {
+  if (piezaA <= 0 || piezaAl <= 0 || hojaA <= 0 || hojaAl <= 0) return { f:0, c:0, t:0 };
+  const g = gap > 0 ? gap : 0;
+  const f = Math.max(Math.floor((hojaA + g) / (piezaA + g)), 0);
+  const c = Math.max(Math.floor((hojaAl + g) / (piezaAl + g)), 0);
+  return { f, c, t: Math.max(f*c, 0) };
+}
+
+function sugerirMejorHoja(piezaA, piezaAl, gap) {
+  if (!piezaA || !piezaAl) return null;
+  let mejor = null;
+  HOJAS_ESTANDAR.forEach(h => {
+    if (h.id === 'personalizado') return;
+    const g1 = calcularGrid(h.ancho, h.alto, piezaA, piezaAl, gap);
+    const g2 = calcularGrid(h.ancho, h.alto, piezaAl, piezaA, gap);
+    const g = g1.t >= g2.t ? g1 : g2;
+    if (g.t <= 0) return;
+    const areaUsada = g.t * piezaA * piezaAl;
+    const areaHoja = h.ancho * h.alto;
+    const eficiencia = areaUsada / areaHoja;
+    if (!mejor || eficiencia > mejor.eficiencia) mejor = { hoja: h, grid: g, eficiencia };
+  });
+  return mejor;
+}
+
+function calcularEstadoPago(orden) {
+  const total = num(orden.precio);
+  const abonado = num(orden.abonado);
+  if (orden.estado_pago === 'Pagado' || (abonado >= total - 0.01 && total > 0)) return 'Pagado';
+  if (abonado > 0) return 'Abonado';
+  return 'Pendiente';
+}
+function getBadgePago(estado) {
+  switch(estado) {
+    case 'Pagado': return { cls:'bg-emerald-100 text-emerald-700 border-emerald-300', txt:'Pagado', icon:'fa-circle-check' };
+    case 'Abonado': return { cls:'bg-amber-100 text-amber-700 border-amber-300', txt:'Abonado', icon:'fa-circle-half-stroke' };
+    default: return { cls:'bg-rose-100 text-rose-700 border-rose-300', txt:'Sin pagar', icon:'fa-circle-exclamation' };
+  }
+}
+
+// ================= AUTH =================
+function togglePasswordVisibility() {
+  const i = $('login-password'), ic = $('toggle-pass-icon');
+  if (i.type === 'password') { i.type='text'; ic.classList.replace('fa-eye','fa-eye-slash'); }
+  else { i.type='password'; ic.classList.replace('fa-eye-slash','fa-eye'); }
+}
+function mostrarErrorLogin(m) { $('login-error-text').innerText = m; $('login-error').classList.remove('hidden'); }
+function ocultarErrorLogin() { $('login-error').classList.add('hidden'); }
+
+async function iniciarSesion() {
+  const u = $('login-email').value.trim().toLowerCase();
+  const p = $('login-password').value;
+  const b = $('btn-login');
+  ocultarErrorLogin();
+  if (!u || !p) { mostrarErrorLogin("Completa todos los campos."); return; }
+  const email = u.includes('@') ? u : `${u}${DOMINIO_USUARIO}`;
+  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Verificando...</span>';
+  b.disabled = true;
+  try { await auth.signInWithEmailAndPassword(email, p); }
+  catch (e) {
+    let m = "Error al iniciar sesión.";
+    if (e.code === 'auth/user-not-found') m = "Usuario no encontrado.";
+    else if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') m = "Usuario o contraseña incorrectos.";
+    else if (e.code === 'auth/too-many-requests') m = "Demasiados intentos.";
+    mostrarErrorLogin(m);
+  } finally { b.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Iniciar Sesión</span>'; b.disabled = false; }
+}
+
+async function cerrarSesion() {
+  const ok = await confirmarAccion('¿Cerrar sesión?', 'Deberás iniciar sesión de nuevo.', 'Cerrar Sesión', 'warning');
+  if (!ok) return;
+  try { await auth.signOut(); } catch(e){}
+}
+
+async function recuperarPassword() {
+  const u = $('login-email').value.trim().toLowerCase();
+  if (!u) { mostrarErrorLogin("Escribe tu usuario primero."); return; }
+  const email = u.includes('@') ? u : `${u}${DOMINIO_USUARIO}`;
+  try { await auth.sendPasswordResetEmail(email); mostrarNotificacion("Correo enviado."); ocultarErrorLogin(); }
+  catch(e) { mostrarErrorLogin("No se pudo enviar."); }
+}
+
+// ================= NAVEGACIÓN =================
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('tab-active'); b.classList.add('text-gray-600'); });
+  ['dashboard','cotizador','trabajos','caja','ventas','admin'].forEach(t => { const el = $('module-' + t); if (el) el.classList.add('hidden'); });
+  const btn = $('tab-' + tabId), mod = $('module-' + tabId);
+  if (btn) { btn.classList.add('tab-active'); btn.classList.remove('text-gray-600'); }
+  if (mod) mod.classList.remove('hidden');
+  if (tabId === 'dashboard') cargarDashboard();
+  if (tabId === 'cotizador') { cargarClientesEnSelects(); const f = $('presupuesto-fecha-doc'); if (f) f.innerText = new Date().toLocaleDateString(); }
+  if (tabId === 'trabajos') { cargarOrdenes(); cargarStandBy(); }
+  if (tabId === 'caja') { cargarClientesEnSelects(); cargarBorradorCaja(); }
+  if (tabId === 'ventas') cargarVentas();
+  if (tabId === 'admin') { cargarInsumos(); cargarServicios(); cargarClientes(); cargarCatalogoMateriales(); }
+}
+
+function switchAdmin(seccion) {
+  document.querySelectorAll('.adm-tab').forEach(b => { b.classList.remove('bg-[#2c2c2c]','text-white'); b.classList.add('text-gray-600'); });
+  const btn = $('adm-tab-' + seccion);
+  if (btn) { btn.classList.add('bg-[#2c2c2c]','text-white'); btn.classList.remove('text-gray-600'); }
+  document.querySelectorAll('.adm-panel').forEach(p => p.classList.add('hidden'));
+  const panel = $('adm-' + seccion);
+  if (panel) panel.classList.remove('hidden');
+  if (seccion === 'movimientos') cargarMovimientos();
+  if (seccion === 'finanzas') cargarGastosYBalance();
+}
+
+// ================= RELOJ / BCV =================
+function actualizarRelojFecha() {
+  const a = new Date();
+  const f = a.toLocaleDateString('es-ES', { weekday:'short', year:'numeric', month:'short', day:'numeric' });
+  const h = a.toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true });
+  const el = $('live-clock-display'); if (el) el.innerText = `${f} - ${h}`;
+}
+setInterval(actualizarRelojFecha, 1000);
+
+async function fetchBCVRate() {
+  const inp = $('bcv-rate-input');
+  const hoy = new Date().toISOString().split('T')[0];
+  const tg = localStorage.getItem('lan_bcv_tasa');
+  const fg = localStorage.getItem('lan_bcv_fecha');
+  if (tg && fg === hoy) {
+    tasaBCV = parseFloat(tg);
+    if (inp) inp.value = tasaBCV.toFixed(2);
+    const t = $('presupuesto-tasa-doc'); if (t) t.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
+    recalcularPresupuestoTotal(); return;
+  }
+  if (inp) inp.value = "...";
+  try {
+    const r = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
+    if (r.ok) {
+      const d = await r.json();
+      if (d.promedio) {
+        tasaBCV = parseFloat(d.promedio);
+        localStorage.setItem('lan_bcv_tasa', tasaBCV);
+        localStorage.setItem('lan_bcv_fecha', hoy);
+        if (inp) inp.value = tasaBCV.toFixed(2);
+        const t = $('presupuesto-tasa-doc'); if (t) t.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
+        recalcularPresupuestoTotal(); return;
+      }
+    }
+    throw new Error('inv');
+  } catch (e) {
+    if (tg) tasaBCV = parseFloat(tg);
+    if (inp) inp.value = tasaBCV.toFixed(2);
+    const t = $('presupuesto-tasa-doc'); if (t) t.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
+    recalcularPresupuestoTotal();
+  }
+}
+
+function actualizarTasaManual(v) {
+  const n = parseFloat(v);
+  if (!isNaN(n) && n > 0) {
+    tasaBCV = n;
+    localStorage.setItem('lan_bcv_tasa', tasaBCV);
+    const t = $('presupuesto-tasa-doc'); if (t) t.innerText = `Bs. ${tasaBCV.toFixed(2)}`;
+    recalcularPresupuestoTotal();
+    recalcularTotalesCaja();
+  }
+}
+
+// ================= LISTENERS =================
+function iniciarListenersTiempoReal() {
+  db.collection('insumos').onSnapshot(s => {
+    listaInsumosDB = []; s.forEach(d => listaInsumosDB.push({ id:d.id, ...d.data() }));
+    if (!$('adm-insumos')?.classList.contains('hidden')) cargarInsumos();
+    actualizarBadges();
+  }, e => console.warn(e));
+  db.collection('servicios').onSnapshot(s => {
+    listaServiciosDB = []; s.forEach(d => listaServiciosDB.push({ id:d.id, ...d.data() }));
+    if (!$('adm-servicios')?.classList.contains('hidden')) cargarServicios();
+  }, e => console.warn(e));
+  db.collection('clientes').onSnapshot(s => {
+    listaClientesDB = []; s.forEach(d => listaClientesDB.push({ id:d.id, ...d.data() }));
+    if (!$('adm-crm')?.classList.contains('hidden')) cargarClientes();
+    cargarClientesEnSelects();
+  }, e => console.warn(e));
+  db.collection('materiales').onSnapshot(s => {
+    listaMaterialesDB = []; s.forEach(d => listaMaterialesDB.push({ id:d.id, ...d.data() }));
+    if (!$('adm-materiales')?.classList.contains('hidden')) cargarCatalogoMateriales();
+  }, e => console.warn(e));
+  db.collection('ordenes').onSnapshot(s => {
+    listaOrdenesDB = []; s.forEach(d => listaOrdenesDB.push({ id:d.id, ...d.data() }));
+    actualizarBadges();
+    if (!$('module-trabajos')?.classList.contains('hidden')) { renderizarKanban(); renderizarTablaTrabajos(); }
+  }, e => console.warn(e));
+}
+
+function actualizarBadges() {
+  const activas = listaOrdenesDB.filter(o => o.estado !== 'Entregado').length;
+  const bT = $('badge-trabajos');
+  if (bT) { if (activas > 0) { bT.innerText = activas; bT.classList.remove('hidden'); } else bT.classList.add('hidden'); }
+  const dO = $('dash-ordenes'); if (dO) dO.innerText = activas;
+}
+
+function cargarClientesEnSelects() {
+  ['presupuesto-cliente','caja-cliente','orden-cliente'].forEach(id => {
+    const sel = $(id); if (!sel) return;
+    const v = sel.value;
+    sel.innerHTML = '<option value="Cliente General">-- Cliente General --</option>';
+    if (id !== 'orden-cliente') sel.innerHTML += '<option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>';
+    listaClientesDB.forEach(c => { sel.innerHTML += `<option value="${c.nombre}">${c.nombre} (${c.tel || 'Sin telf'})</option>`; });
+    if (v) sel.value = v;
+  });
+}
+
+// ================= MODALES =================
+let modalInputCallback = null;
+let modalConfirmResolve = null;
+let callbackClienteCreado = null;
+
+function abrirModalInput(config) {
+  $('modal-input-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square mr-2 text-[#b88a73]"></i>${config.titulo || 'Editar'}`;
+  $('modal-input-btn-text').innerText = config.textoBoton || 'Guardar';
+  const cont = $('modal-input-campos'); cont.innerHTML = '';
+  (config.campos || []).forEach(c => {
+    let h = '';
+    if (c.tipo === 'select') {
+      const ops = (c.opciones || []).map(o => `<option value="${o.valor}" ${o.valor == c.valor ? 'selected':''}>${o.etiqueta}</option>`).join('');
+      h = `<select id="${c.id}" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">${ops}</select>`;
+    } else if (c.tipo === 'textarea') {
+      h = `<textarea id="${c.id}" rows="3" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">${c.valor || ''}</textarea>`;
+    } else {
+      h = `<input type="${c.tipo || 'text'}" id="${c.id}" value="${c.valor || ''}" ${c.min!==undefined?`min="${c.min}"`:''} ${c.max!==undefined?`max="${c.max}"`:''} ${c.step!==undefined?`step="${c.step}"`:''} class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">`;
+    }
+    cont.innerHTML += `<div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">${c.label}</label>${h}</div>`;
+  });
+  $('modal-input-error').classList.add('hidden');
+  modalInputCallback = config.onConfirm;
+  $('modal-input').classList.remove('hidden');
+  setTimeout(() => { const f = cont.querySelector('input, select, textarea'); if (f) f.focus(); }, 100);
+}
+function cerrarModalInput() { $('modal-input').classList.add('hidden'); modalInputCallback = null; }
+async function confirmarModalInput() {
+  if (!modalInputCallback) { cerrarModalInput(); return; }
+  const r = await modalInputCallback();
+  if (r === true) cerrarModalInput();
+  else if (typeof r === 'string') { $('modal-input-error-text').innerText = r; $('modal-input-error').classList.remove('hidden'); }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !$('modal-input').classList.contains('hidden') && e.target.tagName !== 'TEXTAREA') { e.preventDefault(); confirmarModalInput(); }
+  if (e.key === 'Escape') {
+    cerrarModalInput();
+    $('modal-cliente-nuevo').classList.add('hidden');
+    $('modal-nueva-orden').classList.add('hidden');
+    $('modal-ver-orden').classList.add('hidden');
+    $('modal-pago-orden').classList.add('hidden');
+    if (!$('modal-confirm').classList.contains('hidden')) cerrarModalConfirm(false);
+  }
+});
+
+function confirmarAccion(titulo, mensaje, textoBoton='Confirmar', tipo='danger') {
+  return new Promise(resolve => {
+    $('modal-confirm-titulo').innerText = titulo;
+    $('modal-confirm-mensaje').innerText = mensaje;
+    $('modal-confirm-btn-text').innerText = textoBoton;
+    const ic = $('modal-confirm-icono'), btn = $('modal-confirm-btn');
+    if (tipo === 'danger') { ic.className = 'mx-auto w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-600 text-xl'; btn.className = 'bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5'; }
+    else if (tipo === 'warning') { ic.className = 'mx-auto w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 text-xl'; btn.className = 'bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5'; }
+    else { ic.className = 'mx-auto w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600 text-xl'; btn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5'; }
+    ic.innerHTML = tipo === 'danger' ? '<i class="fa-solid fa-triangle-exclamation"></i>' : tipo === 'warning' ? '<i class="fa-solid fa-circle-exclamation"></i>' : '<i class="fa-solid fa-circle-check"></i>';
+    modalConfirmResolve = resolve;
+    $('modal-confirm').classList.remove('hidden');
+  });
+}
+function cerrarModalConfirm(r) { $('modal-confirm').classList.add('hidden'); if (modalConfirmResolve) { modalConfirmResolve(r); modalConfirmResolve = null; } }
+
+function abrirModalClienteNuevo(cb) {
+  callbackClienteCreado = cb;
+  ['nuevo-cliente-nombre','nuevo-cliente-rif','nuevo-cliente-tel','nuevo-cliente-email','nuevo-cliente-direccion'].forEach(id => $(id).value = '');
+  $('nuevo-cliente-tipo').value = 'Persona Natural';
+  $('modal-cliente-error').classList.add('hidden');
+  $('modal-cliente-nuevo').classList.remove('hidden');
+}
+function cerrarModalClienteNuevo() { $('modal-cliente-nuevo').classList.add('hidden'); callbackClienteCreado = null; }
+async function guardarClienteDesdeModal() {
+  const nombre = $('nuevo-cliente-nombre').value.trim();
+  if (!nombre) { $('modal-cliente-error-text').innerText = 'Nombre obligatorio.'; $('modal-cliente-error').classList.remove('hidden'); return; }
+  const cl = { nombre, rif: $('nuevo-cliente-rif').value.trim(), tipo: $('nuevo-cliente-tipo').value, tel: $('nuevo-cliente-tel').value.trim(), email: $('nuevo-cliente-email').value.trim(), instagram: '', direccion: $('nuevo-cliente-direccion').value.trim() };
+  try {
+    await db.collection('clientes').add(cl);
+    mostrarNotificacion("¡Cliente creado!");
+    if (callbackClienteCreado) callbackClienteCreado(cl);
+    cerrarModalClienteNuevo();
+  } catch(e) { $('modal-cliente-error-text').innerText = 'Error.'; $('modal-cliente-error').classList.remove('hidden'); }
+}
+
+// ============================================================
+// ================ COTIZADOR UNIVERSAL =======================
+// ============================================================
+function cargarPreset(tipo) {
+  presetActual = tipo;
+  resultadoPresetActual = null;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('preset-activo'));
+  const btnAct = document.querySelector(`.preset-btn[data-preset="${tipo}"]`);
+  if (btnAct) btnAct.classList.add('preset-activo');
+  const preset = PRESETS[tipo];
+  if (!preset) return;
+  $('calc-titulo').innerHTML = `<i class="fa-solid ${preset.icono} text-[#b88a73] mr-1"></i>${preset.titulo}`;
+  renderizarCamposPreset(preset);
+  $('calc-universal').classList.remove('hidden');
+  $('btn-cerrar-calc').classList.remove('hidden');
+  recalcularPreset();
+  $('calc-universal').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cerrarCalculadora() {
+  $('calc-universal').classList.add('hidden');
+  $('btn-cerrar-calc').classList.add('hidden');
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('preset-activo'));
+  presetActual = null;
+  resultadoPresetActual = null;
+}
+
+const PRESETS = {
+  stickers: { titulo: 'Stickers / Etiquetas', icono:'fa-note-sticky', tieneGrid:true, hojaDefault:'a4',
+    camposFijos:[{id:'stk-cantidad', label:'Cantidad total', tipo:'number', valor:60, min:1}],
+    camposGrid:[
+      {id:'stk-ancho', label:'Ancho pieza (cm)', tipo:'number', valor:6, step:0.1, badge:'PIEZA'},
+      {id:'stk-alto', label:'Alto pieza (cm)', tipo:'number', valor:6, step:0.1, badge:'PIEZA'},
+      {id:'stk-gap', label:'Separación (cm)', tipo:'number', valor:0.4, step:0.1, badge:'SEP'}
+    ],
+    costosGrid:[
+      {id:'stk-costo-hoja', label:'Material ($)', tipo:'number', valor:0.35, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'stk-costo-laminado', label:'Laminado ($)', tipo:'number', valor:0.25, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'stk-costo-tinta', label:'Tinta ($)', tipo:'number', valor:0.15, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'stk-costo-cuchilla', label:'Cuchilla ($)', tipo:'number', valor:0.08, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'stk-costo-mano-h', label:'Mano de obra ($)', tipo:'number', valor:5.00, step:0.5, badge:'POR HORA', badgeColor:'bg-purple-100 text-purple-700'}
+    ],
+    otros:[
+      {id:'stk-empaque-modo', label:'Modo de empaque', tipo:'select', valor:'lote', opciones:[{valor:'lote', etiqueta:'Un empaque para todo el lote'},{valor:'unidad', etiqueta:'Empaque individual por unidad'}]},
+      {id:'stk-empaque-costo', label:'Empaque ($)', tipo:'number', valor:0.05, step:0.01, badge:'LOTE/UD', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'stk-fijos-costo', label:'Gastos fijos lote ($)', tipo:'number', valor:0.50, step:0.01, badge:'LOTE', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'stk-merma', label:'% Merma', tipo:'number', valor:10, badge:'%', badgeColor:'bg-gray-100 text-gray-600'},
+      {id:'stk-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:150, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
+    ]
+  },
+  toppers: { titulo:'Toppers Print & Cut', icono:'fa-cake-candles', tieneGrid:true, hojaDefault:'a4',
+    camposFijos:[{id:'top-cantidad', label:'Cantidad total', tipo:'number', valor:6, min:1}],
+    camposGrid:[
+      {id:'top-ancho', label:'Ancho pieza (cm)', tipo:'number', valor:12, step:0.1, badge:'PIEZA'},
+      {id:'top-alto', label:'Alto pieza (cm)', tipo:'number', valor:15, step:0.1, badge:'PIEZA'},
+      {id:'top-gap', label:'Separación (cm)', tipo:'number', valor:0.3, step:0.1, badge:'SEP'}
+    ],
+    costosGrid:[{id:'top-costo-hoja', label:'Material ($)', tipo:'number', valor:0.40, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'}],
+    otros:[
+      {id:'top-merma', label:'% Merma', tipo:'number', valor:5, badge:'%', badgeColor:'bg-gray-100 text-gray-600'},
+      {id:'top-gastos-pct', label:'% Gastos operativos', tipo:'number', valor:10, badge:'% SOBRE COSTO', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'top-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:150, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
+    ],
+    materialesExtra:true, manoObraExtra:true
+  },
+  papeleria: { titulo:'Papelería Creativa', icono:'fa-file-lines', tieneGrid:true, hojaDefault:'a4',
+    camposFijos:[{id:'pap-cantidad', label:'Cantidad total', tipo:'number', valor:20, min:1}],
+    camposGrid:[
+      {id:'pap-ancho', label:'Ancho (cm)', tipo:'number', valor:21, step:0.1, badge:'PIEZA'},
+      {id:'pap-alto', label:'Alto (cm)', tipo:'number', valor:29.7, step:0.1, badge:'PIEZA'},
+      {id:'pap-gap', label:'Separación (cm)', tipo:'number', valor:0.3, step:0.1, badge:'SEP'}
+    ],
+    costosGrid:[
+      {id:'pap-costo-material', label:'Material ($)', tipo:'number', valor:0.35, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'pap-costo-laminado', label:'Laminado ($)', tipo:'number', valor:0.25, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'pap-costo-tinta', label:'Tinta ($)', tipo:'number', valor:0.15, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'pap-costo-corte', label:'Corte ($)', tipo:'number', valor:0.08, step:0.01, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'pap-horas-diseno', label:'Horas de diseño', tipo:'number', valor:0.5, step:0.25, badge:'HORAS', badgeColor:'bg-purple-100 text-purple-700'},
+      {id:'pap-tarifa-diseno', label:'Tarifa diseño ($)', tipo:'number', valor:10.00, step:0.5, badge:'POR HORA', badgeColor:'bg-purple-100 text-purple-700'}
+    ],
+    otros:[
+      {id:'pap-empaque-modo', label:'Modo de empaque', tipo:'select', valor:'unidad', opciones:[{valor:'lote', etiqueta:'Un empaque para todo el lote'},{valor:'unidad', etiqueta:'Empaque individual por unidad'}]},
+      {id:'pap-empaque-costo', label:'Empaque ($)', tipo:'number', valor:0.05, step:0.01, badge:'LOTE/UD', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'pap-fijos-costo', label:'Gastos fijos lote ($)', tipo:'number', valor:0.50, step:0.01, badge:'LOTE', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'pap-merma', label:'% Merma', tipo:'number', valor:5, badge:'%', badgeColor:'bg-gray-100 text-gray-600'},
+      {id:'pap-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:80, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
+    ]
+  },
+  forros: { titulo:'Forros Escolares', icono:'fa-book', tieneGrid:true, hojaDefault:'tabloide',
+    camposFijos:[{id:'forr-cantidad', label:'Cantidad cuadernos', tipo:'number', valor:12, min:1}],
+    camposGrid:[
+      {id:'forr-cuaderno-ancho', label:'Ancho cuaderno (cm)', tipo:'number', valor:17.5, step:0.1, badge:'PIEZA'},
+      {id:'forr-cuaderno-alto', label:'Alto cuaderno (cm)', tipo:'number', valor:23, step:0.1, badge:'PIEZA'},
+      {id:'forr-gap', label:'Separación (cm)', tipo:'number', valor:0.5, step:0.1, badge:'SEP'}
+    ],
+    costosGrid:[
+      {id:'forr-costo-vinil', label:'Vinil ($)', tipo:'number', valor:4.50, step:0.1, badge:'POR m²', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'forr-costo-laminado', label:'Laminado ($)', tipo:'number', valor:3.00, step:0.1, badge:'POR m²', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'forr-costo-tinta', label:'Tinta ($)', tipo:'number', valor:0.80, step:0.05, badge:'POR HOJA', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'forr-costo-mano', label:'Mano obra ($)', tipo:'number', valor:1.20, step:0.1, badge:'POR UNIDAD', badgeColor:'bg-purple-100 text-purple-700'}
+    ],
+    otros:[
+      {id:'forr-empaque-modo', label:'Modo de empaque', tipo:'select', valor:'lote', opciones:[{valor:'lote', etiqueta:'Un empaque para todo el lote'},{valor:'unidad', etiqueta:'Empaque individual por unidad'}]},
+      {id:'forr-empaque-costo', label:'Bolsa ($)', tipo:'number', valor:0.15, step:0.01, badge:'LOTE/UD', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'forr-depre-costo', label:'Depreciación lote ($)', tipo:'number', valor:0.25, step:0.05, badge:'LOTE', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'forr-merma', label:'% Merma', tipo:'number', valor:5, badge:'%', badgeColor:'bg-gray-100 text-gray-600'},
+      {id:'forr-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:60, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
+    ]
+  },
+  vinil: { titulo:'Vinil / DTF / Rotulación', icono:'fa-scroll', tieneGrid:true, hojaDefault:'personalizado',
+    camposFijos:[{id:'vin-cantidad', label:'Cantidad piezas', tipo:'number', valor:4, min:1}],
+    camposGrid:[
+      {id:'vin-ancho', label:'Ancho pieza (cm)', tipo:'number', valor:20, step:0.1, badge:'PIEZA'},
+      {id:'vin-alto', label:'Alto pieza (cm)', tipo:'number', valor:15, step:0.1, badge:'PIEZA'},
+      {id:'vin-gap', label:'Separación (cm)', tipo:'number', valor:0.5, step:0.1, badge:'SEP'}
+    ],
+    costosGrid:[
+      {id:'vin-costo-m2', label:'Costo material ($)', tipo:'number', valor:8.00, step:0.5, badge:'POR m²', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'vin-mano-obra', label:'Mano de obra ($)', tipo:'number', valor:5.00, step:0.5, badge:'LOTE', badgeColor:'bg-purple-100 text-purple-700'}
+    ],
+    otros:[
+      {id:'vin-merma', label:'% Merma', tipo:'number', valor:5, badge:'%', badgeColor:'bg-gray-100 text-gray-600'},
+      {id:'vin-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:40, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
+    ]
+  },
+  sublimacion: { titulo:'Sublimación', icono:'fa-mug-hot', tieneGrid:false,
+    camposFijos:[
+      {id:'sub-nombre', label:'Nombre del artículo', tipo:'text', valor:'Taza Sublimada'},
+      {id:'sub-cantidad', label:'Cantidad', tipo:'number', valor:1, min:1},
+      {id:'sub-costo-virgen', label:'Costo artículo virgen ($)', tipo:'number', valor:1.80, step:0.1, badge:'POR UNIDAD', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'sub-costo-transfer', label:'Papel + tinta ($)', tipo:'number', valor:0.30, step:0.05, badge:'POR UNIDAD', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'sub-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:60, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
+    ]
+  },
+  audiovisual: { titulo:'Audiovisual', icono:'fa-video', tieneGrid:false,
+    camposFijos:[
+      {id:'vid-nombre', label:'Concepto del proyecto', tipo:'text', valor:'Pack 4 Reels'},
+      {id:'vid-horas-grab', label:'Horas grabación', tipo:'number', valor:3, step:0.5, badge:'HORAS', badgeColor:'bg-purple-100 text-purple-700'},
+      {id:'vid-horas-edit', label:'Horas edición', tipo:'number', valor:5, step:0.5, badge:'HORAS', badgeColor:'bg-purple-100 text-purple-700'},
+      {id:'vid-tarifa', label:'Tarifa por hora ($)', tipo:'number', valor:10.00, step:1, badge:'POR HORA', badgeColor:'bg-purple-100 text-purple-700'},
+      {id:'vid-equipos', label:'Alquiler equipos ($)', tipo:'number', valor:15.00, step:5, badge:'LOTE', badgeColor:'bg-amber-100 text-amber-700'},
+      {id:'vid-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:30, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
+    ]
+  },
+  manual: { titulo:'Ítem Manual', icono:'fa-pen', tieneGrid:false,
+    camposFijos:[
+      {id:'man-nombre', label:'Descripción', tipo:'text', valor:''},
+      {id:'man-cantidad', label:'Cantidad', tipo:'number', valor:1, min:1},
+      {id:'man-costo', label:'Costo unitario ($)', tipo:'number', valor:0, step:0.01, badge:'POR UNIDAD', badgeColor:'bg-blue-100 text-blue-700'},
+      {id:'man-ganancia', label:'% Ganancia sobre costo', tipo:'number', valor:30, badge:'%', badgeColor:'bg-emerald-100 text-emerald-700'}
+    ]
+  }
+};
+
+function renderInputConBadge(c, onChangeCallback) {
+  const badge = c.badge ? `<span class="text-[8px] px-1 py-0.5 rounded ${c.badgeColor||'bg-gray-100 text-gray-600'} font-bold whitespace-nowrap">${c.badge}</span>` : '';
+  const labelHTML = `<label class="flex items-center justify-between text-[10px] font-semibold text-gray-600 mb-0.5"><span>${c.label}</span>${badge}</label>`;
+  if (c.tipo === 'select') {
+    const ops = (c.opciones || []).map(o => `<option value="${o.valor}" ${o.valor==c.valor?'selected':''}>${o.etiqueta}</option>`).join('');
+    return `<div>${labelHTML}<select id="${c.id}" oninput="${onChangeCallback}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-[#b88a73]">${ops}</select></div>`;
+  }
+  if (c.tipo === 'text') {
+    return `<div>${labelHTML}<input type="text" id="${c.id}" value="${c.valor}" oninput="${onChangeCallback}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-[#b88a73]"></div>`;
+  }
+  return `<div>${labelHTML}<input type="${c.tipo}" id="${c.id}" value="${c.valor}" ${c.min!==undefined?`min="${c.min}"`:''} ${c.step!==undefined?`step="${c.step}"`:''} oninput="${onChangeCallback}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-[#b88a73]"></div>`;
+}
+
+function renderizarCamposPreset(preset) {
+  const cont = $('calc-campos');
+  cont.innerHTML = '';
+  if (preset.camposFijos?.length) {
+    let html = `<div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]"><h4 class="text-[10px] font-bold uppercase text-gray-500 mb-2"><i class="fa-solid fa-list-ol mr-1"></i>Datos generales</h4><div class="grid grid-cols-2 gap-2 text-xs">`;
+    preset.camposFijos.forEach(c => { html += renderInputConBadge(c, 'recalcularPreset()'); });
+    html += `</div></div>`;
+    cont.innerHTML += html;
+  }
+  if (preset.tieneGrid) {
+    const hojaDef = HOJAS_ESTANDAR.find(h => h.id === preset.hojaDefault) || HOJAS_ESTANDAR[0];
+    let html = `<div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+      <h4 class="text-[10px] font-bold uppercase text-gray-500 mb-2"><i class="fa-solid fa-table-cells mr-1"></i>Tamaño de pieza y hoja</h4>
+      <div class="mb-2"><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Tamaño de hoja</label>
+        <select id="preset-hoja-select" onchange="cambiarHojaPreset()" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-[#b88a73]">
+          ${HOJAS_ESTANDAR.map(h => `<option value="${h.id}" ${h.id===preset.hojaDefault?'selected':''}>${h.nombre}${h.id!=='personalizado'?` — ${h.ancho} × ${h.alto} cm`:''}</option>`).join('')}
+        </select>
+      </div>
+      <div id="aviso-sugerencia-hoja" class="hidden bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 text-[10px] text-amber-800 mb-2"></div>
+      <div class="grid grid-cols-2 gap-2 text-xs mb-2" id="hoja-medidas-container">
+        <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Ancho hoja (cm)</label><input type="number" id="hoja-ancho" value="${hojaDef.ancho || 21}" step="0.1" oninput="recalcularPreset()" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs"></div>
+        <div><label class="block text-[10px] font-semibold text-gray-600 mb-0.5">Alto hoja (cm)</label><input type="number" id="hoja-alto" value="${hojaDef.alto || 29.7}" step="0.1" oninput="recalcularPreset()" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs"></div>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-xs">${preset.camposGrid.map(c => renderInputConBadge(c, 'recalcularPreset()')).join('')}</div>
+    </div>`;
+    cont.innerHTML += html;
+  }
+  if (preset.costosGrid?.length || preset.otros?.length) {
+    let html = `<div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]"><h4 class="text-[10px] font-bold uppercase text-gray-500 mb-2"><i class="fa-solid fa-dollar-sign mr-1"></i>Costos y ganancia</h4><div class="grid grid-cols-2 gap-2 text-xs">`;
+    (preset.costosGrid || []).forEach(c => { html += renderInputConBadge(c, 'recalcularPreset()'); });
+    (preset.otros || []).forEach(c => { html += renderInputConBadge(c, 'recalcularPreset()'); });
+    html += `</div></div>`;
+    cont.innerHTML += html;
+  }
+  if (preset.materialesExtra) {
+    let html = `<div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+      <div class="flex justify-between items-center mb-2"><h4 class="text-[10px] font-bold uppercase text-gray-500"><i class="fa-solid fa-boxes-stacked mr-1"></i>Materiales extra (por lote)</h4>
+      <button type="button" onclick="agregarFilaTopperMat()" class="text-[10px] bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2 py-1 rounded-lg"><i class="fa-solid fa-plus mr-1"></i>Agregar</button></div>
+      <table class="w-full text-xs"><thead class="bg-white text-gray-500 uppercase text-[9px]"><tr><th class="p-1 text-left">Material</th><th class="p-1 text-center w-16">Cant</th><th class="p-1 text-center w-20">Costo $</th><th class="p-1 w-8"></th></tr></thead><tbody id="lista-materiales-extra"></tbody></table>
+    </div>`;
+    cont.innerHTML += html;
+    agregarFilaTopperMat('Cartulina', 1, 0.50);
+    agregarFilaTopperMat('Laminado', 1, 0.30);
+  }
+  if (preset.manoObraExtra) {
+    let html = `<div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+      <div class="flex justify-between items-center mb-2"><h4 class="text-[10px] font-bold uppercase text-gray-500"><i class="fa-solid fa-hand mr-1"></i>Mano de obra por etapas</h4>
+      <button type="button" onclick="agregarFilaTopperMO()" class="text-[10px] bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2 py-1 rounded-lg"><i class="fa-solid fa-plus mr-1"></i>Agregar</button></div>
+      <table class="w-full text-xs"><thead class="bg-white text-gray-500 uppercase text-[9px]"><tr><th class="p-1 text-left">Etapa</th><th class="p-1 text-center w-16">Min</th><th class="p-1 text-center w-20">$/h</th><th class="p-1 w-8"></th></tr></thead><tbody id="lista-mano-obra-extra"></tbody></table>
+    </div>`;
+    cont.innerHTML += html;
+    agregarFilaTopperMO('Impresión', 2, 5);
+    agregarFilaTopperMO('Corte Cameo', 3, 5);
+    agregarFilaTopperMO('Ensamble', 4, 5);
+  }
+  setTimeout(() => cambiarHojaPreset(true), 50);
+}
+
+function cambiarHojaPreset(soloSincronizar) {
+  const sel = $('preset-hoja-select');
+  if (!sel) return;
+  const h = HOJAS_ESTANDAR.find(x => x.id === sel.value);
+  if (!h) return;
+  const aEl = $('hoja-ancho'), alEl = $('hoja-alto');
+  if (h.id !== 'personalizado') {
+    if (aEl) { aEl.value = h.ancho; aEl.disabled = true; aEl.classList.add('bg-gray-100'); }
+    if (alEl) { alEl.value = h.alto; alEl.disabled = true; alEl.classList.add('bg-gray-100'); }
+  } else {
+    if (aEl) { aEl.disabled = false; aEl.classList.remove('bg-gray-100'); }
+    if (alEl) { alEl.disabled = false; alEl.classList.remove('bg-gray-100'); }
+  }
+  if (!soloSincronizar) recalcularPreset();
+}
+
+function agregarFilaTopperMat(nombre='', cant=1, costo=0) {
+  topperMatIdx++;
+  const tb = $('lista-materiales-extra'); if (!tb) return;
+  const id = `mat-topper-${topperMatIdx}`;
+  tb.insertAdjacentHTML('beforeend', `<tr id="${id}" class="border-b border-[#e8dbd3]"><td class="p-1"><input type="text" value="${nombre}" class="w-full bg-white border border-[#e8dbd3] rounded px-1.5 py-0.5 text-xs topper-mat-nombre"></td><td class="p-1"><input type="number" value="${cant}" min="1" class="w-full bg-white border border-[#e8dbd3] rounded px-1 py-0.5 text-xs text-center topper-mat-cant" oninput="recalcularPreset()"></td><td class="p-1"><input type="number" value="${costo}" step="0.01" min="0" class="w-full bg-white border border-[#e8dbd3] rounded px-1 py-0.5 text-xs text-center topper-mat-costo" oninput="recalcularPreset()"></td><td class="p-1 text-center"><button type="button" onclick="document.getElementById('${id}').remove(); recalcularPreset()" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash text-xs"></i></button></td></tr>`);
+}
+
+function agregarFilaTopperMO(etapa='', min=0, tarifa=5) {
+  topperMoIdx++;
+  const tb = $('lista-mano-obra-extra'); if (!tb) return;
+  const id = `mo-topper-${topperMoIdx}`;
+  tb.insertAdjacentHTML('beforeend', `<tr id="${id}" class="border-b border-[#e8dbd3]"><td class="p-1"><input type="text" value="${etapa}" class="w-full bg-white border border-[#e8dbd3] rounded px-1.5 py-0.5 text-xs topper-mo-etapa"></td><td class="p-1"><input type="number" value="${min}" min="0" class="w-full bg-white border border-[#e8dbd3] rounded px-1 py-0.5 text-xs text-center topper-mo-min" oninput="recalcularPreset()"></td><td class="p-1"><input type="number" value="${tarifa}" step="0.5" min="0" class="w-full bg-white border border-[#e8dbd3] rounded px-1 py-0.5 text-xs text-center topper-mo-tarifa" oninput="recalcularPreset()"></td><td class="p-1 text-center"><button type="button" onclick="document.getElementById('${id}').remove(); recalcularPreset()" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash text-xs"></i></button></td></tr>`);
+}
+
+function recalcularPreset() {
+  if (!presetActual) return;
+  const preset = PRESETS[presetActual];
+  const res = $('calc-resultado');
+  let html = '';
+  let cant = 1, costoTotal = 0, precioTotal = 0, costoUnit = 0, nombreItem = '';
+  let gananciaPct = 30;
+
+  if (preset.tieneGrid) {
+    const hojaA = num($('hoja-ancho')?.value) || 21;
+    const hojaAl = num($('hoja-alto')?.value) || 29.7;
+    const piezaA = num($(preset.camposGrid[0].id)?.value) || 0;
+    const piezaAl = num($(preset.camposGrid[1].id)?.value) || 0;
+    const gap = num($(preset.camposGrid[2].id)?.value) || 0;
+    const cCantidad = num($(preset.camposFijos[0].id)?.value) || 1;
+    const prefijo = presetActual === 'stickers' ? 'stk' : presetActual === 'toppers' ? 'top' : presetActual === 'papeleria' ? 'pap' : presetActual === 'forros' ? 'forr' : 'vin';
+    const mermaPct = num($(`${prefijo}-merma`)?.value) || 0;
+    const grid = calcularGrid(hojaA, hojaAl, piezaA, piezaAl, gap);
+    const porHoja = Math.max(grid.t, 1);
+    const hojasT = Math.ceil(cCantidad / porHoja);
+    const hojasR = Math.ceil(hojasT * (1 + mermaPct / 100));
+
+    if (presetActual === 'stickers') {
+      const cMat = hojasR * num($('stk-costo-hoja').value);
+      const cLam = hojasR * num($('stk-costo-laminado').value);
+      const cTinta = hojasR * num($('stk-costo-tinta').value);
+      const cCuch = hojasR * num($('stk-costo-cuchilla').value);
+      const modoEmp = $('stk-empaque-modo')?.value || 'lote';
+      const cEmpUnit = num($('stk-empaque-costo').value);
+      const cEmp = modoEmp === 'lote' ? cEmpUnit : cEmpUnit * cCantidad;
+      const cFij = num($('stk-fijos-costo').value);
+      const cMano = (cCantidad * 1.5 / 60) * num($('stk-costo-mano-h').value);
+      costoTotal = cMat + cLam + cTinta + cCuch + cEmp + cFij + cMano;
+      gananciaPct = num($('stk-ganancia').value);
+      nombreItem = `Stickers ${piezaA}×${piezaAl}cm — ${cCantidad} uds (Hoja ${hojaA}×${hojaAl})`;
+      html = `<div class="flex justify-between"><span class="text-gray-500">Hoja usada:</span><span class="font-bold">${hojaA} × ${hojaAl} cm</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Grid:</span><span class="font-bold">${grid.f} × ${grid.c} = ${grid.t} uds/hoja</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Hojas con merma:</span><span class="font-bold text-amber-600">${hojasR}</span></div>
+        <div class="flex justify-between border-t border-[#e8dbd3] pt-1 mt-1"><span class="text-gray-500">Materiales:</span><span>${fmt(cMat+cLam+cTinta+cCuch)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Empaque:</span><span>${fmt(cEmp)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Gastos fijos lote:</span><span>${fmt(cFij)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Mano de obra:</span><span>${fmt(cMano)}</span></div>`;
+    } else if (presetActual === 'toppers') {
+      const cHoja = hojasR * num($('top-costo-hoja').value);
+      let cMatExtra = 0;
+      document.querySelectorAll('#lista-materiales-extra tr').forEach(r => { cMatExtra += num(r.querySelector('.topper-mat-cant').value) * num(r.querySelector('.topper-mat-costo').value); });
+      let cMano = 0;
+      document.querySelectorAll('#lista-mano-obra-extra tr').forEach(r => { cMano += (num(r.querySelector('.topper-mo-min').value) / 60) * num(r.querySelector('.topper-mo-tarifa').value); });
+      const directo = cHoja + cMatExtra + cMano;
+      const gastosPct = num($('top-gastos-pct').value);
+      const gastos = directo * (gastosPct / 100);
+      costoTotal = directo + gastos;
+      gananciaPct = num($('top-ganancia').value);
+      nombreItem = `Toppers ${piezaA}×${piezaAl}cm — ${cCantidad} uds (Hoja ${hojaA}×${hojaAl})`;
+      html = `<div class="flex justify-between"><span class="text-gray-500">Hoja usada:</span><span class="font-bold">${hojaA} × ${hojaAl} cm</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Grid:</span><span class="font-bold">${grid.f} × ${grid.c} = ${grid.t} uds/hoja</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Hojas con merma:</span><span class="font-bold text-amber-600">${hojasR}</span></div>
+        <div class="flex justify-between border-t border-[#e8dbd3] pt-1 mt-1"><span class="text-gray-500">Material hoja:</span><span>${fmt(cHoja)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Materiales extra:</span><span>${fmt(cMatExtra)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Mano de obra:</span><span>${fmt(cMano)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Gastos (${gastosPct}%):</span><span>${fmt(gastos)}</span></div>`;
+    } else if (presetActual === 'papeleria') {
+      const cMat = hojasR * (num($('pap-costo-material').value) + num($('pap-costo-laminado').value) + num($('pap-costo-tinta').value) + num($('pap-costo-corte').value));
+      const modoEmp = $('pap-empaque-modo')?.value || 'unidad';
+      const cEmpUnit = num($('pap-empaque-costo').value);
+      const cEmp = modoEmp === 'lote' ? cEmpUnit : cEmpUnit * cCantidad;
+      const cFij = num($('pap-fijos-costo').value);
+      const cDiseno = num($('pap-horas-diseno').value) * num($('pap-tarifa-diseno').value);
+      costoTotal = cMat + cEmp + cFij + cDiseno;
+      gananciaPct = num($('pap-ganancia').value);
+      nombreItem = `Papelería ${piezaA}×${piezaAl}cm — ${cCantidad} uds (Hoja ${hojaA}×${hojaAl})`;
+      html = `<div class="flex justify-between"><span class="text-gray-500">Hoja usada:</span><span class="font-bold">${hojaA} × ${hojaAl} cm</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Grid:</span><span class="font-bold">${grid.f} × ${grid.c} = ${grid.t} uds/hoja</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Hojas con merma:</span><span class="font-bold text-amber-600">${hojasR}</span></div>
+        <div class="flex justify-between border-t border-[#e8dbd3] pt-1 mt-1"><span class="text-gray-500">Materiales:</span><span>${fmt(cMat)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Empaque:</span><span>${fmt(cEmp)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Gastos fijos lote:</span><span>${fmt(cFij)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Diseño:</span><span>${fmt(cDiseno)}</span></div>`;
+    } else if (presetActual === 'forros') {
+      const m2 = (piezaA * piezaAl) / 10000;
+      const cVinil = m2 * num($('forr-costo-vinil').value) * cCantidad;
+      const cLam = m2 * num($('forr-costo-laminado').value) * cCantidad;
+      const cTinta = hojasR * num($('forr-costo-tinta').value);
+      const modoEmp = $('forr-empaque-modo')?.value || 'lote';
+      const cEmpUnit = num($('forr-empaque-costo').value);
+      const cBolsa = modoEmp === 'lote' ? cEmpUnit : cEmpUnit * cCantidad;
+      const cDepre = num($('forr-depre-costo').value);
+      const cMano = cCantidad * num($('forr-costo-mano').value);
+      costoTotal = cVinil + cLam + cTinta + cBolsa + cDepre + cMano;
+      gananciaPct = num($('forr-ganancia').value);
+      nombreItem = `Forros ${piezaA}×${piezaAl}cm — ${cCantidad} uds`;
+      html = `<div class="flex justify-between"><span class="text-gray-500">Hoja usada:</span><span class="font-bold">${hojaA} × ${hojaAl} cm</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Grid:</span><span class="font-bold">${grid.f} × ${grid.c} = ${grid.t} uds/hoja</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Hojas con merma:</span><span class="font-bold text-amber-600">${hojasR}</span></div>
+        <div class="flex justify-between border-t border-[#e8dbd3] pt-1 mt-1"><span class="text-gray-500">Vinil + laminado:</span><span>${fmt(cVinil+cLam)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Tinta:</span><span>${fmt(cTinta)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Bolsa:</span><span>${fmt(cBolsa)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Depreciación lote:</span><span>${fmt(cDepre)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Mano de obra:</span><span>${fmt(cMano)}</span></div>`;
+    } else if (presetActual === 'vinil') {
+      const m2Hoja = (hojaA * hojaAl) / 10000;
+      const m2 = m2Hoja * hojasR;
+      const cMat = m2 * num($('vin-costo-m2').value);
+      const cMano = num($('vin-mano-obra').value);
+      costoTotal = cMat + cMano;
+      gananciaPct = num($('vin-ganancia').value);
+      nombreItem = `Vinil ${piezaA}×${piezaAl}cm — ${cCantidad} uds`;
+      html = `<div class="flex justify-between"><span class="text-gray-500">Hoja usada:</span><span class="font-bold">${hojaA} × ${hojaAl} cm</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Grid:</span><span class="font-bold">${grid.f} × ${grid.c} = ${grid.t} uds/hoja</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">m² totales:</span><span class="font-bold">${m2.toFixed(2)}</span></div>
+        <div class="flex justify-between border-t border-[#e8dbd3] pt-1 mt-1"><span class="text-gray-500">Material:</span><span>${fmt(cMat)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Mano de obra:</span><span>${fmt(cMano)}</span></div>`;
+    }
+    cant = cCantidad;
+  } else if (presetActual === 'sublimacion') {
+    const c = num($('sub-cantidad').value) || 1;
+    const cu = num($('sub-costo-virgen').value) + num($('sub-costo-transfer').value);
+    costoTotal = cu * c;
+    gananciaPct = num($('sub-ganancia').value);
+    cant = c;
+    nombreItem = `${$('sub-nombre').value || 'Sublimación'} — ${c} uds`;
+    html = `<div class="flex justify-between"><span class="text-gray-500">Costo unitario:</span><span>${fmt(cu)}</span></div><div class="flex justify-between"><span class="text-gray-500">Cantidad:</span><span>${c}</span></div>`;
+  } else if (presetActual === 'audiovisual') {
+    const hg = num($('vid-horas-grab').value);
+    const he = num($('vid-horas-edit').value);
+    const tar = num($('vid-tarifa').value);
+    const eq = num($('vid-equipos').value);
+    costoTotal = (hg + he) * tar + eq;
+    gananciaPct = num($('vid-ganancia').value);
+    cant = 1;
+    nombreItem = $('vid-nombre').value || 'Producción Audiovisual';
+    html = `<div class="flex justify-between"><span class="text-gray-500">Horas totales:</span><span>${(hg+he).toFixed(1)} h</span></div><div class="flex justify-between"><span class="text-gray-500">Costo base:</span><span>${fmt(costoTotal)}</span></div>`;
+  } else if (presetActual === 'manual') {
+    const c = num($('man-cantidad').value) || 1;
+    const cu = num($('man-costo').value);
+    costoTotal = cu * c;
+    gananciaPct = num($('man-ganancia').value);
+    cant = c;
+    nombreItem = $('man-nombre').value || 'Ítem manual';
+    html = `<div class="flex justify-between"><span class="text-gray-500">Costo unitario:</span><span>${fmt(cu)}</span></div><div class="flex justify-between"><span class="text-gray-500">Cantidad:</span><span>${c}</span></div>`;
+  }
+
+  costoUnit = cant > 0 ? costoTotal / cant : 0;
+  precioTotal = costoTotal * (1 + gananciaPct / 100);
+
+  html += `<div class="flex justify-between border-t border-[#e8dbd3] pt-1.5 mt-1.5"><span class="text-gray-500">Costo total del lote:</span><span class="font-bold text-rose-600">${fmt(costoTotal)}</span></div>
+           <div class="flex justify-between"><span class="text-gray-500">Costo unitario:</span><span class="font-bold">${fmt(costoUnit)}</span></div>
+           <div class="flex justify-between font-bold text-[#b88a73] text-sm"><span>Precio venta del lote:</span><span>${fmt(precioTotal)}</span></div>`;
+
+  res.innerHTML = html;
+  resultadoPresetActual = { tipo: presetActual, nombre: nombreItem, cant: cant, costoTotal: costoTotal, costoUnit: costoUnit, precioTotal: precioTotal, ganancia: gananciaPct };
+
+  if (preset.tieneGrid) {
+    const piezaA = num($(preset.camposGrid[0].id)?.value);
+    const piezaAl = num($(preset.camposGrid[1].id)?.value);
+    const gap = num($(preset.camposGrid[2].id)?.value);
+    const hojaSel = $('preset-hoja-select')?.value;
+    const sug = sugerirMejorHoja(piezaA, piezaAl, gap);
+    const aviso = $('aviso-sugerencia-hoja');
+    if (aviso && sug) {
+      if (hojaSel !== sug.hoja.id && hojaSel !== 'personalizado') {
+        aviso.innerHTML = `<i class="fa-solid fa-lightbulb mr-1"></i>Sugerencia: <b>${sug.hoja.nombre}</b> (${sug.hoja.ancho}×${sug.hoja.alto} cm) aprovecha mejor — ${sug.grid.t} uds/hoja (${(sug.eficiencia*100).toFixed(0)}% eficiencia). <button type="button" onclick="aplicarSugerenciaHoja('${sug.hoja.id}')" class="underline font-bold">Aplicar</button>`;
+        aviso.classList.remove('hidden');
+      } else aviso.classList.add('hidden');
+    }
+  }
+}
+
+function aplicarSugerenciaHoja(idHoja) {
+  const sel = $('preset-hoja-select');
+  if (sel) { sel.value = idHoja; cambiarHojaPreset(); }
+  mostrarNotificacion("Hoja aplicada.");
+}
+
+function agregarItemAlPresupuesto() {
+  if (!resultadoPresetActual) { mostrarNotificacion("Primero configura un ítem.", "error"); return; }
+  const r = resultadoPresetActual;
+  if (!r.nombre || r.cant <= 0) { mostrarNotificacion("Datos inválidos.", "error"); return; }
+  itemsPresupuesto.push({ tipo: r.tipo, nombre: r.nombre, cant: r.cant, costo: r.costoUnit, ganancia: r.ganancia, precio: null });
+  renderizarItemsPresupuesto();
+  mostrarNotificacion(`"${r.nombre}" agregado al presupuesto.`);
+  cerrarCalculadora();
+}
+
+function agregarItemManual() {
+  abrirModalInput({
+    titulo: 'Agregar ítem manual', textoBoton: 'Agregar',
+    campos: [
+      { id:'man-n', label:'Descripción', tipo:'text', valor:'' },
+      { id:'man-c', label:'Cantidad', tipo:'number', valor:1, min:1 },
+      { id:'man-co', label:'Costo unitario ($)', tipo:'number', valor:0, min:0, step:0.01 },
+      { id:'man-g', label:'% Ganancia', tipo:'number', valor:30, min:0 }
+    ],
+    onConfirm: () => {
+      const n = $('man-n').value.trim();
+      if (!n) return 'La descripción es obligatoria.';
+      itemsPresupuesto.push({ tipo:'Manual', nombre:n, cant:int($('man-c').value)||1, costo:num($('man-co').value), ganancia:num($('man-g').value), precio:null });
+      renderizarItemsPresupuesto();
+      mostrarNotificacion("Ítem agregado.");
+      return true;
+    }
+  });
+}
+
+function renderizarItemsPresupuesto() {
+  const cont = $('lista-items-presupuesto');
+  cont.innerHTML = '';
+  if (itemsPresupuesto.length === 0) cont.innerHTML = '<p class="text-center text-gray-400 text-xs py-4 italic">Sin ítems. Selecciona un preset arriba o agrega uno manual.</p>';
+  itemsPresupuesto.forEach((it, i) => {
+    const precioFila = it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100);
+    const badgeColor = it.tipo === 'Manual' ? 'bg-gray-100 text-gray-600' : 'bg-[#b88a73] text-white';
+    cont.innerHTML += `<div class="renglon-item bg-white border border-[#e8dbd3] rounded-xl p-3 hover:shadow-md transition space-y-2">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex-1 min-w-0"><span class="text-[9px] px-1.5 py-0.5 rounded ${badgeColor} font-bold">${it.tipo}</span>
+            <input type="text" value="${(it.nombre||'').replace(/"/g,'&quot;')}" class="bg-transparent border-b border-transparent hover:border-[#e8dbd3] focus:border-[#b88a73] text-sm w-full desc-input font-semibold mt-1 focus:outline-none py-0.5" oninput="itemsPresupuesto[${i}].nombre=this.value">
+          </div>
+          <button onclick="eliminarItemPresupuesto(${i})" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded-lg"><i class="fa-solid fa-trash text-xs"></i></button>
+        </div>
+        <div class="grid grid-cols-4 gap-2 text-[10px]">
+          <div><label class="block text-gray-500 font-semibold mb-0.5">Cant</label><input type="number" value="${it.cant}" min="1" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-1.5 py-1 text-xs text-center" oninput="itemsPresupuesto[${i}].cant=parseInt(this.value)||1; renderizarItemsPresupuesto()"></div>
+          <div><label class="block text-gray-500 font-semibold mb-0.5">Costo</label><input type="number" step="0.01" value="${it.costo}" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-1.5 py-1 text-xs text-center" oninput="itemsPresupuesto[${i}].costo=parseFloat(this.value)||0; renderizarItemsPresupuesto()"></div>
+          <div><label class="block text-gray-500 font-semibold mb-0.5">%G</label><input type="number" value="${it.ganancia}" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-1.5 py-1 text-xs text-center" oninput="itemsPresupuesto[${i}].ganancia=parseFloat(this.value)||0; itemsPresupuesto[${i}].precio=null; renderizarItemsPresupuesto()"></div>
+          <div><label class="block text-[#b88a73] font-bold mb-0.5">Total</label><input type="number" step="0.01" value="${precioFila.toFixed(2)}" class="w-full bg-white border border-[#b88a73] text-[#b88a73] font-bold rounded-lg px-1.5 py-1 text-xs text-right" oninput="itemsPresupuesto[${i}].precio=parseFloat(this.value)||0; recalcularPresupuestoTotal()"></div>
+        </div>
+      </div>`;
+  });
+  recalcularPresupuestoTotal();
+}
+
+function eliminarItemPresupuesto(i) { itemsPresupuesto.splice(i, 1); renderizarItemsPresupuesto(); mostrarNotificacion("Ítem eliminado."); }
+function aplicarGananciaGlobal() { const g = num($('presupuesto-ganancia-global').value); itemsPresupuesto.forEach(it => { it.ganancia = g; it.precio = null; }); renderizarItemsPresupuesto(); }
+
+function recalcularPresupuestoTotal() {
+  let tc = 0, tv = 0;
+  itemsPresupuesto.forEach(it => {
+    tc += it.cant * it.costo;
+    if (it.precio !== null) tv += it.precio;
+    else tv += it.cant * it.costo * (1 + it.ganancia/100);
+  });
+  $('doc-total-usd').innerText = `$${tv.toFixed(2)}`;
+  $('doc-total-ves').innerText = `Bs. ${(tv * tasaBCV).toFixed(2)}`;
+  $('cotizador-count').innerText = itemsPresupuesto.length;
+  const cl = $('presupuesto-cliente').value;
+  $('doc-cliente-nombre').innerText = cl === 'CREAR_NUEVO_CLIENTE' ? 'Cliente General' : cl;
+  $('doc-validez-txt').innerText = $('presupuesto-validez').value || 'N/A';
+  try { localStorage.setItem('lan_borrador_presupuesto', JSON.stringify(itemsPresupuesto)); } catch(e){}
+}
+
+function alternarOcultarBCV() {
+  const oc = $('chk-ocultar-bcv').checked;
+  $('container-tasa-doc').classList.toggle('hidden', oc);
+  $('container-total-ves-doc').classList.toggle('hidden', oc);
+}
+
+function manejarCambioClientePresupuesto(sel) {
+  if (sel.value === 'CREAR_NUEVO_CLIENTE') { abrirModalClienteNuevo(cl => { sel.value = cl.nombre; recalcularPresupuestoTotal(); }); sel.value = 'Cliente General'; return; }
+  recalcularPresupuestoTotal();
+}
+function manejarCambioClienteCaja(sel) {
+  if (sel.value === 'CREAR_NUEVO_CLIENTE') { abrirModalClienteNuevo(cl => { sel.value = cl.nombre; }); sel.value = 'Cliente General'; }
+}
+
+async function guardarEnStandBy() {
+  const cliente = $('presupuesto-cliente').value;
+  const validez = $('presupuesto-validez').value;
+  let total = 0;
+  itemsPresupuesto.forEach(it => total += (it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100)));
+  if (total <= 0 || itemsPresupuesto.length === 0) { mostrarNotificacion("El presupuesto está vacío.", "error"); return; }
+  try {
+    await db.collection('standby').add({ cliente, validez, total_usd: total, items: JSON.stringify(itemsPresupuesto), created_at: new Date().toLocaleString(), fechaISO: new Date().toISOString() });
+    mostrarNotificacion("¡Guardado en Stand By!");
+    itemsPresupuesto = [];
+    renderizarItemsPresupuesto();
+    cargarStandBy();
+    switchTab('trabajos');
+  } catch(e) { mostrarNotificacion("Error al guardar.", "error"); }
+}
+
+function enviarACaja() {
+  if (itemsPresupuesto.length === 0) { mostrarNotificacion("El presupuesto está vacío.", "error"); return; }
+  const cliente = $('presupuesto-cliente').value;
+  switchTab('caja');
+  setTimeout(() => {
+    const sel = $('caja-cliente'); if (sel) sel.value = cliente;
+    const tb = $('lista-items-caja'); tb.innerHTML = '';
+    itemsPresupuesto.forEach(it => {
+      const p = it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100);
+      agregarItemCajaFila(it.nombre, it.cant, (p / it.cant).toFixed(2));
+    });
+    recalcularTotalesCaja();
+    mostrarNotificacion("Ítems cargados en Caja.");
+  }, 200);
+}
+
+// ================= CAJA =================
+function cargarBorradorCaja() {
+  const tb = $('lista-items-caja');
+  if (!tb) return;
+  tb.innerHTML = '';
+  const b = localStorage.getItem('lan_borrador_caja');
+  if (b) {
+    try { const p = JSON.parse(b); if (Array.isArray(p) && p.length) { p.forEach(i => agregarItemCajaFila(i.desc, i.cant, i.precio)); recalcularTotalesCaja(); return; } } catch(e){}
+  }
+  agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0);
+}
+
+function agregarItemCajaFila(nombre='', cant=1, precio=0) {
+  cajaItemIdx++;
+  const tb = $('lista-items-caja'); if (!tb) return;
+  const rowId = `caja-item-${cajaItemIdx}`;
+  tb.insertAdjacentHTML('beforeend', `<tr id="${rowId}" class="border-b border-[#e8dbd3] caja-item-row">
+      <td class="p-1.5"><input type="text" value="${(nombre||'').replace(/"/g,'&quot;')}" placeholder="Descripción..." class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs caja-desc-input" oninput="guardarBorradorCaja()"></td>
+      <td class="p-1.5 text-center"><input type="number" value="${cant}" min="1" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-1 py-1 text-xs text-center caja-cant-input" oninput="recalcularTotalesCaja(); guardarBorradorCaja()"></td>
+      <td class="p-1.5 text-right"><input type="number" step="0.01" min="0" value="${parseFloat(precio).toFixed(2)}" class="w-full bg-white border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs text-right caja-precio-input font-bold text-[#b88a73]" oninput="recalcularTotalesCaja(); guardarBorradorCaja()"></td>
+      <td class="p-1.5 text-center"><button onclick="document.getElementById('${rowId}').remove(); recalcularTotalesCaja(); guardarBorradorCaja()" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1 rounded text-xs"><i class="fa-solid fa-trash"></i></button></td>
+    </tr>`);
+  recalcularTotalesCaja();
+}
+
+function guardarBorradorCaja() {
+  const items = [];
+  document.querySelectorAll('.caja-item-row').forEach(r => {
+    items.push({ desc: r.querySelector('.caja-desc-input').value, cant: r.querySelector('.caja-cant-input').value, precio: r.querySelector('.caja-precio-input').value });
+  });
+  localStorage.setItem('lan_borrador_caja', JSON.stringify(items));
+}
+
+function recalcularTotalesCaja() {
+  let sub = 0;
+  document.querySelectorAll('.caja-item-row').forEach(r => { sub += num(r.querySelector('.caja-cant-input').value) * num(r.querySelector('.caja-precio-input').value); });
+  const desc = num($('caja-descuento-pct').value);
+  const total = Math.max(0, sub - (sub * desc / 100));
+  const tEl = $('caja-total-usd'); if (tEl) tEl.value = total.toFixed(2);
+  const vEl = $('caja-total-ves'); if (vEl) vEl.value = `Bs. ${(total * tasaBCV).toFixed(2)}`;
+  const rT = $('resumen-total'); if (rT) rT.innerText = `$${total.toFixed(2)}`;
+  calcularRestanteCaja();
+}
+
+function registrarPagoRapido(metodo) {
+  const total = num($('caja-total-usd').value);
+  let ab = 0;
+  document.querySelectorAll('.pago-item .monto-pago').forEach(i => ab += num(i.value));
+  const restante = total - ab;
+  const monto = restante > 0 ? restante : total;
+  pagoIdx++;
+  const lista = $('lista-pagos');
+  const id = `pago-row-${pagoIdx}`;
+  lista.insertAdjacentHTML('beforeend', `<div id="${id}" class="flex space-x-1.5 items-center bg-white p-1.5 rounded-xl border border-[#e8dbd3] pago-item text-xs">
+      <select class="w-[32%] bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-1.5 py-1 text-[10px]"><option value="${metodo}">${metodo}</option><option value="Efectivo USD">Efectivo ($)</option><option value="Pago Móvil">Pago Móvil</option><option value="Zelle">Zelle/Binance</option><option value="Cashea">Cashea</option><option value="Transferencia">Transferencia</option></select>
+      <div class="relative w-[32%]"><span class="absolute left-1.5 top-1 text-gray-400 text-xs">$</span><input type="number" value="${monto.toFixed(2)}" step="0.01" min="0" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg pl-4 pr-1.5 py-1 font-bold text-xs monto-pago" oninput="calcularRestanteCaja()"></div>
+      <input type="text" placeholder="Ref" class="w-[28%] bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-1.5 py-1 text-[10px] ref-pago">
+      <button onclick="document.getElementById('${id}').remove(); calcularRestanteCaja()" class="text-rose-500 hover:text-rose-700 px-1"><i class="fa-solid fa-trash"></i></button>
+    </div>`);
+  calcularRestanteCaja();
+}
+function agregarMetodoPago() { registrarPagoRapido('Efectivo USD'); }
+
+function calcularRestanteCaja() {
+  const total = num($('caja-total-usd').value);
+  let ab = 0;
+  document.querySelectorAll('.pago-item .monto-pago').forEach(i => ab += num(i.value));
+  $('resumen-abonado').innerText = `$${ab.toFixed(2)}`;
+  const r = total - ab;
+  const el = $('resumen-restante');
+  if (r > 0) { el.innerText = `Falta: $${r.toFixed(2)}`; el.className = 'font-bold text-rose-600 text-xs'; }
+  else if (r < 0) { el.innerText = `Vuelto: $${Math.abs(r).toFixed(2)}`; el.className = 'font-bold text-emerald-600 text-xs'; }
+  else { el.innerText = 'Pagado exacto'; el.className = 'font-bold text-emerald-600 text-xs'; }
+}
+
+document.addEventListener('change', e => {
+  if (e.target?.id === 'caja-generar-ot') {
+    const c = $('caja-ot-fecha-container');
+    if (e.target.checked) { c.classList.remove('hidden'); const h = new Date(); h.setDate(h.getDate()+2); $('caja-ot-fecha-entrega').value = h.toISOString().split('T')[0]; }
+    else c.classList.add('hidden');
+  }
+});
+
+async function procesarPagoFinal() {
+  const cliente = $('caja-cliente').value;
+  const totalUSD = num($('caja-total-usd').value);
+  const notas = $('caja-notas').value.trim();
+  const descuento = $('caja-descuento-pct').value || '0';
+  const generarOT = $('caja-generar-ot').checked;
+  const fechaEntregaOT = $('caja-ot-fecha-entrega').value;
+  if (totalUSD <= 0) { mostrarNotificacion("Factura vacía.", "error"); return; }
+  let items = [];
+  document.querySelectorAll('.caja-item-row').forEach(r => {
+    const d = r.querySelector('.caja-desc-input').value.trim();
+    const c = int(r.querySelector('.caja-cant-input').value) || 1;
+    const p = num(r.querySelector('.caja-precio-input').value);
+    if (d) items.push({ desc:d, cant:c, precio:p });
+  });
+  if (!items.length) { mostrarNotificacion("Añade al menos un ítem.", "error"); return; }
+  let metodos = [], totalAb = 0;
+  document.querySelectorAll('.pago-item').forEach(it => {
+    const m = it.querySelector('select').value;
+    const mo = num(it.querySelector('.monto-pago').value);
+    const r = it.querySelector('.ref-pago').value || 'S/R';
+    if (mo > 0) { metodos.push(`${m}: $${mo.toFixed(2)} (Ref: ${r})`); totalAb += mo; }
+  });
+  if (totalAb < totalUSD) {
+    const ok = await confirmarAccion('Pago incompleto', `Faltan $${(totalUSD - totalAb).toFixed(2)}. ¿Procesar igual?`, 'Procesar', 'warning');
+    if (!ok) return;
+  }
+  const insumosAfectados = [];
+  items.forEach(item => {
+    const ins = listaInsumosDB.find(i => i.nombre.toLowerCase().trim() === item.desc.toLowerCase().trim());
+    if (ins) insumosAfectados.push({ insumo: ins, cantidad: item.cant });
+  });
+  const concepto = items.map(i => `${i.cant}x ${i.desc}`).join(' + ');
+  const metodosStr = metodos.join(' | ') || 'No especificado';
+  const pagadoFull = totalAb >= totalUSD - 0.01;
+  try {
+    await db.collection('ventas').add({
+      fechaISO: new Date().toISOString(), fecha: new Date().toLocaleDateString(),
+      cliente, concepto, total_usd: totalUSD, metodos_pago: metodosStr,
+      descuento: `${descuento}%`, notas,
+      abonado: totalAb, estado_pago: pagadoFull ? 'Pagado' : (totalAb > 0 ? 'Abonado' : 'Pendiente'),
+      ordenVinculada: ordenVinculadaCaja ? ordenVinculadaCaja.id : null,
+      usuario: usuarioActual ? usuarioActual.email : 'desconocido'
+    });
+    for (const it of insumosAfectados) {
+      const nuevo = int(it.insumo.stock) - it.cantidad;
+      await db.collection('insumos').doc(it.insumo.id).update({ stock: nuevo });
+      await db.collection('movimientos_inventario').add({
+        insumoId: it.insumo.id, insumoNombre: it.insumo.nombre, tipo:'salida',
+        cantidad: it.cantidad, stockAntes: it.insumo.stock, stockDespues: nuevo,
+        motivo: `Venta a ${cliente}`, fechaISO: new Date().toISOString(),
+        fecha: new Date().toLocaleDateString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido'
+      });
+    }
+    if (ordenVinculadaCaja) {
+      const o = listaOrdenesDB.find(x => x.id === ordenVinculadaCaja.id);
+      if (o) {
+        const nuevoAb = num(o.abonado) + totalAb;
+        const nuevoEstado = nuevoAb >= num(o.precio) - 0.01 ? 'Pagado' : (nuevoAb > 0 ? 'Abonado' : 'Pendiente');
+        await db.collection('ordenes').doc(o.id).update({
+          abonado: nuevoAb, estado_pago: nuevoEstado,
+          pagos: firebase.firestore.FieldValue.arrayUnion({
+            fecha: new Date().toLocaleString(), monto: totalAb, metodo: metodosStr, nota: notas || '',
+            usuario: usuarioActual ? usuarioActual.email : 'desconocido'
+          })
+        });
+        mostrarNotificacion(`¡Venta procesada! Abono aplicado a ${o.numero}.`);
+      } else mostrarNotificacion("¡Venta procesada!");
+    } else if (generarOT) {
+      const numero = await obtenerSiguienteNumeroOrden();
+      await db.collection('ordenes').add({
+        numero, cliente, concepto, estado:'Pendiente', precio: totalUSD,
+        abonado: pagadoFull ? totalUSD : 0,
+        estado_pago: pagadoFull ? 'Pagado' : 'Pendiente',
+        fecha: new Date().toLocaleDateString(), fechaEntrega: fechaEntregaOT || '',
+        notas, items, fechaISO: new Date().toISOString(),
+        usuario: usuarioActual ? usuarioActual.email : 'desconocido',
+        historial: [{ estado:'Pendiente', fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' }],
+        pagos: pagadoFull ? [{ fecha: new Date().toLocaleString(), monto: totalUSD, metodo: metodosStr, nota: notas || '', usuario: usuarioActual ? usuarioActual.email : 'desconocido' }] : []
+      });
+      mostrarNotificacion(`Venta procesada + ${numero} creada.`);
+    } else mostrarNotificacion("¡Venta procesada!");
+    ultimaVentaProcesada = { cliente, concepto, total_usd: totalUSD, metodos_pago: metodosStr, notas };
+  } catch(e) { console.error(e); mostrarNotificacion("Error.", "error"); return; }
+  localStorage.removeItem('lan_borrador_caja');
+  $('lista-items-caja').innerHTML = '';
+  $('lista-pagos').innerHTML = '';
+  $('caja-notas').value = '';
+  $('caja-descuento-pct').value = '0';
+  $('caja-generar-ot').checked = false;
+  $('caja-ot-fecha-container').classList.add('hidden');
+  desvincularOrdenCaja();
+  agregarItemCajaFila('Servicio de Diseño e Impresión', 1, 0);
+  recalcularTotalesCaja();
+  switchTab('dashboard');
+}
+
+function vincularOrdenCaja(orden) {
+  ordenVinculadaCaja = orden;
+  const cont = $('caja-orden-vinculada'); const txt = $('caja-orden-txt');
+  if (cont && txt) { cont.classList.remove('hidden'); txt.innerText = `${orden.numero} — ${orden.cliente} — Total $${num(orden.precio).toFixed(2)} — Abonado $${num(orden.abonado).toFixed(2)}`; }
+}
+function desvincularOrdenCaja() {
+  ordenVinculadaCaja = null;
+  const cont = $('caja-orden-vinculada');
+  if (cont) cont.classList.add('hidden');
+}
+
+// ================= ÓRDENES =================
+async function obtenerSiguienteNumeroOrden() {
+  const anio = new Date().getFullYear();
+  const ref = db.collection('contadores').doc('ordenes');
+  try {
+    return await db.runTransaction(async tx => {
+      const d = await tx.get(ref);
+      let u = 0;
+      if (d.exists && d.data().anio === anio) u = d.data().ultimo || 0;
+      const n = u + 1;
+      tx.set(ref, { ultimo: n, anio });
+      return `OT-${anio}-${String(n).padStart(4,'0')}`;
+    });
+  } catch(e) { return `OT-${anio}-${Date.now().toString().slice(-4)}`; }
+}
+
+function cargarOrdenes() { renderizarKanban(); renderizarTablaTrabajos(); actualizarBadges(); }
+
+function ordenPasaFiltro(o) {
+  const soloImpagos = $('filtro-solo-impagos')?.checked;
+  if (soloImpagos) { const est = calcularEstadoPago(o); if (est === 'Pagado') return false; }
+  return true;
+}
+
+function renderizarKanban() {
+  ESTADOS_ORDEN.forEach(est => {
+    const lista = $(`kl-${est}`); const count = $(`kc-${est}`);
+    if (!lista) return;
+    const items = listaOrdenesDB.filter(o => o.estado === est && ordenPasaFiltro(o)).sort((a,b) => (b.fechaISO||'').localeCompare(a.fechaISO||''));
+    if (count) count.innerText = items.length;
+    lista.innerHTML = items.length ? '' : '<p class="text-[10px] text-gray-400 text-center py-2 italic">Sin órdenes</p>';
+    items.forEach(o => { lista.innerHTML += renderKanbanCard(o); });
+  });
+}
+
+function getBadgeEstado(est) {
+  switch(est) {
+    case 'Pendiente': return 'bg-amber-50 text-amber-700 border-amber-200';
+    case 'En Diseño': return 'bg-blue-50 text-blue-700 border-blue-200';
+    case 'En Impresión': return 'bg-purple-50 text-purple-700 border-purple-200';
+    case 'Listo': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    case 'Entregado': return 'bg-gray-100 text-gray-600 border-gray-300';
+    default: return 'bg-gray-50 text-gray-700 border-gray-200';
+  }
+}
+
+function renderKanbanCard(o) {
+  const j = JSON.stringify(o).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const pago = calcularEstadoPago(o);
+  const bP = getBadgePago(pago);
+  const restante = num(o.precio) - num(o.abonado);
+  const txtPago = pago === 'Pagado' ? '' : `<span class="block text-[9px] font-bold text-rose-600 mt-0.5">Resta: $${restante.toFixed(2)}</span>`;
+  return `<div class="bg-white p-2.5 rounded-xl border border-[#e8dbd3] shadow-xs hover:shadow-md transition cursor-pointer kanban-card" draggable="true" data-orden-id="${o.id}" onclick='verDetalleOrden(${j})'>
+      <div class="flex justify-between items-start mb-1 gap-1">
+        <span class="text-[10px] font-bold text-[#b88a73]">${o.numero||'S/N'}</span>
+        <span class="text-[9px] px-1.5 py-0.5 rounded-full border ${bP.cls} font-bold whitespace-nowrap"><i class="fa-solid ${bP.icon} mr-0.5"></i>${bP.txt}</span>
+      </div>
+      <p class="text-xs font-semibold truncate mb-1">${o.concepto}</p>
+      <p class="text-[10px] text-gray-500 truncate"><i class="fa-solid fa-user mr-1"></i>${o.cliente}</p>
+      <div class="flex justify-between items-center mt-1.5 pt-1.5 border-t border-[#f0ebe6]">
+        <span class="text-[9px] text-gray-400">${o.fechaEntrega?'📅 '+o.fechaEntrega:'Sin fecha'}</span>
+        <span class="text-[10px] font-bold text-[#b88a73]">$${parseFloat(o.precio||0).toFixed(2)}</span>
+      </div>
+      ${txtPago}
+    </div>`;
+}
+
+function renderizarTablaTrabajos() {
+  const tb = $('tabla-trabajos'); if (!tb) return;
+  const arr = listaOrdenesDB.filter(ordenPasaFiltro).slice().sort((a,b) => (b.fechaISO||'').localeCompare(a.fechaISO||''));
+  tb.innerHTML = arr.length ? '' : '<tr><td colspan="7" class="p-4 text-center text-gray-400">Sin órdenes.</td></tr>';
+  arr.forEach(o => {
+    const j = JSON.stringify(o).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    const pago = calcularEstadoPago(o);
+    const bP = getBadgePago(pago);
+    tb.innerHTML += `<tr class="border-b border-[#e8dbd3] hover:bg-[#faf8f6]">
+        <td class="p-2 font-bold text-[#b88a73]">${o.numero||'S/N'}</td>
+        <td class="p-2 font-semibold">${o.cliente}</td>
+        <td class="p-2 text-xs max-w-xs truncate">${o.concepto}</td>
+        <td class="p-2"><span class="px-2 py-0.5 rounded-full border text-[10px] font-semibold ${getBadgeEstado(o.estado)}">${o.estado}</span></td>
+        <td class="p-2"><span class="px-2 py-0.5 rounded-full border text-[10px] font-semibold ${bP.cls}"><i class="fa-solid ${bP.icon} mr-1"></i>${bP.txt}</span></td>
+        <td class="p-2 text-xs">${o.fechaEntrega||'-'}</td>
+        <td class="p-2 text-center whitespace-nowrap">
+          <button onclick='verDetalleOrden(${j})' class="bg-gray-100 hover:bg-sky-100 text-sky-700 p-1.5 rounded-xl text-xs mr-0.5"><i class="fa-solid fa-eye"></i></button>
+          <button onclick='eliminarOrden("${o.id}")' class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1.5 rounded-xl text-xs"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>`;
+  });
+}
+
+function cambiarVistaTrabajos(v) {
+  const bk = $('btn-vista-kanban'), bt = $('btn-vista-tabla');
+  const vk = $('vista-kanban-trabajos'), vt = $('vista-tabla-trabajos');
+  if (v === 'kanban') { bk.className = 'px-2.5 py-1 text-[11px] font-semibold rounded-md bg-[#2c2c2c] text-white transition'; bt.className = 'px-2.5 py-1 text-[11px] font-semibold rounded-md text-gray-600 transition'; vk.classList.remove('hidden'); vt.classList.add('hidden'); }
+  else { bt.className = 'px-2.5 py-1 text-[11px] font-semibold rounded-md bg-[#2c2c2c] text-white transition'; bk.className = 'px-2.5 py-1 text-[11px] font-semibold rounded-md text-gray-600 transition'; vt.classList.remove('hidden'); vk.classList.add('hidden'); }
+}
+
+document.addEventListener('dragstart', e => {
+  const c = e.target.closest('.kanban-card');
+  if (c) { e.dataTransfer.setData('text/plain', c.dataset.ordenId); e.dataTransfer.effectAllowed = 'move'; setTimeout(()=>c.style.opacity='0.4',0); }
+});
+document.addEventListener('dragend', e => {
+  const c = e.target.closest('.kanban-card');
+  if (c) c.style.opacity = '1';
+  document.querySelectorAll('.kanban-dropzone').forEach(z => z.classList.remove('kanban-drop-hover'));
+});
+document.addEventListener('dragover', e => {
+  const z = e.target.closest('.kanban-dropzone');
+  if (z) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; z.classList.add('kanban-drop-hover'); }
+});
+document.addEventListener('dragleave', e => {
+  const z = e.target.closest('.kanban-dropzone');
+  if (z) z.classList.remove('kanban-drop-hover');
+});
+document.addEventListener('drop', async e => {
+  const z = e.target.closest('.kanban-dropzone');
+  if (z) { e.preventDefault(); z.classList.remove('kanban-drop-hover'); const id = e.dataTransfer.getData('text/plain'); const ne = z.dataset.estado; if (id && ne) await cambiarEstadoOrden(id, ne); }
+});
+
+async function cambiarEstadoOrden(id, ne) {
+  const o = listaOrdenesDB.find(x => x.id === id);
+  if (!o || o.estado === ne) return;
+  const ok = await confirmarAccion('Cambiar estado', `¿Mover orden ${o.numero} de "${o.estado}" a "${ne}"?`, 'Confirmar', 'warning');
+  if (!ok) return;
+  try {
+    await db.collection('ordenes').doc(id).update({ estado: ne, historial: firebase.firestore.FieldValue.arrayUnion({ estado: ne, fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' }) });
+    mostrarNotificacion(`Movida a "${ne}"`);
+  } catch(e) { mostrarNotificacion("Error.", "error"); }
+}
+
+function abrirModalNuevaOrden() {
+  $('orden-cliente').value = 'Cliente General';
+  $('orden-concepto').value = '';
+  $('orden-estado').value = 'Pendiente';
+  $('orden-precio').value = '0.00';
+  const h = new Date(), h2 = new Date(); h2.setDate(h2.getDate()+2);
+  $('orden-fecha-creacion').value = h.toISOString().split('T')[0];
+  $('orden-fecha-entrega').value = h2.toISOString().split('T')[0];
+  $('orden-notas').value = '';
+  document.querySelectorAll('input[name="orden-pago-inicial"]').forEach(r => { r.checked = r.value === 'Pendiente'; });
+  $('modal-orden-error').classList.add('hidden');
+  const sel = $('orden-cliente');
+  sel.innerHTML = '<option value="Cliente General">-- Cliente General --</option>';
+  listaClientesDB.forEach(c => { sel.innerHTML += `<option value="${c.nombre}">${c.nombre} (${c.tel||'Sin telf'})</option>`; });
+  $('modal-nueva-orden').classList.remove('hidden');
+}
+
+function cerrarModalNuevaOrden() { $('modal-nueva-orden').classList.add('hidden'); }
+
+async function guardarOrdenDesdeModal() {
+  const cliente = $('orden-cliente').value;
+  const concepto = $('orden-concepto').value.trim();
+  const estado = $('orden-estado').value;
+  const precio = num($('orden-precio').value);
+  const fc = $('orden-fecha-creacion').value;
+  const fe = $('orden-fecha-entrega').value;
+  const notas = $('orden-notas').value.trim();
+  const pagoIni = document.querySelector('input[name="orden-pago-inicial"]:checked')?.value || 'Pendiente';
+  if (!concepto) { $('modal-orden-error-text').innerText = 'Concepto obligatorio.'; $('modal-orden-error').classList.remove('hidden'); return; }
+  try {
+    const numero = await obtenerSiguienteNumeroOrden();
+    const abonadoIni = pagoIni === 'Pagado' ? precio : 0;
+    await db.collection('ordenes').add({
+      numero, cliente, concepto, estado, precio, abonado: abonadoIni, estado_pago: pagoIni,
+      fecha: fc, fechaEntrega: fe, notas, items: [],
+      fechaISO: new Date().toISOString(),
+      usuario: usuarioActual ? usuarioActual.email : 'desconocido',
+      historial: [{ estado, fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' }],
+      pagos: pagoIni === 'Pagado' ? [{ fecha: new Date().toLocaleString(), monto: precio, metodo: 'Registro inicial', nota: 'Creada como pagada', usuario: usuarioActual ? usuarioActual.email : 'desconocido' }] : []
+    });
+    mostrarNotificacion(`¡Orden ${numero} creada!`);
+    cerrarModalNuevaOrden();
+  } catch(e) { $('modal-orden-error-text').innerText = 'Error.'; $('modal-orden-error').classList.remove('hidden'); }
+}
+
+function verDetalleOrden(o) {
+  ordenActualDetalle = o;
+  $('modal-ver-orden-titulo').innerHTML = `<i class="fa-solid fa-clipboard-check mr-2 text-[#b88a73]"></i> ${o.numero || 'Orden'}`;
+  let hist = '';
+  if (Array.isArray(o.historial) && o.historial.length) hist = o.historial.map(h => `<div class="flex justify-between text-[10px] py-1 border-b border-gray-100"><span class="font-semibold">${h.estado}</span><span class="text-gray-500">${h.fecha}</span></div>`).join('');
+  else hist = '<p class="text-[10px] text-gray-400 italic">Sin historial.</p>';
+
+  const pago = calcularEstadoPago(o);
+  const bP = getBadgePago(pago);
+  const total = num(o.precio);
+  const abonado = num(o.abonado);
+  const restante = Math.max(0, total - abonado);
+
+  let pagosHTML = '';
+  if (Array.isArray(o.pagos) && o.pagos.length) {
+    pagosHTML = `<p class="text-[10px] font-bold uppercase text-gray-500 mb-1.5 mt-2"><i class="fa-solid fa-receipt mr-1"></i>Abonos registrados</p><div class="space-y-1">`;
+    o.pagos.forEach(p => {
+      pagosHTML += `<div class="flex justify-between items-center bg-white px-2 py-1.5 rounded-lg border border-[#e8dbd3] text-[10px]"><div><span class="font-bold text-emerald-600">$${parseFloat(p.monto).toFixed(2)}</span> <span class="text-gray-500">· ${p.metodo}</span>${p.nota ? `<br><span class="text-gray-400 italic">${p.nota}</span>` : ''}</div><span class="text-gray-400">${p.fecha}</span></div>`;
+    });
+    pagosHTML += '</div>';
+  }
+
+  $('contenido-ver-orden').innerHTML = `
+    <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3] space-y-1.5">
+      <div class="flex justify-between"><span class="text-gray-500">Cliente:</span><span class="font-bold">${o.cliente}</span></div>
+      <div class="flex justify-between"><span class="text-gray-500">Concepto:</span><span class="font-semibold text-right max-w-[60%]">${o.concepto}</span></div>
+      <div class="flex justify-between items-center"><span class="text-gray-500">Estado:</span><span class="px-2 py-0.5 rounded-full border text-[10px] font-semibold ${getBadgeEstado(o.estado)}">${o.estado}</span></div>
+      <div class="flex justify-between"><span class="text-gray-500">Creada:</span><span>${o.fecha||'-'}</span></div>
+      <div class="flex justify-between"><span class="text-gray-500">Entrega:</span><span class="font-semibold">${o.fechaEntrega||'-'}</span></div>
+      ${o.notas ? `<div class="pt-1.5 border-t border-[#e8dbd3]"><span class="text-gray-500 block mb-0.5">Notas:</span><p class="text-[11px]">${o.notas}</p></div>` : ''}
+    </div>
+
+    <div class="bg-amber-50 p-3 rounded-xl border-2 border-amber-200 space-y-2">
+      <div class="flex justify-between items-center">
+        <p class="text-[10px] font-bold uppercase text-amber-800"><i class="fa-solid fa-money-bill-wave mr-1"></i>Estado de pago</p>
+        <span class="px-2 py-0.5 rounded-full border text-[10px] font-bold ${bP.cls}"><i class="fa-solid ${bP.icon} mr-1"></i>${bP.txt}</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-center text-xs">
+        <div class="bg-white rounded-lg py-1.5"><p class="text-[9px] text-gray-500 uppercase">Total</p><p class="font-bold text-[#b88a73]">$${total.toFixed(2)}</p></div>
+        <div class="bg-white rounded-lg py-1.5"><p class="text-[9px] text-gray-500 uppercase">Abonado</p><p class="font-bold text-amber-600">$${abonado.toFixed(2)}</p></div>
+        <div class="bg-white rounded-lg py-1.5"><p class="text-[9px] text-gray-500 uppercase">Resta</p><p class="font-bold text-rose-600">$${restante.toFixed(2)}</p></div>
+      </div>
+      <div class="flex flex-wrap gap-1.5">
+        ${pago !== 'Pagado' ? `<button onclick='abrirModalPagoOrden("${o.id}")' class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded-lg font-bold text-[10px] transition"><i class="fa-solid fa-plus mr-1"></i>Registrar pago</button>` : ''}
+        ${pago !== 'Pagado' ? `<button onclick='cobrarDesdeOrden("${o.id}")' class="flex-1 bg-[#b88a73] hover:bg-[#a67963] text-white py-1.5 rounded-lg font-bold text-[10px] transition"><i class="fa-solid fa-cash-register mr-1"></i>Cobrar ahora</button>` : ''}
+        ${pago === 'Pagado' ? `<button onclick='marcarNoPagada("${o.id}")' class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-1.5 rounded-lg font-bold text-[10px] transition"><i class="fa-solid fa-rotate-left mr-1"></i>Marcar como no pagada</button>` : ''}
+      </div>
+      ${pagosHTML}
+    </div>
+
+    <div class="bg-white p-3 rounded-xl border border-[#e8dbd3]">
+      <p class="text-[10px] font-bold uppercase text-gray-500 mb-1.5"><i class="fa-solid fa-clock-rotate-left mr-1"></i>Historial de estados</p>
+      <div class="space-y-0.5">${hist}</div>
+    </div>
+
+    <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3]">
+      <label class="block text-[10px] font-bold uppercase text-gray-500 mb-1.5">Cambiar estado rápido</label>
+      <div class="grid grid-cols-5 gap-1.5">${ESTADOS_ORDEN.map(e => `<button onclick="cambiarEstadoOrdenDesdeModal('${o.id}','${e}')" class="text-[10px] px-1 py-1.5 rounded-lg border font-semibold ${e===o.estado?'bg-[#2c2c2c] text-white':'bg-white text-gray-700 border-[#e8dbd3] hover:bg-gray-50'}">${e}</button>`).join('')}</div>
+    </div>`;
+  $('modal-ver-orden').classList.remove('hidden');
+}
+
+async function cambiarEstadoOrdenDesdeModal(id, e) { await cambiarEstadoOrden(id, e); cerrarModalVerOrden(); }
+function cerrarModalVerOrden() { $('modal-ver-orden').classList.add('hidden'); ordenActualDetalle = null; }
+async function eliminarOrden(id) {
+  const ok = await confirmarAccion('¿Eliminar orden?', 'No se puede deshacer.', 'Eliminar', 'danger');
+  if (!ok) return;
+  try { await db.collection('ordenes').doc(id).delete(); mostrarNotificacion("Eliminada."); } catch(e){}
+}
+
+function abrirModalPagoOrden(ordenId) {
+  const o = listaOrdenesDB.find(x => x.id === ordenId);
+  if (!o) return;
+  ordenPagandoActual = o;
+  $('mp-orden-num').innerText = o.numero || 'S/N';
+  $('mp-orden-cliente').innerText = o.cliente;
+  const total = num(o.precio);
+  const abonado = num(o.abonado);
+  const restante = Math.max(0, total - abonado);
+  $('mp-orden-total').innerText = `$${total.toFixed(2)}`;
+  $('mp-orden-abonado').innerText = `$${abonado.toFixed(2)}`;
+  $('mp-orden-restante').innerText = `$${restante.toFixed(2)}`;
+  $('mp-monto').value = restante.toFixed(2);
+  $('mp-metodo').value = 'Efectivo USD';
+  $('mp-nota').value = '';
+  $('mp-error').classList.add('hidden');
+  $('modal-pago-orden').classList.remove('hidden');
+}
+function cerrarModalPagoOrden() { $('modal-pago-orden').classList.add('hidden'); ordenPagandoActual = null; }
+
+function mpSetMonto(tipo) {
+  if (!ordenPagandoActual) return;
+  const total = num(ordenPagandoActual.precio);
+  const abonado = num(ordenPagandoActual.abonado);
+  const restante = Math.max(0, total - abonado);
+  if (tipo === 'mitad') $('mp-monto').value = (total / 2).toFixed(2);
+  else if (tipo === 'restante') $('mp-monto').value = restante.toFixed(2);
+}
+
+async function confirmarPagoOrden() {
+  if (!ordenPagandoActual) return;
+  const monto = num($('mp-monto').value);
+  const metodo = $('mp-metodo').value;
+  const nota = $('mp-nota').value.trim();
+  if (monto <= 0) { $('mp-error-text').innerText = 'El monto debe ser mayor a 0.'; $('mp-error').classList.remove('hidden'); return; }
+  const total = num(ordenPagandoActual.precio);
+  const abonado = num(ordenPagandoActual.abonado);
+  const restante = Math.max(0, total - abonado);
+  if (monto > restante + 0.01) {
+    const ok = await confirmarAccion('Monto mayor al restante', `El monto ($${monto.toFixed(2)}) excede el restante ($${restante.toFixed(2)}). ¿Registrar igual?`, 'Registrar', 'warning');
+    if (!ok) return;
+  }
+  const nuevoAbonado = abonado + monto;
+  const nuevoEstado = nuevoAbonado >= total - 0.01 ? 'Pagado' : 'Abonado';
+  try {
+    await db.collection('ordenes').doc(ordenPagandoActual.id).update({
+      abonado: nuevoAbonado, estado_pago: nuevoEstado,
+      pagos: firebase.firestore.FieldValue.arrayUnion({
+        fecha: new Date().toLocaleString(), monto, metodo, nota,
+        usuario: usuarioActual ? usuarioActual.email : 'desconocido'
+      })
+    });
+    mostrarNotificacion(`Pago registrado. Estado: ${nuevoEstado}`);
+    cerrarModalPagoOrden();
+    cerrarModalVerOrden();
+  } catch(e) { $('mp-error-text').innerText = 'Error al guardar pago.'; $('mp-error').classList.remove('hidden'); }
+}
+
+async function marcarNoPagada(id) {
+  const o = listaOrdenesDB.find(x => x.id === id);
+  if (!o) return;
+  const ok = await confirmarAccion('¿Marcar como no pagada?', `Se reiniciará el estado de pago de ${o.numero}.`, 'Marcar', 'warning');
+  if (!ok) return;
+  try {
+    await db.collection('ordenes').doc(id).update({ abonado: 0, estado_pago: 'Pendiente' });
+    mostrarNotificacion("Marcada como no pagada.");
+    cerrarModalVerOrden();
+  } catch(e) {}
+}
+
+function cobrarDesdeOrden(id) {
+  const o = listaOrdenesDB.find(x => x.id === id);
+  if (!o) return;
+  cerrarModalVerOrden();
+  switchTab('caja');
+  setTimeout(() => {
+    vincularOrdenCaja(o);
+    const sel = $('caja-cliente'); if (sel) sel.value = o.cliente;
+    const tb = $('lista-items-caja'); tb.innerHTML = '';
+    const restante = Math.max(0, num(o.precio) - num(o.abonado));
+    if (Array.isArray(o.items) && o.items.length) {
+      o.items.forEach(it => agregarItemCajaFila(it.desc || it.nombre, it.cant || 1, it.precio || 0));
+    } else {
+      agregarItemCajaFila(o.concepto, 1, restante.toFixed(2));
+    }
+    recalcularTotalesCaja();
+    mostrarNotificacion(`Cobrando ${o.numero}. Registra el pago y guarda la venta.`);
+  }, 200);
+}
+
+// ================= STAND BY =================
+async function cargarStandBy() {
+  const tb = $('tabla-standby'); if (!tb) return;
+  try {
+    const s = await db.collection('standby').get();
+    let arr = []; s.forEach(d => arr.push({ id:d.id, ...d.data() }));
+    tb.innerHTML = arr.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin cotizaciones.</td></tr>';
+    arr.forEach(c => {
+      let resumen = '';
+      try { const p = JSON.parse(c.items); if (Array.isArray(p)) resumen = p.map(i => `${i.cant}x ${i.nombre}`).join(', '); } catch(e){}
+      const j = JSON.stringify(c).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+      tb.innerHTML += `<tr class="border-b border-[#e8dbd3]">
+          <td class="p-2 text-xs">${c.created_at||''}</td>
+          <td class="p-2 font-semibold">${c.cliente}</td>
+          <td class="p-2 text-xs text-gray-600 max-w-xs truncate">${resumen}</td>
+          <td class="p-2 font-bold text-[#b88a73]">$${parseFloat(c.total_usd||0).toFixed(2)}</td>
+          <td class="p-2 text-center whitespace-nowrap">
+            <button onclick='cargarStandByACotizador(${j})' class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-1.5 rounded-xl text-xs mr-0.5"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button onclick='standByACaja(${j})' class="bg-gray-100 hover:bg-emerald-100 text-emerald-700 p-1.5 rounded-xl text-xs mr-0.5"><i class="fa-solid fa-cash-register"></i></button>
+            <button onclick="eliminarStandBy('${c.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1.5 rounded-xl text-xs"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        </tr>`;
+    });
+    const dS = $('dash-standby'); if (dS) dS.innerText = arr.length;
+  } catch(e) { tb.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-500">Error.</td></tr>'; }
+}
+
+function cargarStandByACotizador(c) {
+  switchTab('cotizador');
+  setTimeout(() => {
+    try {
+      const items = JSON.parse(c.items);
+      itemsPresupuesto = items;
+      renderizarItemsPresupuesto();
+      const sel = $('presupuesto-cliente'); if (sel) sel.value = c.cliente;
+      const v = $('presupuesto-validez'); if (v) v.value = c.validez || '7 días hábiles';
+      mostrarNotificacion("Cotización cargada.");
+    } catch(e) { mostrarNotificacion("Error al cargar.", "error"); }
+  }, 200);
+}
+
+function standByACaja(c) {
+  switchTab('caja');
+  setTimeout(() => {
+    const sel = $('caja-cliente'); if (sel) sel.value = c.cliente;
+    const tb = $('lista-items-caja'); tb.innerHTML = '';
+    try {
+      const items = JSON.parse(c.items);
+      items.forEach(it => {
+        const p = it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100);
+        agregarItemCajaFila(it.nombre, it.cant, (p/it.cant).toFixed(2));
+      });
+    } catch(e) { agregarItemCajaFila('Cotización', 1, c.total_usd); }
+    recalcularTotalesCaja();
+    mostrarNotificacion("Ítems cargados en Caja.");
+  }, 200);
+}
+
+async function eliminarStandBy(id) {
+  const ok = await confirmarAccion('¿Eliminar cotización?', 'No se puede deshacer.', 'Eliminar', 'danger');
+  if (!ok) return;
+  try { await db.collection('standby').doc(id).delete(); cargarStandBy(); mostrarNotificacion("Eliminada."); } catch(e){}
+}
+
+// ================= DASHBOARD =================
+async function cargarDashboard() {
+  let ventas = [], insumos = [], clientes = [];
+  try {
+    const rV = await db.collection('ventas').get(); rV.forEach(d => ventas.push(d.data()));
+    const rI = await db.collection('insumos').get(); rI.forEach(d => insumos.push(d.data()));
+    const rC = await db.collection('clientes').get(); rC.forEach(d => clientes.push(d.data()));
+  } catch(e){}
+  const tv = ventas.reduce((a,v) => a + (parseFloat(v.total_usd)||0), 0);
+  const ia = insumos.filter(i => parseInt(i.stock||0) <= parseInt(i.stock_minimo||0)).length;
+  $('dash-ventas').innerHTML = `$${tv.toFixed(2)} <span class="block text-[10px] font-normal text-gray-500">Bs. ${(tv*tasaBCV).toFixed(2)}</span>`;
+  $('dash-insumos').innerText = insumos.length;
+  $('dash-alertas').innerText = ia;
+  $('dash-clientes').innerText = clientes.length;
+
+  let porCobrar = 0, countPorCobrar = 0;
+  listaOrdenesDB.forEach(o => {
+    const est = calcularEstadoPago(o);
+    if (est !== 'Pagado') {
+      const restante = Math.max(0, num(o.precio) - num(o.abonado));
+      if (restante > 0) { porCobrar += restante; countPorCobrar++; }
+    }
+  });
+  $('dash-porcobrar').innerText = `$${porCobrar.toFixed(2)}`;
+  $('dash-porcobrar-count').innerText = `${countPorCobrar} orden${countPorCobrar !== 1 ? 'es' : ''}`;
+
+  const tb = $('tabla-dash-ventas');
+  if (tb) {
+    try {
+      const snap = await db.collection('ventas').orderBy('fechaISO','desc').limit(10).get();
+      let arr = []; snap.forEach(d => arr.push(d.data()));
+      tb.innerHTML = arr.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin ventas.</td></tr>';
+      arr.forEach(v => {
+        tb.innerHTML += `<tr class="border-b border-[#e8dbd3]">
+            <td class="p-2 text-xs text-gray-500">${v.fecha||''}</td>
+            <td class="p-2 font-semibold">${v.cliente}</td>
+            <td class="p-2 text-xs max-w-xs truncate">${v.concepto}</td>
+            <td class="p-2 font-bold text-[#b88a73] text-right">$${parseFloat(v.total_usd||0).toFixed(2)}</td>
+            <td class="p-2 text-xs text-gray-600">${v.metodos_pago||'-'}</td>
+          </tr>`;
+      });
+    } catch(e){ tb.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-500">Error.</td></tr>'; }
+  }
+}
+
+// ================= VENTAS =================
+let ventasCache = [];
+async function cargarVentas() {
+  const tb = $('tabla-ventas-completo'); if (!tb) return;
+  tb.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Cargando...</td></tr>';
+  try {
+    const snap = await db.collection('ventas').orderBy('fechaISO','desc').get();
+    ventasCache = []; snap.forEach(d => ventasCache.push({ id:d.id, ...d.data() }));
+    const q = ($('ventas-buscador')?.value || '').toLowerCase().trim();
+    let filtradas = ventasCache;
+    if (q) filtradas = ventasCache.filter(v => (v.cliente||'').toLowerCase().includes(q) || (v.concepto||'').toLowerCase().includes(q) || String(v.total_usd||'').includes(q));
+    const totalCount = ventasCache.length;
+    const totalUSD = ventasCache.reduce((a,v) => a + (parseFloat(v.total_usd)||0), 0);
+    const prom = totalCount ? totalUSD / totalCount : 0;
+    const hoy = new Date();
+    const mesCount = ventasCache.filter(v => { const f = v.fechaISO ? new Date(v.fechaISO) : new Date(); return f.getMonth() === hoy.getMonth() && f.getFullYear() === hoy.getFullYear(); }).length;
+    $('ventas-total-count').innerText = totalCount;
+    $('ventas-total-usd').innerText = `$${totalUSD.toFixed(2)}`;
+    $('ventas-promedio').innerText = `$${prom.toFixed(2)}`;
+    $('ventas-mes-count').innerText = mesCount;
+    tb.innerHTML = filtradas.length ? '' : '<tr><td colspan="7" class="p-4 text-center text-gray-400">Sin ventas.</td></tr>';
+    filtradas.forEach(v => {
+      const fecha = v.fecha || (v.fechaISO ? new Date(v.fechaISO).toLocaleDateString() : '-');
+      const total = parseFloat(v.total_usd||0).toFixed(2);
+      const totalVES = (parseFloat(v.total_usd||0) * tasaBCV).toFixed(2);
+      tb.innerHTML += `<tr class="border-b border-[#e8dbd3] hover:bg-[#faf8f6]">
+          <td class="p-2 text-xs text-gray-500 whitespace-nowrap">${fecha}</td>
+          <td class="p-2 font-semibold">${v.cliente||'Cliente General'}</td>
+          <td class="p-2 text-xs max-w-xs truncate">${v.concepto||''}</td>
+          <td class="p-2 text-right font-bold text-[#b88a73] whitespace-nowrap">$${total}<span class="block text-[9px] font-normal text-gray-500">Bs. ${totalVES}</span></td>
+          <td class="p-2 text-xs text-gray-600 max-w-xs truncate">${v.metodos_pago||'-'}</td>
+          <td class="p-2 text-xs text-gray-500 max-w-xs truncate">${v.notas||'-'}</td>
+          <td class="p-2 text-center whitespace-nowrap">
+            <button onclick="editarVenta('${v.id}')" class="bg-gray-100 hover:bg-amber-100 text-amber-700 p-1.5 rounded-xl text-xs mr-0.5"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button onclick="eliminarVenta('${v.id}')" class="bg-gray-100 hover:bg-rose-100 text-rose-600 p-1.5 rounded-xl text-xs"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        </tr>`;
+    });
+  } catch(e) { tb.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-rose-500">Error.</td></tr>'; }
+}
+
+async function editarVenta(id) {
+  const v = ventasCache.find(x => x.id === id);
+  if (!v) return;
+  abrirModalInput({
+    titulo: 'Editar Venta', textoBoton: 'Guardar',
+    campos: [
+      { id:'ev-cliente', label:'Cliente', tipo:'text', valor:v.cliente||'' },
+      { id:'ev-concepto', label:'Concepto', tipo:'textarea', valor:v.concepto||'' },
+      { id:'ev-total', label:'Total ($)', tipo:'number', valor:parseFloat(v.total_usd||0).toFixed(2), min:0, step:0.01 },
+      { id:'ev-metodos', label:'Métodos de Pago', tipo:'text', valor:v.metodos_pago||'' },
+      { id:'ev-notas', label:'Notas', tipo:'textarea', valor:v.notas||'' }
+    ],
+    onConfirm: async () => {
+      const c = $('ev-cliente').value.trim();
+      if (!c) return 'Cliente obligatorio.';
+      try {
+        await db.collection('ventas').doc(id).update({ cliente: c, concepto: $('ev-concepto').value.trim(), total_usd: num($('ev-total').value), metodos_pago: $('ev-metodos').value.trim(), notas: $('ev-notas').value.trim(), editado_en: new Date().toISOString() });
+        mostrarNotificacion("Venta actualizada.");
+        cargarVentas(); cargarDashboard();
+        return true;
+      } catch(e) { return 'Error.'; }
+    }
+  });
+}
+
+async function eliminarVenta(id) {
+  const v = ventasCache.find(x => x.id === id);
+  if (!v) return;
+  const ok = await confirmarAccion('¿Eliminar venta?', `Se eliminará la venta de "${v.cliente}".`, 'Eliminar', 'danger');
+  if (!ok) return;
+  try { await db.collection('ventas').doc(id).delete(); mostrarNotificacion("Venta eliminada."); cargarVentas(); cargarDashboard(); } catch(e){}
+}
+
+// ================= INSUMOS =================
 async function guardarInsumo() {
   const editId = $('insumo-edit-id').value;
   const nombre = $('insumo-nombre').value.trim();
@@ -732,37 +2331,27 @@ async function guardarInsumo() {
   const stock_minimo = Math.max(0, int($('insumo-minimo').value));
   if (!nombre) { mostrarNotificacion("Nombre obligatorio.", "error"); return; }
   try {
-    if (editId) {
-      await db.collection('insumos').doc(editId).update({ nombre, categoria, costo_unitario, stock, stock_minimo });
-      mostrarNotificacion("¡Insumo actualizado!"); cancelarEdicionInsumo();
-    } else {
-      await db.collection('insumos').add({ nombre, categoria, costo_unitario, stock, stock_minimo });
-      mostrarNotificacion("¡Insumo guardado!");
-      ['insumo-nombre','insumo-categoria','insumo-costo','insumo-stock','insumo-minimo'].forEach(id => $(id).value = '');
-    }
+    if (editId) { await db.collection('insumos').doc(editId).update({ nombre, categoria, costo_unitario, stock, stock_minimo }); mostrarNotificacion("¡Insumo actualizado!"); cancelarEdicionInsumo(); }
+    else { await db.collection('insumos').add({ nombre, categoria, costo_unitario, stock, stock_minimo }); mostrarNotificacion("¡Insumo guardado!"); ['insumo-nombre','insumo-categoria','insumo-costo','insumo-stock','insumo-minimo'].forEach(id => $(id).value = ''); }
   } catch(e) { mostrarNotificacion("Error.", "error"); }
 }
 function editarInsumo(id, n, c, co, s, m) {
   $('insumo-edit-id').value = id; $('insumo-nombre').value = n; $('insumo-categoria').value = c;
   $('insumo-costo').value = co; $('insumo-stock').value = s; $('insumo-minimo').value = m;
   $('insumo-form-titulo').innerHTML = '<i class="fa-solid fa-pen-to-square text-[#b88a73] mr-2"></i>Editar Insumo';
-  $('btn-guardar-insumo').innerText = 'Actualizar';
-  $('btn-cancelar-insumo').classList.remove('hidden');
+  $('btn-guardar-insumo').innerText = 'Actualizar'; $('btn-cancelar-insumo').classList.remove('hidden');
 }
 function cancelarEdicionInsumo() {
   ['insumo-edit-id','insumo-nombre','insumo-categoria','insumo-costo','insumo-stock','insumo-minimo'].forEach(id => $(id).value = '');
   $('insumo-form-titulo').innerHTML = '<i class="fa-solid fa-boxes-stacked text-[#b88a73] mr-2"></i>Registrar Insumo';
-  $('btn-guardar-insumo').innerText = 'Guardar';
-  $('btn-cancelar-insumo').classList.add('hidden');
+  $('btn-guardar-insumo').innerText = 'Guardar'; $('btn-cancelar-insumo').classList.add('hidden');
 }
 function cargarInsumos() {
-  const tb = $('tabla-insumos');
-  if (!tb) return;
+  const tb = $('tabla-insumos'); if (!tb) return;
   tb.innerHTML = listaInsumosDB.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin insumos.</td></tr>';
   listaInsumosDB.forEach(i => {
     const alerta = i.stock <= i.stock_minimo ? 'text-rose-600 font-bold' : '';
-    tb.innerHTML += `
-      <tr class="border-b border-[#e8dbd3]">
+    tb.innerHTML += `<tr class="border-b border-[#e8dbd3]">
         <td class="p-2 font-semibold">${i.nombre}</td>
         <td class="p-2 text-xs">${i.categoria||'General'}</td>
         <td class="p-2 text-[#b88a73] font-bold">$${parseFloat(i.costo_unitario||0).toFixed(2)}</td>
@@ -794,22 +2383,18 @@ async function guardarServicio() {
 function editarServicio(id, n, p) {
   $('servicio-edit-id').value = id; $('servicio-nombre').value = n; $('servicio-precio').value = p;
   $('servicio-form-titulo').innerHTML = '<i class="fa-solid fa-pen-to-square text-[#b88a73] mr-2"></i>Editar Servicio';
-  $('btn-guardar-servicio').innerText = 'Actualizar';
-  $('btn-cancelar-servicio').classList.remove('hidden');
+  $('btn-guardar-servicio').innerText = 'Actualizar'; $('btn-cancelar-servicio').classList.remove('hidden');
 }
 function cancelarEdicionServicio() {
   ['servicio-edit-id','servicio-nombre','servicio-precio'].forEach(id => $(id).value = '');
   $('servicio-form-titulo').innerHTML = '<i class="fa-solid fa-bullhorn text-[#b88a73] mr-2"></i>Registrar Servicio';
-  $('btn-guardar-servicio').innerText = 'Guardar';
-  $('btn-cancelar-servicio').classList.add('hidden');
+  $('btn-guardar-servicio').innerText = 'Guardar'; $('btn-cancelar-servicio').classList.add('hidden');
 }
 function cargarServicios() {
-  const tb = $('tabla-servicios');
-  if (!tb) return;
+  const tb = $('tabla-servicios'); if (!tb) return;
   tb.innerHTML = listaServiciosDB.length ? '' : '<tr><td colspan="3" class="p-4 text-center text-gray-400">Sin servicios.</td></tr>';
   listaServiciosDB.forEach(s => {
-    tb.innerHTML += `
-      <tr class="border-b border-[#e8dbd3]">
+    tb.innerHTML += `<tr class="border-b border-[#e8dbd3]">
         <td class="p-2 font-semibold">${s.nombre}</td>
         <td class="p-2 text-[#b88a73] font-bold">$${parseFloat(s.precio||0).toFixed(2)}</td>
         <td class="p-2 text-center whitespace-nowrap">
@@ -830,11 +2415,7 @@ async function guardarCliente() {
   const editId = $('cliente-edit-id').value;
   const nombre = $('cliente-nombre').value.trim();
   if (!nombre) { mostrarNotificacion("Nombre obligatorio.", "error"); return; }
-  const data = {
-    nombre, rif: $('cliente-rif').value.trim(), tipo: $('cliente-tipo').value,
-    tel: $('cliente-tel').value.trim(), email: $('cliente-email').value.trim(),
-    instagram: $('cliente-insta').value.trim(), direccion: $('cliente-direccion').value.trim()
-  };
+  const data = { nombre, rif: $('cliente-rif').value.trim(), tipo: $('cliente-tipo').value, tel: $('cliente-tel').value.trim(), email: $('cliente-email').value.trim(), instagram: $('cliente-insta').value.trim(), direccion: $('cliente-direccion').value.trim() };
   try {
     if (editId) { await db.collection('clientes').doc(editId).update(data); mostrarNotificacion("¡Actualizado!"); cancelarEdicionCliente(); }
     else { await db.collection('clientes').add(data); mostrarNotificacion("¡Guardado!"); ['cliente-nombre','cliente-rif','cliente-tel','cliente-email','cliente-insta','cliente-direccion'].forEach(id => $(id).value = ''); }
@@ -845,23 +2426,19 @@ function editarCliente(id, n, r, t, tel, em, ins, d) {
   $('cliente-nombre').value = n; $('cliente-rif').value = r; $('cliente-tipo').value = t;
   $('cliente-tel').value = tel; $('cliente-email').value = em; $('cliente-insta').value = ins; $('cliente-direccion').value = d;
   $('cliente-form-titulo').innerHTML = '<i class="fa-solid fa-pen-to-square text-[#b88a73] mr-2"></i>Editar Cliente';
-  $('btn-guardar-cliente').innerText = 'Actualizar';
-  $('btn-cancelar-cliente').classList.remove('hidden');
+  $('btn-guardar-cliente').innerText = 'Actualizar'; $('btn-cancelar-cliente').classList.remove('hidden');
 }
 function cancelarEdicionCliente() {
   ['cliente-edit-id','cliente-nombre','cliente-rif','cliente-tel','cliente-email','cliente-insta','cliente-direccion'].forEach(id => $(id).value = '');
   $('cliente-form-titulo').innerHTML = '<i class="fa-solid fa-users text-[#b88a73] mr-2"></i>Registrar Cliente';
-  $('btn-guardar-cliente').innerText = 'Guardar';
-  $('btn-cancelar-cliente').classList.add('hidden');
+  $('btn-guardar-cliente').innerText = 'Guardar'; $('btn-cancelar-cliente').classList.add('hidden');
 }
 function cargarClientes() {
-  const tb = $('tabla-clientes');
-  if (!tb) return;
+  const tb = $('tabla-clientes'); if (!tb) return;
   tb.innerHTML = listaClientesDB.length ? '' : '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin clientes.</td></tr>';
   listaClientesDB.forEach(c => {
     const badge = c.tipo === 'Empresa (B2B)' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
-    tb.innerHTML += `
-      <tr class="border-b border-[#e8dbd3]">
+    tb.innerHTML += `<tr class="border-b border-[#e8dbd3]">
         <td class="p-2 font-semibold">${c.nombre}</td>
         <td class="p-2 text-xs"><div>${c.tel||'Sin telf'}</div><div class="text-[9px] text-gray-500">${c.email||'Sin correo'}</div></td>
         <td class="p-2"><span class="px-2 py-0.5 rounded-full border text-[10px] font-semibold ${badge}">${c.tipo||'Persona Natural'}</span></td>
@@ -889,24 +2466,10 @@ async function verHistorialCliente(nombre) {
     const oS = await db.collection('ordenes').where('cliente','==',nombre).get();
     let html = '';
     let vA = [], sA = [], oA = [];
-    vS.forEach(d => vA.push(d.data()));
-    sS.forEach(d => sA.push(d.data()));
-    oS.forEach(d => oA.push(d.data()));
-    if (vA.length) {
-      html += '<h4 class="font-bold border-b pb-1 mb-2">Ventas</h4><div class="space-y-1.5 mb-3">';
-      vA.forEach(v => html += `<div class="bg-[#faf8f6] p-2 rounded-xl border border-[#e8dbd3] flex justify-between"><div><p class="font-bold">${v.concepto}</p><p class="text-[10px] text-gray-500">${v.fecha||''}</p></div><span class="font-extrabold text-[#b88a73]">$${parseFloat(v.total_usd).toFixed(2)}</span></div>`);
-      html += '</div>';
-    }
-    if (oA.length) {
-      html += '<h4 class="font-bold border-b pb-1 mb-2">Órdenes</h4><div class="space-y-1.5 mb-3">';
-      oA.forEach(o => html += `<div class="bg-[#faf8f6] p-2 rounded-xl border border-[#e8dbd3] flex justify-between"><div><p class="font-bold">${o.numero||'OT'}</p><p class="text-[10px] text-gray-500">${o.estado}</p></div><span class="font-extrabold text-sky-600">$${parseFloat(o.precio||0).toFixed(2)}</span></div>`);
-      html += '</div>';
-    }
-    if (sA.length) {
-      html += '<h4 class="font-bold border-b pb-1 mb-2">Stand By</h4><div class="space-y-1.5">';
-      sA.forEach(s => html += `<div class="bg-[#faf8f6] p-2 rounded-xl border border-[#e8dbd3] flex justify-between"><p class="font-bold">Cotización</p><span class="font-extrabold text-amber-600">$${parseFloat(s.total_usd).toFixed(2)}</span></div>`);
-      html += '</div>';
-    }
+    vS.forEach(d => vA.push(d.data())); sS.forEach(d => sA.push(d.data())); oS.forEach(d => oA.push(d.data()));
+    if (vA.length) { html += '<h4 class="font-bold border-b pb-1 mb-2">Ventas</h4><div class="space-y-1.5 mb-3">'; vA.forEach(v => html += `<div class="bg-[#faf8f6] p-2 rounded-xl border border-[#e8dbd3] flex justify-between"><div><p class="font-bold">${v.concepto}</p><p class="text-[10px] text-gray-500">${v.fecha||''}</p></div><span class="font-extrabold text-[#b88a73]">$${parseFloat(v.total_usd).toFixed(2)}</span></div>`); html += '</div>'; }
+    if (oA.length) { html += '<h4 class="font-bold border-b pb-1 mb-2">Órdenes</h4><div class="space-y-1.5 mb-3">'; oA.forEach(o => html += `<div class="bg-[#faf8f6] p-2 rounded-xl border border-[#e8dbd3] flex justify-between"><div><p class="font-bold">${o.numero||'OT'}</p><p class="text-[10px] text-gray-500">${o.estado}</p></div><span class="font-extrabold text-sky-600">$${parseFloat(o.precio||0).toFixed(2)}</span></div>`); html += '</div>'; }
+    if (sA.length) { html += '<h4 class="font-bold border-b pb-1 mb-2">Stand By</h4><div class="space-y-1.5">'; sA.forEach(s => html += `<div class="bg-[#faf8f6] p-2 rounded-xl border border-[#e8dbd3] flex justify-between"><p class="font-bold">Cotización</p><span class="font-extrabold text-amber-600">$${parseFloat(s.total_usd).toFixed(2)}</span></div>`); html += '</div>'; }
     if (!html) html = '<p class="text-center text-gray-400 py-4">Sin transacciones.</p>';
     cont.innerHTML = html;
   } catch(e) { cont.innerHTML = '<p class="text-center text-rose-500">Error.</p>'; }
@@ -930,22 +2493,18 @@ function editarMaterial(id, c, n, u, co) {
   $('cat-edit-id').value = id; $('cat-categoria').value = c; $('cat-nombre').value = n;
   $('cat-unidad').value = u; $('cat-costo').value = co;
   $('cat-form-titulo').innerHTML = '<i class="fa-solid fa-pen-to-square text-[#b88a73] mr-2"></i>Editar Material';
-  $('btn-guardar-cat').innerText = 'Actualizar';
-  $('btn-cancelar-cat').classList.remove('hidden');
+  $('btn-guardar-cat').innerText = 'Actualizar'; $('btn-cancelar-cat').classList.remove('hidden');
 }
 function cancelarEdicionMaterial() {
   ['cat-edit-id','cat-nombre','cat-costo'].forEach(id => $(id).value = '');
   $('cat-form-titulo').innerHTML = '<i class="fa-solid fa-layer-group text-[#b88a73] mr-2"></i>Registrar Material';
-  $('btn-guardar-cat').innerText = 'Guardar';
-  $('btn-cancelar-cat').classList.add('hidden');
+  $('btn-guardar-cat').innerText = 'Guardar'; $('btn-cancelar-cat').classList.add('hidden');
 }
 function cargarCatalogoMateriales() {
-  const tb = $('tabla-catalogo-materiales');
-  if (!tb) return;
+  const tb = $('tabla-catalogo-materiales'); if (!tb) return;
   tb.innerHTML = listaMaterialesDB.length ? '' : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin materiales.</td></tr>';
   listaMaterialesDB.forEach(m => {
-    tb.innerHTML += `
-      <tr class="border-b border-[#e8dbd3]">
+    tb.innerHTML += `<tr class="border-b border-[#e8dbd3]">
         <td class="p-2 text-xs"><span class="bg-[#faf8f6] px-1.5 py-0.5 rounded border border-[#e8dbd3]">${m.categoria}</span></td>
         <td class="p-2 font-semibold">${m.nombre}</td>
         <td class="p-2 text-xs">${m.unidad}</td>
@@ -965,8 +2524,7 @@ async function eliminarMaterial(id) {
 
 // ================= MOVIMIENTOS =================
 async function cargarMovimientos() {
-  const tb = $('tabla-movimientos');
-  if (!tb) return;
+  const tb = $('tabla-movimientos'); if (!tb) return;
   tb.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Cargando...</td></tr>';
   try {
     let movs = [];
@@ -981,8 +2539,7 @@ async function cargarMovimientos() {
     tb.innerHTML = movs.length ? '' : '<tr><td colspan="7" class="p-4 text-center text-gray-400">Sin movimientos.</td></tr>';
     movs.forEach(m => {
       const b = m.tipo === 'entrada' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : m.tipo === 'salida' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-amber-50 text-amber-700 border-amber-200';
-      tb.innerHTML += `
-        <tr class="border-b border-[#e8dbd3]">
+      tb.innerHTML += `<tr class="border-b border-[#e8dbd3]">
           <td class="p-2 text-xs text-gray-500">${m.fecha||''}</td>
           <td class="p-2 font-semibold">${m.insumoNombre||'-'}</td>
           <td class="p-2 text-center"><span class="px-2 py-0.5 rounded-full border text-[10px] font-semibold ${b}">${m.tipo}</span></td>
@@ -1017,15 +2574,13 @@ async function guardarGasto() {
 function editarGasto(id, c, m, cat) {
   $('gasto-edit-id').value = id; $('gasto-concepto').value = c; $('gasto-monto').value = m; $('gasto-categoria').value = cat;
   $('gasto-form-titulo').innerHTML = '<i class="fa-solid fa-pen-to-square mr-1 text-[#b88a73]"></i>Editar Gasto';
-  $('btn-guardar-gasto').innerHTML = '<i class="fa-solid fa-save"></i><span>Actualizar</span>';
-  $('btn-cancelar-gasto').classList.remove('hidden');
+  $('btn-guardar-gasto').innerHTML = '<i class="fa-solid fa-save"></i><span>Actualizar</span>'; $('btn-cancelar-gasto').classList.remove('hidden');
 }
 function cancelarEdicionGasto() {
   ['gasto-edit-id','gasto-concepto','gasto-monto'].forEach(id => $(id).value = '');
   $('gasto-categoria').value = 'Operativo';
   $('gasto-form-titulo').innerHTML = '<i class="fa-solid fa-plus-circle mr-1 text-[#b88a73]"></i>Registrar Gasto';
-  $('btn-guardar-gasto').innerHTML = '<i class="fa-solid fa-save"></i><span>Registrar</span>';
-  $('btn-cancelar-gasto').classList.add('hidden');
+  $('btn-guardar-gasto').innerHTML = '<i class="fa-solid fa-save"></i><span>Registrar</span>'; $('btn-cancelar-gasto').classList.add('hidden');
 }
 async function eliminarGasto(id) {
   const ok = await confirmarAccion('¿Eliminar gasto?', 'No se puede deshacer.', 'Eliminar', 'danger');
@@ -1033,8 +2588,7 @@ async function eliminarGasto(id) {
   try { await db.collection('gastos').doc(id).delete(); cargarGastosYBalance(); mostrarNotificacion("Eliminado."); } catch(e){}
 }
 async function cargarGastosYBalance() {
-  const tb = $('tabla-gastos');
-  if (!tb) return;
+  const tb = $('tabla-gastos'); if (!tb) return;
   const filtro = $('filtro-periodo')?.value || 'este_mes';
   const ahora = new Date(), mA = ahora.getMonth(), aA = ahora.getFullYear();
   let gastos = [], ventas = [];
@@ -1064,8 +2618,7 @@ async function cargarGastosYBalance() {
   uE.className = util < 0 ? 'text-lg font-extrabold text-rose-600 mt-1' : 'text-lg font-extrabold text-[#b88a73] mt-1';
   tb.innerHTML = gF.length ? '' : '<tr><td colspan="5" class="p-3 text-center text-gray-400">Sin egresos.</td></tr>';
   gF.slice().reverse().forEach(g => {
-    tb.innerHTML += `
-      <tr class="border-b border-[#e8dbd3]">
+    tb.innerHTML += `<tr class="border-b border-[#e8dbd3]">
         <td class="p-2 text-xs text-gray-500">${g.fecha}</td>
         <td class="p-2 font-semibold">${g.concepto}</td>
         <td class="p-2 text-xs"><span class="bg-[#faf8f6] px-1.5 py-0.5 rounded border border-[#e8dbd3]">${g.categoria}</span></td>
@@ -1104,8 +2657,7 @@ async function abrirArqueoCaja() {
     let html = '';
     for (let m in desg) html += `<div class="flex justify-between py-1 border-b border-gray-100"><span>${m}:</span><span class="font-bold text-[#b88a73]">$${desg[m].toFixed(2)} (Bs. ${(desg[m]*tasaBCV).toFixed(2)})</span></div>`;
     if (!html) html = '<p class="text-gray-400 text-center py-2">Sin detalles.</p>';
-    cont.innerHTML = `
-      <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3] space-y-2">
+    cont.innerHTML = `<div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3] space-y-2">
         <div class="flex justify-between font-bold text-xs border-b pb-1.5"><span>Fecha:</span><span>${hoy}</span></div>
         <div><p class="text-[10px] font-semibold text-gray-500 uppercase">Métodos:</p><div class="mt-1.5 space-y-1">${html}</div></div>
         <div class="flex justify-between font-extrabold text-sm text-[#b88a73] border-t pt-1.5 mt-1.5"><span>Total Hoy:</span><span>$${total.toFixed(2)} <span class="text-[10px] block text-gray-500 font-normal">Bs. ${(total*tasaBCV).toFixed(2)}</span></span></div>
@@ -1167,9 +2719,7 @@ function imprimirComoPDF(html, titulo) {
   document.body.appendChild(iframe);
   const doc = iframe.contentWindow.document;
   doc.open();
-  doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${titulo}</title>
-    <style>@page{size:A4;margin:15mm}*{box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{font-family:'Inter','Segoe UI',Arial,sans-serif;margin:0;padding:0;color:#2c2c2c;background:white}table{width:100%;border-collapse:collapse}</style>
-    </head><body>${html}</body></html>`);
+  doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${titulo}</title><style>@page{size:A4;margin:15mm}*{box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{font-family:'Inter','Segoe UI',Arial,sans-serif;margin:0;padding:0;color:#2c2c2c;background:white}table{width:100%;border-collapse:collapse}</style></head><body>${html}</body></html>`);
   doc.close();
   setTimeout(() => {
     try { iframe.contentWindow.focus(); iframe.contentWindow.print(); } catch(e){ console.error(e); }
@@ -1205,9 +2755,7 @@ function exportarPDFPresupuesto() {
     <table style="margin-bottom:20px;"><thead><tr style="background:#f7f4f0;font-size:11px;text-transform:uppercase;color:#71717a;border-bottom:1px solid #e8dbd3;"><th style="padding:10px;text-align:left;width:50%;">Descripción</th><th style="padding:10px;text-align:center;width:12%;">Cant</th><th style="padding:10px;text-align:right;width:19%;">Unit.</th><th style="padding:10px;text-align:right;width:19%;">Total</th></tr></thead><tbody>${filas}</tbody></table>
     <div style="display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid #e8dbd3;padding-top:20px;">
       <div style="font-size:11px;color:#71717a;"><p style="margin:0;"><b>Condiciones:</b> Sujeto a revisión de arte final.</p><p style="color:#b88a73;font-weight:500;margin-top:6px;">¡Gracias por confiar en LAN Estudio! 🚀</p></div>
-      <div style="width:280px;background:#faf8f6;padding:18px;border-radius:12px;border:1px solid #e8dbd3;">
-        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:bold;margin-bottom:8px;"><span style="font-size:11px;color:#71717a;text-transform:uppercase;">Total:</span><span style="font-size:18px;font-weight:800;color:#b88a73;">${tu}</span></div>${bcv}
-      </div>
+      <div style="width:280px;background:#faf8f6;padding:18px;border-radius:12px;border:1px solid #e8dbd3;"><div style="display:flex;justify-content:space-between;font-size:14px;font-weight:bold;margin-bottom:8px;"><span style="font-size:11px;color:#71717a;text-transform:uppercase;">Total:</span><span style="font-size:18px;font-weight:800;color:#b88a73;">${tu}</span></div>${bcv}</div>
     </div>
     <div style="text-align:center;border-top:1px solid #e8dbd3;margin-top:30px;padding-top:12px;font-size:9px;color:#a1a1aa;">LAN ESTUDIO • Agencia de Publicidad y Comunicación</div>
   </div>`;
@@ -1261,9 +2809,7 @@ function exportarPDFOrdenActual() {
   const o = ordenActualDetalle;
   const fecha = new Date().toLocaleDateString();
   let hist = '';
-  if (Array.isArray(o.historial) && o.historial.length) {
-    hist = o.historial.map(h => `<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid #f0ebe6;"><span style="font-weight:600;">${h.estado}</span><span style="color:#71717a;">${h.fecha}</span></div>`).join('');
-  }
+  if (Array.isArray(o.historial) && o.historial.length) hist = o.historial.map(h => `<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid #f0ebe6;"><span style="font-weight:600;">${h.estado}</span><span style="color:#71717a;">${h.fecha}</span></div>`).join('');
   const html = `<div style="padding:20px;">
     <div style="display:flex;justify-content:space-between;border-bottom:2px solid #b88a73;padding-bottom:15px;margin-bottom:20px;">
       <div style="display:flex;align-items:center;gap:12px;">${getLogoHTML()}<div><h3 style="font-size:20px;font-weight:bold;margin:0;">LAN ESTUDIO</h3><p style="font-size:11px;color:#71717a;margin:0;">Orden de Trabajo</p></div></div>

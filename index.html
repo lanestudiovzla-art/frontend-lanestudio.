@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LAN Estudio - Sistema de Gestión</title>
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#b88a73">
+<meta name="theme-color" href="#b88a73">
 <link rel="apple-touch-icon" href="/icon-512.png">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -219,9 +219,25 @@
               <p id="container-tasa-doc" class="text-[9px] text-gray-500">BCV: <span id="presupuesto-tasa-doc" class="font-semibold">0.00</span></p>
             </div>
           </div>
-          <div class="text-[10px] flex justify-between">
+          <div class="text-[10px] flex justify-between mb-2">
             <span><b>Cliente:</b> <span id="doc-cliente-nombre">Cliente General</span></span>
             <span><b>Validez:</b> <span id="doc-validez-txt">7 días</span></span>
+          </div>
+          <!-- NUEVA TABLA DE DESGLOSE EN VISTA PREVIA -->
+          <div id="doc-preview-items" class="border-t border-dashed border-[#e8dbd3] pt-2 mt-2">
+            <table class="w-full text-[9px]">
+              <thead>
+                <tr class="text-gray-400 border-b border-[#e8dbd3]">
+                  <th class="text-left pb-1">Cant</th>
+                  <th class="text-left pb-1">Descripción</th>
+                  <th class="text-right pb-1">P. Unit</th>
+                  <th class="text-right pb-1">Total</th>
+                </tr>
+              </thead>
+              <tbody id="doc-preview-items-body">
+                <tr><td colspan="4" class="text-center text-gray-400 py-2 italic">Sin ítems</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
         <div class="space-y-1.5 text-xs bg-white p-3 rounded-xl border border-[#e8dbd3]">
@@ -927,18 +943,14 @@ async function cargarRolUsuario(email) {
 
 function aplicarPermisos() {
   const esAdmin = usuarioRol === 'admin';
-  // Ocultar tabs solo-admin
   document.querySelectorAll('.tab-solo-admin').forEach(el => {
     if (esAdmin) el.classList.remove('hidden');
     else el.classList.add('hidden');
   });
-  // Gráficos
   const gr = $('graficos-admin');
   if (gr) { if (esAdmin) gr.classList.remove('hidden'); else gr.classList.add('hidden'); }
-  // Botón Excel
   const bx = $('btn-excel-ventas');
   if (bx) { if (esAdmin) bx.classList.remove('hidden'); else bx.classList.add('hidden'); }
-  // Badge de rol
   const badge = $('rol-badge');
   if (badge) {
     badge.classList.remove('hidden');
@@ -950,7 +962,6 @@ function aplicarPermisos() {
       badge.innerText = 'Vendedor';
     }
   }
-  // Nombre en el header
   const ud = $('user-display');
   if (ud && usuarioNombre) ud.innerText = usuarioNombre;
 }
@@ -1817,6 +1828,27 @@ function recalcularPresupuestoTotal() {
   $('doc-validez-txt').innerText = $('presupuesto-validez').value || 'N/A';
   const previewBox = $('doc-preview-box');
   if (previewBox) previewBox.style.display = itemsPresupuesto.length > 0 ? '' : 'none';
+  
+  // ACTUALIZAR LA VISTA PREVIA DE ITEMS
+  const previewBody = $('doc-preview-items-body');
+  if (previewBody) {
+    if (itemsPresupuesto.length === 0) {
+      previewBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-400 py-2 italic">Sin ítems</td></tr>';
+    } else {
+      previewBody.innerHTML = '';
+      itemsPresupuesto.forEach(it => {
+        const p = it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100);
+        const unit = p / it.cant;
+        previewBody.innerHTML += `<tr class="border-b border-[#f0ebe6]">
+          <td class="py-1 text-gray-600">${it.cant}</td>
+          <td class="py-1 text-gray-600 truncate max-w-[120px]">${escapeHTML(it.nombre)}</td>
+          <td class="py-1 text-right text-gray-600">$${unit.toFixed(2)}</td>
+          <td class="py-1 text-right font-bold text-[#b88a73]">$${p.toFixed(2)}</td>
+        </tr>`;
+      });
+    }
+  }
+  
   guardarBorradorPresupuesto();
 }
 
@@ -2746,7 +2778,6 @@ async function cargarDashboard() {
       });
     } catch(e){ tb.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-500">Error.</td></tr>'; }
   }
-  // Gráficos (solo admin)
   if (usuarioRol === 'admin') renderizarGraficos(ventas);
 }
 
@@ -2754,7 +2785,6 @@ async function cargarDashboard() {
 function renderizarGraficos(ventas) {
   if (usuarioRol !== 'admin') return;
   if (typeof Chart === 'undefined') { console.warn('Chart.js no cargó'); return; }
-  // 1. Ventas por mes (últimos 6 meses)
   const hoy = new Date();
   const meses = [];
   const labels = [];
@@ -2796,11 +2826,9 @@ function renderizarGraficos(ventas) {
       }
     });
   }
-  // 2. Métodos de pago
   const metodos = {};
   ventas.forEach(v => {
     const mp = v.metodos_pago || '';
-    // Formato: "Efectivo USD: $100.00 (Ref: X) | Pago Móvil: $50.00 (Ref: Y)"
     mp.split('|').forEach(parte => {
       const m = parte.match(/^([^:]+):\s*\$([0-9.]+)/);
       if (m) {
@@ -3499,7 +3527,6 @@ auth.onAuthStateChanged(async user => {
     usuarioActual = user;
     ls.classList.add('hidden');
     ac.classList.remove('hidden');
-    // Cargar rol ANTES de aplicar permisos
     await cargarRolUsuario(user.email);
     aplicarPermisos();
     const d = $('user-display');

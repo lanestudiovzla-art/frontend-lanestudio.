@@ -31,6 +31,8 @@
   .card-menu-btn { width:22px; height:22px; display:flex; align-items:center; justify-content:center; border-radius:6px; }
   .fecha-inteligente { cursor: text; }
   .grafico-container { position: relative; height: 260px; width: 100%; }
+  .item-orden-row { transition: background-color 0.2s; }
+  .item-orden-row:hover { background-color: #faf8f6; }
 </style>
 </head>
 <body class="min-h-screen flex flex-col max-w-full overflow-x-hidden">
@@ -223,7 +225,6 @@
             <span><b>Cliente:</b> <span id="doc-cliente-nombre">Cliente General</span></span>
             <span><b>Validez:</b> <span id="doc-validez-txt">7 días</span></span>
           </div>
-          <!-- NUEVA TABLA DE DESGLOSE EN VISTA PREVIA -->
           <div id="doc-preview-items" class="border-t border-dashed border-[#e8dbd3] pt-2 mt-2">
             <table class="w-full text-[9px]">
               <thead>
@@ -695,6 +696,7 @@
   </div>
 </div>
 
+<!-- MODAL NUEVA ORDEN -->
 <div id="modal-nueva-orden" class="hidden fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-3">
   <div class="bg-white rounded-2xl max-w-lg w-full p-5 space-y-4 border border-[#e8dbd3] shadow-xl animate-fadeIn max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2"><h3 id="modal-orden-titulo" class="text-sm font-bold"><i class="fa-solid fa-clipboard-list mr-2 text-[#b88a73]"></i>Nueva Orden</h3><button onclick="cerrarModalNuevaOrden()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button></div>
@@ -727,6 +729,7 @@
   </div>
 </div>
 
+<!-- MODAL VER ORDEN -->
 <div id="modal-ver-orden" class="hidden fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-3">
   <div class="bg-white rounded-2xl max-w-2xl w-full p-5 space-y-4 border border-[#e8dbd3] shadow-xl animate-fadeIn max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
@@ -744,6 +747,83 @@
   </div>
 </div>
 
+<!-- MODAL EDITAR ORDEN (NUEVO) -->
+<div id="modal-editar-orden" class="hidden fixed inset-0 bg-black/50 z-[125] flex items-center justify-center p-3">
+  <div class="bg-white rounded-2xl max-w-2xl w-full p-5 space-y-4 border border-[#e8dbd3] shadow-xl animate-fadeIn max-h-[95vh] overflow-y-auto">
+    <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2">
+      <h3 id="modal-editar-orden-titulo" class="text-sm font-bold"><i class="fa-solid fa-pen-to-square mr-2 text-[#b88a73]"></i>Editar Orden</h3>
+      <button onclick="cerrarModalEditarOrden()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div>
+        <label class="block text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Cliente</label>
+        <select id="eo-cliente" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"><option value="Cliente General">-- Cliente General --</option></select>
+      </div>
+      <div>
+        <label class="block text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Estado</label>
+        <select id="eo-estado" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">
+          <option value="Cotización">Cotización</option><option value="Pendiente">Pendiente</option><option value="En Diseño">En Diseño</option><option value="En Impresión">En Impresión</option><option value="Listo">Listo</option><option value="Entregado">Entregado</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Fecha de creación</label>
+        <input type="date" id="eo-fecha-creacion" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">
+      </div>
+      <div>
+        <label class="block text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Fecha de entrega</label>
+        <input type="date" id="eo-fecha-entrega" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">
+      </div>
+    </div>
+    
+    <div>
+      <label class="block text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Concepto</label>
+      <input type="text" id="eo-concepto" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs">
+    </div>
+
+    <div>
+      <label class="block text-[10px] font-semibold uppercase text-gray-500 mb-0.5">Notas</label>
+      <textarea id="eo-notas" rows="2" class="w-full bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2.5 py-1.5 text-xs"></textarea>
+    </div>
+
+    <!-- ÍTEMS DE LA ORDEN -->
+    <div class="bg-[#faf8f6] p-3 rounded-xl border border-[#e8dbd3] space-y-2">
+      <div class="flex justify-between items-center">
+        <h4 class="text-[10px] font-bold uppercase text-gray-700"><i class="fa-solid fa-list text-[#b88a73] mr-1"></i>Ítems de la orden</h4>
+        <button onclick="agregarItemEditarOrden()" class="text-[10px] bg-[#2c2c2c] hover:bg-[#3d3d3d] text-white px-2 py-1 rounded-lg"><i class="fa-solid fa-plus mr-1"></i>Agregar ítem</button>
+      </div>
+      <div id="eo-items-container" class="space-y-2 max-h-[200px] overflow-y-auto"></div>
+    </div>
+
+    <!-- TOTAL Y PAGOS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white p-3 rounded-xl border border-[#e8dbd3]">
+      <div class="space-y-1">
+        <div class="flex justify-between items-center"><span class="text-[10px] font-semibold text-gray-500 uppercase">Total:</span><span id="eo-total-view" class="text-base font-extrabold text-[#b88a73]">$0.00</span></div>
+        <div class="flex justify-between items-center"><span class="text-[10px] font-semibold text-gray-500 uppercase">Abonado:</span><span id="eo-abonado-view" class="text-sm font-bold text-amber-600">$0.00</span></div>
+        <div class="flex justify-between items-center border-t border-dashed border-[#e8dbd3] pt-1"><span class="text-[10px] font-semibold text-gray-500 uppercase">Restante:</span><span id="eo-restante-view" class="text-sm font-bold text-rose-600">$0.00</span></div>
+      </div>
+      <div class="space-y-1.5">
+        <label class="block text-[10px] font-semibold uppercase text-gray-500">Registrar abono ($)</label>
+        <div class="flex gap-1.5">
+          <input type="number" id="eo-abono-monto" step="0.01" min="0" placeholder="0.00" class="flex-1 bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1.5 text-xs font-bold text-[#b88a73]">
+          <select id="eo-abono-metodo" class="w-[40%] bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-1 py-1.5 text-[10px]">
+            <option value="Efectivo USD">Efectivo ($)</option><option value="Pago Móvil">Pago Móvil</option><option value="Zelle">Zelle</option><option value="Cashea">Cashea</option><option value="Transferencia">Transfer.</option>
+          </select>
+        </div>
+        <button onclick="registrarAbonoDesdeEditarOrden()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded-lg font-bold text-[10px] transition"><i class="fa-solid fa-plus mr-1"></i>Registrar abono</button>
+      </div>
+    </div>
+
+    <div id="eo-error" class="hidden bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl px-3 py-2 flex items-start space-x-2"><i class="fa-solid fa-circle-exclamation mt-0.5"></i><span id="eo-error-text"></span></div>
+
+    <div class="flex justify-end gap-2 pt-1 border-t border-[#e8dbd3]">
+      <button onclick="cerrarModalEditarOrden()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold">Cancelar</button>
+      <button onclick="guardarCambiosEditarOrden()" class="bg-[#b88a73] hover:bg-[#a67963] text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5"><i class="fa-solid fa-check"></i><span>Guardar cambios</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PAGO ORDEN -->
 <div id="modal-pago-orden" class="hidden fixed inset-0 bg-black/50 z-[130] flex items-center justify-center p-3">
   <div class="bg-white rounded-2xl max-w-md w-full p-5 space-y-4 border border-[#e8dbd3] shadow-xl animate-fadeIn">
     <div class="flex justify-between items-center border-b border-[#e8dbd3] pb-2"><h3 class="text-sm font-bold"><i class="fa-solid fa-money-bill-wave mr-2 text-emerald-600"></i>Registrar pago</h3><button onclick="cerrarModalPagoOrden()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button></div>
@@ -829,6 +909,7 @@ let ventasCache = [];
 let debounceVentasTimer = null;
 let chartVentasMes = null;
 let chartMetodosPago = null;
+let editandoOrdenItems = []; // Para el modal de edición
 
 const HOJAS_ESTANDAR = [
   { id:'a4', nombre:'A4', ancho:21, alto:29.7 },
@@ -1229,6 +1310,7 @@ document.addEventListener('keydown', e => {
     $('modal-nueva-orden').classList.add('hidden');
     $('modal-ver-orden').classList.add('hidden');
     $('modal-pago-orden').classList.add('hidden');
+    $('modal-editar-orden').classList.add('hidden');
     document.querySelectorAll('.card-menu').forEach(m => m.remove());
     if (!$('modal-confirm').classList.contains('hidden')) cerrarModalConfirm(false);
     return;
@@ -1829,7 +1911,6 @@ function recalcularPresupuestoTotal() {
   const previewBox = $('doc-preview-box');
   if (previewBox) previewBox.style.display = itemsPresupuesto.length > 0 ? '' : 'none';
   
-  // ACTUALIZAR LA VISTA PREVIA DE ITEMS
   const previewBody = $('doc-preview-items-body');
   if (previewBody) {
     if (itemsPresupuesto.length === 0) {
@@ -2320,7 +2401,7 @@ function toggleCardMenu(ordenId, event) {
   const pago = calcularEstadoPago(o);
   menu.innerHTML = `
     <button onclick='event.stopPropagation(); verDetalleOrden("${o.id}"); document.querySelectorAll(".card-menu").forEach(m=>m.remove())' class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#faf8f6] text-xs flex items-center gap-2"><i class="fa-solid fa-eye text-sky-600 w-4"></i>Ver detalle</button>
-    <button onclick='event.stopPropagation(); editarOrden("${o.id}"); document.querySelectorAll(".card-menu").forEach(m=>m.remove())' class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#faf8f6] text-xs flex items-center gap-2"><i class="fa-solid fa-pen text-amber-600 w-4"></i>Editar</button>
+    <button onclick='event.stopPropagation(); abrirModalEditarOrden("${o.id}"); document.querySelectorAll(".card-menu").forEach(m=>m.remove())' class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#faf8f6] text-xs flex items-center gap-2"><i class="fa-solid fa-pen text-amber-600 w-4"></i>Editar completo</button>
     ${o.estado === 'Cotización' ? `<button onclick='event.stopPropagation(); aceptarCotizacionYProducto("${o.id}"); document.querySelectorAll(".card-menu").forEach(m=>m.remove())' class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-50 text-xs flex items-center gap-2 text-emerald-700 font-semibold"><i class="fa-solid fa-play w-4"></i>Aceptar y producir</button>` : ''}
     ${pago !== 'Pagado' ? `<button onclick='event.stopPropagation(); cobrarRestanteAhora("${o.id}"); document.querySelectorAll(".card-menu").forEach(m=>m.remove())' class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-50 text-xs flex items-center gap-2 text-emerald-700"><i class="fa-solid fa-money-bill-wave w-4"></i>Cobrar restante</button>` : ''}
     <hr class="border-[#e8dbd3] my-0.5">
@@ -2408,7 +2489,7 @@ function renderizarTablaTrabajos() {
         <td class="p-2 text-xs">${o.fechaEntrega||'-'}</td>
         <td class="p-2 text-center whitespace-nowrap">
           <button onclick='verDetalleOrden("${o.id}")' class="bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 px-2 py-1 rounded-lg text-[10px] font-bold mr-0.5" title="Ver"><i class="fa-solid fa-eye mr-1"></i>Ver</button>
-          <button onclick='editarOrden("${o.id}")' class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-2 py-1 rounded-lg text-[10px] font-bold mr-0.5" title="Editar"><i class="fa-solid fa-pen mr-1"></i>Editar</button>
+          <button onclick='abrirModalEditarOrden("${o.id}")' class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-2 py-1 rounded-lg text-[10px] font-bold mr-0.5" title="Editar"><i class="fa-solid fa-pen mr-1"></i>Editar</button>
           <button onclick='eliminarOrden("${o.id}")' class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-2 py-1 rounded-lg text-[10px] font-bold" title="Eliminar"><i class="fa-solid fa-trash mr-1"></i>Eliminar</button>
         </td>
       </tr>`;
@@ -2479,83 +2560,160 @@ function abrirModalNuevaOrden() {
   setTimeout(() => $('orden-concepto').focus(), 100);
 }
 
-function editarOrden(id) {
+// ================= EDITAR ORDEN COMPLETO (NUEVO MODAL) =================
+function abrirModalEditarOrden(id) {
   const o = listaOrdenesDB.find(x => x.id === id);
   if (!o) { mostrarNotificacion("Orden no encontrada.", "error"); return; }
   editandoOrdenId = id;
-  $('modal-orden-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square mr-2 text-[#b88a73]"></i>Editar ${escapeHTML(o.numero||'Orden')}`;
-  $('modal-orden-btn').innerHTML = '<i class="fa-solid fa-check"></i><span>Guardar cambios</span>';
-  const sel = $('orden-cliente');
+  editandoOrdenItems = Array.isArray(o.items) ? JSON.parse(JSON.stringify(o.items)) : [];
+  
+  $('modal-editar-orden-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square mr-2 text-[#b88a73]"></i>Editar ${escapeHTML(o.numero || 'Orden')}`;
+  
+  // Llenar select de clientes
+  const sel = $('eo-cliente');
   sel.innerHTML = '<option value="Cliente General">-- Cliente General --</option>';
-  sel.innerHTML += '<option value="CREAR_NUEVO_CLIENTE" class="font-bold text-[#b88a73]">+ Crear Cliente Nuevo...</option>';
-  listaClientesDB.forEach(c => { sel.innerHTML += `<option value="${escapeHTML(c.nombre)}">${escapeHTML(c.nombre)} (${escapeHTML(c.tel||'Sin telf')})</option>`; });
-  const clienteOrden = o.cliente || 'Cliente General';
-  if (clienteOrden !== 'Cliente General' && !listaClientesDB.some(c => c.nombre === clienteOrden)) {
-    sel.innerHTML += `<option value="${escapeHTML(clienteOrden)}">${escapeHTML(clienteOrden)} (histórico)</option>`;
+  listaClientesDB.forEach(c => { sel.innerHTML += `<option value="${escapeHTML(c.nombre)}">${escapeHTML(c.nombre)}</option>`; });
+  if (o.cliente && !listaClientesDB.some(c => c.nombre === o.cliente)) {
+    sel.innerHTML += `<option value="${escapeHTML(o.cliente)}">${escapeHTML(o.cliente)} (histórico)</option>`;
   }
-  sel.value = clienteOrden;
-  $('orden-concepto').value = o.concepto || '';
-  $('orden-estado').value = o.estado || 'Pendiente';
-  $('orden-precio').value = parseFloat(o.precio || 0).toFixed(2);
-  $('orden-fecha-creacion').value = o.fecha || '';
-  $('orden-fecha-entrega').value = o.fechaEntrega || '';
-  $('orden-notas').value = o.notas || '';
-  const bloque = document.querySelector('input[name="orden-pago-inicial"]')?.closest('.bg-amber-50');
-  if (bloque) bloque.classList.add('hidden');
-  $('modal-orden-error').classList.add('hidden');
-  $('modal-nueva-orden').classList.remove('hidden');
+  sel.value = o.cliente || 'Cliente General';
+  
+  $('eo-estado').value = o.estado || 'Pendiente';
+  $('eo-fecha-creacion').value = o.fecha || '';
+  $('eo-fecha-entrega').value = o.fechaEntrega || '';
+  $('eo-concepto').value = o.concepto || '';
+  $('eo-notas').value = o.notas || '';
+  $('eo-abono-monto').value = '';
+  
+  renderizarItemsEditarOrden();
+  actualizarResumenEditarOrden();
+  $('eo-error').classList.add('hidden');
+  $('modal-editar-orden').classList.remove('hidden');
 }
 
-function cerrarModalNuevaOrden() { $('modal-nueva-orden').classList.add('hidden'); editandoOrdenId = null; }
+function cerrarModalEditarOrden() {
+  $('modal-editar-orden').classList.add('hidden');
+  editandoOrdenId = null;
+  editandoOrdenItems = [];
+}
 
-async function guardarOrdenDesdeModal() {
-  const cliente = $('orden-cliente').value;
-  const concepto = $('orden-concepto').value.trim();
-  const estado = $('orden-estado').value;
-  const precio = num($('orden-precio').value);
-  const fc = $('orden-fecha-creacion').value;
-  const fe = $('orden-fecha-entrega').value;
-  const notas = $('orden-notas').value.trim();
-  if (!concepto) { $('modal-orden-error-text').innerText = 'Concepto obligatorio.'; $('modal-orden-error').classList.remove('hidden'); return; }
-  if (editandoOrdenId) {
-    const o = listaOrdenesDB.find(x => x.id === editandoOrdenId);
-    if (!o) { $('modal-orden-error-text').innerText = 'Orden no encontrada.'; $('modal-orden-error').classList.remove('hidden'); return; }
-    try {
-      const update = { cliente, concepto, estado, precio, fecha: fc, fechaEntrega: fe, notas };
-      const abonado = num(o.abonado);
-      if (precio !== num(o.precio)) update.estado_pago = abonado >= precio - 0.01 ? 'Pagado' : (abonado > 0 ? 'Abonado' : 'Pendiente');
-      if (estado !== o.estado) update.historial = firebase.firestore.FieldValue.arrayUnion({ estado, fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' });
-      await db.collection('ordenes').doc(editandoOrdenId).update(update);
-      mostrarNotificacion(`Orden ${o.numero} actualizada.`);
-      cerrarModalNuevaOrden();
-    } catch(e) { console.error(e); $('modal-orden-error-text').innerText = 'Error.'; $('modal-orden-error').classList.remove('hidden'); }
+function agregarItemEditarOrden() {
+  editandoOrdenItems.push({ desc: '', cant: 1, precio: 0 });
+  renderizarItemsEditarOrden();
+}
+
+function renderizarItemsEditarOrden() {
+  const cont = $('eo-items-container');
+  cont.innerHTML = '';
+  if (editandoOrdenItems.length === 0) {
+    cont.innerHTML = '<p class="text-center text-gray-400 text-xs py-2 italic">Sin ítems. Agrega uno o más.</p>';
     return;
   }
-  const pagoIni = document.querySelector('input[name="orden-pago-inicial"]:checked')?.value || 'Pendiente';
-  try {
-    const prefijo = estado === 'Cotización' ? 'COT' : 'OT';
-    const numero = await obtenerSiguienteNumeroOrden(prefijo);
-    const abonadoIni = pagoIni === 'Pagado' ? precio : 0;
-    await db.collection('ordenes').add({
-      numero, cliente, concepto, estado, precio, abonado: abonadoIni, estado_pago: pagoIni,
-      fecha: fc, fechaEntrega: fe, notas, items: [],
-      fechaISO: new Date().toISOString(),
-      usuario: usuarioActual ? usuarioActual.email : 'desconocido',
-      historial: [{ estado, fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' }],
-      pagos: pagoIni === 'Pagado' ? [{ fecha: new Date().toLocaleString(), monto: precio, metodo: 'Registro inicial', nota: 'Creada como pagada', usuario: usuarioActual ? usuarioActual.email : 'desconocido' }] : []
-    });
-    mostrarNotificacion(`¡${prefijo} ${numero} creada!`);
-    cerrarModalNuevaOrden();
-  } catch(e) { $('modal-orden-error-text').innerText = 'Error.'; $('modal-orden-error').classList.remove('hidden'); }
+  editandoOrdenItems.forEach((it, i) => {
+    const subtotal = (it.cant || 0) * (it.precio || 0);
+    cont.innerHTML += `<div class="item-orden-row bg-white border border-[#e8dbd3] rounded-lg p-2 flex flex-wrap gap-2 items-center text-xs">
+      <input type="text" value="${escapeHTML(it.desc || '')}" placeholder="Descripción" class="flex-1 min-w-[120px] bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-2 py-1 text-xs eo-item-desc" data-idx="${i}">
+      <input type="number" value="${it.cant || 1}" min="1" placeholder="Cant" class="w-14 bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-1 py-1 text-xs text-center eo-item-cant" data-idx="${i}">
+      <input type="number" value="${(it.precio || 0).toFixed(2)}" step="0.01" min="0" placeholder="Precio" class="w-20 bg-[#faf8f6] border border-[#e8dbd3] rounded-lg px-1 py-1 text-xs text-right eo-item-precio font-bold text-[#b88a73]" data-idx="${i}">
+      <span class="w-16 text-right font-bold text-[#b88a73] text-[11px]">$${subtotal.toFixed(2)}</span>
+      <button onclick="eliminarItemEditarOrden(${i})" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+    </div>`;
+  });
+  // Listeners
+  cont.querySelectorAll('.eo-item-desc').forEach(el => el.addEventListener('input', e => {
+    editandoOrdenItems[int(el.dataset.idx)].desc = el.value;
+    actualizarResumenEditarOrden();
+  }));
+  cont.querySelectorAll('.eo-item-cant').forEach(el => el.addEventListener('input', e => {
+    editandoOrdenItems[int(el.dataset.idx)].cant = parseInt(el.value) || 1;
+    renderizarItemsEditarOrden();
+    actualizarResumenEditarOrden();
+  }));
+  cont.querySelectorAll('.eo-item-precio').forEach(el => el.addEventListener('input', e => {
+    editandoOrdenItems[int(el.dataset.idx)].precio = parseFloat(el.value) || 0;
+    renderizarItemsEditarOrden();
+    actualizarResumenEditarOrden();
+  }));
 }
 
+function eliminarItemEditarOrden(i) {
+  editandoOrdenItems.splice(i, 1);
+  renderizarItemsEditarOrden();
+  actualizarResumenEditarOrden();
+}
+
+function actualizarResumenEditarOrden() {
+  const total = editandoOrdenItems.reduce((a, it) => a + (it.cant || 0) * (it.precio || 0), 0);
+  const o = listaOrdenesDB.find(x => x.id === editandoOrdenId);
+  const abonado = o ? num(o.abonado) : 0;
+  const restante = Math.max(0, total - abonado);
+  $('eo-total-view').innerText = `$${total.toFixed(2)}`;
+  $('eo-abonado-view').innerText = `$${abonado.toFixed(2)}`;
+  $('eo-restante-view').innerText = `$${restante.toFixed(2)}`;
+}
+
+async function registrarAbonoDesdeEditarOrden() {
+  const o = listaOrdenesDB.find(x => x.id === editandoOrdenId);
+  if (!o) return;
+  const monto = num($('eo-abono-monto').value);
+  const metodo = $('eo-abono-metodo').value;
+  if (monto <= 0) { $('eo-error-text').innerText = 'Monto inválido.'; $('eo-error').classList.remove('hidden'); return; }
+  try {
+    const nuevoAb = num(o.abonado) + monto;
+    const total = editandoOrdenItems.reduce((a, it) => a + (it.cant || 0) * (it.precio || 0), 0);
+    const nuevoEstado = nuevoAb >= total - 0.01 ? 'Pagado' : 'Abonado';
+    await db.collection('ordenes').doc(editandoOrdenId).update({
+      abonado: nuevoAb, estado_pago: nuevoEstado,
+      pagos: firebase.firestore.FieldValue.arrayUnion({
+        fecha: new Date().toLocaleString(), monto, metodo, nota: 'Abono desde edición',
+        usuario: usuarioActual ? usuarioActual.email : 'desconocido'
+      })
+    });
+    mostrarNotificacion(`Abono registrado. Estado: ${nuevoEstado}`);
+    $('eo-abono-monto').value = '';
+    $('eo-error').classList.add('hidden');
+    // Refrescar datos locales
+    const oAct = listaOrdenesDB.find(x => x.id === editandoOrdenId);
+    if (oAct) { oAct.abonado = nuevoAb; oAct.estado_pago = nuevoEstado; }
+    actualizarResumenEditarOrden();
+  } catch(e) { $('eo-error-text').innerText = 'Error al registrar abono.'; $('eo-error').classList.remove('hidden'); }
+}
+
+async function guardarCambiosEditarOrden() {
+  const o = listaOrdenesDB.find(x => x.id === editandoOrdenId);
+  if (!o) { $('eo-error-text').innerText = 'Orden no encontrada.'; $('eo-error').classList.remove('hidden'); return; }
+  const cliente = $('eo-cliente').value;
+  const estado = $('eo-estado').value;
+  const fecha = $('eo-fecha-creacion').value;
+  const fechaEntrega = $('eo-fecha-entrega').value;
+  const concepto = $('eo-concepto').value.trim();
+  const notas = $('eo-notas').value.trim();
+  if (!concepto) { $('eo-error-text').innerText = 'El concepto es obligatorio.'; $('eo-error').classList.remove('hidden'); return; }
+  const total = editandoOrdenItems.reduce((a, it) => a + (it.cant || 0) * (it.precio || 0), 0);
+  const abonado = num(o.abonado);
+  const nuevoEstadoPago = abonado >= total - 0.01 ? 'Pagado' : (abonado > 0 ? 'Abonado' : 'Pendiente');
+  try {
+    const update = {
+      cliente, concepto, estado, precio: total, fecha, fechaEntrega, notas,
+      items: editandoOrdenItems, estado_pago: nuevoEstadoPago
+    };
+    if (estado !== o.estado) {
+      update.historial = firebase.firestore.FieldValue.arrayUnion({ estado, fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' });
+    }
+    await db.collection('ordenes').doc(editandoOrdenId).update(update);
+    mostrarNotificacion(`Orden ${o.numero} actualizada.`);
+    cerrarModalEditarOrden();
+  } catch(e) { console.error(e); $('eo-error-text').innerText = 'Error al guardar.'; $('eo-error').classList.remove('hidden'); }
+}
+
+// ================= VER DETALLE ORDEN =================
 function verDetalleOrden(ordenId) {
   const o = listaOrdenesDB.find(x => x.id === ordenId);
   if (!o) { mostrarNotificacion("Orden no encontrada.", "error"); return; }
   ordenActualDetalle = o;
   $('modal-ver-orden-titulo').innerHTML = `<i class="fa-solid fa-clipboard-check mr-2 text-[#b88a73]"></i> ${escapeHTML(o.numero || 'Orden')}`;
   const btnEditar = $('btn-editar-orden-modal');
-  if (btnEditar) { btnEditar.classList.remove('hidden'); btnEditar.onclick = () => { cerrarModalVerOrden(); editarOrden(o.id); }; }
+  if (btnEditar) { btnEditar.classList.remove('hidden'); btnEditar.onclick = () => { cerrarModalVerOrden(); abrirModalEditarOrden(o.id); }; }
   let hist = '';
   if (Array.isArray(o.historial) && o.historial.length) hist = o.historial.map(h => `<div class="flex justify-between text-[10px] py-1 border-b border-gray-100"><span class="font-semibold">${escapeHTML(h.estado)}</span><span class="text-gray-500">${escapeHTML(h.fecha)}</span></div>`).join('');
   else hist = '<p class="text-[10px] text-gray-400 italic">Sin historial.</p>';
@@ -2565,6 +2723,16 @@ function verDetalleOrden(ordenId) {
   const total = num(o.precio);
   const abonado = num(o.abonado);
   const restante = Math.max(0, total - abonado);
+
+  let itemsHTML = '';
+  if (Array.isArray(o.items) && o.items.length) {
+    itemsHTML = `<p class="text-[10px] font-bold uppercase text-gray-500 mb-1.5 mt-2"><i class="fa-solid fa-list mr-1"></i>Ítems</p><div class="space-y-1">`;
+    o.items.forEach(it => {
+      const sub = (it.cant || 0) * (it.precio || 0);
+      itemsHTML += `<div class="flex justify-between items-center bg-white px-2 py-1.5 rounded-lg border border-[#e8dbd3] text-[10px]"><div><span class="font-bold text-[#b88a73]">${it.cant}x</span> ${escapeHTML(it.desc || it.nombre)}</div><span class="font-bold">$${sub.toFixed(2)}</span></div>`;
+    });
+    itemsHTML += '</div>';
+  }
 
   let pagosHTML = '';
   if (Array.isArray(o.pagos) && o.pagos.length) {
@@ -2586,6 +2754,8 @@ function verDetalleOrden(ordenId) {
       <div class="flex justify-between"><span class="text-gray-500">Entrega:</span><span class="font-semibold">${escapeHTML(o.fechaEntrega||'-')}</span></div>
       ${o.notas ? `<div class="pt-1.5 border-t border-[#e8dbd3]"><span class="text-gray-500 block mb-0.5">Notas:</span><p class="text-[11px]">${escapeHTML(o.notas)}</p></div>` : ''}
     </div>
+
+    ${itemsHTML}
 
     ${esCotizacion ? `<div class="bg-emerald-50 p-3 rounded-xl border-2 border-emerald-200"><button onclick='aceptarCotizacionYProducto("${o.id}")' class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs transition"><i class="fa-solid fa-play mr-2"></i>Aceptar cotización y pasar a producción</button></div>` : ''}
 
@@ -2620,7 +2790,7 @@ function verDetalleOrden(ordenId) {
   $('modal-ver-orden').classList.remove('hidden');
 }
 
-function editarOrdenActualModal() { if (ordenActualDetalle) { cerrarModalVerOrden(); editarOrden(ordenActualDetalle.id); } }
+function editarOrdenActualModal() { if (ordenActualDetalle) { cerrarModalVerOrden(); abrirModalEditarOrden(ordenActualDetalle.id); } }
 
 async function cambiarEstadoOrdenDesdeModal(id, e) { await cambiarEstadoOrden(id, e); cerrarModalVerOrden(); }
 function cerrarModalVerOrden() { $('modal-ver-orden').classList.add('hidden'); ordenActualDetalle = null; }
@@ -3460,12 +3630,44 @@ function exportarReciboCajaPDF() {
   imprimirComoPDF(html, `Recibo_${cl}_${fecha.replace(/[\/:]/g,'-')}`);
 }
 
+// ============ PDF ORDEN CON TABLA DE ÍTEMS ============
 function exportarPDFOrdenActual() {
   if (!ordenActualDetalle) { mostrarNotificacion("No hay orden.", "error"); return; }
   const o = ordenActualDetalle;
   const fecha = new Date().toLocaleDateString();
   let hist = '';
   if (Array.isArray(o.historial) && o.historial.length) hist = o.historial.map(h => `<div style="display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid #f0ebe6;"><span style="font-weight:600;">${escapeHTML(h.estado)}</span><span style="color:#71717a;">${escapeHTML(h.fecha)}</span></div>`).join('');
+  
+  // Generar tabla de ítems si existen
+  let itemsTableHTML = '';
+  if (Array.isArray(o.items) && o.items.length > 0) {
+    let filas = '';
+    o.items.forEach(it => {
+      const sub = (it.cant || 0) * (it.precio || 0);
+      filas += `<tr style="border-bottom:1px solid #e8dbd3;">
+        <td style="padding:8px;font-size:11px;">${escapeHTML(it.desc || it.nombre || '')}</td>
+        <td style="padding:8px;font-size:11px;text-align:center;">${it.cant || 1}</td>
+        <td style="padding:8px;font-size:11px;text-align:right;">$${(it.precio || 0).toFixed(2)}</td>
+        <td style="padding:8px;font-size:11px;text-align:right;font-weight:bold;color:#b88a73;">$${sub.toFixed(2)}</td>
+      </tr>`;
+    });
+    itemsTableHTML = `
+    <div style="margin-bottom:20px;">
+      <p style="font-size:11px;font-weight:bold;color:#71717a;text-transform:uppercase;margin-bottom:8px;">Ítems de la orden</p>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:#f7f4f0;font-size:10px;text-transform:uppercase;color:#71717a;border-bottom:1px solid #e8dbd3;">
+            <th style="padding:8px;text-align:left;width:50%;">Descripción</th>
+            <th style="padding:8px;text-align:center;width:12%;">Cant</th>
+            <th style="padding:8px;text-align:right;width:19%;">P. Unit</th>
+            <th style="padding:8px;text-align:right;width:19%;">Total</th>
+          </tr>
+        </thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>`;
+  }
+  
   const html = `<div style="padding:20px;">
     <div style="display:flex;justify-content:space-between;border-bottom:2px solid #b88a73;padding-bottom:15px;margin-bottom:20px;">
       <div style="display:flex;align-items:center;gap:12px;">${getLogoHTML()}<div><h3 style="font-size:20px;font-weight:bold;margin:0;">LAN ESTUDIO</h3><p style="font-size:11px;color:#71717a;margin:0;">Orden de Trabajo</p></div></div>
@@ -3478,6 +3680,9 @@ function exportarPDFOrdenActual() {
       <div style="background:#faf8f6;padding:14px;border-radius:12px;border:1px solid #e8dbd3;"><b style="font-size:11px;color:#71717a;">Entrega:</b><p style="font-size:13px;font-weight:bold;margin:2px 0 0 0;">${escapeHTML(o.fechaEntrega||'-')}</p></div>
     </div>
     <div style="background:#faf8f6;padding:16px;border-radius:12px;border:1px solid #e8dbd3;margin-bottom:20px;"><b style="font-size:11px;color:#71717a;text-transform:uppercase;">Concepto:</b><p style="font-size:14px;font-weight:600;margin:6px 0 0 0;">${escapeHTML(o.concepto)}</p></div>
+    
+    ${itemsTableHTML}
+    
     ${o.notas ? `<div style="background:#fff8e7;padding:14px;border-radius:12px;border:1px solid #f0d9b5;margin-bottom:20px;font-size:12px;"><b>Notas:</b> ${escapeHTML(o.notas)}</div>` : ''}
     <div style="background:#faf8f6;padding:16px;border-radius:12px;border:1px solid #e8dbd3;margin-bottom:20px;"><b style="font-size:11px;color:#71717a;text-transform:uppercase;">Historial:</b><div style="margin-top:8px;">${hist}</div></div>
     <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #e8dbd3;padding-top:16px;">

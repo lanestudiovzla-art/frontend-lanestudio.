@@ -990,6 +990,34 @@ function calcularEstadoPago(orden) {
   if (abonado > 0) return 'Abonado';
   return 'Pendiente';
 }
+  // NUEVA FUNCIÓN: Sincroniza una orden pagada/entregada con el Dashboard
+async function sincronizarVentaDesdeOrden(orden) {
+  try {
+    // Verificamos si ya existe una venta registrada para esta orden
+    const ventasExistentes = await db.collection('ventas').where('ordenVinculada', '==', orden.id).get();
+    
+    if (ventasExistentes.empty) {
+      // Si no existe, creamos el registro en ventas
+      const totalAbonado = num(orden.abonado) > 0 ? num(orden.abonado) : num(orden.precio);
+      await db.collection('ventas').add({
+        fechaISO: new Date().toISOString(),
+        fecha: new Date().toLocaleDateString(),
+        cliente: orden.cliente || 'Cliente General',
+        concepto: orden.concepto || 'Orden ' + orden.numero,
+        total_usd: num(orden.precio),
+        abonado: totalAbonado,
+        estado_pago: 'Pagado',
+        metodos_pago: 'Cobro desde módulo Trabajos',
+        notas: 'Sincronizado automáticamente desde Trabajos',
+        ordenVinculada: orden.id,
+        usuario: usuarioActual ? usuarioActual.email : 'desconocido'
+      });
+      console.log("Venta sincronizada en Dashboard para la orden:", orden.numero);
+    }
+  } catch (e) {
+    console.error("Error al sincronizar venta:", e);
+  }
+}
 function getBadgePago(estado) {
   switch(estado) {
     case 'Pagado': return { cls:'bg-emerald-100 text-emerald-700 border-emerald-300', txt:'Pagado', icon:'fa-circle-check' };

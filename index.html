@@ -2705,10 +2705,11 @@ async function registrarAbonoDesdeEditarOrden() {
   const monto = num($('eo-abono-monto').value);
   const metodo = $('eo-abono-metodo').value;
   if (monto <= 0) { $('eo-error-text').innerText = 'Monto inválido.'; $('eo-error').classList.remove('hidden'); return; }
-  try {
+   try {
     const nuevoAb = num(o.abonado) + monto;
     const total = editandoOrdenItems.reduce((a, it) => a + (it.cant || 0) * (it.precio || 0), 0);
     const nuevoEstado = nuevoAb >= total - 0.01 ? 'Pagado' : 'Abonado';
+    
     await db.collection('ordenes').doc(editandoOrdenId).update({
       abonado: nuevoAb, estado_pago: nuevoEstado,
       pagos: firebase.firestore.FieldValue.arrayUnion({
@@ -2716,6 +2717,12 @@ async function registrarAbonoDesdeEditarOrden() {
         usuario: usuarioActual ? usuarioActual.email : 'desconocido'
       })
     });
+
+    // ⚡ NUEVA LÍNEA: Sincronizar con el Dashboard de Ventas si se completó el pago
+    if (nuevoEstado === 'Pagado') {
+        await sincronizarVentaDesdeOrden({ ...o, abonado: nuevoAb, estado_pago: nuevoEstado });
+    }
+
     mostrarNotificacion(`Abono registrado. Estado: ${nuevoEstado}`);
     $('eo-abono-monto').value = '';
     $('eo-error').classList.add('hidden');
@@ -2724,8 +2731,6 @@ async function registrarAbonoDesdeEditarOrden() {
     if (oAct) { oAct.abonado = nuevoAb; oAct.estado_pago = nuevoEstado; }
     actualizarResumenEditarOrden();
   } catch(e) { $('eo-error-text').innerText = 'Error al registrar abono.'; $('eo-error').classList.remove('hidden'); }
-}
-
 async function guardarCambiosEditarOrden() {
   const o = listaOrdenesDB.find(x => x.id === editandoOrdenId);
   if (!o) { $('eo-error-text').innerText = 'Orden no encontrada.'; $('eo-error').classList.remove('hidden'); return; }

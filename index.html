@@ -916,7 +916,7 @@ let ventasCache = [];
 let debounceVentasTimer = null;
 let chartVentasMes = null;
 let chartMetodosPago = null;
-let editandoOrdenItems = []; // Para el modal de edición
+let editandoOrdenItems = [];
 
 const HOJAS_ESTANDAR = [
   { id:'a4', nombre:'A4', ancho:21, alto:29.7 },
@@ -994,11 +994,9 @@ function calcularEstadoPago(orden) {
 // NUEVA FUNCIÓN: Sincroniza una orden pagada/entregada con el Dashboard
 async function sincronizarVentaDesdeOrden(orden) {
   try {
-    // Verificamos si ya existe una venta registrada para esta orden
     const ventasExistentes = await db.collection('ventas').where('ordenVinculada', '==', orden.id).get();
     
     if (ventasExistentes.empty) {
-      // Si no existe, creamos el registro en ventas
       const totalAbonado = num(orden.abonado) > 0 ? num(orden.abonado) : num(orden.precio);
       await db.collection('ventas').add({
         fechaISO: new Date().toISOString(),
@@ -1017,6 +1015,66 @@ async function sincronizarVentaDesdeOrden(orden) {
     }
   } catch (e) {
     console.error("Error al sincronizar venta:", e);
+  }
+}
+
+// ================= AUTO-REPARACIÓN DE DATOS AL INICIAR =================
+async function autoRepararVentasFaltantes() {
+  try {
+    // 1. Traer todas las órdenes
+    const snapOrdenes = await db.collection('ordenes').get();
+    let ordenesParaSincronizar = [];
+    
+    snapOrdenes.forEach(doc => {
+        const o = { id: doc.id, ...doc.data() };
+        const estadoPago = calcularEstadoPago(o);
+        // Si está pagada o entregada, es candidata
+        if (estadoPago === 'Pagado' || o.estado === 'Entregado') {
+            ordenesParaSincronizar.push(o);
+        }
+    });
+
+    if (ordenesParaSincronizar.length === 0) return;
+
+    // 2. Traer todas las ventas existentes para no duplicar
+    const snapVentas = await db.collection('ventas').get();
+    let ventasExistentes = [];
+    snapVentas.forEach(doc => {
+        if (doc.data().ordenVinculada) ventasExistentes.push(doc.data().ordenVinculada);
+    });
+
+    let creadas = 0;
+    
+    // 3. Procesar cada orden
+    for (const o of ordenesParaSincronizar) {
+        if (ventasExistentes.includes(o.id)) continue;
+
+        const totalAbonado = num(o.abonado) > 0 ? num(o.abonado) : num(o.precio);
+        
+        await db.collection('ventas').add({
+            fechaISO: o.fechaISO || new Date().toISOString(),
+            fecha: o.fecha || new Date().toLocaleDateString(),
+            cliente: o.cliente || 'Cliente General',
+            concepto: o.concepto || 'Orden ' + (o.numero || 'S/N'),
+            total_usd: num(o.precio),
+            abonado: totalAbonado,
+            estado_pago: 'Pagado',
+            metodos_pago: 'Sincronización Automática',
+            notas: 'Registro automático de orden ' + (o.numero || ''),
+            ordenVinculada: o.id,
+            usuario: usuarioActual ? usuarioActual.email : 'sistema'
+        });
+        creadas++;
+    }
+    
+    if (creadas > 0) {
+      console.log(`Se han sincronizado ${creadas} ventas faltantes.`);
+      if (!$('module-dashboard').classList.contains('hidden')) cargarDashboard();
+      if (!$('module-ventas').classList.contains('hidden')) cargarVentas();
+    }
+
+  } catch (error) {
+    console.error("Error en sincronización automática:", error);
   }
 }
 
@@ -2030,7 +2088,6 @@ async function guardarCotizacionEnKanban() {
   const concepto = itemsPresupuesto.map(i => `${i.cant}x ${i.nombre}`).join(' + ');
   try {
     const numero = await obtenerSiguienteNumeroOrden('COT');
-    // Nota interna simple. Las condiciones de pago y datos de Pago Móvil se muestran automáticamente en el PDF de la cotización.
     const notaInterna = `Válido por: ${validez}`;
     
     await db.collection('ordenes').add({
@@ -3863,6 +3920,9 @@ auth.onAuthStateChanged(async user => {
     const validTabs = ['dashboard','cotizador','trabajos','caja','ventas','admin'];
     if (validTabs.includes(hash)) switchTab(hash);
     else switchTab('dashboard');
+    
+    // 🚀 EJECUTAR AUTO-REPARACIÓN AL INICIAR
+    setTimeout(() => autoRepararVentasFaltantes(), 2000);
   } else {
     usuarioActual = null;
     usuarioRol = 'vendedor';

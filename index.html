@@ -2569,7 +2569,16 @@ async function cambiarEstadoOrden(id, ne) {
   const ok = await confirmarAccion('Cambiar estado', `¿Mover ${o.numero} de "${o.estado}" a "${ne}"?`, 'Confirmar', 'warning');
   if (!ok) return;
   try {
-    await db.collection('ordenes').doc(id).update({ estado: ne, historial: firebase.firestore.FieldValue.arrayUnion({ estado: ne, fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' }) });
+    await db.collection('ordenes').doc(id).update({ 
+      estado: ne, 
+      historial: firebase.firestore.FieldValue.arrayUnion({ estado: ne, fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' }) 
+    });
+    
+    // NUEVO: Sincronizar con Ventas si se entrega o paga
+    if (ne === 'Entregado' || calcularEstadoPago({...o, estado: ne}) === 'Pagado') {
+        await sincronizarVentaDesdeOrden({...o, estado: ne});
+    }
+
     mostrarNotificacion(`Movida a "${ne}"`);
   } catch(e) { mostrarNotificacion("Error.", "error"); }
 }

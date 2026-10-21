@@ -916,7 +916,7 @@ let ventasCache = [];
 let debounceVentasTimer = null;
 let chartVentasMes = null;
 let chartMetodosPago = null;
-let editandoOrdenItems = [];
+let editandoOrdenItems = []; // Para el modal de edición
 
 const HOJAS_ESTANDAR = [
   { id:'a4', nombre:'A4', ancho:21, alto:29.7 },
@@ -1015,66 +1015,6 @@ async function sincronizarVentaDesdeOrden(orden) {
     }
   } catch (e) {
     console.error("Error al sincronizar venta:", e);
-  }
-}
-
-// ================= AUTO-REPARACIÓN DE DATOS AL INICIAR =================
-async function autoRepararVentasFaltantes() {
-  try {
-    // 1. Traer todas las órdenes
-    const snapOrdenes = await db.collection('ordenes').get();
-    let ordenesParaSincronizar = [];
-    
-    snapOrdenes.forEach(doc => {
-        const o = { id: doc.id, ...doc.data() };
-        const estadoPago = calcularEstadoPago(o);
-        // Si está pagada o entregada, es candidata
-        if (estadoPago === 'Pagado' || o.estado === 'Entregado') {
-            ordenesParaSincronizar.push(o);
-        }
-    });
-
-    if (ordenesParaSincronizar.length === 0) return;
-
-    // 2. Traer todas las ventas existentes para no duplicar
-    const snapVentas = await db.collection('ventas').get();
-    let ventasExistentes = [];
-    snapVentas.forEach(doc => {
-        if (doc.data().ordenVinculada) ventasExistentes.push(doc.data().ordenVinculada);
-    });
-
-    let creadas = 0;
-    
-    // 3. Procesar cada orden
-    for (const o of ordenesParaSincronizar) {
-        if (ventasExistentes.includes(o.id)) continue;
-
-        const totalAbonado = num(o.abonado) > 0 ? num(o.abonado) : num(o.precio);
-        
-        await db.collection('ventas').add({
-            fechaISO: o.fechaISO || new Date().toISOString(),
-            fecha: o.fecha || new Date().toLocaleDateString(),
-            cliente: o.cliente || 'Cliente General',
-            concepto: o.concepto || 'Orden ' + (o.numero || 'S/N'),
-            total_usd: num(o.precio),
-            abonado: totalAbonado,
-            estado_pago: 'Pagado',
-            metodos_pago: 'Sincronización Automática',
-            notas: 'Registro automático de orden ' + (o.numero || ''),
-            ordenVinculada: o.id,
-            usuario: usuarioActual ? usuarioActual.email : 'sistema'
-        });
-        creadas++;
-    }
-    
-    if (creadas > 0) {
-      console.log(`Se han sincronizado ${creadas} ventas faltantes.`);
-      if (!$('module-dashboard').classList.contains('hidden')) cargarDashboard();
-      if (!$('module-ventas').classList.contains('hidden')) cargarVentas();
-    }
-
-  } catch (error) {
-    console.error("Error en sincronización automática:", error);
   }
 }
 
@@ -2050,7 +1990,18 @@ async function cobrarDesdeCotizador() {
   const concepto = itemsPresupuesto.map(i => `${i.cant}x ${i.nombre}`).join(' + ');
   const numero = await obtenerSiguienteNumeroOrden('COT');
   const totalUSD = itemsPresupuesto.reduce((a, it) => a + (it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100)), 0);
-  const itemsParaOrden = itemsPresupuesto.map(i => ({ desc: i.nombre, cant: i.cant, precio: i.precio !== null ? i.precio : i.cant * i.costo * (1 + i.ganancia/100) }));
+  
+  // CORRECCIÓN DEFINITIVA: Guardamos el precio UNITARIO, no el total.
+  const itemsParaOrden = itemsPresupuesto.map(i => {
+    const totalFila = i.precio !== null ? i.precio : i.cant * i.costo * (1 + i.ganancia/100);
+    const precioUnitario = totalFila / (i.cant || 1);
+    return { 
+      desc: i.nombre, 
+      cant: i.cant, 
+      precio: precioUnitario // Guardamos el unitario
+    };
+  });
+
   try {
     const doc = await db.collection('ordenes').add({
       numero, cliente, concepto, estado: 'Cotización',
@@ -2088,13 +2039,14 @@ async function guardarCotizacionEnKanban() {
   const totalUSD = itemsPresupuesto.reduce((a, it) => a + (it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100)), 0);
   const concepto = itemsPresupuesto.map(i => `${i.cant}x ${i.nombre}`).join(' + ');
   
-  // GUARDAMOS EL TOTAL DE LA FILA, no el unitario. Así evitamos problemas de redondeo.
+  // CORRECCIÓN DEFINITIVA: Guardamos el precio UNITARIO, no el total.
   const itemsParaOrden = itemsPresupuesto.map(i => {
     const totalFila = i.precio !== null ? i.precio : i.cant * i.costo * (1 + i.ganancia/100);
+    const precioUnitario = totalFila / (i.cant || 1);
     return { 
       desc: i.nombre, 
       cant: i.cant, 
-      precio: totalFila // Guardamos el total de la fila (ej. $32.58)
+      precio: precioUnitario // Guardamos el unitario
     };
   });
 
@@ -2119,6 +2071,7 @@ async function guardarCotizacionEnKanban() {
     switchTab('trabajos');
   } catch(e) { console.error(e); mostrarNotificacion("Error.", "error"); }
 }
+
 // ================= CAJA: VINCULACIÓN =================
 function poblarSelectorPendientes() {
   const sel = $('caja-pendiente-select');
@@ -2531,30 +2484,15 @@ async function aceptarCotizacionYProducto(id) {
   if (!ok) return;
   try {
     const nuevaOt = await obtenerSiguienteNumeroOrden('OT');
-    
-    // CORRECCIÓN: Aseguramos que al pasar de cotización a orden, los ítems mantengan el precio unitario.
-    const itemsCorregidos = (Array.isArray(o.items) ? o.items : []).map(it => {
-        let precioUnitario = it.precio || 0;
-        // Si el precio parece ser el total, lo dividimos entre la cantidad.
-        if (precioUnitario > 1000 && (it.cant || 1) > 0) {
-            precioUnitario = precioUnitario / (it.cant || 1);
-        }
-        return {
-            desc: it.desc || '',
-            cant: it.cant || 1,
-            precio: precioUnitario
-        };
-    });
-
     await db.collection('ordenes').doc(id).update({
       numero: nuevaOt,
       estado: 'Pendiente',
-      items: itemsCorregidos, // Guardamos los ítems corregidos
       historial: firebase.firestore.FieldValue.arrayUnion({ estado: 'Pendiente', fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' })
     });
     mostrarNotificacion(`¡Cotización aceptada! Nueva ${nuevaOt}.`);
   } catch(e) { mostrarNotificacion("Error.", "error"); }
 }
+
 async function cobrarRestanteAhora(ordenId) {
   const o = listaOrdenesDB.find(x => x.id === ordenId);
   if (!o) return;
@@ -2698,24 +2636,13 @@ function abrirModalEditarOrden(id) {
   if (!o) { mostrarNotificacion("Orden no encontrada.", "error"); return; }
   editandoOrdenId = id;
   
-  // AQUI ESTA LA SOLUCION: Convertimos el total guardado a precio unitario solo para mostrarlo
-  editandoOrdenItems = (Array.isArray(o.items) ? JSON.parse(JSON.stringify(o.items)) : []).map(it => {
-    const cant = it.cant || 1;
-    const totalGuardado = it.precio || 0;
-    
-    // Calculamos el precio unitario dividiendo el total entre la cantidad
-    let precioUnitario = totalGuardado / cant;
-    // Redondeamos a 2 decimales para evitar errores de punto flotante (ej. 0.4333333)
-    precioUnitario = Math.round(precioUnitario * 100) / 100;
-    
-    // Si el precio guardado era unitario (por ejemplo de órdenes viejas), lo mantenemos
-    // Detectamos esto si el total guardado es menor a 1000 (asumiendo que los totales grandes son sospechosos).
-    if (totalGuardado < 1000 && (it.precio_es_unitario === true)) {
-        precioUnitario = totalGuardado;
-    }
-
-    return { desc: it.desc || '', cant: cant, precio: precioUnitario };
-  });
+  // CORRECCIÓN: Los ítems guardados SIEMPRE tienen el precio UNITARIO.
+  // No necesitamos dividir ni adivinar.
+  editandoOrdenItems = (Array.isArray(o.items) ? JSON.parse(JSON.stringify(o.items)) : []).map(it => ({
+    desc: it.desc || '',
+    cant: it.cant || 1,
+    precio: it.precio || 0 // Este es el precio UNITARIO correcto.
+  }));
   
   $('modal-editar-orden-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square mr-2 text-[#b88a73]"></i>Editar ${escapeHTML(o.numero || 'Orden')}`;
   
@@ -2849,15 +2776,12 @@ async function guardarCambiosEditarOrden() {
   const abonado = num(o.abonado);
   const nuevoEstadoPago = abonado >= total - 0.01 ? 'Pagado' : (abonado > 0 ? 'Abonado' : 'Pendiente');
   
-  // Al guardar, multiplicamos el precio unitario de vuelta por la cantidad para guardar el total de la fila.
-  const itemsParaGuardar = editandoOrdenItems.map(it => {
-      const totalFila = (it.cant || 1) * (it.precio || 0);
-      return {
-          desc: it.desc || '',
-          cant: it.cant || 1,
-          precio: totalFila // Guardamos el total de la fila
-      };
-  });
+  // CORRECCIÓN: Guardamos el precio UNITARIO en la base de datos.
+  const itemsParaGuardar = editandoOrdenItems.map(it => ({
+      desc: it.desc || '',
+      cant: it.cant || 1,
+      precio: it.precio || 0 // Guardamos el unitario, NO el total.
+  }));
 
   try {
     const update = {
@@ -2872,6 +2796,7 @@ async function guardarCambiosEditarOrden() {
     cerrarModalEditarOrden();
   } catch(e) { console.error(e); $('eo-error-text').innerText = 'Error al guardar.'; $('eo-error').classList.remove('hidden'); }
 }
+
 // ================= VER DETALLE ORDEN =================
 function verDetalleOrden(ordenId) {
   const o = listaOrdenesDB.find(x => x.id === ordenId);

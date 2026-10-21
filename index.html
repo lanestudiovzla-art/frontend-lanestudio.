@@ -2849,12 +2849,15 @@ async function guardarCambiosEditarOrden() {
   const abonado = num(o.abonado);
   const nuevoEstadoPago = abonado >= total - 0.01 ? 'Pagado' : (abonado > 0 ? 'Abonado' : 'Pendiente');
   
-  // Aseguramos que se guarde el precio UNITARIO real
-  const itemsParaGuardar = editandoOrdenItems.map(it => ({
-      desc: it.desc || '',
-      cant: it.cant || 1,
-      precio: it.precio || 0
-  }));
+  // Al guardar, multiplicamos el precio unitario de vuelta por la cantidad para guardar el total de la fila.
+  const itemsParaGuardar = editandoOrdenItems.map(it => {
+      const totalFila = (it.cant || 1) * (it.precio || 0);
+      return {
+          desc: it.desc || '',
+          cant: it.cant || 1,
+          precio: totalFila // Guardamos el total de la fila
+      };
+  });
 
   try {
     const update = {

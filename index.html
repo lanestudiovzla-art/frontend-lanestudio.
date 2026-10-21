@@ -2699,21 +2699,19 @@ function abrirModalEditarOrden(id) {
   if (!o) { mostrarNotificacion("Orden no encontrada.", "error"); return; }
   editandoOrdenId = id;
   
-  // CORRECCIÓN: Aseguramos que los ítems tengan precio unitario.
-  // Si un ítem viejo tiene el precio total, lo dividimos entre la cantidad para corregirlo.
+  // AQUI ARREGLAMOS LOS DATOS VIEJOS: 
+  // Si un ítem ya se guardó con el total ($10.49) en lugar del unitario ($2.62), lo detectamos y lo dividimos.
   editandoOrdenItems = (Array.isArray(o.items) ? JSON.parse(JSON.stringify(o.items)) : []).map(it => {
     let precioUnitario = it.precio || 0;
-    // Si el precio es mayor a lo que debería ser (ej. es el total), lo corregimos.
-    // Esta es una heurística: si el precio unitario * cantidad no da el total esperado, asumimos que es el total.
     const cant = it.cant || 1;
-    // Si el precio unitario guardado es igual al total de la orden, es probable que sea un error.
-    // Pero la forma más segura es simplemente dividir si el precio es sospechosamente alto.
-    // Para ser precisos, usaremos el precio tal cual si es menor a 1000 (asumiendo unitario), o lo dividiremos si es muy alto.
-    // Sin embargo, la mejor solución es asegurar que siempre se guarde unitario.
-    // Forzamos a que el precio sea unitario dividiendo si el ítem tiene un precio muy alto.
-    if (precioUnitario > 1000 && cant > 0) {
+    
+    // Si el precio guardado es igual al precio total de la orden, es un error viejo. Lo dividimos.
+    // Esta validación asegura que siempre veamos el precio unitario real.
+    const totalEsperado = it.cant * it.precio;
+    if (Math.abs(totalEsperado - o.precio) < 0.01 || precioUnitario > 1000) {
         precioUnitario = precioUnitario / cant;
     }
+    
     return { desc: it.desc || '', cant: cant, precio: precioUnitario };
   });
   

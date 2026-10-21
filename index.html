@@ -2698,19 +2698,22 @@ function abrirModalEditarOrden(id) {
   if (!o) { mostrarNotificacion("Orden no encontrada.", "error"); return; }
   editandoOrdenId = id;
   
-  // AQUI ARREGLAMOS LOS DATOS VIEJOS: 
-  // Si un ítem ya se guardó con el total ($10.49) en lugar del unitario ($2.62), lo detectamos y lo dividimos.
+  // AQUI ESTA LA SOLUCION: Convertimos el total guardado a precio unitario solo para mostrarlo
   editandoOrdenItems = (Array.isArray(o.items) ? JSON.parse(JSON.stringify(o.items)) : []).map(it => {
-    let precioUnitario = it.precio || 0;
     const cant = it.cant || 1;
+    const totalGuardado = it.precio || 0;
     
-    // Si el precio guardado es igual al precio total de la orden, es un error viejo. Lo dividimos.
-    // Esta validación asegura que siempre veamos el precio unitario real.
-    const totalEsperado = it.cant * it.precio;
-    if (Math.abs(totalEsperado - o.precio) < 0.01 || precioUnitario > 1000) {
-        precioUnitario = precioUnitario / cant;
+    // Calculamos el precio unitario dividiendo el total entre la cantidad
+    let precioUnitario = totalGuardado / cant;
+    // Redondeamos a 2 decimales para evitar errores de punto flotante (ej. 0.4333333)
+    precioUnitario = Math.round(precioUnitario * 100) / 100;
+    
+    // Si el precio guardado era unitario (por ejemplo de órdenes viejas), lo mantenemos
+    // Detectamos esto si el total guardado es menor a 1000 (asumiendo que los totales grandes son sospechosos).
+    if (totalGuardado < 1000 && (it.precio_es_unitario === true)) {
+        precioUnitario = totalGuardado;
     }
-    
+
     return { desc: it.desc || '', cant: cant, precio: precioUnitario };
   });
   

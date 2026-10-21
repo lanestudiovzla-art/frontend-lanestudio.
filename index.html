@@ -2817,13 +2817,24 @@ async function guardarCambiosEditarOrden() {
   const concepto = $('eo-concepto').value.trim();
   const notas = $('eo-notas').value.trim();
   if (!concepto) { $('eo-error-text').innerText = 'El concepto es obligatorio.'; $('eo-error').classList.remove('hidden'); return; }
+  
+  // CORRECCIÓN: Guardamos el precio UNITARIO en la base de datos.
+  // La cantidad y el precio unitario son lo que se guarda. El total se calcula al mostrarlo.
   const total = editandoOrdenItems.reduce((a, it) => a + (it.cant || 0) * (it.precio || 0), 0);
   const abonado = num(o.abonado);
   const nuevoEstadoPago = abonado >= total - 0.01 ? 'Pagado' : (abonado > 0 ? 'Abonado' : 'Pendiente');
+  
+  // Aseguramos que los ítems guarden el precio unitario, no el total.
+  const itemsParaGuardar = editandoOrdenItems.map(it => ({
+      desc: it.desc || '',
+      cant: it.cant || 1,
+      precio: it.precio || 0 // Este es el precio UNITARIO, no el total.
+  }));
+
   try {
     const update = {
       cliente, concepto, estado, precio: total, fecha, fechaEntrega, notas,
-      items: editandoOrdenItems, estado_pago: nuevoEstadoPago
+      items: itemsParaGuardar, estado_pago: nuevoEstadoPago
     };
     if (estado !== o.estado) {
       update.historial = firebase.firestore.FieldValue.arrayUnion({ estado, fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' });

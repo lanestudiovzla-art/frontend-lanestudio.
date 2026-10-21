@@ -2520,15 +2520,30 @@ async function aceptarCotizacionYProducto(id) {
   if (!ok) return;
   try {
     const nuevaOt = await obtenerSiguienteNumeroOrden('OT');
+    
+    // CORRECCIÓN: Aseguramos que al pasar de cotización a orden, los ítems mantengan el precio unitario.
+    const itemsCorregidos = (Array.isArray(o.items) ? o.items : []).map(it => {
+        let precioUnitario = it.precio || 0;
+        // Si el precio parece ser el total, lo dividimos entre la cantidad.
+        if (precioUnitario > 1000 && (it.cant || 1) > 0) {
+            precioUnitario = precioUnitario / (it.cant || 1);
+        }
+        return {
+            desc: it.desc || '',
+            cant: it.cant || 1,
+            precio: precioUnitario
+        };
+    });
+
     await db.collection('ordenes').doc(id).update({
       numero: nuevaOt,
       estado: 'Pendiente',
+      items: itemsCorregidos, // Guardamos los ítems corregidos
       historial: firebase.firestore.FieldValue.arrayUnion({ estado: 'Pendiente', fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' })
     });
     mostrarNotificacion(`¡Cotización aceptada! Nueva ${nuevaOt}.`);
   } catch(e) { mostrarNotificacion("Error.", "error"); }
 }
-
 async function cobrarRestanteAhora(ordenId) {
   const o = listaOrdenesDB.find(x => x.id === ordenId);
   if (!o) return;

@@ -2843,17 +2843,15 @@ async function guardarCambiosEditarOrden() {
   const notas = $('eo-notas').value.trim();
   if (!concepto) { $('eo-error-text').innerText = 'El concepto es obligatorio.'; $('eo-error').classList.remove('hidden'); return; }
   
-  // CORRECCIÓN: Guardamos el precio UNITARIO en la base de datos.
-  // La cantidad y el precio unitario son lo que se guarda. El total se calcula al mostrarlo.
   const total = editandoOrdenItems.reduce((a, it) => a + (it.cant || 0) * (it.precio || 0), 0);
   const abonado = num(o.abonado);
   const nuevoEstadoPago = abonado >= total - 0.01 ? 'Pagado' : (abonado > 0 ? 'Abonado' : 'Pendiente');
   
-  // Aseguramos que los ítems guarden el precio unitario, no el total.
+  // Aseguramos que se guarde el precio UNITARIO real
   const itemsParaGuardar = editandoOrdenItems.map(it => ({
       desc: it.desc || '',
       cant: it.cant || 1,
-      precio: it.precio || 0 // Este es el precio UNITARIO, no el total.
+      precio: it.precio || 0
   }));
 
   try {
@@ -2869,7 +2867,6 @@ async function guardarCambiosEditarOrden() {
     cerrarModalEditarOrden();
   } catch(e) { console.error(e); $('eo-error-text').innerText = 'Error al guardar.'; $('eo-error').classList.remove('hidden'); }
 }
-
 // ================= VER DETALLE ORDEN =================
 function verDetalleOrden(ordenId) {
   const o = listaOrdenesDB.find(x => x.id === ordenId);

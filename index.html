@@ -2084,8 +2084,21 @@ async function guardarCotizacionEnKanban() {
   const cliente = $('presupuesto-cliente').value;
   const validez = $('presupuesto-validez').value || '7 días hábiles';
   if (itemsPresupuesto.length === 0) { mostrarNotificacion("El presupuesto está vacío.", "error"); return; }
+  
   const totalUSD = itemsPresupuesto.reduce((a, it) => a + (it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100)), 0);
   const concepto = itemsPresupuesto.map(i => `${i.cant}x ${i.nombre}`).join(' + ');
+  
+  // LA MAGIA ESTÁ AQUÍ: Calculamos el precio unitario real para guardarlo en la BD
+  const itemsParaOrden = itemsPresupuesto.map(i => {
+    const precioTotalFila = i.precio !== null ? i.precio : i.cant * i.costo * (1 + i.ganancia/100);
+    const precioUnitario = precioTotalFila / i.cant; // Dividimos entre la cantidad
+    return { 
+      desc: i.nombre, 
+      cant: i.cant, 
+      precio: precioUnitario // Guardamos el unitario ($2.62), NO el total ($10.49)
+    };
+  });
+
   try {
     const numero = await obtenerSiguienteNumeroOrden('COT');
     const notaInterna = `Válido por: ${validez}`;
@@ -2094,7 +2107,7 @@ async function guardarCotizacionEnKanban() {
       numero, cliente, concepto, estado: 'Cotización',
       precio: totalUSD, abonado: 0, estado_pago: 'Pendiente',
       fecha: new Date().toLocaleDateString(), fechaEntrega: '', notas: notaInterna,
-      items: itemsPresupuesto.map(i => ({ desc: i.nombre, cant: i.cant, precio: i.precio !== null ? i.precio : i.cant * i.costo * (1 + i.ganancia/100) })),
+      items: itemsParaOrden,
       fechaISO: new Date().toISOString(),
       usuario: usuarioActual ? usuarioActual.email : 'desconocido',
       historial: [{ estado: 'Cotización', fecha: new Date().toLocaleString(), usuario: usuarioActual ? usuarioActual.email : 'desconocido' }],
@@ -2107,7 +2120,6 @@ async function guardarCotizacionEnKanban() {
     switchTab('trabajos');
   } catch(e) { console.error(e); mostrarNotificacion("Error.", "error"); }
 }
-
 // ================= CAJA: VINCULACIÓN =================
 function poblarSelectorPendientes() {
   const sel = $('caja-pendiente-select');

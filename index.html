@@ -2088,14 +2088,13 @@ async function guardarCotizacionEnKanban() {
   const totalUSD = itemsPresupuesto.reduce((a, it) => a + (it.precio !== null ? it.precio : it.cant * it.costo * (1 + it.ganancia/100)), 0);
   const concepto = itemsPresupuesto.map(i => `${i.cant}x ${i.nombre}`).join(' + ');
   
-  // LA MAGIA ESTÁ AQUÍ: Calculamos el precio unitario real para guardarlo en la BD
+  // GUARDAMOS EL TOTAL DE LA FILA, no el unitario. Así evitamos problemas de redondeo.
   const itemsParaOrden = itemsPresupuesto.map(i => {
-    const precioTotalFila = i.precio !== null ? i.precio : i.cant * i.costo * (1 + i.ganancia/100);
-    const precioUnitario = precioTotalFila / i.cant; // Dividimos entre la cantidad
+    const totalFila = i.precio !== null ? i.precio : i.cant * i.costo * (1 + i.ganancia/100);
     return { 
       desc: i.nombre, 
       cant: i.cant, 
-      precio: precioUnitario // Guardamos el unitario ($2.62), NO el total ($10.49)
+      precio: totalFila // Guardamos el total de la fila (ej. $32.58)
     };
   });
 

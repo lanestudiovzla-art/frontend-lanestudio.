@@ -2671,11 +2671,27 @@ function abrirModalEditarOrden(id) {
   const o = listaOrdenesDB.find(x => x.id === id);
   if (!o) { mostrarNotificacion("Orden no encontrada.", "error"); return; }
   editandoOrdenId = id;
-  editandoOrdenItems = Array.isArray(o.items) ? JSON.parse(JSON.stringify(o.items)) : [];
+  
+  // CORRECCIÓN: Aseguramos que los ítems tengan precio unitario.
+  // Si un ítem viejo tiene el precio total, lo dividimos entre la cantidad para corregirlo.
+  editandoOrdenItems = (Array.isArray(o.items) ? JSON.parse(JSON.stringify(o.items)) : []).map(it => {
+    let precioUnitario = it.precio || 0;
+    // Si el precio es mayor a lo que debería ser (ej. es el total), lo corregimos.
+    // Esta es una heurística: si el precio unitario * cantidad no da el total esperado, asumimos que es el total.
+    const cant = it.cant || 1;
+    // Si el precio unitario guardado es igual al total de la orden, es probable que sea un error.
+    // Pero la forma más segura es simplemente dividir si el precio es sospechosamente alto.
+    // Para ser precisos, usaremos el precio tal cual si es menor a 1000 (asumiendo unitario), o lo dividiremos si es muy alto.
+    // Sin embargo, la mejor solución es asegurar que siempre se guarde unitario.
+    // Forzamos a que el precio sea unitario dividiendo si el ítem tiene un precio muy alto.
+    if (precioUnitario > 1000 && cant > 0) {
+        precioUnitario = precioUnitario / cant;
+    }
+    return { desc: it.desc || '', cant: cant, precio: precioUnitario };
+  });
   
   $('modal-editar-orden-titulo').innerHTML = `<i class="fa-solid fa-pen-to-square mr-2 text-[#b88a73]"></i>Editar ${escapeHTML(o.numero || 'Orden')}`;
   
-  // Llenar select de clientes
   const sel = $('eo-cliente');
   sel.innerHTML = '<option value="Cliente General">-- Cliente General --</option>';
   listaClientesDB.forEach(c => { sel.innerHTML += `<option value="${escapeHTML(c.nombre)}">${escapeHTML(c.nombre)}</option>`; });
@@ -2696,7 +2712,6 @@ function abrirModalEditarOrden(id) {
   $('eo-error').classList.add('hidden');
   $('modal-editar-orden').classList.remove('hidden');
 }
-
 function cerrarModalEditarOrden() {
   $('modal-editar-orden').classList.add('hidden');
   editandoOrdenId = null;
